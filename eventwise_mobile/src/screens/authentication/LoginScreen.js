@@ -1,7 +1,7 @@
 import { View, Text, Button } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import FormTextField from "../components/TextInput";
+import FormTextField from "../../components/TextInput";
 import axios from "axios";
 import { Platform } from "react-native";
 

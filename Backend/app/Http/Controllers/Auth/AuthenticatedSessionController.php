@@ -5,34 +5,74 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\LoginRequest;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UserStoreRequest;
+
 
 class AuthenticatedSessionController extends Controller
-{
-    public function customLogin(Request $request)
+{   
+    public function __construct(){
+        $this->model = new User();
+    }
+    public function loginAccount(LoginRequest $request)
     {
-        // Validate the request data
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
 
-        // Attempt to log the user in
-        if (Auth::attempt($validated)) {
-            $user = Auth::user();
-
-            // Generate a token for the user (if using Laravel Sanctum or Passport)
-            $token = $user->createToken('authToken')->plainTextToken;
-
-            // Check the user role and return appropriate response
-            if ($user->role_id == 0) {
-                return response()->json(['message' => 'Dashboard', 'token' => $token, 'user' => $user], 200);
-            } elseif ($user->role_id == 1) {
-                return response()->json(['message' => 'Admin Dashboard', 'token' => $token, 'user' => $user], 200);
-            } elseif ($user->role_id == 2) {
-                return response()->json(['message' => 'Super Admin Dashboard', 'token' => $token, 'user' => $user], 200);
+        try {
+            $user = User::where('email', $request->email)->first();
+            
+            $user1 = $request->user();
+            if(!$user || !Hash::check($request->password, $user->password)){
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials are incorrect.'],
+                ]);
             }
-        } else {
-            return response()->json(['message' => 'Wrong credentials'], 401);
+
+          
+            return response()->json([
+                'message' => 'Login Successful',
+                'user' => $user,
+                'role' => $user->role_id,
+                'token' => $user->createToken('authToken')->plainTextToken
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['message' => $th->getMessage()], 500);
         }
     }
+    public function accountUpdate(UpdateUserRequest $request, User $user)
+    {
+        try {
+            $userDetails = $user->find($request->user()->user_id);
+
+            if (! $userDetails) {
+                return response(["message" => "User not found"], 404);
+            }
+
+            $userDetails->update($request->validated());
+
+            return response(["message" => "User Successfully Updated"], 200);
+        } catch (\Throwable $th) {
+            return response(["message" => $th->getMessage()], 400);
+        }
+    }
+
+    public function signupAccount(UserStoreRequest $request){
+        try {
+            $createUser = $this->model->create($request->all());
+            if (!$createUser) {
+                return response(["message" => "User not created"], 500);
+            }
+            return response(["message" => "User Successfully Created"], 200);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response(["message" => $th->getMessage()], 500);
+
+        }
+    }
+
+   
 }
