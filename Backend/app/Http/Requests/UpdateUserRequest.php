@@ -20,7 +20,7 @@ class UpdateUserRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     // test
-    // testing
+    // testing lang for github rule
     public function rules(): array
     {
         return [
