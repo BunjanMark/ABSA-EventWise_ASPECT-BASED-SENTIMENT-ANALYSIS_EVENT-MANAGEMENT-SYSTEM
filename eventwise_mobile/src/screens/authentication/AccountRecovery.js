@@ -5,7 +5,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { Provider as PaperProvider, Text, Button } from "react-native-paper";
-import { FormStyle } from "../customerScreens/Styles/FormStyle";
+import { FormStyle } from "../../components/customerScreens/Styles/FormStyle";
 import {
   widthPercentageToDP,
   heightPercentageToDP,
