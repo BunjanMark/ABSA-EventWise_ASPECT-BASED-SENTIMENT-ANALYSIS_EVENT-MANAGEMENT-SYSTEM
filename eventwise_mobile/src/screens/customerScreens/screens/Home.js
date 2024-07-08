@@ -15,7 +15,10 @@ const Home = () => {
   const navigation = useNavigation();
 
   return (
-    <ImageBackground style={styles.background}>
+    <View style={{ flex: 1 }}>
+    <ImageBackground
+      source={require("../pictures/bg.png")}
+    >
       <Header />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.profileContainer}>
@@ -24,7 +27,10 @@ const Home = () => {
             <Text style={styles.nameText}>Your Name</Text>
             <Text style={styles.roleText}>Event Organizer</Text>
           </View>
-          <Image source={{ uri: 'https://d41chssnpqdne.cloudfront.net/user_upload_by_module/chat_bot/files/26045656/iNNunLcDKlvfIDbG.png' }} style={styles.profileImage} />
+          <Image
+            source={{ uri: "https://d41chssnpqdne.cloudfront.net/user_upload_by_module/chat_bot/files/26045656/iNNunLcDKlvfIDbG.png" }}
+            style={styles.profileImage}
+          />
         </View>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Get Ready*Discover the World</Text>
@@ -69,16 +75,13 @@ const Home = () => {
         </TouchableOpacity>
       </ScrollView>
     </ImageBackground>
+  </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
-  },
-  background: {
-    backgroundColor: "black",
-    flexGrow: 1,
   },
   profileContainer: {
     flexDirection: "row",

@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 15,
     zIndex: 1,
-    marginTop: -28
+    marginTop: -20
   },
   backButton: {
     position: "absolute",

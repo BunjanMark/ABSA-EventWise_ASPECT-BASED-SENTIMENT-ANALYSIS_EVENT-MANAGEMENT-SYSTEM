@@ -8,15 +8,17 @@ import {
   Image,
   ImageBackground,
   onChangeSearch,
-  searchQuery,
+  searchQuery
 } from "react-native";
 import { Searchbar } from "react-native-paper";
 import Header from "../elements/Header";
 
-
 const Event = () => {
   return (
-    <ImageBackground style={styles.background}>
+    <ImageBackground
+      source={require("../pictures/bg.png")}
+      style={styles.backgroundImage}
+    >
       <Header />
       <ScrollView contentContainerStyle={styles.container}>
         <Searchbar
@@ -29,30 +31,17 @@ const Event = () => {
       </ScrollView>
     </ImageBackground>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
   },
-  background: {
-    backgroundColor: "black",
-    flexGrow: 1,
+  backgroundImage: {
+    flex: 1,
   },
-  logoutButton: {
-    backgroundColor: "white",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    alignItems: "center",
-    borderRadius: 20,
-    marginTop: 500,
-    margin: 100,
-    position: "relative",
-  },
-  logoutButtonText: {
-    color: "black",
-    fontSize: 18,
-    fontWeight: "bold",
+  searchBar: {
+    marginVertical: 20,
   },
 });
 
