@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const ConvoView = ({ route }) => {
-  const navigation = useNavigation();
+  const navigator = useNavigation();
   const { contact } = route.params;
 
   const [messages, setMessages] = useState([
@@ -40,7 +40,7 @@ const ConvoView = ({ route }) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.goBackButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => navigator.goBack()}
           >
             <Icon name="arrow-left" size={20} color="#fff" />
           </TouchableOpacity>

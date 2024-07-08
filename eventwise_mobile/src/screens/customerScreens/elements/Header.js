@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import DropdownMenu from "./DropdownMenu";
+import SidebarMenu from "./SidebarMenu";
+import { useNavigation } from "@react-navigation/native";
 
 const CustomHeader = ({ onBackPress, showBackButton }) => {
+  const navigator = useNavigation();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const toggleDropdown = () => {
@@ -22,14 +24,19 @@ const CustomHeader = ({ onBackPress, showBackButton }) => {
       <TouchableOpacity onPress={toggleDropdown} style={styles.dropdownButton}>
         <Icon name="menu" size={24} color="white" />
       </TouchableOpacity>
-      {showDropdown && <DropdownMenu onClose={() => setShowDropdown(false)} />}
+      {showDropdown && <SidebarMenu onClose={() => setShowDropdown(false)} />}
       <Image
         source={require("../pictures/logo1.png")} 
         style={styles.logo}
         resizeMode="contain"
       />
       <View style={styles.rightIcons}>       
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity 
+          onPress={() => {
+            navigator.navigate("InboxView");
+          }}
+          style={styles.iconButton}
+        >
           <Icon name="message" size={24} color="white" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton}>

@@ -1,19 +1,22 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-const DropdownMenu = ({ onClose }) => {
+const SidebarMenu = ({ onClose }) => {
   const navigation = useNavigation();
 
-  const handlePress = (TabNav) => {
+  const handlePress = (screen) => {
     onClose();
-    navigation.navigate(TabNav);
+    navigation.navigate(screen);
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+   <View style={{ flex: 1 }}>
+    <ImageBackground
+      source={require("../pictures/bg.png")}
+    >      
+     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
         <Icon name="close" size={24} color="#fff" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.option} onPress={() => handlePress("Profile")}>
@@ -46,18 +49,12 @@ const DropdownMenu = ({ onClose }) => {
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
       </View>
+      </ImageBackground>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#333",
-    padding: 20,
-    borderRadius: 8,
-    zIndex: 1000,
-  },
   closeButton: {
     alignSelf: "flex-end",
     padding: 10,
@@ -103,4 +100,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DropdownMenu;
+export default SidebarMenu;

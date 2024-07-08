@@ -15,12 +15,12 @@ const contacts = [
 ];
 
 const SelectContactView = () => {
-  const navigation = useNavigation();
+  const navigator = useNavigation();
 
   const renderContact = ({ item }) => (
     <TouchableOpacity 
       style={styles.contactContainer} 
-      onPress={() => navigation.navigate('ConversationView', { contact: item })}
+      onPress={() => navigator.navigate('ConvoView', { contact: item })}
     >
       <Text style={styles.contactName}>{item.name}</Text>
     </TouchableOpacity>
@@ -28,7 +28,7 @@ const SelectContactView = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
+      <TouchableOpacity style={styles.goBackButton} onPress={() => navigator.goBack()}>
         <Icon name="arrow-left" size={20} color="black" />
       </TouchableOpacity>
       <Text style={styles.title}>Select Contact</Text>

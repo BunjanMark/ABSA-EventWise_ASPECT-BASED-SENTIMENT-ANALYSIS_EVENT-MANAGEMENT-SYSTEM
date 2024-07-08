@@ -15,12 +15,12 @@ const conversations = [
 ];
 
 const InboxView = () => {
-  const navigation = useNavigation();
+  const navigator = useNavigation();
 
   const renderConversation = ({ item }) => (
     <TouchableOpacity 
       style={styles.contactContainer} 
-      onPress={() => navigation.navigate('ConversationView', { contact: item })}
+      onPress={() => navigator.navigate('ConvoView', { contact: item })}
     >
       <Text style={styles.contactName}>{item.name}</Text>
       <Text style={styles.contactMessage}>{item.lastMessage}</Text>
@@ -30,7 +30,7 @@ const InboxView = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
+      <TouchableOpacity style={styles.goBackButton} onPress={() => navigator.goBack()}>
         <Icon name="arrow-left" size={20} color="black" />
       </TouchableOpacity>
       <Text style={styles.title}>Notifications</Text>
@@ -48,7 +48,7 @@ const InboxView = () => {
       />
       <TouchableOpacity 
         style={styles.newMessageButton} 
-        onPress={() => navigation.navigate('SelectContactView')}
+        onPress={() => navigator.navigate('SelectContactView')}
       >
         <Icon name="plus" size={20} color="#fff" />
         <Text style={styles.newMessageButtonText}>Create New Message</Text>
