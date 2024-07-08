@@ -2,19 +2,18 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import register from "./components/authentication/register";
-import login from "./components/authentication/login";
-import AccountRecovery from "./components/authentication/AccountRecovery";
-import landing from "./components/authentication/landing";
+import Register from "./src/components/authentication/Register";
+import Login from "./src/components/authentication/Login";
+import AccountRecovery from "./src/components/authentication/AccountRecovery";
+import Landing from "./src/components/authentication/Landing";
 
-import GuestLanding from "./components/authentication/GuestLanding";
+import GuestLanding from "./src/components/authentication/GuestLanding";
 
-import Screen from "./components/screens/Screen";
-import BookEvent from "./components/screens/BookEvent";  
-import EventDetails from "./components/screens/EventDetails";
-import InboxView from "./components/screens/InboxView";
-import ConversationView from "./components/screens/ConversationView";
-import SelectContactView from "./components/screens/SelectContactView";
+import TabNav from "./src/components/customerScreens/tabNavigation/TabNav";
+
+import InboxView from "./src/components/customerScreens/screens/message/InboxView"; 
+import ConvoView from "./src/components/customerScreens/screens/message/ConvoView";
+import SelectContactView from "./src/components/customerScreens/screens/message/SelectContactView";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,8 +22,8 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
-            name="landing"
-            component={landing}
+            name="Landing"
+            component={Landing}
             options={{ headerShown: false }}
           />
           <Stack.Screen
@@ -33,14 +32,14 @@ const App = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="login"
-            component={login}
+            name="Login"
+            component={Login}
             options={{ headerShown: false }}
           />
 
           <Stack.Screen
-            name="register"
-            component={register}
+            name="Register"
+            component={Register}
             options={{ headerShown: false }}
           />
           <Stack.Screen
@@ -48,12 +47,12 @@ const App = () => {
             component={AccountRecovery}
             options={{ headerShown: false }}
           />
-          {/* <Stack.Screen
-            name="Screen"
-            component={Screen}
+          <Stack.Screen
+            name="TabNav"
+            component={TabNav}
             options={{ headerShown: false }}
           />
-          <Stack.Screen
+          {/* <Stack.Screen
             name="BookEvent"
             component={BookEvent}
             options={{ headerShown: false }}
@@ -62,22 +61,22 @@ const App = () => {
             name="EventDetails"
             component={EventDetails}
             options={{ headerShown: false }}
-          />
+          /> */}
            <Stack.Screen
             name="InboxView"
             component={InboxView}
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="ConversationView"
-            component={ConversationView}
+            name="ConvoView"
+            component={ConvoView}
             options={{ headerShown: false }}
           />
           <Stack.Screen
             name="SelectContactView"
             component={SelectContactView}
             options={{ headerShown: false }}
-          /> */}
+          />
         </Stack.Navigator>
       </NavigationContainer>
   );

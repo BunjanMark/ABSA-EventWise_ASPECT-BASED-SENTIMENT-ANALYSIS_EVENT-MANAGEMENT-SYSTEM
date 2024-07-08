@@ -7,17 +7,17 @@ import {
   heightPercentageToDP,
 } from "react-native-responsive-screen";
 
-const landing = () => {
+const Landing = () => {
   const navigator = useNavigation();
 
   return (
     <ImageBackground
-      source={require("../pictures/backg.png")}
+      source={require("../customerScreens/pictures/landingbg.png")}
       style={styles.backgroundImage}
     >
       <SafeAreaView style={styles.container}>
-      <Image
-          source={require("../pictures/logo1.png")}
+        <Image
+          source={require("../customerScreens/pictures/logo1.png")}
           style={{
             ...styles.logo,
             width: 200,
@@ -26,51 +26,29 @@ const landing = () => {
           resizeMode="contain"
         />
         <SafeAreaView style={styles.welcome}>
-        <Text
-          variant="headlineMedium"
-          style={{
-            fontSize: widthPercentageToDP("6%"), 
-            color: "white",
-            marginBottom: heightPercentageToDP("1%"), 
-            fontWeight: "bold",
-          }}
-        >
-          WELCOME
-        </Text>
-        <Text
-          variant="headlineMedium"
-          style={{
-            fontSize: widthPercentageToDP("6%"), 
-            color: "white",
-            marginBottom: heightPercentageToDP("1%"), 
-            fontWeight: "bold",
-          }}
-        >
-          TO
-        </Text>
-        <Text
-          variant="headlineMedium"
-          style={{
-            fontSize: widthPercentageToDP("6%"), 
-            color: "#FFC42B",
-            marginBottom: heightPercentageToDP("1%"), 
-            fontWeight: "bold",
-          }}
-        >
-          EVENT <Text style={{color: "white", fontWeight: "bold",}}>WISE</Text>
-        </Text>
+          <Text
+            variant="headlineMedium"
+            style={{
+              fontSize: widthPercentageToDP("9%"),
+              color: "#A97E00",
+              marginBottom: heightPercentageToDP("1%"),
+              fontWeight: "bold",
+              fontFamily: "Roboto",
+            }}
+          >
+            WELCOME
+          </Text>
         </SafeAreaView>
 
         <SafeAreaView style={styles.buttonContainer}>
           <Button
             mode="contained"
             onPress={() => {
-              navigator.navigate("LoginScreen");
+              navigator.navigate("Login");
             }}
             style={{
-              backgroundColor: "black",
-              borderColor: "white",
-              borderWidth: "2",
+              backgroundColor: "#CEB64C",
+              borderWidth: 2,
               width: widthPercentageToDP("70%"),
               height: heightPercentageToDP("6%"),
             }}
@@ -79,8 +57,37 @@ const landing = () => {
               justifyContent: "center",
               alignItems: "center",
             }}
+            labelStyle={{
+              fontSize: widthPercentageToDP("4%"),
+              fontFamily: "Roboto",
+              fontWeight: "bold",
+            }}
           >
-            GET STARTED
+            Log In
+          </Button>
+          <Button
+            mode="contained"
+            onPress={() => {
+              navigator.navigate("Register");
+            }}
+            style={{
+              backgroundColor: "#61481C",
+              borderWidth: 2,
+              width: widthPercentageToDP("70%"),
+              height: heightPercentageToDP("6%"),
+            }}
+            contentStyle={{
+              flexDirection: "row-reverse",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            labelStyle={{
+              fontSize: widthPercentageToDP("4%"),
+              fontFamily: "Roboto",
+              fontWeight: "bold",
+            }}
+          >
+            Register
           </Button>
         </SafeAreaView>
       </SafeAreaView>
@@ -97,22 +104,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     alignItems: "center",
-    paddingBottom: heightPercentageToDP("15%"), 
+    paddingBottom: heightPercentageToDP("15%"),
   },
   logo: {
     position: "absolute",
-    top: heightPercentageToDP("20%"), 
+    top: heightPercentageToDP("20%"),
   },
   welcome: {
-    bottom: 200,
+    bottom: 450,
     flexDirection: "column",
     alignItems: "center",
   },
   buttonContainer: {
-    bottom: 200,
+    bottom: 170,
     flexDirection: "column",
-    gap: heightPercentageToDP("4%"), 
+    gap: heightPercentageToDP("4%"),
   },
 });
 
-export default landing;
+export default Landing;

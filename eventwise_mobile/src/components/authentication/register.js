@@ -6,7 +6,7 @@ import Toast from "react-native-root-toast";
 import { widthPercentageToDP, heightPercentageToDP } from "react-native-responsive-screen";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const register = () => {
+const Register = () => {
   const navigator = useNavigation();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -81,7 +81,7 @@ const register = () => {
   };
 
   return (
-    <ImageBackground source={require("../pictures/backg.png")} style={styles.backgroundImage}>
+    <ImageBackground source={require("../customerScreens/pictures/signupbg.png")} style={styles.backgroundImage}>
       <SafeAreaView style={styles.container}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : null}
@@ -89,7 +89,7 @@ const register = () => {
           keyboardVerticalOffset={Platform.OS === "ios" ? 0 : heightPercentageToDP("10%")}
         >
           <ScrollView contentContainerStyle={styles.formContainer}>
-            <Text style={styles.headerText}>REGISTER</Text>
+            <Text style={styles.headerText}>Registration Form</Text>
             <PaperProvider>
               <View style={[styles.inputContainer, { backgroundColor: '#fff', borderRadius: 5, margin: 30, width: widthPercentageToDP("80%"), alignItems: "center", position: 'relative', zIndex: 1 }]}>
                 <Menu
@@ -100,7 +100,7 @@ const register = () => {
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                       <View style={[styles.menuStyle, { backgroundColor: '#FFC42B', padding: 1, borderRadius: 30, marginBottom: 5, marginTop: 5, margin: 18, zIndex: 999 }]}>
                         <Text style={{ color: "black", fontWeight: "bold", textAlign: "center", margin: 14 }}>
-                          {selectedRole ?? 'Please Select Role: '}
+                          {selectedRole ?? 'Please Select User Role '}
                         </Text>
                       </View>
                       <Icon name="arrow-down-drop-circle-outline" size={30} color="black" style={{ marginLeft: 10 }} onPress={openMenu} />
@@ -243,7 +243,7 @@ const register = () => {
                     labelStyle={{ color: "#FFC42B" }}
                     loading={loading}
                     disabled={loading}
-                    onPress={() => navigator.navigate("LoginScreen")}
+                    onPress={() => navigator.navigate("Login")}
                   >
                     Login Now
                   </Button>
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     marginTop: heightPercentageToDP("5%"),
-    color: "#FFC42B",
+    color: "#A97E00",
     fontWeight: "bold",
     fontSize: widthPercentageToDP("10%"),
   },
@@ -296,4 +296,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default register;
+export default Register;

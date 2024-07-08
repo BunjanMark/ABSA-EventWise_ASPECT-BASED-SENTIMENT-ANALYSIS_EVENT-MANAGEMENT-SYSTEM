@@ -5,7 +5,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { Provider as PaperProvider, Text, Button } from "react-native-paper";
-import { FormStyle } from "../Styles/FormStyle";
+import { FormStyle } from "../customerScreens/Styles/FormStyle";
 import {
   widthPercentageToDP,
   heightPercentageToDP,
@@ -66,24 +66,24 @@ const AccountRecovery = () => {
   return (
     <PaperProvider>
       <ImageBackground
-        source={require("../pictures/backg.png")}
+        source={require("../customerScreens/pictures/forgotbg.png")}
         style={styles.backgroundImage}
       >
         <SafeAreaView style={FormStyle.formContainer}>
             <Text
               variant="headlineLarge"
               style={{
-                top: 160,
+                top: 250,
                 fontWeight: "bold",
                 fontSize: widthPercentageToDP("8%"),
-                color: "#FFC42B"
+                color: "#A97E00"
               }}
             >
-              ACCOUNT RECOVERY
+              FORGOT PASSWORD
             </Text>
             <TextInput
-              style={{ ...styles.inputStyle, borderRadius: 10 }}
-              mode="outlined"
+              style={{ ...styles.inputStyle }}
+              mode="contained-tonal"
               label="Email"
               placeholder="Enter your email"
               inputMode="email"
@@ -92,27 +92,27 @@ const AccountRecovery = () => {
               onChangeText={(text) => setEmail(text)}
               theme={{
                 colors: {
-                  primary: "#FFC42B",
-                  text: "#000",
-                  placeholder: "#FFC42B",
+                  primary: "#fff",
+                  text: "#fff",
+                  placeholder: "#fff",
                   background: "#fff",
                 },
               }}
-              left={<TextInput.Icon icon={() => <CustomIcon name="email" size={24} color="black" />} />}
+              left={<TextInput.Icon icon={() => <CustomIcon name="email" size={24} color="white" />} />}
             />
             <Button
               loading={loading}
               disabled={loading}
-              style={{ ...styles.buttonStyle, backgroundColor: "#FFC42B" }}
+              style={{ ...styles.buttonStyle, backgroundColor: "#CEB64C" }}
               mode="contained-tonal"
               onPress={handleSendCode}
-              labelStyle={{ color: "black", fontWeight: "bold" }}
+              labelStyle={{ color: "white", fontWeight: "bold" }}
               >
-              Send Code
+              Send 
             </Button>
             <Button
               style={{ ...styles.goback }}
-              labelStyle={{ color: "#FFC42B" }}
+              labelStyle={{ color: "#A97E00" }}
               onPress={() => {
                 navigator.goBack();
               }}
@@ -133,7 +133,10 @@ const styles = StyleSheet.create({
   inputStyle: {
     width: widthPercentageToDP("80%"),
     marginBottom: heightPercentageToDP("20%"),
-    marginTop: "50%"
+    marginTop: "70%",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 2,
+    borderColor: "#C2B067",
   },
   buttonStyle: {
     marginBottom: 130,
@@ -147,7 +150,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     alignItems: "center",
-    paddingBottom: heightPercentageToDP("8%"),
   },
 });
 

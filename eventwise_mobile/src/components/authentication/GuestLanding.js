@@ -12,12 +12,12 @@ const GuestLanding = () => {
 
   return (
     <ImageBackground
-      source={require("../pictures/backg.png")}
+      source={require("../customerScreens/pictures/landingbg.png")}
       style={styles.backgroundImage}
     >
       <SafeAreaView style={styles.container}>
       <Image
-          source={require("../pictures/logo1.png")}
+          source={require("../customerScreens/pictures/logo1.png")}
           style={{
             ...styles.logo,
             width: 200,

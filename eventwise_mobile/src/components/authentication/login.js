@@ -5,7 +5,6 @@ import {
   ImageBackground,
   StyleSheet,
   Platform,
-  Image,
   View,
 } from "react-native";
 import {
@@ -13,7 +12,7 @@ import {
   Provider as PaperProvider,
   TextInput,
   Text,
-} from "react-native-paper"
+} from "react-native-paper";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -23,7 +22,7 @@ import {
 import { useState } from "react";
 import Toast from "react-native-root-toast";
 
-const login = () => {
+const Login = () => {
   const navigator = useNavigation();
 
   const [HideEntry, setHideEntry] = useState(true);
@@ -35,7 +34,7 @@ const login = () => {
   const CustomIcon = ({ name, size, color }) => {
     return <Icon name={name} size={size} color={color} />;
   };
-  
+
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
   };
@@ -60,11 +59,11 @@ const login = () => {
       if (result.message != null) {
         showToast(result?.message);
       } else {
-        navigator.navigate("Screen");
+        navigator.navigate("Tabs");
       }
 
       if (result.message === "User Logged in Successfully") {
-        navigator.navigate("Screen");
+        navigator.navigate("Tabs");
       } else {
         return false;
       }
@@ -83,7 +82,7 @@ const login = () => {
   return (
     <PaperProvider>
       <ImageBackground
-        source={require("../pictures/backg.png")}
+        source={require("../customerScreens/pictures/loginbg.png")}
         style={styles.backgroundImage}
       >
         <SafeAreaView style={styles.container}>
@@ -94,27 +93,18 @@ const login = () => {
               Platform.OS === "ios" ? 0 : heightPercentageToDP("15%")
             }
           >
-            <Image
-              source={require("../pictures/logo1.png")}
-              style={{
-                ...styles.logo,
-                width: 200,
-                height: 300,
-              }}
-              resizeMode="contain"
-            />
             <SafeAreaView style={styles.welcome}>
               <Text
                 variant="headlineMedium"
                 style={{
-                  fontSize: widthPercentageToDP("6%"),
-                  color: "#FFC42B",
+                  fontSize: widthPercentageToDP("9%"),
+                  color: "#A97E00",
                   marginBottom: heightPercentageToDP("1%"),
                   fontWeight: "bold",
+                  fontFamily: "Roboto",
                 }}
               >
-                EVENT{" "}
-                <Text style={{ color: "white", fontWeight: "bold" }}>WISE</Text>
+                Login
               </Text>
             </SafeAreaView>
 
@@ -123,7 +113,7 @@ const login = () => {
             >
               <TextInput
                 style={styles.inputStyle}
-                mode="outlined"
+                mode="contained-tonal"
                 label="Username"
                 placeholder="Enter your username"
                 inputMode="username"
@@ -134,15 +124,16 @@ const login = () => {
                 }}
                 theme={{
                   colors: {
-                    primary: "#FFC42B",
-                    text: "#FFC42B",
-                    placeholder: "#FFC42B",
+                    primary: "#fff",
+                    text: "#fff",
+                    placeholder: "#fff",
+                    label: "#fff",
                   },
                 }}
-                left={<TextInput.Icon icon={() => <CustomIcon name="account" size={24} color="black" />} />}
+                left={<TextInput.Icon icon={() => <CustomIcon name="account" size={24} color="white" />} />}
               />
               <TextInput
-                mode="outlined"
+                mode="contained-tonal"
                 style={styles.inputStyle}
                 label="Password"
                 placeholder="Enter your password"
@@ -152,41 +143,46 @@ const login = () => {
                 right={
                   <TextInput.Icon
                     onPress={toggleSecureEntry}
-                    icon={!HideEntry ? "eye" : "eye-off"}
+                    icon={() => (
+                      <CustomIcon
+                        name={!HideEntry ? "eye" : "eye-off"}
+                        size={24}
+                        color="white"
+                      />
+                    )}
                   />
                 }
                 theme={{
                   colors: {
-                    primary: "#FFC42B",
-                    text: "#FFC42B",
-                    placeholder: "#FFC42B",
+                    primary: "#fff",
+                    text: "#fff",
+                    placeholder: "#fff",
+                    label: "#fff",
                   },
                 }}
-                left={<TextInput.Icon icon={() => <CustomIcon name="lock" size={24} color="black" />} />}
+                left={<TextInput.Icon icon={() => <CustomIcon name="lock" size={24} color="white" />} />}
               />
               <View style={styles.forgotPasswordContainer}>
                 <Text style={{ color: "white" }}>Forgot Password? </Text>
                 <Button
-                  labelStyle={{ color: "#FFC42B" }}
+                  labelStyle={{ color: "#A97E00" }}
                   onPress={() => {
-                    navigator.navigate("AccountRecoveryScreen");
+                    navigator.navigate("AccountRecovery");
                   }}
                 >
                   Recover
                 </Button>
               </View>
               <Button
-                style={{ ...styles.buttonStyle, backgroundColor: "#FFC42B" }}
-                mode="contained-tonal"
-                // onPress={handleLogin}
+                style={{ ...styles.buttonStyle, backgroundColor: "#CEB64C" }}
                 onPress={() => {
-                  navigator.navigate("Screen");
+                  navigator.navigate("TabNav");
                 }}
                 loading={loading}
                 disabled={loading}
-                labelStyle={{ color: "black", fontWeight: "bold" }}
+                labelStyle={{ color: "white", fontWeight: "bold", fontSize: widthPercentageToDP("4%") }}
               >
-                Login
+                Log In
               </Button>
 
               <SafeAreaView
@@ -197,12 +193,12 @@ const login = () => {
                   marginTop: -30,
                 }}
               >
-                <Text style={{ color: "white" }}>Don't have an account yet? </Text>
+                <Text style={{ color: "white" }}>Not a member? </Text>
                 <Button
                   mode="text"
-                  labelStyle={{ color: "#FFC42B" }}
+                  labelStyle={{ color: "#A97E00" }}
                   onPress={() => {
-                    navigator.navigate("RegisterScreen");
+                    navigator.navigate("Register");
                   }}
                   loading={loading}
                   disabled={loading}
@@ -210,6 +206,17 @@ const login = () => {
                   Register Now
                 </Button>
               </SafeAreaView>
+              <View>
+                <Button
+                  style={{ ...styles.goback }}
+                  labelStyle={{ color: "#A97E00" }}
+                  onPress={() => {
+                    navigator.goBack();
+                  }}
+                >
+                  Go Back
+                </Button>
+              </View>
             </SafeAreaView>
           </KeyboardAvoidingView>
         </SafeAreaView>
@@ -246,13 +253,17 @@ const styles = StyleSheet.create({
   },
   inputStyle: {
     width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
+    marginBottom: heightPercentageToDP("3%"),
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 2,
+    borderColor: "#C2B067",
   },
   buttonStyle: {
-    width: widthPercentageToDP("80%"),
+    width: widthPercentageToDP("50%"),
     height: heightPercentageToDP("6%"),
     marginBottom: heightPercentageToDP("5%"),
     marginTop: heightPercentageToDP("-10%"),
+    alignSelf: "center",
   },
   forgotPasswordContainer: {
     flexDirection: "row",
@@ -263,4 +274,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default login;
+export default Login;
