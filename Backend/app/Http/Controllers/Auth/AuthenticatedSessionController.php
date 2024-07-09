@@ -43,10 +43,17 @@ class AuthenticatedSessionController extends Controller
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
+
+    // When testing api - be sure to include auth in the header and pass the token generated after login
     public function accountUpdate(UpdateUserRequest $request, User $user)
-    {
+    {   
+        \Log::info('Authenticated User:', ['id' => $request->user()->id]);
+        \Log::info('Target User:', ['id' => $user->id]);
+        
+
+        
         try {
-            $userDetails = $user->find($request->user()->user_id);
+            $userDetails = $user->find($request->user()->id);
 
             if (! $userDetails) {
                 return response(["message" => "User not found"], 404);
@@ -54,7 +61,9 @@ class AuthenticatedSessionController extends Controller
 
             $userDetails->update($request->validated());
 
-            return response(["message" => "User Successfully Updated"], 200);
+            return response([
+            "message" => "User Successfully Updated",
+            "user" => $userDetails], 200);
         } catch (\Throwable $th) {
             return response(["message" => $th->getMessage()], 400);
         }
@@ -72,6 +81,10 @@ class AuthenticatedSessionController extends Controller
             return response(["message" => $th->getMessage()], 500);
 
         }
+    }
+
+    public function accountRecovery(Request $request){
+        
     }
 
    
