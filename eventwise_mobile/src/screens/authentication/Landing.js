@@ -17,7 +17,7 @@ const Landing = () => {
     >
       <SafeAreaView style={styles.container}>
         <Image
-          source={require("../customerScreens/pictures/logo1.png")}
+          source={require("../customerScreens/pictures/logo.png")}
           style={{
             ...styles.logo,
             width: 200,
