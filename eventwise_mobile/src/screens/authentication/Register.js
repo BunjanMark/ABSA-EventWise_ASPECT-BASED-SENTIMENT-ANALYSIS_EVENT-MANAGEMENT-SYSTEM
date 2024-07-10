@@ -25,7 +25,7 @@ const Register = () => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [gender, setGender] = useState("");
   const [validID, setvalidID] = useState("");
-  const [termsAccepted, setTermsgitAccepted] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [photoSource, setPhotoSource] = useState(null);
   const [photoVisible, setPhotoVisible] = useState(false);
 
