@@ -6,7 +6,7 @@ import Toast from "react-native-root-toast";
 import { widthPercentageToDP, heightPercentageToDP } from "react-native-responsive-screen";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 
 const Register = () => {
   const navigator = useNavigation();
@@ -24,10 +24,9 @@ const Register = () => {
   const [date, setDate] = useState(new Date());
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [gender, setGender] = useState("");
-  const [validID, setvalidID] = useState("");
+  const [validID, setvalidID] = useState(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [photoSource, setPhotoSource] = useState(null);
-  const [photoVisible, setPhotoVisible] = useState(false);
+  const [image, setImage] = React.useState(null);
 
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);
@@ -44,10 +43,6 @@ const Register = () => {
 
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, { duration: Toast.durations.LONG });
-  };
-
-  const CustomIcon = ({ name, size, color }) => {
-    return <Icon name={name} size={size} color={color} />;
   };
 
   const handleRegistration = async () => {
@@ -102,47 +97,19 @@ const Register = () => {
     setDatePickerVisibility(false);
   };
 
-  const selectPhotoOption = () => {
-    setPhotoVisible(true);
-  };
-  const closePhoto = () => {
-    setPhotoVisible(false);
-  };
-
-  const selectPhotoFromLibrary = () => {
-    const options = {
-      mediaType: "photo",
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
       quality: 1,
-    };
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log("User cancelled image picker");
-      } else if (response.errorCode) {
-        console.log("ImagePicker Error: ", response.errorCode);
-      } else {
-        setValidID(response.assets[0].uri);
-        setPhotoSource("gallery");
-        setPhotoVisible(false);
-      }
     });
-  };
-
-  const takePhoto = () => {
-    const options = {
-      mediaType: "photo",
-      quality: 1,
-    };
-    launchCamera(options, (response) => {
-      if (response.didCancel) {
-        console.log("User cancelled camera picker");
-      } else if (response.errorCode) {
-        console.log("ImagePicker Error: ", response.errorCode);
-      } else {
-        setValidID(response.assets[0].uri);
-        setPhotoSource("camera");
-        setPhotoVisible(false);
-      }
-    });
+  
+    console.log(result);
+  
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
   };
 
   return (
@@ -160,7 +127,7 @@ const Register = () => {
                 <Menu
                   visible={visible}
                   onDismiss={closeMenu}
-                  contentStyle={{ backgroundColor: '#000', zIndex: 999, alignItems: "center" }}
+                  contentStyle={{ backgroundColor: 'white', zIndex: 999, alignItems: "center" }}
                   anchor={
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                       <View style={[styles.menuStyle, { backgroundColor: '#C2B067', padding: 1, borderRadius: 30, marginBottom: 5, marginTop: 5, margin: 18, zIndex: 999 }]}>
@@ -171,7 +138,7 @@ const Register = () => {
                       <Icon name="arrow-down-bold-circle" size={40} color="white" style={{ marginLeft: 10 }} onPress={openMenu} />
                     </View>
                   }
-                  style={{ position: 'absolute', zIndex: 999, top: 85, left: 90 }}
+                  style={{ position: 'absolute', zIndex: 999, top: 85, left: 90,}}
                 >
                   <Menu.Item title="PLEASE SELECT" />
                   <Menu.Item onPress={() => handleRoleChange('SERVICE PROVIDER')} title="SERVICE PROVIDER" />
@@ -295,20 +262,11 @@ const Register = () => {
                 theme={{ colors: { primary: "#fff", text: "#fff", placeholder: "#fff", background: "#fff" }}}
               />
 
-
-<View style={styles.photoContainer}>
-                  <Button onPress={selectPhotoOption}>
-                    {validID ? "Change Photo" : "Upload Photo"}
-                  </Button>
-                  <Menu
-                    visible={photoVisible}
-                    onDismiss={closePhoto}
-                    anchor={<Button>{validID ? "Change Photo" : "Upload Photo"}</Button>}
-                  >
-                    <Menu.Item onPress={selectPhotoFromLibrary} title="From Gallery" />
-                    <Menu.Item onPress={takePhoto} title="Take Photo" />
-                  </Menu>
-                </View>
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: "white" }}>
+                <Text style={{ color: "black" }}>Upload Valid ID Photo</Text>
+                <Button title="Pick an image from camera roll" onPress={pickImage} />
+                {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+              </View>
 
               <View style={styles.checkboxContainer}>
               <View style={styles.checkboxWrapper}>
@@ -392,10 +350,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: widthPercentageToDP("80%"),
   },
-  dropdownText: {
-    color: "black",
-    fontWeight: "bold",
-  },
   genderContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -456,8 +410,18 @@ const styles = StyleSheet.create({
     borderColor: "#FFC42B",
   },
   photoContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+  },
+  uploadText: {
+    color: '#A97E00',
+    fontSize: 18,
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginTop: 20,
   },
   checkboxContainer: {
     flexDirection: "row",
