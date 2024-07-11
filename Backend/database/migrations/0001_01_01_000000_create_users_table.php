@@ -21,6 +21,12 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
+        Schema::create("roles", function (Blueprint $table) {
+            $table->bigIncrements("role_id");
+            $table->string("role_name");
+            $table->string("role_slug");
+            $table->timestamps();
+        });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
@@ -36,6 +42,7 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
     }
 
     /**
@@ -46,5 +53,6 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists("roles");
     }
 };
