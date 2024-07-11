@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { SafeAreaView, ImageBackground, StyleSheet, Platform, KeyboardAvoidingView, ScrollView, View, TouchableOpacity } from "react-native";
-import { Text, Button, TextInput, Menu, Divider, Provider as PaperProvider } from "react-native-paper";
+import { SafeAreaView, ImageBackground, StyleSheet, Platform, KeyboardAvoidingView, ScrollView, View, TouchableOpacity, Image } from "react-native";
+import { Text, Button, TextInput, Menu, Divider, Provider as PaperProvider, Checkbox, } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-root-toast";
 import { widthPercentageToDP, heightPercentageToDP } from "react-native-responsive-screen";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import * as ImagePicker from 'expo-image-picker';
 
 const Register = () => {
   const navigator = useNavigation();
@@ -15,38 +17,38 @@ const Register = () => {
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [HideEntry, setHideEntry] = useState(true);
-  const [role, setRole] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [visible, setVisible] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [gender, setGender] = useState("");
+  const [validID, setvalidID] = useState(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [image, setImage] = React.useState(null);
+
+  const toggleSecureEntry = () => {
+    setHideEntry(!HideEntry);
+  };
 
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
 
-  const handleRoleChange = (value) => {
-    setSelectedRole(value);
-    setRole(value);
+  const handleRoleChange = (role) => {
+    setSelectedRole(role);
     closeMenu();
-  };
-
-  const toggleSecureEntry = () => {
-    setHideEntry(!HideEntry);
   };
 
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, { duration: Toast.durations.LONG });
   };
 
-  const CustomIcon = ({ name, size, color }) => {
-    return <Icon name={name} size={size} color={color} />;
-  };
-
   const handleRegistration = async () => {
     try {
       setLoading(true);
 
-      if (username === "" || email === "" || password === "" || phoneNumber === "" || role === "") {
-        showToast("Please input required data");
+      if (username === "" || email === "" || password === "" || phoneNumber === "" || role === "" || !termsAccepted) {
+        showToast("Please input required data and accept terms and conditions");
         setIsError(true);
         return;
       }
@@ -63,20 +65,48 @@ const Register = () => {
         password,
         role,
         phoneNumber,
+        validID,      
       };
 
-      const result = await fetchServices.postData(url, data);
+      const result = await fetch("apiurl", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
 
-      if (result.message != null) {
-        showToast(result?.message);
+      const resultJson = await result.json();
+      if (resultJson.message != null) {
+        showToast(resultJson?.message);
       } else {
-        navigator.navigate("HomeScreen");
+        navigator.navigate("Login");
       }
     } catch (e) {
       console.error(e.toString());
       showToast("An error occurred");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDateConfirm = (date) => {
+    setDate(date);
+    setDatePickerVisibility(false);
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  
+    console.log(result);
+  
+    if (!result.cancelled) {
+      setImage(result.uri);
     }
   };
 
@@ -91,147 +121,192 @@ const Register = () => {
           <ScrollView contentContainerStyle={styles.formContainer}>
             <Text style={styles.headerText}>Registration Form</Text>
             <PaperProvider>
-              <View style={[styles.inputContainer, { backgroundColor: '#fff', borderRadius: 5, margin: 30, width: widthPercentageToDP("80%"), alignItems: "center", position: 'relative', zIndex: 1 }]}>
+              <View style={[styles.inputContainer, { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 2, borderColor: "#C2B067", borderRadius: 5, margin: 30, width: widthPercentageToDP("80%"), alignItems: "center", mode: "contained-tonal" }]}>
                 <Menu
                   visible={visible}
                   onDismiss={closeMenu}
-                  contentStyle={{ backgroundColor: '#fff', zIndex: 999 }}
+                  contentStyle={styles.menuContent}
                   anchor={
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
-                      <View style={[styles.menuStyle, { backgroundColor: '#FFC42B', padding: 1, borderRadius: 30, marginBottom: 5, marginTop: 5, margin: 18, zIndex: 999 }]}>
-                        <Text style={{ color: "black", fontWeight: "bold", textAlign: "center", margin: 14 }}>
-                          {selectedRole ?? 'Please Select User Role '}
+                      <View style={[styles.menuStyle, { backgroundColor: '#C2B067', padding: 1, borderRadius: 30, marginBottom: 5, marginTop: 5, margin: 18, zIndex: 999 }]}>
+                        <Text style={{ color: "white", fontWeight: "bold", textAlign: "center", margin: 10 }}>
+                          {selectedRole ?? 'User Role: '}
                         </Text>
                       </View>
-                      <Icon name="arrow-down-drop-circle-outline" size={30} color="black" style={{ marginLeft: 10 }} onPress={openMenu} />
+                      <Icon name="arrow-down-bold-circle" size={40} color="white" style={{ marginLeft: 10 }} onPress={openMenu} />
                     </View>
                   }
-                  style={{ position: 'absolute', zIndex: 999, top: 85, left: 95 }}
+                  style={{ position: 'absolute', zIndex: 999, top: 85, left: 90,}}
                 >
-                  <Menu.Item onPress={() => handleRoleChange('EVENT ORGANIZER')} title="EVENT ORGANIZER" />
-                  <Divider />
-                  <Menu.Item onPress={() => handleRoleChange('PARTICIPANT')} title="PARTICIPANT" />
+                  <View style={styles.menuItemContainer}>
+                    <Text style={styles.menuTitle}>PLEASE SELECT</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={[styles.menuItemButton, selectedRole === 'SERVICE PROVIDER' && styles.selectedMenuItemButton]}
+                    onPress={() => handleRoleChange('SERVICE PROVIDER')}
+                  >
+                    <Text style={styles.menuItemText}>SERVICE PROVIDER</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.menuItemButton, selectedRole === 'CUSTOMER' && styles.selectedMenuItemButton]}
+                    onPress={() => handleRoleChange('CUSTOMER')}
+                  >
+                    <Text style={styles.menuItemText}>CUSTOMER</Text>
+                  </TouchableOpacity>
                 </Menu>
               </View>
+              <View style={[styles.inputStyleContainer, { borderRadius: 5, margin: 30, width: widthPercentageToDP("80%"), alignItems: "center", marginTop: -15 }]}>
+              <TextInput
+                style={styles.inputStyle}
+                mode="contained-tonal"
+                label="Username"
+                placeholder="Enter your username"
+                error={isError}
+                value={username}
+                onChangeText={(text) => setUsername(text)}
+                theme={{
+                  colors: { primary: "#fff", text: "#fff", placeholder: "#fff", background: "#fff" }
+                }}
+                left={<TextInput.Icon icon={() => <Icon name="account" size={24} color="#fff" />} />}
+              />
 
-              <View style={{ alignItems: "center" }}>
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="outlined"
-                  label="Username"
-                  placeholder="Enter your username"
-                  error={isError}
-                  value={username}
-                  onChangeText={(text) => setUsername(text)}
-                  theme={{
-                    colors: {
-                      primary: "#FFC42B",
-                      text: "#000",
-                      placeholder: "#FFC42B",
-                      background: "#fff",
-                    },
-                  }}
-                  left={<TextInput.Icon icon={() => <CustomIcon name="account" size={24} color="black" />} />}
-                />
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="outlined"
-                  label="Email"
-                  placeholder="Enter your email"
-                  inputMode="email"
-                  value={email}
-                  error={isError}
-                  onChangeText={(text) => setEmail(text)}
-                  theme={{
-                    colors: {
-                      primary: "#FFC42B",
-                      text: "#000",
-                      placeholder: "#FFC42B",
-                      background: "#fff",
-                    },
-                  }}
-                  left={<TextInput.Icon icon={() => <CustomIcon name="email" size={24} color="black" />} />}
-                />
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="outlined"
-                  label="Phone number"
-                  placeholder="Enter your phone number"
-                  value={phoneNumber}
-                  error={isError}
-                  onChangeText={(text) => setPhoneNumber(text)}
-                  theme={{
-                    colors: {
-                      primary: "#FFC42B",
-                      text: "#000",
-                      placeholder: "#FFC42B",
-                      background: "#fff",
-                    },
-                  }}
-                  left={<TextInput.Icon icon={() => <CustomIcon name="phone" size={24} color="black" />} />}
-                />
-                <TextInput
-                  mode="outlined"
-                  style={styles.inputStyle}
-                  label="Password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChangeText={(text) => setPassword(text)}
-                  secureTextEntry={HideEntry}
-                  error={isError}
-                  right={
-                    <TextInput.Icon
-                      onPress={toggleSecureEntry}
-                      icon={!HideEntry ? "eye" : "eye-off"}
-                    />
-                  }
-                  theme={{
-                    colors: {
-                      primary: "#FFC42B",
-                      text: "#000",
-                      placeholder: "#FFC42B",
-                      background: "#fff",
-                    },
-                  }}
-                  left={<TextInput.Icon icon={() => <CustomIcon name="lock" size={24} color="black" />} />}
-                />
-                <TextInput
-                  mode="outlined"
-                  style={styles.inputStyle}
-                  label="Confirm Password"
-                  placeholder="Re-enter your password"
-                  value={repassword}
-                  onChangeText={(text) => setRepassword(text)}
-                  secureTextEntry={HideEntry}
-                  error={isError}
-                  right={
-                    <TextInput.Icon
-                      onPress={toggleSecureEntry}
-                      icon={!HideEntry ? "eye" : "eye-off"}
-                    />
-                  }
-                  theme={{
-                    colors: {
-                      primary: "#FFC42B",
-                      text: "#000",
-                      placeholder: "#FFC42B",
-                      background: "#fff",
-                    },
-                  }}
-                  left={<TextInput.Icon icon={() => <CustomIcon name="lock" size={24} color="black" />} />}
-                />
-                <Button
-                  loading={loading}
-                  disabled={loading}
-                  style={styles.buttonStyle}
-                  mode="contained"
-                  onPress={handleRegistration}
-                  labelStyle={{ color: "black", fontWeight: "bold" }}
+              <TextInput
+                style={styles.inputStyle}
+                mode="contained-tonal"
+                label="Email"
+                placeholder="Enter your email"
+                inputMode="email"
+                value={email}
+                error={isError}
+                onChangeText={(text) => setEmail(text)}
+                theme={{
+                  colors: { primary: "#fff", text: "#fff", placeholder: "#fff", background: "#fff" }
+                }}
+                left={<TextInput.Icon icon={() => <Icon name="email" size={24} color="#fff" />} />}
+              />
+              <TextInput
+                style={styles.inputStyle}
+                mode="contained-tonal"
+                label="Phone number"
+                placeholder="Enter your phone number"
+                value={phoneNumber}
+                error={isError}
+                onChangeText={(text) => setPhoneNumber(text)}
+                theme={{
+                  colors: { primary: "#fff", text: "#fff", placeholder: "#fff", background: "#fff" }
+                }}
+                left={<TextInput.Icon icon={() => <Icon name="phone" size={24} color="#fff" />} />}
+              />
+              <TextInput
+                mode="contained-tonal"
+                style={styles.inputStyle}
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChangeText={(text) => setPassword(text)}
+                secureTextEntry={HideEntry}
+                error={isError}
+                right={<TextInput.Icon onPress={toggleSecureEntry} icon={!HideEntry ? "eye" : "eye-off"} />}
+                theme={{
+                  colors: { primary: "#fff", text: "#fff", placeholder: "#fff", background: "#fff" }
+                }}
+                left={<TextInput.Icon icon={() => <Icon name="lock" size={24} color="#fff" />} />}
+              />
+              <TextInput
+                mode="contained-tonal"
+                style={styles.inputStyle}
+                label="Confirm Password"
+                placeholder="Re-enter your password"
+                value={repassword}
+                onChangeText={(text) => setRepassword(text)}
+                secureTextEntry={HideEntry}
+                error={isError}
+                right={<TextInput.Icon onPress={toggleSecureEntry} icon={!HideEntry ? "eye" : "eye-off"} />}
+                theme={{
+                  colors: { primary: "#fff", text: "#fff", placeholder: "#fff", background: "#fff" }
+                }}
+                left={<TextInput.Icon icon={() => <Icon name="lock" size={24} color="#fff" />} />}
+              />
+              <View style={styles.genderContainer}>
+              <Text style={styles.Gender}>Gender    </Text>
+                <TouchableOpacity
+                  style={[styles.genderButton, gender === 'Male' && styles.selectedGender]}
+                  onPress={() => setGender('Male')}
                 >
-                  Create Account
-                </Button>
+                  <Text style={styles.genderText}>Male</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.genderButton, gender === 'Female' && styles.selectedGender]}
+                  onPress={() => setGender('Female')}
+                >
+                  <Text style={styles.genderText}>Female</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.dateContainer}>
+              <Text style={styles.Date}>Date of Birth     </Text>
+              <TouchableOpacity
+                style={styles.datePickerButton}
+                onPress={() => setDatePickerVisibility(true)}
+              >
+                <Text style={styles.datePickerText}>{date.toLocaleDateString()}</Text>
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={handleDateConfirm}
+                onCancel={() => setDatePickerVisibility(false)}
+                maximumDate={new Date()}
+                textColor="#000"
+                theme={{ colors: { primary: "#FFC42B", text: "#000", placeholder: "#FFC42B", background: "#fff" }}}
+              />
+              </View>
 
-                <SafeAreaView
+              <TextInput
+                style={styles.inputStyle}
+                mode="contained-tonal"
+                label="Enter Valid ID No."
+                placeholder="Enter valid ID number"
+                error={isError}
+                value={validID}
+                onChangeText={(text) => setvalidID(text)}
+                theme={{ colors: { primary: "#fff", text: "#fff", placeholder: "#fff", background: "#fff" }}}
+              />
+
+              <View>
+                <TouchableOpacity
+                  style={[styles.uploadButton]} 
+                  title="Pick an image from camera roll" 
+                  onPress={pickImage}
+                >
+                {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+                  <Text style={styles.uploadText}>Upload Valid ID Photo</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.checkboxContainer}>
+                <View style={styles.checkboxWrapper}>
+                  <View style={{ transform: [{ scale: 0.8 }], marginTop: -5, marginBottom: -5 }}>
+                    <Checkbox
+                      status={termsAccepted ? 'checked' : 'unchecked'}
+                      onPress={() => setTermsAccepted(!termsAccepted)}
+                      color="black"
+                    />
+                  </View>
+                </View>
+                <Text style={styles.checkboxText}>Agree with terms & conditions</Text>
+              </View>
+
+              <Button
+                loading={loading}
+                disabled={loading}
+                style={styles.buttonStyle}
+                mode="contained"
+                onPress={handleRegistration}
+                labelStyle={{ color: "white", fontWeight: "bold" }}
+              >
+                Register Account
+              </Button>
+              <SafeAreaView
                   style={{
                     flexDirection: "row",
                     justifyContent: "center",
@@ -240,7 +315,7 @@ const Register = () => {
                 >
                   <Text style={{ color: "white" }}>Already have an account?</Text>
                   <Button
-                    labelStyle={{ color: "#FFC42B" }}
+                    labelStyle={{ color: "#A97E00" }}
                     loading={loading}
                     disabled={loading}
                     onPress={() => navigator.navigate("Login")}
@@ -271,25 +346,155 @@ const styles = StyleSheet.create({
     paddingVertical: heightPercentageToDP("5%"),
   },
   headerText: {
-    marginTop: heightPercentageToDP("5%"),
+    marginTop: heightPercentageToDP("-2%"),
     color: "#A97E00",
     fontWeight: "bold",
     fontSize: widthPercentageToDP("10%"),
   },
-  inputContainer: {
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-  },
   inputStyle: {
     width: widthPercentageToDP("80%"),
     marginBottom: heightPercentageToDP("2%"),
-    backgroundColor: "#fff",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 2,
+    borderColor: "#C2B067",
+  },
+  menuContent: {
+    backgroundColor: 'black',
+    alignItems: 'center',
+    borderRadius: 10,
+    width: 250,
+    marginLeft: -50,
+  },
+  menuItemContainer: {
+    alignItems: 'center',
+    paddingVertical: 5,
+  },
+  menuTitle: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  menuItemButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#C2B067',
+    marginVertical: 5,
+    width: 200,
+  },
+  selectedMenuItemButton: {
+    backgroundColor: '#C2B067',
+  },
+  menuItemText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  dropdown: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 10,
+    backgroundColor: "#FFC42B",
+    borderRadius: 30,
+    marginBottom: 10,
+    width: widthPercentageToDP("80%"),
+  },
+  genderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  dateContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  Gender: {
+    padding: 10,
+    borderRadius: 30,
+    width: "23%",
+    alignItems: "center",
+    color: "#fff"
+  },
+  Date: {
+    padding: 10,
+    borderRadius: 30,
+    width: "30%",
+    alignItems: "center",
+    color: "#fff"
+  },
+  genderButton: {
+    padding: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    width: "30%",
+    alignItems: "center",
+  },
+  selectedGender: {
+    backgroundColor: "#A97E00",
+  },
+  genderText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  datePickerButton: {
+    width: widthPercentageToDP("55%"),
+    padding: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  datePickerText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  uploadButton: {
+      padding: 15,
+      borderRadius: 30,
+      borderWidth: 1,
+      borderColor: "#FFC42B",
+      width: "60%",
+      alignItems: "center",
+      marginBottom: 10,
+  },
+  uploadText: {
+    color: '#fff',
+    fontWeight: "bold",
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginTop: 20,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: heightPercentageToDP("3%"),
+  },
+  checkboxWrapper: {
+    backgroundColor: "rgba(255, 255, 255, 0.50)",
+    borderRadius: 12, 
+    marginRight: 10,
+    height: 23
+  },
+  checkboxText: {
+    color: "white",
+    fontSize: 16,
   },
   buttonStyle: {
-    width: widthPercentageToDP("80%"),
+    width: widthPercentageToDP("50%"),
     height: heightPercentageToDP("6%"),
     marginBottom: heightPercentageToDP("2%"),
-    backgroundColor: "#FFC42B",
+    backgroundColor: "#CEB64C",
   },
   menuStyle: {
     width: widthPercentageToDP("50%"),
@@ -297,3 +502,4 @@ const styles = StyleSheet.create({
 });
 
 export default Register;
+

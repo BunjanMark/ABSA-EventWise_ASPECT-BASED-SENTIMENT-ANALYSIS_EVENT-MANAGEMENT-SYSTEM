@@ -1,9 +1,9 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Modal } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-const SidebarMenu = ({ onClose }) => {
+const SidebarMenu = ({ visible, onClose }) => {
   const navigation = useNavigation();
 
   const handlePress = (screen) => {
@@ -12,52 +12,68 @@ const SidebarMenu = ({ onClose }) => {
   };
 
   return (
-   <View style={{ flex: 1 }}>
-    <ImageBackground
-      source={require("../pictures/bg.png")}
-    >      
-     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-        <Icon name="close" size={24} color="#fff" />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Profile")}>
-        <Icon name="person" size={24} color="#fff" style={styles.icon} />
-        <Text style={styles.text}>Profile</Text>
-      </TouchableOpacity>
-      <View style={styles.divider} />
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Home")}>
-        <Icon name="home" size={24} color="#fff" style={styles.icon} />
-        <Text style={styles.text}>Home</Text>
-      </TouchableOpacity>
-      <View style={styles.divider} />
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Inventory Tracker")}>
-        <Icon name="list" size={24} color="#fff" style={styles.icon} />
-        <Text style={styles.text}>Inventory Tracker</Text>
-      </TouchableOpacity>
-      <View style={styles.divider} />
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Schedule")}>
-        <Icon name="calendar-today" size={24} color="#fff" style={styles.icon} />
-        <Text style={styles.text}>Schedule</Text>
-      </TouchableOpacity>
-      <View style={styles.divider} />
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Settings")}>
-        <Icon name="settings" size={24} color="#fff" style={styles.icon} />
-        <Text style={styles.text}>Settings</Text>
-      </TouchableOpacity>
-      <View style={styles.logoutContainer}>
-        <TouchableOpacity style={styles.logoutButton} onPress={() => handlePress("LogOut")}>
-          <Icon name="exit-to-app" size={24} color="#fff" style={styles.logoutIcon} />
-          <Text style={styles.logoutText}>Log Out</Text>
-        </TouchableOpacity>
+    <Modal
+      animationType="none"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.container}>
+        <ImageBackground
+          source={require("../pictures/bg.png")}
+          style={styles.background}
+        >
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Icon name="close" size={24} color="#fff" />
+          </TouchableOpacity>
+          <View style={styles.divider} />
+          <TouchableOpacity style={styles.option} onPress={() => handlePress("Profile")}>
+            <Icon name="person" size={24} color="#fff" style={styles.icon} />
+            <Text style={styles.text}>Profile</Text>
+          </TouchableOpacity>
+          <View style={styles.divider} />
+          <TouchableOpacity style={styles.option} onPress={() => handlePress("Home")}>
+            <Icon name="home" size={24} color="#fff" style={styles.icon} />
+            <Text style={styles.text}>Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.option} onPress={() => handlePress("Inventory Tracker")}>
+            <Icon name="list" size={24} color="#fff" style={styles.icon} />
+            <Text style={styles.text}>Inventory Tracker</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.option} onPress={() => handlePress("Schedule")}>
+            <Icon name="calendar-today" size={24} color="#fff" style={styles.icon} />
+            <Text style={styles.text}>Schedule</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.option} onPress={() => handlePress("Settings")}>
+            <Icon name="settings" size={24} color="#fff" style={styles.icon} />
+            <Text style={styles.text}>Settings</Text>
+          </TouchableOpacity>
+          <View style={styles.logoutContainer}>
+            <TouchableOpacity style={styles.logoutButton} onPress={() => handlePress("Login")}>
+              <Icon name="exit-to-app" size={24} color="#fff" style={styles.logoutIcon} />
+              <Text style={styles.logoutText}>Log Out</Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
       </View>
-      </ImageBackground>
-    </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  background: {
+    flex: 1,
+    padding: 20,
+  },
   closeButton: {
-    alignSelf: "flex-end",
+    alignSelf: "flex-start",
     padding: 10,
+    marginTop: 5,
+    marginLeft: -5
   },
   option: {
     flexDirection: "row",
