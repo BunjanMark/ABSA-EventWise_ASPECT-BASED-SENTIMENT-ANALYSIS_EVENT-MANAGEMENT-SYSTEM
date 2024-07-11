@@ -53,7 +53,7 @@
       - Navigate to src/constants/constant.js then change `const API_URL ="your IP and port here";`
   4.  Run the app with specific channel
 
-## Before you do code or push, make sure to git pull first
+## Before you do code or push, make sure to git pull first from master branch
 
 `git pull`
 Look for changes in dependencies and install them accordingly.
