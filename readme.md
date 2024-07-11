@@ -56,6 +56,8 @@
 ## Before you do code or push, make sure to git pull first
 
 `git pull`
+Look for changes in dependencies and install them accordingly.
+for example `composer install` and `npm install` in their respective directory
 
 ## Push only to master branch
 
