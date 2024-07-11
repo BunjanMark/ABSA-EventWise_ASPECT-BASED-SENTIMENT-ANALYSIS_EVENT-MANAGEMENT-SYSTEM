@@ -17,7 +17,6 @@ const Register = () => {
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [HideEntry, setHideEntry] = useState(true);
-  const [role, setRole] = useState("");
   const [visible, setVisible] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -35,9 +34,8 @@ const Register = () => {
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
 
-  const handleRoleChange = (value) => {
-    setSelectedRole(value);
-    setRole(value);
+  const handleRoleChange = (role) => {
+    setSelectedRole(role);
     closeMenu();
   };
 
@@ -127,7 +125,7 @@ const Register = () => {
                 <Menu
                   visible={visible}
                   onDismiss={closeMenu}
-                  contentStyle={{ backgroundColor: 'white', zIndex: 999, alignItems: "center" }}
+                  contentStyle={styles.menuContent}
                   anchor={
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                       <View style={[styles.menuStyle, { backgroundColor: '#C2B067', padding: 1, borderRadius: 30, marginBottom: 5, marginTop: 5, margin: 18, zIndex: 999 }]}>
@@ -140,9 +138,21 @@ const Register = () => {
                   }
                   style={{ position: 'absolute', zIndex: 999, top: 85, left: 90,}}
                 >
-                  <Menu.Item title="PLEASE SELECT" />
-                  <Menu.Item onPress={() => handleRoleChange('SERVICE PROVIDER')} title="SERVICE PROVIDER" />
-                  <Menu.Item onPress={() => handleRoleChange('CUSTOMER')} title="CUSTOMER" />
+                  <View style={styles.menuItemContainer}>
+                    <Text style={styles.menuTitle}>PLEASE SELECT</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={[styles.menuItemButton, selectedRole === 'SERVICE PROVIDER' && styles.selectedMenuItemButton]}
+                    onPress={() => handleRoleChange('SERVICE PROVIDER')}
+                  >
+                    <Text style={styles.menuItemText}>SERVICE PROVIDER</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.menuItemButton, selectedRole === 'CUSTOMER' && styles.selectedMenuItemButton]}
+                    onPress={() => handleRoleChange('CUSTOMER')}
+                  >
+                    <Text style={styles.menuItemText}>CUSTOMER</Text>
+                  </TouchableOpacity>
                 </Menu>
               </View>
               <View style={[styles.inputStyleContainer, { borderRadius: 5, margin: 30, width: widthPercentageToDP("80%"), alignItems: "center", marginTop: -15 }]}>
@@ -262,22 +272,30 @@ const Register = () => {
                 theme={{ colors: { primary: "#fff", text: "#fff", placeholder: "#fff", background: "#fff" }}}
               />
 
-              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: "white" }}>
-                <Text style={{ color: "black" }}>Upload Valid ID Photo</Text>
-                <Button title="Pick an image from camera roll" onPress={pickImage} />
+              <View>
+                <TouchableOpacity
+                  style={[styles.uploadButton]} 
+                  title="Pick an image from camera roll" 
+                  onPress={pickImage}
+                >
                 {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+                  <Text style={styles.uploadText}>Upload Valid ID Photo</Text>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.checkboxContainer}>
-              <View style={styles.checkboxWrapper}>
-                  <Checkbox
-                    status={termsAccepted ? 'checked' : 'unchecked'}
-                    onPress={() => setTermsAccepted(!termsAccepted)}
-                    color="black"
-                  />
+                <View style={styles.checkboxWrapper}>
+                  <View style={{ transform: [{ scale: 0.8 }], marginTop: -5, marginBottom: -5 }}>
+                    <Checkbox
+                      status={termsAccepted ? 'checked' : 'unchecked'}
+                      onPress={() => setTermsAccepted(!termsAccepted)}
+                      color="black"
+                    />
+                  </View>
                 </View>
                 <Text style={styles.checkboxText}>Agree with terms & conditions</Text>
               </View>
+
               <Button
                 loading={loading}
                 disabled={loading}
@@ -339,6 +357,40 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderWidth: 2,
     borderColor: "#C2B067",
+  },
+  menuContent: {
+    backgroundColor: 'black',
+    alignItems: 'center',
+    borderRadius: 10,
+    width: 250,
+    marginLeft: -50,
+  },
+  menuItemContainer: {
+    alignItems: 'center',
+    paddingVertical: 5,
+  },
+  menuTitle: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  menuItemButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#C2B067',
+    marginVertical: 5,
+    width: 200,
+  },
+  selectedMenuItemButton: {
+    backgroundColor: '#C2B067',
+  },
+  menuItemText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
   },
   dropdown: {
     flexDirection: "row",
@@ -406,17 +458,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   uploadButton: {
-    marginBottom: heightPercentageToDP("2%"),
-    borderColor: "#FFC42B",
-  },
-  photoContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+      padding: 15,
+      borderRadius: 30,
+      borderWidth: 1,
+      borderColor: "#FFC42B",
+      width: "60%",
+      alignItems: "center",
+      marginBottom: 10,
   },
   uploadText: {
-    color: '#A97E00',
-    fontSize: 18,
+    color: '#fff',
+    fontWeight: "bold",
   },
   image: {
     width: 200,
@@ -426,19 +478,20 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: heightPercentageToDP("2%"),
+    marginBottom: heightPercentageToDP("3%"),
   },
   checkboxWrapper: {
     backgroundColor: "rgba(255, 255, 255, 0.50)",
-    borderRadius: 15, 
-    padding: -5, 
-    marginRight: 10
+    borderRadius: 12, 
+    marginRight: 10,
+    height: 23
   },
   checkboxText: {
     color: "white",
+    fontSize: 16,
   },
   buttonStyle: {
-    width: widthPercentageToDP("80%"),
+    width: widthPercentageToDP("50%"),
     height: heightPercentageToDP("6%"),
     marginBottom: heightPercentageToDP("2%"),
     backgroundColor: "#CEB64C",
