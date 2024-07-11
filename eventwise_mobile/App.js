@@ -11,74 +11,21 @@ import GuestLanding from "./src/screens/authentication/GuestLanding";
 
 import TabNav from "./src/screens/customerScreens/tabNavigation/TabNav";
 
-import InboxView from "./src/screens/customerScreens/message/InboxView"; 
+import InboxView from "./src/screens/customerScreens/message/InboxView";
 import ConvoView from "./src/screens/customerScreens/message/ConvoView";
 import SelectContactView from "./src/screens/customerScreens/message/SelectContactView";
-
+import Navigator from "./src/helper/Navigator";
+// Gateway
+import { AuthProvider } from "./src/services/authContext";
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
+    <AuthProvider>
       <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Landing"
-            component={Landing}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="GuestLanding"
-            component={GuestLanding}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{ headerShown: false }}
-          />
-
-          <Stack.Screen
-            name="Register"
-            component={Register}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="AccountRecovery"
-            component={AccountRecovery}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="TabNav"
-            component={TabNav}
-            options={{ headerShown: false }}
-          />
-          {/* <Stack.Screen
-            name="BookEvent"
-            component={BookEvent}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="EventDetails"
-            component={EventDetails}
-            options={{ headerShown: false }}
-          /> */}
-           <Stack.Screen
-            name="InboxView"
-            component={InboxView}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="ConvoView"
-            component={ConvoView}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="SelectContactView"
-            component={SelectContactView}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
+        <Navigator />
       </NavigationContainer>
+    </AuthProvider>
   );
 };
 
