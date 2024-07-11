@@ -55,4 +55,9 @@
 
 ## Before you do code or push, make sure to git pull first
 
+`git pull`
+
 ## Push only to master branch
+
+`git branch -M master`
+`git push origin HEAD`
