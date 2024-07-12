@@ -6,12 +6,15 @@ import { AuthProvider } from "./src/services/authContext";
 // import { Navigator } from "./src/helper/Navigator";
 
 import Navigator from "./src/helper/Navigator";
+import { PaperProvider } from "react-native-paper";
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Navigator />
-    </AuthProvider>
+    <PaperProvider>
+      <AuthProvider>
+        <Navigator />
+      </AuthProvider>
+    </PaperProvider>
   );
 }
 

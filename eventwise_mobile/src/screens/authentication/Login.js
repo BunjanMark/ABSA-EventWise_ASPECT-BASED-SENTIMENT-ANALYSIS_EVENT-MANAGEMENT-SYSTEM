@@ -13,7 +13,7 @@ import {
   TextInput,
   Text,
 } from "react-native-paper";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import {
   widthPercentageToDP,
@@ -87,11 +87,13 @@ const Login = () => {
       >
         <SafeAreaView style={styles.container}>
           <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : null}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.formContainer}
-            keyboardVerticalOffset={
-              Platform.OS === "ios" ? 0 : heightPercentageToDP("15%")
-            }
+            // keyboardVerticalOffset={
+            //   Platform.OS === "ios" ? 0 : heightPercentageToDP("15%")
+            // }
+            keyboardVerticalOffset={heightPercentageToDP("15%")}
+            enabled
           >
             <SafeAreaView style={styles.welcome}>
               <Text
@@ -130,7 +132,13 @@ const Login = () => {
                     label: "#fff",
                   },
                 }}
-                left={<TextInput.Icon icon={() => <CustomIcon name="account" size={24} color="white" />} />}
+                left={
+                  <TextInput.Icon
+                    icon={() => (
+                      <CustomIcon name="account" size={24} color="white" />
+                    )}
+                  />
+                }
               />
               <TextInput
                 mode="contained-tonal"
@@ -160,7 +168,13 @@ const Login = () => {
                     label: "#fff",
                   },
                 }}
-                left={<TextInput.Icon icon={() => <CustomIcon name="lock" size={24} color="white" />} />}
+                left={
+                  <TextInput.Icon
+                    icon={() => (
+                      <CustomIcon name="lock" size={24} color="white" />
+                    )}
+                  />
+                }
               />
               <View style={styles.forgotPasswordContainer}>
                 <Text style={{ color: "white" }}>Forgot Password? </Text>
@@ -180,7 +194,11 @@ const Login = () => {
                 }}
                 loading={loading}
                 disabled={loading}
-                labelStyle={{ color: "white", fontWeight: "bold", fontSize: widthPercentageToDP("4%") }}
+                labelStyle={{
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: widthPercentageToDP("4%"),
+                }}
               >
                 Log In
               </Button>
@@ -234,13 +252,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     alignItems: "center",
-    paddingBottom: heightPercentageToDP("15%"),
+    paddingBottom: heightPercentageToDP("8%"),
   },
   formContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "center",
     alignItems: "center",
-    paddingBottom: heightPercentageToDP("1%"),
+    width: widthPercentageToDP("100%"),
+
+    position: "absolute",
+    // paddingBottom: heightPercentageToDP("-1%"),
   },
   logo: {
     top: heightPercentageToDP("5%"),
