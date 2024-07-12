@@ -7,7 +7,7 @@ import {
   heightPercentageToDP,
 } from "react-native-responsive-screen";
 
-const Landing = () => {
+export default Landing = () => {
   const navigator = useNavigation();
 
   return (
@@ -121,5 +121,3 @@ const styles = StyleSheet.create({
     gap: heightPercentageToDP("4%"),
   },
 });
-
-export default Landing;

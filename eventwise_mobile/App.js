@@ -1,32 +1,25 @@
-import * as React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import React from "react";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View } from "react-native";
 
-import Register from "./src/screens/authentication/Register";
-import Login from "./src/screens/authentication/Login";
-import AccountRecovery from "./src/screens/authentication/AccountRecovery";
-import Landing from "./src/screens/authentication/Landing";
-
-import GuestLanding from "./src/screens/authentication/GuestLanding";
-
-import TabNav from "./src/screens/customerScreens/tabNavigation/TabNav";
-
-import InboxView from "./src/screens/customerScreens/message/InboxView";
-import ConvoView from "./src/screens/customerScreens/message/ConvoView";
-import SelectContactView from "./src/screens/customerScreens/message/SelectContactView";
-import Navigator from "./src/helper/Navigator";
-// Gateway
 import { AuthProvider } from "./src/services/authContext";
-const Stack = createNativeStackNavigator();
+// import { Navigator } from "./src/helper/Navigator";
 
-const App = () => {
+import Navigator from "./src/helper/Navigator";
+
+export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <Navigator />
-      </NavigationContainer>
+      <Navigator />
     </AuthProvider>
   );
-};
+}
 
-export default App;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
