@@ -4,8 +4,6 @@ import React from "react";
 // stacks
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createDrawerNavigator } from "@react-navigation/drawer";
 
 import Register from "../screens/authentication/Register";
 import Login from "../screens/authentication/Login";
@@ -20,8 +18,6 @@ import ConvoView from "../screens/customerScreens/message/ConvoView";
 import SelectContactView from "../screens/customerScreens/message/SelectContactView";
 
 const Stack = createNativeStackNavigator();
-const Drawer = createDrawerNavigator();
-const Tab = createBottomTabNavigator();
 
 const Navigator = () => {
   return (
