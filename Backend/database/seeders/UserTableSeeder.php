@@ -22,9 +22,9 @@ class UserTableSeeder extends Seeder
 
         DB::table("users")->insert([
             "role_id" => "2",
-            "name" => "User",
-            "email" => "user@gmail.com",
-            "password" => bcrypt("pass@user"),
+            "name" => "Customer",
+            "email" => "customer@gmail.com",
+            "password" => bcrypt("pass@customer"),
         ]);
 
         DB::table("users")->insert([

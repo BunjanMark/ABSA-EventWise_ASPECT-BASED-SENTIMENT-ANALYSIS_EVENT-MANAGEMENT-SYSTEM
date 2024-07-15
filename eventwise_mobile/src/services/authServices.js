@@ -20,9 +20,10 @@ api.interceptors.request.use(async (config) => {
 
 export const login = async (email, password) => {
   try {
-    const response = await api.post("/user/login", { email, password });
+    const response = await api.post("/auth/login", { email, password });
     const { token } = response.data;
     await AsyncStorage.setItem("authToken", token);
+    console.log("Login successful");
     return response.data;
   } catch (error) {
     console.error("Login error:", error);
@@ -66,7 +67,7 @@ export const logout = async () => {
 
 export const getUser = async () => {
   try {
-    const response = await api.get("/user/me");
+    const response = await api.get("/auth/me");
     return response.data;
   } catch (error) {
     console.error("Get user error:", error);

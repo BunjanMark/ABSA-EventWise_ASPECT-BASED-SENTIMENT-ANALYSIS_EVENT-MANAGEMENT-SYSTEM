@@ -44,6 +44,9 @@ class AuthenticatedSessionController extends Controller
         }
     }
 
+    public function show(Request $request){
+        return response()->json($request->user(), 200);
+    }
     // When testing api - be sure to include auth in the header and pass the token generated after login
     public function accountUpdate(UpdateUserRequest $request, User $user)
     {   

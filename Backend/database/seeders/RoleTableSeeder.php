@@ -25,7 +25,7 @@ class RoleTableSeeder extends Seeder
 
         DB::table("roles")->insert([
             "role_name" => "Manager",
-            "role_type" => "manager",
+            "role_type" => "service-provider",
         ]);
     }
 }
