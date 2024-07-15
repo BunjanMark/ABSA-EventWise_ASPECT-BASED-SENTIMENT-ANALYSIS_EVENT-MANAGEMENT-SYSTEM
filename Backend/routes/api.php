@@ -23,7 +23,7 @@ Route::prefix('auth')->group(function () {
     Route::post('signup', [AuthenticatedSessionController::class, 'signupAccount']);
     // Route::post('/signup', [AuthenticatedSessionController::class, 'signupAccount']);
     Route::patch('update', [AuthenticatedSessionController::class, 'accountUpdate'])->middleware(['auth:sanctum']);
-
+    Route::get('/me', [AuthenticatedSessionController::class, 'show'])->middleware(['auth:sanctum']);
 });
 
 

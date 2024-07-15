@@ -23,8 +23,9 @@ import { useState } from "react";
 import Toast from "react-native-root-toast";
 import { AuthContext } from "../../services/authContext";
 import { getUser } from "../../services/authServices";
+import { login } from "../../services/authServices";
 
-const Login = () => {
+const Login = ({ navigation }) => {
   const navigator = useNavigation();
 
   const [HideEntry, setHideEntry] = useState(true);
@@ -41,12 +42,12 @@ const Login = () => {
     Toast.show(message, 3000);
   };
 
-  const navigateBasedOnRolasde = (role_id) => {
+  const navigateBasedOnRole = (role_id) => {
     try {
-      if (role_id === 1) {
-        console.log("Navigating to AdminStack...");
-        navigation.navigate("ParticipantsStack");
-      } else if (role_id === 2) {
+      if (role_id === 2) {
+        console.log("Navigating to CustomerStack...");
+        navigation.navigate("CustomerStack");
+      } else if (role_id === 1) {
         console.log("Navigating to CustomerStack...");
         navigation.navigate("OrganizerStack");
       } else if (role_id === 3) {
@@ -60,210 +61,204 @@ const Login = () => {
       showToast("An error occurred during navigation.");
     }
   };
-};
-const handleLogin = async () => {
-  try {
-    setLoading(!loading);
+  const handleLogin = async () => {
+    try {
+      setLoading(!loading);
 
-    if (username === "" || password === "") {
-      showToast("Please input required data");
-      setIsError(true);
-      return false;
-    }
+      if (username === "" || password === "") {
+        showToast("Please input required data");
+        setIsError(true);
+        return false;
+      }
 
-    const data = {
-      username,
-      password,
-    };
-
-    const result = await signIn(data);
-    showToast(result?.message);
-
-    if (result.message != null) {
+      const result = await login(username, password);
+      // showToast(result?.message);
       showToast(result?.message);
-    } else {
-      navigator.navigate("Tabs");
+
+      const user = await getUser();
+      console.log(user);
+
+      // Navigate vased on user's role
+      navigateBasedOnRole(user.role_id);
+
+      if (result.message != null) {
+        showToast(result?.message);
+      } else {
+        navigator.navigate("Tabs");
+      }
+    } catch (e) {
+      console.error("Login error:", error);
+      showToast("An error occurred during login.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (result.message === "User Logged in Successfully") {
-      navigator.navigate("Tabs");
-    } else {
-      return false;
-    }
-  } catch (e) {
-    console.debug(e.toString());
-    showToast("An error occurred");
-  } finally {
-    setLoading(false);
-  }
-};
-
-const toggleSecureEntry = () => {
-  setHideEntry(!HideEntry);
-};
-
-return (
-  <PaperProvider>
-    <ImageBackground
-      source={require("../customerScreens/pictures/loginbg.png")}
-      style={styles.backgroundImage}
-    >
-      <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.formContainer}
-          // keyboardVerticalOffset={
-          //   Platform.OS === "ios" ? 0 : heightPercentageToDP("15%")
-          // }
-          keyboardVerticalOffset={heightPercentageToDP("15%")}
-          enabled
-        >
-          <SafeAreaView style={styles.welcome}>
-            <Text
-              variant="headlineMedium"
-              style={{
-                fontSize: widthPercentageToDP("9%"),
-                color: "#A97E00",
-                marginBottom: heightPercentageToDP("1%"),
-                fontWeight: "bold",
-                fontFamily: "Roboto",
-              }}
-            >
-              Login
-            </Text>
-          </SafeAreaView>
-
-          <SafeAreaView
-            style={{ ...styles.input, gap: heightPercentageToDP("1%") }}
+  const toggleSecureEntry = () => {
+    setHideEntry(!HideEntry);
+  };
+  return (
+    <PaperProvider>
+      <ImageBackground
+        source={require("../customerScreens/pictures/loginbg.png")}
+        style={styles.backgroundImage}
+      >
+        <SafeAreaView style={styles.container}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.formContainer}
+            // keyboardVerticalOffset={
+            //   Platform.OS === "ios" ? 0 : heightPercentageToDP("15%")
+            // }
+            keyboardVerticalOffset={heightPercentageToDP("15%")}
+            enabled
           >
-            <TextInput
-              style={styles.inputStyle}
-              mode="contained-tonal"
-              label="Username"
-              placeholder="Enter your username"
-              inputMode="username"
-              value={username}
-              error={isError}
-              onChangeText={(text) => {
-                setUsername(text);
-              }}
-              theme={{
-                colors: {
-                  primary: "#fff",
-                  text: "#fff",
-                  placeholder: "#fff",
-                  label: "#fff",
-                },
-              }}
-              left={
-                <TextInput.Icon
-                  icon={() => (
-                    <CustomIcon name="account" size={24} color="white" />
-                  )}
-                />
-              }
-            />
-            <TextInput
-              mode="contained-tonal"
-              style={styles.inputStyle}
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={HideEntry}
-              right={
-                <TextInput.Icon
-                  onPress={toggleSecureEntry}
-                  icon={() => (
-                    <CustomIcon
-                      name={!HideEntry ? "eye" : "eye-off"}
-                      size={24}
-                      color="white"
-                    />
-                  )}
-                />
-              }
-              theme={{
-                colors: {
-                  primary: "#fff",
-                  text: "#fff",
-                  placeholder: "#fff",
-                  label: "#fff",
-                },
-              }}
-              left={
-                <TextInput.Icon
-                  icon={() => (
-                    <CustomIcon name="lock" size={24} color="white" />
-                  )}
-                />
-              }
-            />
-            <View style={styles.forgotPasswordContainer}>
-              <Text style={{ color: "white" }}>Forgot Password? </Text>
-              <Button
-                labelStyle={{ color: "#A97E00" }}
-                onPress={() => {
-                  navigator.navigate("AccountRecovery");
+            <SafeAreaView style={styles.welcome}>
+              <Text
+                variant="headlineMedium"
+                style={{
+                  fontSize: widthPercentageToDP("9%"),
+                  color: "#A97E00",
+                  marginBottom: heightPercentageToDP("1%"),
+                  fontWeight: "bold",
+                  fontFamily: "Roboto",
                 }}
               >
-                Recover
-              </Button>
-            </View>
-            <Button
-              style={{ ...styles.buttonStyle, backgroundColor: "#CEB64C" }}
-              onPress={() => {
-                navigator.navigate("TabNav");
-              }}
-              loading={loading}
-              disabled={loading}
-              labelStyle={{
-                color: "white",
-                fontWeight: "bold",
-                fontSize: widthPercentageToDP("4%"),
-              }}
-            >
-              Log In
-            </Button>
+                Login
+              </Text>
+            </SafeAreaView>
 
             <SafeAreaView
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: -30,
-              }}
+              style={{ ...styles.input, gap: heightPercentageToDP("1%") }}
             >
-              <Text style={{ color: "white" }}>Not a member? </Text>
-              <Button
-                mode="text"
-                labelStyle={{ color: "#A97E00" }}
-                onPress={() => {
-                  navigator.navigate("Register");
+              <TextInput
+                style={styles.inputStyle}
+                mode="contained-tonal"
+                label="Username"
+                placeholder="Enter your username"
+                inputMode="username"
+                value={username}
+                error={isError}
+                onChangeText={(text) => {
+                  setUsername(text);
                 }}
+                theme={{
+                  colors: {
+                    primary: "#fff",
+                    text: "#fff",
+                    placeholder: "#fff",
+                    label: "#fff",
+                  },
+                }}
+                left={
+                  <TextInput.Icon
+                    icon={() => (
+                      <CustomIcon name="account" size={24} color="white" />
+                    )}
+                  />
+                }
+              />
+              <TextInput
+                mode="contained-tonal"
+                style={styles.inputStyle}
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={HideEntry}
+                right={
+                  <TextInput.Icon
+                    onPress={toggleSecureEntry}
+                    icon={() => (
+                      <CustomIcon
+                        name={!HideEntry ? "eye" : "eye-off"}
+                        size={24}
+                        color="white"
+                      />
+                    )}
+                  />
+                }
+                theme={{
+                  colors: {
+                    primary: "#fff",
+                    text: "#fff",
+                    placeholder: "#fff",
+                    label: "#fff",
+                  },
+                }}
+                left={
+                  <TextInput.Icon
+                    icon={() => (
+                      <CustomIcon name="lock" size={24} color="white" />
+                    )}
+                  />
+                }
+              />
+              <View style={styles.forgotPasswordContainer}>
+                <Text style={{ color: "white" }}>Forgot Password? </Text>
+                <Button
+                  labelStyle={{ color: "#A97E00" }}
+                  onPress={() => {
+                    navigator.navigate("AccountRecovery");
+                  }}
+                >
+                  Recover
+                </Button>
+              </View>
+              <Button
+                style={{ ...styles.buttonStyle, backgroundColor: "#CEB64C" }}
+                onPress={handleLogin}
                 loading={loading}
                 disabled={loading}
-              >
-                Register Now
-              </Button>
-            </SafeAreaView>
-            <View>
-              <Button
-                style={{ ...styles.goback }}
-                labelStyle={{ color: "#A97E00" }}
-                onPress={() => {
-                  navigator.goBack();
+                labelStyle={{
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: widthPercentageToDP("4%"),
                 }}
               >
-                Go Back
+                Log In
               </Button>
-            </View>
-          </SafeAreaView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </ImageBackground>
-  </PaperProvider>
-);
+
+              <SafeAreaView
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: -30,
+                }}
+              >
+                <Text style={{ color: "white" }}>Not a member? </Text>
+                <Button
+                  mode="text"
+                  labelStyle={{ color: "#A97E00" }}
+                  onPress={() => {
+                    navigator.navigate("Register");
+                  }}
+                  loading={loading}
+                  disabled={loading}
+                >
+                  Register Now
+                </Button>
+              </SafeAreaView>
+              <View>
+                <Button
+                  style={{ ...styles.goback }}
+                  labelStyle={{ color: "#A97E00" }}
+                  onPress={() => {
+                    navigator.goBack();
+                  }}
+                >
+                  Go Back
+                </Button>
+              </View>
+            </SafeAreaView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </ImageBackground>
+    </PaperProvider>
+  );
+};
+
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
