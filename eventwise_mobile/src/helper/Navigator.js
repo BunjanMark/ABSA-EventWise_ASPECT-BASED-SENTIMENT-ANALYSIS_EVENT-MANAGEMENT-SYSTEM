@@ -15,6 +15,7 @@ import Landing from "../screens/authentication/Landing";
 import GuestLanding from "../screens/authentication/GuestLanding";
 
 // Admin Stack here
+import Index from "../screens/admin/adminside/Index";
 
 // Customer Stack here
 import TabNav from "../screens/customerScreens/tabNavigation/TabNav";
@@ -131,10 +132,28 @@ const AuthenticationStack = () => {
         component={CustomerStack}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="AdminStack"
+        component={AdminStack}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
 
+// AdminStack
+function AdminStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="AdminStack"
+        component={Index}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+}
+// CustomerStack
 function CustomerStack() {
   return (
     <Stack.Navigator>

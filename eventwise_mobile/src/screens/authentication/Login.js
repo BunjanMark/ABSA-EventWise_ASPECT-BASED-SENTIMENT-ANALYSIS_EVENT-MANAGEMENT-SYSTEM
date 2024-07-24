@@ -27,7 +27,6 @@ import { login } from "../../services/authServices";
 
 const Login = ({ navigation }) => {
   const navigator = useNavigation();
-
   const [HideEntry, setHideEntry] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -48,8 +47,8 @@ const Login = ({ navigation }) => {
         console.log("Navigating to CustomerStack...");
         navigation.navigate("CustomerStack");
       } else if (role_id === 1) {
-        console.log("Navigating to CustomerStack...");
-        navigation.navigate("OrganizerStack");
+        console.log("Navigating to AdminStack...");
+        navigation.navigate("AdminStack");
       } else if (role_id === 3) {
         console.log("Navigating to GuestStack...");
         navigation.navigate();
