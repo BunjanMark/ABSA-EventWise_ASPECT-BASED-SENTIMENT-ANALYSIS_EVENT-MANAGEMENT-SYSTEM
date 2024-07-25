@@ -29,7 +29,6 @@ const CustomizePackage = () => {
     ],
   };
 
-
   const handleSearch = (query) => {
     console.log("Searching for:", query);
     // Add your search logic here
@@ -43,108 +42,112 @@ const CustomizePackage = () => {
     );
   };
 
+  const handleSubmitPress = () => {
+    navigation.navigate('Book', { selectedPackage: selectedServices });
+  };
+
   const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
 
   return (
     <View style={{ flex: 1 }}>
-    <ImageBackground
-      source={require("../pictures/bg.png")}
-      style={styles.backgroundImage}
-    >
-    <View style={styles.container}>
-      <SafeAreaView>
-        <View style={styles.head}>
-          <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-            <Icon name="close" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Image
-            source={require("../pictures/logo1.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </View>
-        <Image
-          source={require("../pictures/line.png")}
-          style={styles.line}
-          resizeMode="contain"
-        />
-      </SafeAreaView>
-      <View style={styles.header}>
-        <Text style={styles.headText}>Package</Text>
-        <TouchableOpacity
+      <ImageBackground
+        source={require("../pictures/bg.png")}
+        style={styles.backgroundImage}
+      >
+        <View style={styles.container}>
+          <SafeAreaView>
+            <View style={styles.head}>
+              <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+                <Icon name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+              <Image
+                source={require("../pictures/logo1.png")}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+            <Image
+              source={require("../pictures/line.png")}
+              style={styles.line}
+              resizeMode="contain"
+            />
+          </SafeAreaView>
+          <View style={styles.header}>
+            <Text style={styles.headText}>Package</Text>
+            <TouchableOpacity
               onPress={() => setShowSearch(true)}
               style={styles.iconButton}
             >
               <Icon name="search" size={20} color="#000" />
             </TouchableOpacity>
-      </View>
-      {showSearch && (
-              <SearchBar
-                onClose={() => setShowSearch(false)}
-                onSearch={handleSearch}
-              />
-            )}
-      <ScrollView>
-        <Image source={require('../pictures/ellipse.png')} style={styles.bannerImage} />
-        <Text style={styles.headerText}>Check Out Top Event Services</Text>
-        <Text style={styles.debutText}>Debut Packages</Text>
-        <Image
-          source={require("../pictures/vec.png")}
-          style={styles.line}
-          resizeMode="contain"
-        />
-        <Image
-          source={require("../pictures/line.png")}
-          style={styles.line2}
-          resizeMode="contain"
-        />
-        <Text style={styles.customizeText}>CUSTOMIZE</Text>
-        <Text style={styles.headerEType}>Add Services</Text>
-        <View style={styles.tabContainer}>
-          {Object.keys(serviceData).map((tab) => (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.tabButton, selectedTab === tab && styles.activeTab]}
-              onPress={() => setSelectedTab(tab)}
-            >
-              <Text style={[styles.tabButtonText, selectedTab === tab && styles.activeTabText]}>{tab}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <ScrollView horizontal contentContainerStyle={styles.scrollViewContent}>
-          {serviceData[selectedTab].map((service, index) => (
-            <TouchableOpacity key={index} style={styles.serviceButton} onPress={() => toggleService(service)}>
-              <Image source={service.image} style={styles.serviceImage} />
-              <Text style={styles.serviceName}>{service.name}</Text>
-              <View style={styles.addButtonContainer}>
-                <Text style={styles.addButton}>{selectedServices.some((item) => item.name === service.name) ? '✔️' : '+'}</Text>
-              </View>
-              <Text style={styles.servicePrice}>{service.price}k</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-        <View style={styles.summary}>
-          <Text style={styles.summaryTitle}>Name</Text>
-          <Text style={styles.summaryTitle}>Type</Text>
-          <Text style={styles.summaryTitle}>Price</Text>
-        </View>
-        <View style={styles.summaryContainer}>
-          {selectedServices.map((service, index) => (
-            <View key={index} style={styles.summaryRow}>
-              <Text style={styles.summaryText}>{service.name}</Text>
-              <Text style={styles.summaryText}>{service.type}</Text>
-              <Text style={styles.summaryText}>{service.price}k</Text>
+          </View>
+          {showSearch && (
+            <SearchBar
+              onClose={() => setShowSearch(false)}
+              onSearch={handleSearch}
+            />
+          )}
+          <ScrollView>
+            <Image source={require('../pictures/ellipse.png')} style={styles.bannerImage} />
+            <Text style={styles.headerText}>Check Out Top Event Services</Text>
+            <Text style={styles.debutText}>Debut Packages</Text>
+            <Image
+              source={require("../pictures/vec.png")}
+              style={styles.line}
+              resizeMode="contain"
+            />
+            <Image
+              source={require("../pictures/line.png")}
+              style={styles.line2}
+              resizeMode="contain"
+            />
+            <Text style={styles.customizeText}>CUSTOMIZE</Text>
+            <Text style={styles.headerEType}>Add Services</Text>
+            <View style={styles.tabContainer}>
+              {Object.keys(serviceData).map((tab) => (
+                <TouchableOpacity
+                  key={tab}
+                  style={[styles.tabButton, selectedTab === tab && styles.activeTab]}
+                  onPress={() => setSelectedTab(tab)}
+                >
+                  <Text style={[styles.tabButtonText, selectedTab === tab && styles.activeTabText]}>{tab}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
-          ))}
-          <Text style={styles.totalText}>TOTAL: {total}k</Text>
+            <ScrollView horizontal contentContainerStyle={styles.scrollViewContent}>
+              {serviceData[selectedTab].map((service, index) => (
+                <TouchableOpacity key={index} style={styles.serviceButton} onPress={() => toggleService(service)}>
+                  <Image source={service.image} style={styles.serviceImage} />
+                  <Text style={styles.serviceName}>{service.name}</Text>
+                  <View style={styles.addButtonContainer}>
+                    <Text style={styles.addButton}>{selectedServices.some((item) => item.name === service.name) ? '✔️' : '+'}</Text>
+                  </View>
+                  <Text style={styles.servicePrice}>{service.price}k</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <View style={styles.summary}>
+              <Text style={styles.summaryTitle}>Name</Text>
+              <Text style={styles.summaryTitle}>Type</Text>
+              <Text style={styles.summaryTitle}>Price</Text>
+            </View>
+            <View style={styles.summaryContainer}>
+              {selectedServices.map((service, index) => (
+                <View key={index} style={styles.summaryRow}>
+                  <Text style={styles.summaryText}>{service.name}</Text>
+                  <Text style={styles.summaryText}>{service.type}</Text>
+                  <Text style={styles.summaryText}>{service.price}k</Text>
+                </View>
+              ))}
+              <Text style={styles.totalText}>TOTAL: {total}k</Text>
+            </View>
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmitPress}>
+              <Text style={styles.submitButtonText}>SUBMIT</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
-        <TouchableOpacity style={styles.submitButton} onPress={() => console.log('Submitted')}>
-          <Text style={styles.submitButtonText}>SUBMIT</Text>
-        </TouchableOpacity>
-      </ScrollView>
+      </ImageBackground>
     </View>
-  </ImageBackground>
-  </View>
   );
 };
 

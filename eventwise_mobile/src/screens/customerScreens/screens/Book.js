@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ImageBackground } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ImageBackground, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Calendar } from 'react-native-calendars';
 import Header from "../elements/Header";
@@ -16,8 +16,17 @@ const Book = () => {
   const [venueLocation, setVenueLocation] = useState('');
   const [invitationMessage, setInvitationMessage] = useState('');
   const [peopleToInvite, setPeopleToInvite] = useState('');
-  const [selectedPackage, setSelectedPackage] = useState(''); 
   const navigation = useNavigation();
+  const route = useRoute();
+  const { selectedPackage } = route.params || {};
+
+  React.useEffect(() => {
+    if (route.params) {
+      const { package: packageFromRoute, venue: venueFromRoute } = route.params;
+      if (packageFromRoute) setSelectedPackage(packageFromRoute);
+      if (venueFromRoute) setVenueLocation(venueFromRoute);
+    }
+  }, [route.params]);
 
   const saveEvent = async () => {
     if (!eventName || !eventType || !selectedDate || !description || !venueLocation || !invitationMessage || !peopleToInvite || !selectedPackage) {
@@ -121,7 +130,7 @@ const Book = () => {
             <View style={styles.formGroup}>
               <TextInput 
                 style={styles.input} 
-                placeholder="Type your event name" 
+                placeholder="Type event name (e.g. Mr. & Mrs. Malik Wedding)" 
                 value={eventName}
                 onChangeText={setEventName}
               />
@@ -198,20 +207,36 @@ const Book = () => {
             <View style={styles.formButton}>
               <TouchableOpacity
                 style={styles.navigateButton}
-                onPress={() => navigation.navigate('Package', { setSelectedPackage })}
+                onPress={() => navigation.navigate('Package')}
               >
                 <Text style={styles.navigateButtonText}>Find packages, choose and/or customize</Text>
               </TouchableOpacity>
               <View style={styles.selectedItemsContainer}>
-              {selectedPackage ? (
-                <>
-                  {selectedPackage && (
-                    <Text style={styles.selectedText}>{selectedPackage}</Text>
-                  )}
-                </>
-              ) : (
-                <Text style={styles.placeholderText}>Chosen package will be displayed here</Text>
+              {selectedPackage && (
+                <View style={styles.selectedItemsContainer}>
+                  <Text style={styles.selectedText}>Package</Text>
+                  <Image source={selectedPackage} style={styles.selectedImage} />
+                </View>
               )}
+              <View style={styles.container}>
+              <Text style={styles.title}>Customized Package</Text>
+              <View style={styles.selectedItemsContainer}>
+                {selectedPackage && selectedPackage.length > 0 ? (
+                  selectedPackage.map((service, index) => (
+                    <View key={index} style={styles.serviceItem}>
+                      <Image source={service.image} style={styles.serviceImage} />
+                      <View style={styles.serviceS}>
+                      <Text style={styles.serviceName}>{service.name}</Text>
+                      <Text style={styles.serviceType}>{service.type}</Text>
+                      <Text style={styles.servicePrice}>{service.price}k</Text>
+                      </View>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noSelection}>No services selected</Text>
+                )}
+              </View>
+            </View>
             </View>
             </View>
             <View style={styles.formButton}>
@@ -321,12 +346,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
     marginTop: 10,
+    alignItems: "center",
   },
   selectedText: {
     color: 'black',
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 10,
   },
   placeholderText: {
     color: 'gray',
@@ -363,6 +389,49 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  title: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  serviceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  serviceS: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    alignContent: "space-between"
+  },
+  serviceImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover',
+    borderRadius: 10,
+  },
+  serviceName: {
+    fontSize: 18,
+    marginLeft: 10,
+    flex: 1,
+  },
+  serviceType: {
+    fontSize: 16,
+    marginLeft: 10,
+    flex: 1,
+  },
+  servicePrice: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: '#000',
+  },
+  noSelection: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 

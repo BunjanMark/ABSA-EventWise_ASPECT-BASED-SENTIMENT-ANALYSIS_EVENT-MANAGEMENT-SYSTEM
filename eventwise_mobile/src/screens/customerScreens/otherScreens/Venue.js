@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Image, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import SearchBar from '../elements/SearchBAr';
 
 const Venue = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { setVenueLocation } = route.params; // Retrieve the callback from the route params
+
   const [showSearch, setShowSearch] = useState(false);
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
@@ -21,63 +24,68 @@ const Venue = () => {
     setDetailVisible(true);
   };
 
+  const handleConfirmPress = () => {
+    setVenueLocation(selectedPackage); // Update the venue location using the callback
+    navigation.navigate('Book');
+  };
+
   return (
     <View style={{ flex: 1 }}>
-    <ImageBackground
-      source={require("../pictures/bg.png")}
-      style={styles.backgroundImage}
-    >
-    <View style={styles.container}>
-      <SafeAreaView>
-        <View style={styles.head}>
-          <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-            <Icon name="close" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Image
-            source={require("../pictures/logo1.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </View>
-        <Image
-          source={require("../pictures/line.png")}
-          style={styles.line}
-          resizeMode="contain"
-        />
-      </SafeAreaView>
-      <View style={styles.header}>
-        <Text style={styles.headText}>Venue</Text>
-        <TouchableOpacity
+      <ImageBackground
+        source={require("../pictures/bg.png")}
+        style={styles.backgroundImage}
+      >
+        <View style={styles.container}>
+          <SafeAreaView>
+            <View style={styles.head}>
+              <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+                <Icon name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+              <Image
+                source={require("../pictures/logo1.png")}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+            <Image
+              source={require("../pictures/line.png")}
+              style={styles.line}
+              resizeMode="contain"
+            />
+          </SafeAreaView>
+          <View style={styles.header}>
+            <Text style={styles.headText}>Venue</Text>
+            <TouchableOpacity
               onPress={() => setShowSearch(true)}
               style={styles.iconButton}
             >
               <Icon name="search" size={20} color="#000" />
             </TouchableOpacity>
-      </View>
-      {showSearch && (
-              <SearchBar
-                onClose={() => setShowSearch(false)}
-                onSearch={handleSearch}
-              />
-            )}
-      <ScrollView>
-        <Image source={require('../pictures/ellipse2.png')} style={styles.bannerImage} />
-        <Text style={styles.headerText}>Check Out Top Venues</Text>
-        <Text style={styles.debutText}>Debut Venues</Text>
-        <Image
-          source={require("../pictures/vec.png")}
-          style={styles.line}
-          resizeMode="contain"
-        />
-        <View style={styles.pack}>
+          </View>
+          {showSearch && (
+            <SearchBar
+              onClose={() => setShowSearch(false)}
+              onSearch={handleSearch}
+            />
+          )}
+          <ScrollView>
+            <Image source={require('../pictures/ellipse2.png')} style={styles.bannerImage} />
+            <Text style={styles.headerText}>Check Out Top Venues</Text>
+            <Text style={styles.debutText}>Debut Venues</Text>
+            <Image
+              source={require("../pictures/vec.png")}
+              style={styles.line}
+              resizeMode="contain"
+            />
+            <View style={styles.pack}>
               {packageData.map((pkg, index) => (
-               <View key={index} style={styles.packageButton}>
-                <View key={index} style={styles.venueHead}>
-                <Text style={styles.headerEType}>Venue </Text>
-                  <TouchableOpacity style={styles.chooseButton} onPress={() => handleChoosePress(pkg.image)}>
-                    <Text style={styles.chooseText}>CHOOSE</Text>
-                  </TouchableOpacity>
-                </View>
+                <View key={index} style={styles.packageButton}>
+                  <View key={index} style={styles.venueHead}>
+                    <Text style={styles.headerEType}>Venue </Text>
+                    <TouchableOpacity style={styles.chooseButton} onPress={() => handleChoosePress(pkg.image)}>
+                      <Text style={styles.chooseText}>CHOOSE</Text>
+                    </TouchableOpacity>
+                  </View>
                   <View>
                     <Image source={pkg.image} style={styles.packageImage} />
                   </View>
@@ -105,7 +113,7 @@ const Venue = () => {
                     <Icon name="close" size={24} color="#000" />
                   </TouchableOpacity>
                   <Image source={selectedPackage} style={styles.popupImage} />
-                  <TouchableOpacity style={styles.submitButton} onPress={() => setDetailVisible(false)}>
+                  <TouchableOpacity style={styles.submitButton} onPress={handleConfirmPress}>
                     <Text style={styles.submitButtonText}>CONFIRM</Text>
                   </TouchableOpacity>
                 </View>

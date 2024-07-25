@@ -28,6 +28,10 @@ const Package = () => {
     setDetailVisible(true);
   };
 
+  const handleConfirmPress = () => {
+    navigation.navigate('Book', { selectedPackage: selectedPackage });
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
@@ -62,11 +66,11 @@ const Package = () => {
             </TouchableOpacity>
           </View>
           {showSearch && (
-              <SearchBar
-                onClose={() => setShowSearch(false)}
-                onSearch={handleSearch}
-              />
-            )}
+            <SearchBar
+              onClose={() => setShowSearch(false)}
+              onSearch={handleSearch}
+            />
+          )}
           <ScrollView>
             <Image source={require('../pictures/ellipse.png')} style={styles.bannerImage} />
             <Text style={styles.headerText}>Check Out Top Event Services</Text>
@@ -113,7 +117,7 @@ const Package = () => {
                 style={styles.modalBackground}
               >
                 <View style={styles.modalContent}>
-                  <TouchableOpacity style={styles.closeImage} onPress={() => setModalVisible(false)} color="#e6b800">
+                  <TouchableOpacity style={styles.closeImage} onPress={() => setModalVisible(false)}>
                     <Icon name="close" size={24} color="#000" />
                   </TouchableOpacity>
                   <Image source={selectedImage} style={styles.fullImage} />
@@ -137,11 +141,11 @@ const Package = () => {
               >
                 <View style={styles.popupContent}>
                   <Text style={styles.packageHead}>PACKAGE</Text>
-                  <TouchableOpacity style={styles.closeDetails} onPress={() => setDetailVisible(false)} color="#e6b800">
+                  <TouchableOpacity style={styles.closeDetails} onPress={() => setDetailVisible(false)}>
                     <Icon name="close" size={24} color="#000" />
                   </TouchableOpacity>
                   <Image source={selectedPackage} style={styles.popupImage} />
-                  <TouchableOpacity style={styles.submitButton} onPress={() => setDetailVisible(false)}>
+                  <TouchableOpacity style={styles.submitButton} onPress={handleConfirmPress}>
                     <Text style={styles.submitButtonText}>CONFIRM</Text>
                   </TouchableOpacity>
                 </View>

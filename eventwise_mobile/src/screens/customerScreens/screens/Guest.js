@@ -49,7 +49,7 @@ const Guest = () => {
              
           <View style={styles.tableBg}>
             <View style={styles.tableHeaderText}>
-              <Text style={styles.textHe}>Mr. & Mrs. Malik Wedding</Text>
+              <Text style={styles.textHe}>The Booked Event (People To Invite) </Text>
             </View>
             <Text style={styles.tableSubText}>People Invited</Text>
             <View style={styles.tableNameEmail}>
