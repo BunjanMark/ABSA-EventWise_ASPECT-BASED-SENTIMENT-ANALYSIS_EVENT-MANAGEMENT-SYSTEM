@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList,  } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import SearchBar from '../elements/SearchBAr';
 
 const conversations = [
   { id: '1', name: 'Adelyn Eyana', lastMessage: 'Hey there!', time: '9:41' },
@@ -16,6 +17,8 @@ const conversations = [
 
 const InboxView = () => {
   const navigator = useNavigation();
+  const navigation = useNavigation();
+  const [showSearch, setShowSearch] = useState(false);
 
   const renderConversation = ({ item }) => (
     <TouchableOpacity 
@@ -28,12 +31,37 @@ const InboxView = () => {
     </TouchableOpacity>
   );
 
+  const handleSearch = (query) => {
+    console.log("Searching for:", query);
+    // Add your search logic here
+  };
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.goBackButton} onPress={() => navigator.goBack()}>
-        <Icon name="arrow-left" size={20} color="black" />
+      <View style={styles.container}>
+        <ImageBackground
+          source={require("../pictures/bg.png")}
+          style={styles.background}
+        >
+      <View style={styles.head}>
+      <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+        <Icon name="close" size={24} color="#fff" />
       </TouchableOpacity>
-      <Text style={styles.title}>Notifications</Text>
+      <TouchableOpacity
+            onPress={() => setShowSearch(true)}
+            style={styles.searchIconButton}
+          >
+            <Icon name="search" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+        {showSearch && (
+        <SearchBar
+          onClose={() => setShowSearch(false)}
+          onSearch={handleSearch}
+        />
+      )}
+          <View style={styles.titleCon}>
+            <Text style={styles.title}>Messages</Text>
+          </View>
      <View style={styles.tabs}>
         <TouchableOpacity style={styles.tab}><Text style={styles.tabText}>Customer</Text></TouchableOpacity>
         <TouchableOpacity style={styles.tab}><Text style={styles.tabText}>Supplier</Text></TouchableOpacity>
@@ -53,6 +81,7 @@ const InboxView = () => {
         <Icon name="plus" size={20} color="#fff" />
         <Text style={styles.newMessageButtonText}>Create New Message</Text>
       </TouchableOpacity>
+      </ImageBackground>
     </View>
   );
 };
@@ -60,12 +89,29 @@ const InboxView = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  goBackButton: {
-    marginLeft: 10,
-    marginTop: 18,
+  background: {
+    flex: 1,
+    padding: 20,
+  },
+  head: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  closeButton: {
+    alignSelf: "flex-start",
+    padding: 10,
+    marginTop: 5,
+    marginLeft: -5
+  },
+  searchIconButton: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginVertical: 20,
   },
   title: {
     marginLeft: 10,
@@ -73,6 +119,12 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     fontSize: 25,
     fontWeight: 'bold',
+    color: "#EFBF04",
+    alignItems: "center"
+  },
+  titleCon: {
+    alignSelf: "center",
+    marginTop: -20,
   },
   tabs: {
     flexDirection: 'row',
@@ -91,6 +143,8 @@ const styles = StyleSheet.create({
   },
   contactsList: {
     paddingBottom: 16,
+    backgroundColor: "white",
+    borderRadius: 30,
   },
   contactContainer: {
     padding: 16,
