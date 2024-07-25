@@ -37,6 +37,7 @@ import ProfileOrganizer from "../screens/customerScreens/otherScreens/ProfileOrg
 import Package from "../screens/customerScreens/otherScreens/Package";
 import CustomizePackage from "../screens/customerScreens/otherScreens/CustomizePackage";
 import Venue from "../screens/customerScreens/otherScreens/Venue";
+// import Feedback from "../screens/customerScreens/otherScreens/Feedback";
 
 // Guest Stack here
 
@@ -161,6 +162,11 @@ const Navigator = () => {
           component={Venue}
           options={{ headerShown: false }}
         />
+        {/* <Stack.Screen
+          name="Feedback"
+          component={Feedback}
+          options={{ headerShown: false }}
+        /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );
