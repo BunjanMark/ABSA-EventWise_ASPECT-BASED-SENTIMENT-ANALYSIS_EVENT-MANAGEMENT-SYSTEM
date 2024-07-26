@@ -2,21 +2,17 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Image, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import SearchBar from '../elements/SearchBAr';
 
 const Venue = () => {
   const navigation = useNavigation();
-  const route = useRoute();
-  const { setVenueLocation } = route.params; // Retrieve the callback from the route params
-
   const [showSearch, setShowSearch] = useState(false);
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
 
   const handleSearch = (query) => {
     console.log("Searching for:", query);
-    // Add your search logic here
   };
 
   const handleChoosePress = (image) => {
@@ -25,8 +21,7 @@ const Venue = () => {
   };
 
   const handleConfirmPress = () => {
-    setVenueLocation(selectedPackage); // Update the venue location using the callback
-    navigation.navigate('Book');
+    navigation.navigate('Book', { selectedVenueLocation: selectedPackage });
   };
 
   return (

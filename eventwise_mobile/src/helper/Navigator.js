@@ -73,6 +73,7 @@ const Navigator = () => {
           component={AccountRecovery}
           options={{ headerShown: false }}
         />
+
         <Stack.Screen
           name="TabNav"
           component={TabNav}
@@ -167,6 +168,7 @@ const Navigator = () => {
           component={Feedback}
           options={{ headerShown: false }}
         /> */}
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

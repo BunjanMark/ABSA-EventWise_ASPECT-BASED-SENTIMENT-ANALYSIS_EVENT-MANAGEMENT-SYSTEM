@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ImageBackground, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
@@ -13,36 +13,36 @@ const Book = () => {
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
-  const [venueLocation, setVenueLocation] = useState('');
   const [invitationMessage, setInvitationMessage] = useState('');
   const [peopleToInvite, setPeopleToInvite] = useState('');
   const navigation = useNavigation();
   const route = useRoute();
-  const { selectedPackage } = route.params || {};
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [selectedVenueLocation, setSelectedVenueLocation] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (route.params) {
-      const { package: packageFromRoute, venue: venueFromRoute } = route.params;
-      if (packageFromRoute) setSelectedPackage(packageFromRoute);
-      if (venueFromRoute) setVenueLocation(venueFromRoute);
+      const { selectedPackage: pkgFromRoute, selectedVenueLocation: venueFromRoute } = route.params;
+      if (pkgFromRoute) setSelectedPackage(pkgFromRoute);
+      if (venueFromRoute) setSelectedVenueLocation(venueFromRoute);
     }
   }, [route.params]);
 
   const saveEvent = async () => {
-    if (!eventName || !eventType || !selectedDate || !description || !venueLocation || !invitationMessage || !peopleToInvite || !selectedPackage) {
+    if (!eventName || !eventType || !selectedDate || !description || !selectedVenueLocation || !invitationMessage || !peopleToInvite || !selectedPackage) {
       showToast('Please fill in all the details.');
       return;
     }
-    
+
     const bookedEvent = {
       eventType,
       eventName,
       eventDate: selectedDate,
-      eventLocation: venueLocation,
+      eventLocation: selectedVenueLocation,
       description,
       invitationMessage,
       peopleToInvite,
-      package: selectedPackage, 
+      package: selectedPackage,
     };
 
     try {
@@ -61,10 +61,10 @@ const Book = () => {
     setSelectedDate(null);
     setEventName('');
     setDescription('');
-    setVenueLocation('');
+    setSelectedVenueLocation(null);
     setInvitationMessage('');
     setPeopleToInvite('');
-    setSelectedPackage('');
+    setSelectedPackage(null);
   };
 
   const showToast = (message = "Something went wrong") => {
@@ -78,6 +78,14 @@ const Book = () => {
 
   const toggleCalendar = () => {
     setIsCalendarVisible(!isCalendarVisible);
+  };
+
+  const navigateToVenue = () => {
+    navigation.navigate('Venue', {
+      setVenueLocation: (venueLocation) => {
+        setSelectedVenueLocation(venueLocation);
+      },
+    });
   };
 
   return (
@@ -212,17 +220,16 @@ const Book = () => {
                 <Text style={styles.navigateButtonText}>Find packages, choose and/or customize</Text>
               </TouchableOpacity>
               <View style={styles.selectedItemsContainer}>
+              <Text style={styles.selectedText}>Package</Text>
               {selectedPackage && (
                 <View style={styles.selectedItemsContainer}>
-                  <Text style={styles.selectedText}>Package</Text>
                   <Image source={selectedPackage} style={styles.selectedImage} />
                 </View>
               )}
               <View style={styles.container}>
-              <Text style={styles.title}>Customized Package</Text>
               <View style={styles.selectedItemsContainer}>
-                {selectedPackage && selectedPackage.length > 0 ? (
-                  selectedPackage.map((service, index) => (
+                {selectedPackage && selectedPackage.length > 0 
+                  && selectedPackage.map((service, index) => (
                     <View key={index} style={styles.serviceItem}>
                       <Image source={service.image} style={styles.serviceImage} />
                       <View style={styles.serviceS}>
@@ -231,10 +238,7 @@ const Book = () => {
                       <Text style={styles.servicePrice}>{service.price}k</Text>
                       </View>
                     </View>
-                  ))
-                ) : (
-                  <Text style={styles.noSelection}>No services selected</Text>
-                )}
+                  ))}
               </View>
             </View>
             </View>
@@ -242,21 +246,16 @@ const Book = () => {
             <View style={styles.formButton}>
               <TouchableOpacity
                 style={styles.navigateButton}
-                onPress={() => navigation.navigate('Venue')}
+                onPress={navigateToVenue}
               >
                 <Text style={styles.navigateButtonText}>Find venue and choose</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.selectedItemsContainer}>
-              {venueLocation ? (
-                <>
-                  {venueLocation && (
-                    <Text style={styles.selectedText}> {venueLocation}</Text>
-                  )}
-                </>
-              ) : (
-                <Text style={styles.placeholderText}>Chosen venue will be displayed here</Text>
-              )}
+                <Text style={styles.selectedText}>Venue</Text>
+                {selectedVenueLocation && (
+                  <Image source={selectedVenueLocation} style={styles.selectedImage} />
+                )}
             </View>
             <TouchableOpacity style={styles.bookButton} onPress={saveEvent}>
               <Text style={styles.bookButtonText}>Book Event</Text>
@@ -432,6 +431,18 @@ const styles = StyleSheet.create({
     color: '#888',
     textAlign: 'center',
     marginTop: 20,
+  },
+  venueContainer: {
+    marginTop: 20,
+  },
+  venueHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  venueImage: {
+    width: '100%',
+    height: 200,
+    marginTop: 10,
   },
 });
 

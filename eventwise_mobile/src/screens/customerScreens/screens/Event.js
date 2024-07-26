@@ -16,7 +16,9 @@ const Event = () => {
     const fetchEventDetails = async () => {
       try {
         const keys = await AsyncStorage.getAllKeys();
+        console.log('Keys:', keys); // Debugging line
         const events = await AsyncStorage.multiGet(keys);
+        console.log('Events:', events); // Debugging line
 
         const filteredEvents = events
           .filter(([key]) => key.startsWith('@booked_events:'))
@@ -24,6 +26,8 @@ const Event = () => {
             const event = JSON.parse(value);
             return { ...event, key };
           });
+
+        console.log('Filtered Events:', filteredEvents); // Debugging line
 
         filteredEvents.sort((a, b) => parseInt(b.key.split(':')[1]) - parseInt(a.key.split(':')[1]));
 
@@ -60,10 +64,10 @@ const Event = () => {
               <View key={index} style={styles.eventFolder}>
                 <View style={styles.leftColumn}>
                   <Image source={require("../pictures/user.png")} style={styles.accountImage} />
-                    <Text style={styles.orgName}>Organizer</Text>
+                  <Text style={styles.orgName}>Organizer</Text>
                 </View>
                 <View style={styles.centerColumn}>
-                 <View style={styles.line} />
+                  <View style={styles.line} />
                   <Text style={styles.eventType}>{event.eventType}</Text>
                   <Text style={styles.eventLocation}>{event.eventLocation}</Text>
                   <TouchableOpacity

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
 import Header from "../elements/Header";
@@ -9,21 +9,27 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 const EventDetails = () => {
   const [eventDetails, setEventDetails] = useState([]);
   const navigation = useNavigation();
-  const route = useRoute();
-  const { eventName } = route.params || {};
 
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
         const keys = await AsyncStorage.getAllKeys();
+        console.log('Keys:', keys);
         const events = await AsyncStorage.multiGet(keys);
+        console.log('Events:', events);
 
         const filteredEvents = events
           .filter(([key]) => key.startsWith('@booked_events:'))
           .map(([key, value]) => {
             const event = JSON.parse(value);
+
+            console.log('Package URL:', event.package);
+            console.log('Venue Location URL:', event.eventLocation);
+            
             return { ...event, key };
           });
+
+        console.log('Filtered Events:', filteredEvents);
 
         filteredEvents.sort((a, b) => parseInt(b.key.split(':')[1]) - parseInt(a.key.split(':')[1]));
 
@@ -41,6 +47,19 @@ const EventDetails = () => {
     Toast.show(message, 3000);
   };
 
+  const renderImage = (uri) => {
+    return uri ? (
+      <Image
+        source={{ uri }}
+        style={styles.image}
+        resizeMode="cover"
+        onError={() => console.log('Failed to load image from URI:', uri)}
+      />
+    ) : (
+      <Text style={styles.detailValue}>Image not available</Text>
+    );
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
@@ -49,8 +68,8 @@ const EventDetails = () => {
       >
         <Header />
         <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-        <Icon name="close" size={24} color="#fff" />
-      </TouchableOpacity>
+          <Icon name="close" size={24} color="#fff" />
+        </TouchableOpacity>
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.header}>
             <Text style={styles.headerText}>Event Details</Text>
@@ -74,7 +93,7 @@ const EventDetails = () => {
                 </View>
                 <View style={styles.detailGroup}>
                   <Text style={styles.detailLabel}>Venue Location:</Text>
-                  <Text style={styles.detailValue}>{event.eventLocation}</Text>
+                  {renderImage(event.eventLocation)}
                 </View>
                 <View style={styles.detailGroup}>
                   <Text style={styles.detailLabel}>Description:</Text>
@@ -90,7 +109,7 @@ const EventDetails = () => {
                 </View>
                 <View style={styles.detailGroup}>
                   <Text style={styles.detailLabel}>Selected Package:</Text>
-                  <Text style={styles.detailValue}>{event.package}</Text>
+                  {renderImage(event.package)}
                 </View>
               </View>
             ))
@@ -149,6 +168,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
+  },
+  image: {
+    width: '100%',
+    height: 100,
+    borderRadius: 10,
   },
 });
 
