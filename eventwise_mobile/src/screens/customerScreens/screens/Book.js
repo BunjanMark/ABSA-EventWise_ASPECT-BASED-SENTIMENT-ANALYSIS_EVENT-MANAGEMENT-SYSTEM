@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ImageBackground } from 'react-native';
-import Slider from '@react-native-community/slider';
+import { SafeAreaView, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ImageBackground, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Calendar } from 'react-native-calendars';
 import Header from "../elements/Header";
 
 const Book = () => {
   const [eventType, setEventType] = useState('');
-  const [budget, setBudget] = useState([50000, 1000000]);
-  const [sliderValues, setSliderValues] = useState(budget);
   const [selectedDate, setSelectedDate] = useState(null);
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [eventName, setEventName] = useState('');
@@ -20,9 +17,19 @@ const Book = () => {
   const [invitationMessage, setInvitationMessage] = useState('');
   const [peopleToInvite, setPeopleToInvite] = useState('');
   const navigation = useNavigation();
+  const route = useRoute();
+  const { selectedPackage } = route.params || {};
+
+  React.useEffect(() => {
+    if (route.params) {
+      const { package: packageFromRoute, venue: venueFromRoute } = route.params;
+      if (packageFromRoute) setSelectedPackage(packageFromRoute);
+      if (venueFromRoute) setVenueLocation(venueFromRoute);
+    }
+  }, [route.params]);
 
   const saveEvent = async () => {
-    if (!eventName || !eventType || !selectedDate || !description || !venueLocation || !invitationMessage || !peopleToInvite) {
+    if (!eventName || !eventType || !selectedDate || !description || !venueLocation || !invitationMessage || !peopleToInvite || !selectedPackage) {
       showToast('Please fill in all the details.');
       return;
     }
@@ -33,17 +40,16 @@ const Book = () => {
       eventDate: selectedDate,
       eventLocation: venueLocation,
       description,
-      budget,
       invitationMessage,
       peopleToInvite,
+      package: selectedPackage, 
     };
 
     try {
-      // Generate a unique key for each event (e.g., using a timestamp)
       const key = `@booked_events:${Date.now()}`;
       await AsyncStorage.setItem(key, JSON.stringify(bookedEvent));
       showToast('Event booked successfully!');
-      clearForm(); // Optionally clear the form after booking
+      clearForm(); 
     } catch (e) {
       console.error('Error saving event:', e);
       showToast('Failed to save event.');
@@ -52,25 +58,17 @@ const Book = () => {
 
   const clearForm = () => {
     setEventType('');
-    setBudget([50000, 1000000]);
-    setSliderValues([50000, 1000000]);
     setSelectedDate(null);
     setEventName('');
     setDescription('');
     setVenueLocation('');
     setInvitationMessage('');
     setPeopleToInvite('');
+    setSelectedPackage('');
   };
 
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
-  };
-
-  const formatNumber = (number) => {
-    if (typeof number === 'number') {
-      return number.toLocaleString();
-    }
-    return "";
   };
 
   const handleDateChange = (date) => {
@@ -82,151 +80,189 @@ const Book = () => {
     setIsCalendarVisible(!isCalendarVisible);
   };
 
-  const handleSliderValueChange = (values) => {
-    setSliderValues(values);
-    setBudget(values); 
-  };
-
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
         source={require("../pictures/bg.png")}
       >
-      <Header />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-      >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Book Event</Text>
-          </View>
-          <Text style={styles.headerEType}>Choose Event Type</Text>
-          <View style={styles.eventTypeContainer}>
-            <ScrollView horizontal contentContainerStyle={styles.eventTypeButtonContainer}>
-              <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Wedding' && styles.selectedEventTypeButton]} onPress={() => setEventType('Wedding')}>
-                <Text style={styles.eventTypeText}>Wedding</Text>
+        <Header />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.container}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        >
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <View style={styles.header}>
+              <Text style={styles.headerText}>Book Event</Text>
+            </View>
+            <Text style={styles.headerEType}>Choose Event Type</Text>
+            <View style={styles.eventTypeContainer}>
+              <ScrollView horizontal contentContainerStyle={styles.eventTypeButtonContainer}>
+                <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Wedding' && styles.selectedEventTypeButton]} onPress={() => setEventType('Wedding')}>
+                  <Text style={styles.eventTypeText}>Wedding</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Birthday' && styles.selectedEventTypeButton]} onPress={() => setEventType('Birthday')}>
+                  <Text style={styles.eventTypeText}>Birthday</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Reunion' && styles.selectedEventTypeButton]} onPress={() => setEventType('Reunion')}>
+                  <Text style={styles.eventTypeText}>Reunion</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Debut' && styles.selectedEventTypeButton]} onPress={() => setEventType('Debut')}>
+                  <Text style={styles.eventTypeText}>Debut</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.eventTypeButton, eventType === 'KidsParty' && styles.selectedEventTypeButton]} onPress={() => setEventType('KidsParty')}>
+                  <Text style={styles.eventTypeText}>Kid's Party</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Valentines' && styles.selectedEventTypeButton]} onPress={() => setEventType('Valentines')}>
+                  <Text style={styles.eventTypeText}>Valentines</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Christmas' && styles.selectedEventTypeButton]} onPress={() => setEventType('Christmas')}>
+                  <Text style={styles.eventTypeText}>Christmas</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Alumni' && styles.selectedEventTypeButton]} onPress={() => setEventType('Alumni')}>
+                  <Text style={styles.eventTypeText}>Alumni</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Party' && styles.selectedEventTypeButton]} onPress={() => setEventType('Party')}>
+                  <Text style={styles.eventTypeText}>Party</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+            <View style={styles.formGroup}>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Type event name (e.g. Mr. & Mrs. Malik Wedding)" 
+                value={eventName}
+                onChangeText={setEventName}
+              />
+            </View>
+            <View style={styles.formGroup}>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Type your event description..." 
+                multiline
+                value={description}
+                onChangeText={setDescription}
+              />
+            </View>
+            <View style={styles.formGroup}>
+              <TouchableOpacity style={styles.calendarButton} onPress={toggleCalendar}>
+                <Text style={styles.calendarButtonText}>Choose your event date </Text>
+                <Icon name="calendar" size={16} color="#fff" />
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Birthday' && styles.selectedEventTypeButton]} onPress={() => setEventType('Birthday')}>
-                <Text style={styles.eventTypeText}>Birthday</Text>
+              {isCalendarVisible && (
+                <View style={styles.calendarContainer}>
+                  <Calendar
+                    onDayPress={handleDateChange}
+                    markedDates={{
+                      [selectedDate]: { selected: true, marked: true, selectedColor: '#e6b800' },
+                    }}
+                    theme={{
+                      backgroundColor: '#23232e',
+                      calendarBackground: '#23232e',
+                      textSectionTitleColor: '#cdb6c1',
+                      selectedDayBackgroundColor: '#e6b800',
+                      selectedDayTextColor: '#23232e',
+                      todayTextColor: '#e6b800',
+                      dayTextColor: '#fff',
+                      textDisabledColor: '#424242',
+                      dotColor: '#e6b800',
+                      selectedDotColor: '#23232e',
+                      arrowColor: '#e6b800',
+                      monthTextColor: '#fff',
+                      textDayHeaderFontColor: '#fff',
+                    }}
+                  />
+                </View>
+              )}
+              <View style={styles.selectedItemsContainer}>
+              {selectedDate ? (
+                <>
+                  {selectedDate && (
+                    <Text style={styles.selectedText}>Selected Date:   {selectedDate}</Text>
+                  )}
+                </>
+              ) : (
+                <Text style={styles.placeholderText}>Selected date will be displayed here</Text>
+              )}
+            </View>
+            </View>
+            <View style={styles.formGroup}>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Invitation Message" 
+                multiline
+                value={invitationMessage}
+                onChangeText={setInvitationMessage}
+              />
+            </View>
+            <View style={styles.formGroup}>
+              <TextInput 
+                style={styles.input} 
+                placeholder="People To Invite (e.g. name and name@gmail.com, name2 and name2@gmail.com)" 
+                multiline
+                value={peopleToInvite}
+                onChangeText={setPeopleToInvite}
+              />
+            </View>
+            <View style={styles.formButton}>
+              <TouchableOpacity
+                style={styles.navigateButton}
+                onPress={() => navigation.navigate('Package')}
+              >
+                <Text style={styles.navigateButtonText}>Find packages, choose and/or customize</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Reunion' && styles.selectedEventTypeButton]} onPress={() => setEventType('Reunion')}>
-                <Text style={styles.eventTypeText}>Reunion</Text>
+              <View style={styles.selectedItemsContainer}>
+              {selectedPackage && (
+                <View style={styles.selectedItemsContainer}>
+                  <Text style={styles.selectedText}>Package</Text>
+                  <Image source={selectedPackage} style={styles.selectedImage} />
+                </View>
+              )}
+              <View style={styles.container}>
+              <Text style={styles.title}>Customized Package</Text>
+              <View style={styles.selectedItemsContainer}>
+                {selectedPackage && selectedPackage.length > 0 ? (
+                  selectedPackage.map((service, index) => (
+                    <View key={index} style={styles.serviceItem}>
+                      <Image source={service.image} style={styles.serviceImage} />
+                      <View style={styles.serviceS}>
+                      <Text style={styles.serviceName}>{service.name}</Text>
+                      <Text style={styles.serviceType}>{service.type}</Text>
+                      <Text style={styles.servicePrice}>{service.price}k</Text>
+                      </View>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noSelection}>No services selected</Text>
+                )}
+              </View>
+            </View>
+            </View>
+            </View>
+            <View style={styles.formButton}>
+              <TouchableOpacity
+                style={styles.navigateButton}
+                onPress={() => navigation.navigate('Venue')}
+              >
+                <Text style={styles.navigateButtonText}>Find venue and choose</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Debut' && styles.selectedEventTypeButton]} onPress={() => setEventType('Debut')}>
-                <Text style={styles.eventTypeText}>Debut</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.eventTypeButton, eventType === 'KidsParty' && styles.selectedEventTypeButton]} onPress={() => setEventType('KidsParty')}>
-                <Text style={styles.eventTypeText}>Kid's Party</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Valentines' && styles.selectedEventTypeButton]} onPress={() => setEventType('Valentines')}>
-                <Text style={styles.eventTypeText}>Valentines</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Christmas' && styles.selectedEventTypeButton]} onPress={() => setEventType('Christmas')}>
-                <Text style={styles.eventTypeText}>Christmas</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Alumni' && styles.selectedEventTypeButton]} onPress={() => setEventType('Alumni')}>
-                <Text style={styles.eventTypeText}>Alumni</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.eventTypeButton, eventType === 'Party' && styles.selectedEventTypeButton]} onPress={() => setEventType('Party')}>
-                <Text style={styles.eventTypeText}>Party</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-          <View style={styles.formGroup}>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Type your event name" 
-              value={eventName}
-              onChangeText={setEventName}
-            />
-          </View>
-          <View style={styles.formGroup}>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Type youe event description..." 
-              multiline
-              value={description}
-              onChangeText={setDescription}
-            />
-          </View>
-          <View style={styles.formGroup}>
-            <TouchableOpacity style={styles.calendarButton} onPress={toggleCalendar}>
-              <Text style={styles.calendarButtonText}>Choose your event date </Text>
+            </View>
+            <View style={styles.selectedItemsContainer}>
+              {venueLocation ? (
+                <>
+                  {venueLocation && (
+                    <Text style={styles.selectedText}> {venueLocation}</Text>
+                  )}
+                </>
+              ) : (
+                <Text style={styles.placeholderText}>Chosen venue will be displayed here</Text>
+              )}
+            </View>
+            <TouchableOpacity style={styles.bookButton} onPress={saveEvent}>
+              <Text style={styles.bookButtonText}>Book Event</Text>
             </TouchableOpacity>
-            {isCalendarVisible && (
-              <View style={styles.calendarContainer}>
-                <Calendar
-                  onDayPress={handleDateChange}
-                  markedDates={{
-                    [selectedDate]: { selected: true, marked: true, selectedColor: '#e6b800' },
-                  }}
-                  theme={{
-                    backgroundColor: '#23232e',
-                    calendarBackground: '#23232e',
-                    textSectionTitleColor: '#cdb6c1',
-                    selectedDayBackgroundColor: '#e6b800',
-                    selectedDayTextColor: '#23232e',
-                    todayTextColor: '#e6b800',
-                    dayTextColor: '#fff',
-                    textDisabledColor: '#424242',
-                    dotColor: '#e6b800',
-                    selectedDotColor: '#23232e',
-                    arrowColor: '#e6b800',
-                  }}
-                />
-              </View>
-            )}
-            {selectedDate && (
-              <View style={styles.formGroup}>
-                <Text style={{ color: "white", marginTop: 10, alignSelf: "center",     fontSize: 16,}}>SELECTED DATE:</Text>
-                <Text style={{ color: 'white', marginTop: 10, alignSelf: "center", backgroundColor: "gray", padding: 8, fontSize: 20, fontWeight: "bold" }}>{selectedDate}</Text>
-              </View>
-            )}
-          </View>
-          <View style={styles.formGroup}>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Invitation Message" 
-              multiline
-              value={invitationMessage}
-              onChangeText={setInvitationMessage}
-            />
-          </View>
-          <View style={styles.formGroup}>
-            <TextInput 
-              style={styles.input} 
-              placeholder="People To Invite (e.g. name and name@gmail.com, name2 and name2@gmail.com)" 
-              multiline
-              value={peopleToInvite}
-              onChangeText={setPeopleToInvite}
-            />
-          </View>
-          <View style={styles.formGroup}>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Package" 
-              multiline
-              value={venueLocation}
-              onChangeText={setVenueLocation}
-            />
-          </View>
-          <View style={styles.formGroup}>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Venue Location" 
-              multiline
-              value={venueLocation}
-              onChangeText={setVenueLocation}
-            />
-          </View>
-          <TouchableOpacity style={styles.bookButton} onPress={saveEvent}>
-            <Text style={styles.bookButtonText}>Book Event</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    
+          </ScrollView>
+        </KeyboardAvoidingView>
       </ImageBackground>
     </View>
   );
@@ -235,35 +271,6 @@ const Book = () => {
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
-  },
-  eventCreationPage: {
-    flex: 1,
-    backgroundColor: '#1e1e1e',
-    padding: 10,
-  },
-  headerButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginTop: 18,
-    marginBottom: 10,
-  },
-  goBackButton: {
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navigateButton: {
-    backgroundColor: '#e6b800',
-    padding: 10,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navigateButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
   header: {
     alignItems: 'center',
@@ -280,7 +287,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 10,
-    marginLeft: 5
+    marginLeft: 5,
   },
   eventTypeContainer: {
     flexDirection: 'row',
@@ -309,7 +316,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   formGroup: {
-    marginBottom: 20,
+    marginBottom: 10,
+    marginTop: 10,
   },
   input: {
     backgroundColor: '#fff',
@@ -318,65 +326,112 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   calendarButton: {
-    backgroundColor: '#e6b800',
+    backgroundColor: '#C2B067',
     borderRadius: 10,
     padding: 10,
     alignItems: 'center',
     marginTop: 2,
+    marginLeft: 30,
+    marginRight: 30,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   calendarButtonText: {
     color: '#fff',
     fontSize: 16,
   },
-  budgetText: {
-    color: '#fff',
-    fontSize: 16,
-    alignItems: 'center',
+  selectedItemsContainer: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+    marginTop: 10,
+    alignItems: "center",
   },
-  budgetContainer: {
-    alignItems: 'center',
+  selectedText: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
     marginBottom: 10,
   },
-  budgetPrices: {
+  placeholderText: {
+    color: 'gray',
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
+  formButton: {
+    marginBottom: 5,
+    marginTop: 15,
+  },
+  navigateButton: {
+    backgroundColor: '#C2B067',
+    padding: 10,
+    borderRadius: 10,
     alignItems: 'center',
+    marginLeft: 30,
+    marginRight: 30,
+  },
+  navigateButtonText: {
     color: '#fff',
     fontSize: 16,
-    marginTop: 10,
-  },
-  budgetPrice: {
-    color: 'white',
-    marginHorizontal: 8,
-    fontSize: 16,
-    alignItems: 'center',
-  },
-  budgetArrowContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sliderContainer: {
-    width: '100%',
-    justifyContent: 'center',
-  },
-  slider: {
-    width: '100%',
-    height: 40,
   },
   bookButton: {
     backgroundColor: '#e6b800',
     alignItems: 'center',
-    marginBottom: 200,
+    marginBottom: 300,
     paddingVertical: 10,
     paddingHorizontal: 5,
-    alignItems: "center",
     borderRadius: 20,
     margin: 100,
-    marginTop: 10,
-    position: "relative",
+    marginTop: 40,
   },
   bookButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  title: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  serviceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  serviceS: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    alignContent: "space-between"
+  },
+  serviceImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover',
+    borderRadius: 10,
+  },
+  serviceName: {
+    fontSize: 18,
+    marginLeft: 10,
+    flex: 1,
+  },
+  serviceType: {
+    fontSize: 16,
+    marginLeft: 10,
+    flex: 1,
+  },
+  servicePrice: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: '#000',
+  },
+  noSelection: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 

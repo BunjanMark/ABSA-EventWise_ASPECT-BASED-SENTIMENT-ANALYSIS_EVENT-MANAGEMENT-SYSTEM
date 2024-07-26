@@ -1,159 +1,351 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ImageBackground,
-  Image,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Image, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { Divider } from "react-native-paper";
+import { FontAwesome } from "@expo/vector-icons";
 import Header from "../elements/Header";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Home = () => {
-  const navigation = useNavigation();
+  const navigator = useNavigation();
+  const [profilePicture, setProfilePicture] = useState("");
+  const [username, setUsername] = useState("");
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem("username");
+        const storedProfilePicture = await AsyncStorage.getItem("profilePicture");
+
+        setUsername(storedUsername || "Customer Name");
+        if (storedProfilePicture) {
+          setProfilePicture(storedProfilePicture);
+        }
+      } catch (error) {
+        console.error("Error loading data from AsyncStorage:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
   return (
     <View style={{ flex: 1 }}>
-    <ImageBackground
-      source={require("../pictures/bg.png")}
-    >
-      <Header />
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.profileContainer}>
-          <View style={styles.profileInfo}>
-            <Text style={styles.welcomeText}>Welcome,</Text>
-            <Text style={styles.nameText}>Your Name</Text>
-            <Text style={styles.roleText}>Event Organizer</Text>
-          </View>
+      <ImageBackground
+        source={require("../pictures/bg.png")}
+        style={{ flex: 1 }}
+      >
+        <Header />
+        <ScrollView contentContainerStyle={styles.container}>
+
+        <View style={styles.accountsSection}>
+        <View style={styles.userProfile}>
+            <Image
+              source={
+                profilePicture
+                  ? { uri: profilePicture }
+                  : require("../pictures/user.png")
+              }
+              style={styles.accountImage}
+            />
+            <View style={styles.accountInfo}>
+                <Text style={styles.accountName}>Welcome,</Text>
+                <Text style={styles.userName}>{username}</Text>
+                </View>
+                <View style={styles.accInfo}>
+                  <View>
+                <Text style={styles.placeName}>Cagayan de Oro</Text>
+                <Divider style={styles.accDiv}/>
+                </View>
+                <FontAwesome name="map-marker" size={20} color={"#9F7E1C"} style={styles.dot}/>
+                </View>
+                </View>
+              <Image source={require("../pictures/background.png")} style={styles.backImage} />
+            </View>
+
+            <View style={styles.accountCard}>
+              <Image source={require("../pictures/user.png")} style={styles.accountImage} />
+                <View style={styles.accountInfo}>
+                  <Text style={styles.orgName}>Organizer Name</Text>
+                  <Text style={styles.accountType}>Event Organizer</Text>
+                </View>
+                  <View style={styles.accButton}>
+                    <View style={styles.aButton}>
+                      <TouchableOpacity style={styles.iconButton} onPress={() => alert('Message pressed')}>
+                        <FontAwesome name="comment" size={18} color={"#333"} />
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.iconButton} onPress={() => alert('Phone call pressed')}>
+                        <FontAwesome name="phone-square" size={18} color={"#333"} />
+                      </TouchableOpacity>
+                    </View>
+                    <View>
+                      <TouchableOpacity style={styles.viewProfileButton} onPress={() => {navigator.navigate("ProfileOrganizer");}}>
+                        <Text style={styles.viewProfileButtonText}>View Profile</Text>
+                        <Divider style={styles.viewLine}/>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+            </View>
+
           <Image
-            source={{ uri: "https://d41chssnpqdne.cloudfront.net/user_upload_by_module/chat_bot/files/26045656/iNNunLcDKlvfIDbG.png" }}
-            style={styles.profileImage}
+              source={require("../pictures/line.png")}
+              style={styles.line}
+              resizeMode="contain"
+            />
+          <Text style={styles.sectionTitle}>Popular Events</Text>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.eventList}>
+            {[
+              {
+                title: "Mr. & Mrs. Malik Wedding",
+                location: "Cagayan de Oro City",
+                date: "23 Sept, 23",
+                image: require("../pictures/event1.png"),
+              },
+              {
+                title: "Barbella's Birthday",
+                location: "Cagayan de Oro City",
+                date: "27 July, 23",
+                image: require("../pictures/event2.png"),
+              },
+              {
+                title: "Class of 1979 Reunion",
+                location: "Cagayan de Oro City",
+                date: "12 August, 23",
+                image: require("../pictures/event3.png"),
+              },
+              {
+                title: "Barbella's Debut",
+                location: "Cagayan de Oro City",
+                date: "23 Sept, 25",
+                image: require("../pictures/event4.png"),
+              },
+              {
+                title: "Kids Party",
+                location: "Cagayan de Oro City",
+                date: "12 August, 24",
+                image: require("../pictures/event5.png"),
+              },
+            ].map((event, index) => (
+              <View key={index} style={styles.eventItem}>
+                <Image source={event.image} style={styles.eventImage} />
+                <Text style={styles.eventTitle}>{event.title}</Text>
+                <Text style={styles.eventLocation}>{event.location}</Text>
+                <Text style={styles.eventDate}>{event.date}</Text>
+              </View>
+            ))}
+          </ScrollView>
+          <Text style={styles.recommendationsTitle}>Recommendations</Text>
+          <Text style={styles.venueTitle}>Packages</Text>
+          <View style={styles.recommendationsContainer}>
+            {Array(6)
+              .fill(0)
+              .map((_, index) => (
+                <View key={index} style={styles.recommendationItem} />
+              ))}
+          </View>
+          <Text style={styles.venueTitle}>Venue</Text>
+          <Image
+            source={require("../pictures/venue.png")}
+            style={styles.venueImage}
           />
-        </View>
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Get Ready*Discover the World</Text>
-          <Text style={styles.sectionTitle}>Event's</Text>
-        </View>
-        <View style={styles.eventContainer}>
-          <View style={styles.eventItem}>
-            <Text style={styles.eventTitle}>Mr. & Mrs. Malik Wedding</Text>
-            <Text style={styles.eventLocation}>Cagayan de Oro City</Text>
-            <Text style={styles.eventDate}>23 Sept, 23</Text>
-          </View>
-          <View style={styles.eventItem}>
-            <Text style={styles.eventTitle}>Barbella's Birthday</Text>
-            <Text style={styles.eventLocation}>Cagayan de Oro City</Text>
-            <Text style={styles.eventDate}>25-27 July, 23</Text>
-          </View>
-          <View style={styles.eventItem}>
-            <Text style={styles.eventTitle}>Barbella's Debut</Text>
-            <Text style={styles.eventLocation}>Cagayan de Oro City</Text>
-            <Text style={styles.eventDate}>23 Sept, 25</Text>
-          </View>
-          <View style={styles.eventItem}>
-            <Text style={styles.eventTitle}>Kids Party</Text>
-            <Text style={styles.eventLocation}>Cagayan de Oro City</Text>
-            <Text style={styles.eventDate}>12 August, 24</Text>
-          </View>
-          <View style={styles.eventItem}>
-            <Text style={styles.eventTitle}>Class of 1979 Reunion</Text>
-            <Text style={styles.eventLocation}>Cagayan de Oro City</Text>
-            <Text style={styles.eventDate}>12 August, 23</Text>
-            <Text style={styles.eventRole}>Guest</Text>
-          </View>
-        </View>
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.descriptionTitle}>Description Of the Event</Text>
-          <Text style={styles.descriptionText}>
-            Event Recommendations, Packages, Venue
-          </Text>
-        </View>
-        <TouchableOpacity style={styles.logoutButton}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </ImageBackground>
-  </View>
+        </ScrollView>
+      </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
+    paddingBottom: 40,
   },
-  profileContainer: {
+  userProfile: {
+    alignItems: "flex-end",
+    marginVertical: 6,
+    flexDirection: "row",
+    marginTop: -10,
+    marginBottom: 10,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  accountsSection: {
+    marginTop: 10,
+    padding: 20,
+    backgroundColor: "rgba(84, 84, 84, 0.9)",
+    borderRadius: 60,
+    marginLeft: -20,
+    marginRight: -20,
+    marginBottom: 50
+  },
+  accDivider: {
+    height: 7,
+    width: 50,
+    backgroundColor: "#878787",
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+  accountsHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  accountCard: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginVertical: 20,
+    paddingVertical: 10,
+    marginBottom: 10,
+    borderRadius: 8,
   },
-  profileInfo: {
+  backImage: {
+    width: 420,
+    height: 200,
+    marginLeft: -20,
+    marginRight: -20,
+    marginBottom: -50
+  },
+  accountImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 20,
+  },
+  accInfo: {
+    marginLeft: 10,
+    flexDirection: "row",
+  },
+  accountInfo: {
     flex: 1,
+    marginLeft: 10,
   },
-  welcomeText: {
-    fontSize: 18,
-    color: "white",
+  accountName: {
+    fontSize: 10,
+    color: "#fff",
   },
-  nameText: {
-    fontSize: 24,
-    color: "white",
+  placeName: {
+    fontSize: 10,
+    color: "#fff",
+    marginTop: 8
+  },
+  accDiv: {
+    width: 70  
+  },
+  orgName: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#fff",
+
+  },
+  accountType: {
+    fontSize: 14,
+    color: "#888",
+  },
+  dot: {
+    marginLeft: 7,
+    marginRight: 10,
+    marginBottom: 5,
+  },
+  dots: {
+    marginRight: 20,
+    backgroundColor: "gray",
+    padding: 5,
+    borderRadius: 25,
+  },
+  accButton: {
+    flexDirection: "column"  
+  },
+  aButton: {
+    flexDirection: "row"  
+  },
+  iconButton: {
+    padding: 5,
+    borderRadius: 20,
+    backgroundColor: "gray",
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+  viewProfileButton: {
+    alignItems: "center",
+    borderRadius: 20,
+    marginVertical: 10,
+  },
+  viewProfileButtonText: {
+    color: "#EFBF04",
+    fontSize: 12,
     fontWeight: "bold",
   },
-  roleText: {
-    fontSize: 16,
-    color: "white",
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
-  sectionContainer: {
-    marginVertical: 20,
+  viewLine: {
+    width: 65,
+    backgroundColor: "#EFBF04",  
   },
   sectionTitle: {
     fontSize: 20,
     color: "white",
     fontWeight: "bold",
-  },
-  eventContainer: {
     marginVertical: 20,
   },
-  eventItem: {
+  eventList: {
+    marginVertical: 10,
+  },
+   eventItem: {
     backgroundColor: "white",
-    padding: 16,
+    padding: 10,
     borderRadius: 8,
-    marginBottom: 16,
+    width: 200,
+    marginHorizontal: 8,
+  },
+  eventImage: {
+    width: "100%",
+    height: 100,
+    borderRadius: 8,
+    marginBottom: 8,
   },
   eventTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
+    marginBottom: 4,
   },
   eventLocation: {
-    fontSize: 16,
+    fontSize: 14,
     color: "gray",
   },
   eventDate: {
-    fontSize: 16,
+    fontSize: 14,
     color: "gray",
   },
-  eventRole: {
-    fontSize: 16,
-    color: "gray",
-  },
-  descriptionContainer: {
-    marginVertical: 20,
-  },
-  descriptionTitle: {
+  recommendationsTitle: {
     fontSize: 20,
     color: "white",
     fontWeight: "bold",
+    marginVertical: 20,
+    alignSelf: "center",
   },
-  descriptionText: {
-    fontSize: 16,
+  recommendationsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  recommendationItem: {
+    backgroundColor: "white",
+    width: "48%",
+    height: 100,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  venueTitle: {
+    fontSize: 20,
     color: "white",
+    fontWeight: "bold",
+    marginVertical: 20,
+  },
+  venueImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 8,
+    marginBottom: 20,
   },
   logoutButton: {
     backgroundColor: "white",
@@ -161,8 +353,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     alignItems: "center",
     borderRadius: 20,
-    marginTop: 20,
-    marginBottom: 40,
   },
   logoutButtonText: {
     color: "black",

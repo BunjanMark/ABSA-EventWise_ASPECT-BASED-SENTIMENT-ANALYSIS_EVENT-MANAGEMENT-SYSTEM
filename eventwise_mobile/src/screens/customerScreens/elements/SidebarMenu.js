@@ -36,7 +36,7 @@ const SidebarMenu = ({ visible, onClose }) => {
             <Icon name="home" size={24} color="#fff" style={styles.icon} />
             <Text style={styles.text}>Home</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.option} onPress={() => handlePress("Inventory Tracker")}>
+          <TouchableOpacity style={styles.option} onPress={() => handlePress("InventoryTracker")}>
             <Icon name="list" size={24} color="#fff" style={styles.icon} />
             <Text style={styles.text}>Inventory Tracker</Text>
           </TouchableOpacity>
