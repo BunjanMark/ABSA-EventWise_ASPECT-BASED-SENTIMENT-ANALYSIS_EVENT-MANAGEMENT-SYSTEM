@@ -4,10 +4,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-import Home from "../";
-import Event from "../screens/Event";
-import Guest from "../screens/Guest";
-import Book from "../screens/Book";
+import Home from "./screens/Home";
+import Event from "./screens/Event";
+import Guest from "./screens/Guest";
+import Book from "./screens/Book";
 
 const Tab = createBottomTabNavigator();
 
@@ -58,20 +58,13 @@ const TabNav = () => {
           borderTopRightRadius: 20,
           position: "absolute",
           bottom: 0,
-          padding: 10,
+          padding: 5,
           height: 60,
           zIndex: 8,
         },
         headerShown: false,
         tabBarLabel: ({ focused, color }) => (
-          <Text
-            style={{
-              color,
-              fontSize: focused ? 18 : 16,
-              fontWeight: "bold",
-              fontFamily: "jsMath-cmbx10s",
-            }}
-          >
+          <Text style={{ color, fontSize: focused ? 18 : 16, fontWeight: 'bold', }}>
             {route.name}
           </Text>
         ),
@@ -83,6 +76,6 @@ const TabNav = () => {
       <Tab.Screen name="Guest" component={Guest} />
     </Tab.Navigator>
   );
-};
+}
 
 export default TabNav;
