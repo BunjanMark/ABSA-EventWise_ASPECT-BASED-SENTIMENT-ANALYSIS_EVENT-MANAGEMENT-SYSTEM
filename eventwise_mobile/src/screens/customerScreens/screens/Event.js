@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
 import Header from "../elements/Header";
@@ -12,34 +12,36 @@ const Event = () => {
   const route = useRoute();
   const { eventName } = route.params || {};
 
-  useEffect(() => {
-    const fetchEventDetails = async () => {
-      try {
-        const keys = await AsyncStorage.getAllKeys();
-        console.log('Keys:', keys); // Debugging line
-        const events = await AsyncStorage.multiGet(keys);
-        console.log('Events:', events); // Debugging line
+  const fetchEventDetails = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      console.log('Keys:', keys); 
+      const events = await AsyncStorage.multiGet(keys);
+      console.log('Events:', events); 
 
-        const filteredEvents = events
-          .filter(([key]) => key.startsWith('@booked_events:'))
-          .map(([key, value]) => {
-            const event = JSON.parse(value);
-            return { ...event, key };
-          });
+      const filteredEvents = events
+        .filter(([key]) => key.startsWith('@booked_events:'))
+        .map(([key, value]) => {
+          const event = JSON.parse(value);
+          return { ...event, key };
+        });
 
-        console.log('Filtered Events:', filteredEvents); // Debugging line
+      console.log('Filtered Events:', filteredEvents); 
 
-        filteredEvents.sort((a, b) => parseInt(b.key.split(':')[1]) - parseInt(a.key.split(':')[1]));
+      filteredEvents.sort((a, b) => parseInt(b.key.split(':')[1]) - parseInt(a.key.split(':')[1]));
 
-        setEventDetails(filteredEvents);
-      } catch (e) {
-        console.error('Error fetching event details:', e);
-        showToast('Failed to fetch event details.');
-      }
-    };
+      setEventDetails(filteredEvents);
+    } catch (e) {
+      console.error('Error fetching event details:', e);
+      showToast('Failed to fetch event details.');
+    }
+  };
 
-    fetchEventDetails();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchEventDetails();
+    }, [])
+  );
 
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
