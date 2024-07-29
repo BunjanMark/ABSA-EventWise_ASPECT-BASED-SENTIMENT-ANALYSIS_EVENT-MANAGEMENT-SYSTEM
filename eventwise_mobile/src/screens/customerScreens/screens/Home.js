@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Image, Text, Dimensions, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { Divider } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import Header from "../elements/Header";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const { width } = Dimensions.get('window');
+const responsivePadding = width * 0.05;
+const responsiveMarginHorizontal = width * -0.05;
 
 const Home = () => {
   const navigator = useNavigation();
@@ -187,10 +191,14 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginBottom: 20,
   },
-  accountsHeader: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
+  accountsSection: {
+    marginTop: 10,
+    padding: responsivePadding,
+    backgroundColor: "rgba(84, 84, 84, 0.9)",
+    borderRadius: 60,
+    marginLeft: responsiveMarginHorizontal,
+    marginRight: responsiveMarginHorizontal,
+    marginBottom: 50
   },
   accountCard: {
     flexDirection: "row",
@@ -200,10 +208,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   backImage: {
-    width: 420,
+    width: "auto",
     height: 200,
-    marginLeft: -20,
-    marginRight: -20,
+    padding: responsivePadding,
+    marginLeft: responsiveMarginHorizontal,
+    marginRight: responsiveMarginHorizontal,
     marginBottom: -50
   },
   accountImage: {
