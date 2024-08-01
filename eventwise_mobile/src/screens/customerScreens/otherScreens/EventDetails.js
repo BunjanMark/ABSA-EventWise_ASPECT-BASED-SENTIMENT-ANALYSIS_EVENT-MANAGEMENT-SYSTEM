@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity, Image, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
 import Header from "../elements/Header";
@@ -9,38 +9,45 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 const EventDetails = () => {
   const [eventDetails, setEventDetails] = useState([]);
   const navigation = useNavigation();
-
-  useEffect(() => {
-    const fetchEventDetails = async () => {
-      try {
-        const keys = await AsyncStorage.getAllKeys();
-        const eventKeys = keys.filter(key => key.startsWith('@booked_events:'));
-        const events = await AsyncStorage.multiGet(eventKeys);
-
-        const filteredEvents = events
-          .map(([key, value]) => {
-            try {
-              return JSON.parse(value);
-            } catch (e) {
-              console.error(`Error parsing JSON for key ${key}:`, e);
-              return null;
-            }
-          })
-          .filter(event => event !== null)
-          .reverse(); 
-
-        setEventDetails(filteredEvents);
-      } catch (e) {
-        console.error('Error fetching event details:', e);
-        showToast('Failed to fetch event details.');
-      }
-    };
-
-    fetchEventDetails();
-  }, []);
-
+  const route = useRoute();
+  const { event } = route.params || {};
+  const { selectedPackage } = route.params || {};
+  
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
+  };
+
+  useEffect(() => {
+    if (event) {
+      setEventDetails([event]);
+    } else {
+      fetchEventDetails();
+    }
+  }, [event]);
+
+  const fetchEventDetails = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const eventKeys = keys.filter(key => key.startsWith('@booked_events:'));
+      const events = await AsyncStorage.multiGet(eventKeys);
+
+      const filteredEvents = events
+        .map(([key, value]) => {
+          try {
+            return JSON.parse(value);
+          } catch (e) {
+            console.error(`Error parsing JSON for key ${key}:`, e);
+            return null;
+          }
+        })
+        .filter(event => event !== null)
+        .reverse();
+
+      setEventDetails(filteredEvents);
+    } catch (e) {
+      console.error('Error fetching event details:', e);
+      showToast('Failed to fetch event details.');
+    }
   };
 
   const confirmDeleteEvent = (eventDate) => {
@@ -131,13 +138,27 @@ const EventDetails = () => {
                 </View>
                 <View style={styles.detailGroup}>
                   <Text style={styles.detailLabel}>Selected Package:</Text>
-                  <Image source={event.package} style={styles.detailImage} />
+                  {selectedPackage && Array.isArray(selectedPackage) ? (
+                    selectedPackage.map((pkg, idx) => (
+                      <View key={idx} style={styles.serviceItem}>
+                      <Image source={pkg.image} style={styles.serviceImage} />
+                      <View style={styles.serviceS}>
+                        <Text style={styles.serviceName}>{pkg.name}</Text>
+                        <Text style={styles.serviceType}>{pkg.type}</Text>
+                        <Text style={styles.servicePrice}>{pkg.price}k</Text>
+                      </View>
+                    </View>
+                  ))
+                  ) : event.package ? (
+                    <Image source={event.package} style={styles.detailImage} />
+                  ) : (
+                    <Text style={styles.detailValue}>No package available</Text>
+                  )}
                 </View>
                 <View style={styles.detailGroup}>
                   <Text style={styles.detailLabel}>Venue Location:</Text>
-                  <Image source={event.eventLocation} style={styles.detailImage} />
+                  <Text style={styles.detailValue}>{event.eventLocation}</Text>
                 </View>
-
                 <TouchableOpacity
                   style={styles.deleteButton}
                   onPress={() => confirmDeleteEvent(event.eventDate)}
@@ -205,9 +226,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   detailImage: {
-    borderRadius: 8,
     alignSelf: "center",
     marginTop: 10,
+    color: "#fff"
   },
   errorText: {
     color: 'red',
@@ -219,6 +240,36 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 100,
     borderRadius: 10,
+  },
+  serviceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  serviceImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover',
+    borderRadius: 10,
+  },
+  serviceS: {
+    marginLeft: 10,
+    justifyContent: 'center',
+  },
+  serviceName: {
+    fontSize: 18,
+    marginLeft: 10,
+    flex: 1,
+  },
+  serviceType: {
+    fontSize: 16,
+    marginLeft: 10,
+    flex: 1,
+  },
+  servicePrice: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: '#000',
   },
   deleteButton: {
     flexDirection: "row",

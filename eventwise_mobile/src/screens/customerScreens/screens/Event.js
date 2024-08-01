@@ -11,6 +11,10 @@ const Event = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { eventName } = route.params || {};
+  
+  const showToast = (message = "Something went wrong") => {
+    Toast.show(message, 3000);
+  };
 
   const fetchEventDetails = async () => {
     try {
@@ -43,10 +47,6 @@ const Event = () => {
     }, [])
   );
 
-  const showToast = (message = "Something went wrong") => {
-    Toast.show(message, 3000);
-  };
-
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
@@ -73,8 +73,8 @@ const Event = () => {
                   <Text style={styles.eventType}>{event.eventType}</Text>
                   <Text style={styles.eventLocation}>{event.eventLocation}</Text>
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('EventDetails')}
-                  >
+                    onPress={() => navigation.navigate('EventDetails', { event })}
+                    >
                     <Text style={styles.viewAllButton}>View All</Text>
                   </TouchableOpacity>
                 </View>
@@ -101,6 +101,7 @@ const Event = () => {
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
+    marginBottom: 70
   },
   backgroundImage: {
     flex: 1,
@@ -160,19 +161,19 @@ const styles = StyleSheet.create({
   },
   eventType: {
     color: '#000',
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 10,
   },
   eventLocation: {
     color: '#000',
-    fontSize: 16,
+    fontSize: 12,
     marginBottom: 15,
     marginLeft: 10,
   },
   viewAllButton: {
     color: '#e6b800',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     textDecorationLine: 'underline',
     marginLeft: 10,
@@ -187,7 +188,7 @@ const styles = StyleSheet.create({
   },
   feedbackButton: {
     color: '#000',
-    fontSize: 16,
+    fontSize: 15,
     marginLeft: 8,
   },
   rightColumn: {

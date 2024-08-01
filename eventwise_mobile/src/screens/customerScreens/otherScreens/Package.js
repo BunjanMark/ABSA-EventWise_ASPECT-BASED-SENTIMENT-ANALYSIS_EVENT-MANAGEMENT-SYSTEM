@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SearchBar from '../elements/SearchBAr';
+import Svg, { LinearGradient, Stop, Rect, Defs } from 'react-native-svg';
 
 const Package = () => {
   const navigation = useNavigation();
@@ -134,23 +135,33 @@ const Package = () => {
               setDetailVisible(!detailVisible);
             }}
           >
+            <View style={styles.modalOverlay}>
             <View style={styles.popupContainer}>
-              <ImageBackground
-                source={require('../pictures/Popup2.png')}
-                style={styles.popupBackground}
-              >
-                <View style={styles.popupContent}>
-                  <Text style={styles.packageHead}>PACKAGE</Text>
-                  <TouchableOpacity style={styles.closeDetails} onPress={() => setDetailVisible(false)}>
-                    <Icon name="close" size={24} color="#000" />
-                  </TouchableOpacity>
-                  <Image source={selectedPackage} style={styles.popupImage} />
-                  <TouchableOpacity style={styles.submitButton} onPress={handleConfirmPress}>
-                    <Text style={styles.submitButtonText}>CONFIRM</Text>
-                  </TouchableOpacity>
+              <Svg height="100%" width="100%" style={styles.svgBackground}>
+                <Defs>
+                  <LinearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <Stop offset="0%" stopColor="#EFBF04" />
+                    <Stop offset="100%" stopColor="#fff" />
+                  </LinearGradient>
+                </Defs>
+                <Rect x="0" y="0" width="100%" height="100%" fill="url(#grad)" />
+              </Svg>
+                <TouchableOpacity style={styles.closeDetails} onPress={() => setDetailVisible(false)}>
+                  <Icon name="close" size={24} color="#000" />
+                </TouchableOpacity>
+              <View style={styles.popupContent}>
+              <View style={styles.infoContainer}>
+                <Text style={styles.packageHead}>PACKAGE</Text>
+                <Image source={selectedPackage} style={styles.popupImage} />
+                <View style={styles.contentVA}>
                 </View>
-              </ImageBackground>
+                </View>
+                <TouchableOpacity style={styles.submitButton} onPress={handleConfirmPress}>
+                  <Text style={styles.submitButtonText}>CONFIRM</Text>
+                </TouchableOpacity>
+              </View>
             </View>
+          </View>
           </Modal>
         </View>
       </ImageBackground>
@@ -348,42 +359,66 @@ const styles = StyleSheet.create({
     height: '80%',
     resizeMode: 'contain',
   },
-  popupContainer: {
+  modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  popupBackground: {
-    width: '95%',
-    height: '95%',
-    alignSelf: "center"
+  popupContainer: {
+    width: '90%',
+    height: '80%',
+    backgroundColor: 'transparent',
+    borderRadius: 10,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  svgBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
   },
   popupContent: {
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    width: '95%',
-    height: '90%',
+    flex: 1,
     justifyContent: 'center',
-    marginTop: 50
-  },
-  packageHead: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: -50,
+    alignItems: 'center',
+    zIndex: 1, 
+    padding: 50,
+    marginLeft: -40,
+    marginRight: -40,
   },
   popupImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
   },
+  closeDetails: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 2,
+  },
+  packageHead: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: -10,
+  },
+  infoContainer: {
+    backgroundColor: 'rgba(80, 79, 79, 0.3)',
+    borderRadius: 50,
+    padding: 20,
+    width: '100%',
+    height: "100%",
+    alignItems: 'center',
+  },
   submitButton: {
     backgroundColor: '#61481C',
     padding: 15,
     borderRadius: 30,
     alignItems: 'center',
-    marginTop: -20,
+    marginTop: -25,
   },
   submitButtonText: {
     color: '#fff',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ImageBackground, Image } from 'react-native';
+import { SafeAreaView, Alert, StyleSheet, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ImageBackground, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -17,20 +17,24 @@ const Book = () => {
   const [peopleToInvite, setPeopleToInvite] = useState('');
   const navigation = useNavigation();
   const route = useRoute();
-  const [selectedPackage, setSelectedPackage] = useState(null);
   const [selectedVenueLocation, setSelectedVenueLocation] = useState(null);
+  const [selectedPackage, setSelectedPackage] = useState(null);
+
+  const showToast = (message = "Something went wrong") => {
+    Toast.show(message, 3000);
+  };
 
   useEffect(() => {
     if (route.params) {
-      const { selectedPackage: pkgFromRoute, selectedVenueLocation: venueFromRoute } = route.params;
-      if (pkgFromRoute) setSelectedPackage(pkgFromRoute);
-      if (venueFromRoute) setSelectedVenueLocation(venueFromRoute);
+      const { selectedVenueLocation, selectedPackage } = route.params;
+      if (selectedVenueLocation) setSelectedVenueLocation(selectedVenueLocation);
+      if (selectedPackage) setSelectedPackage(selectedPackage);
     }
-  }, [route.params]);
+  }, [route.params]);  
 
   const saveEvent = async () => {
     if (!eventName || !eventType || !selectedDate || !description || !selectedVenueLocation || !invitationMessage || !peopleToInvite || !selectedPackage) {
-      showToast('Please fill in all the details.');
+      Alert.alert('Missing Fields', 'Please fill out all required fields.');
       return;
     }
 
@@ -50,6 +54,7 @@ const Book = () => {
       await AsyncStorage.setItem(key, JSON.stringify(bookedEvent));
       showToast('Event booked successfully!');
       clearForm(); 
+      navigation.navigate('EventDetails', { event: bookedEvent });
     } catch (e) {
       console.error('Error saving event:', e);
       showToast('Failed to save event.');
@@ -65,10 +70,6 @@ const Book = () => {
     setInvitationMessage('');
     setPeopleToInvite('');
     setSelectedPackage(null);
-  };
-
-  const showToast = (message = "Something went wrong") => {
-    Toast.show(message, 3000);
   };
 
   const handleDateChange = (date) => {
@@ -221,27 +222,23 @@ const Book = () => {
               </TouchableOpacity>
               <View style={styles.selectedItemsContainer}>
               <Text style={styles.selectedText}>Package</Text>
-              {selectedPackage && (
-                <View style={styles.selectedItemsContainer}>
+              {Array.isArray(selectedPackage) ? (
+                selectedPackage.map((pkg, index) => (
+                  <View key={index} style={styles.serviceItem}>
+                    <Image source={pkg.image} style={styles.serviceImage} />
+                      <View style={styles.serviceS}>
+                      <Text style={styles.serviceName}>{pkg.name}</Text>
+                      <Text style={styles.serviceType}>{pkg.type}</Text>
+                      <Text style={styles.servicePrice}>{pkg.price}k</Text>
+                      </View>
+                  </View>
+                ))
+              ) : (
+                <View style={styles.packageContainer}>
                   <Image source={selectedPackage} style={styles.selectedImage} />
                 </View>
               )}
-              <View style={styles.container}>
-              <View style={styles.selectedItemsContainer}>
-                {selectedPackage && selectedPackage.length > 0 
-                  && selectedPackage.map((service, index) => (
-                    <View key={index} style={styles.serviceItem}>
-                      <Image source={service.image} style={styles.serviceImage} />
-                      <View style={styles.serviceS}>
-                      <Text style={styles.serviceName}>{service.name}</Text>
-                      <Text style={styles.serviceType}>{service.type}</Text>
-                      <Text style={styles.servicePrice}>{service.price}k</Text>
-                      </View>
-                    </View>
-                  ))}
               </View>
-            </View>
-            </View>
             </View>
             <View style={styles.formButton}>
               <TouchableOpacity
@@ -254,9 +251,10 @@ const Book = () => {
             <View style={styles.selectedItemsContainer}>
                 <Text style={styles.selectedText}>Venue</Text>
                 {selectedVenueLocation && (
-                  <Image source={selectedVenueLocation} style={styles.selectedImage} />
-                )}
+                <Text style={styles.selectedVenue}>{selectedVenueLocation}</Text>
+              )}
             </View>
+
             <TouchableOpacity style={styles.bookButton} onPress={saveEvent}>
               <Text style={styles.bookButtonText}>Book Event</Text>
             </TouchableOpacity>
@@ -350,8 +348,12 @@ const styles = StyleSheet.create({
   selectedText: {
     color: 'black',
     fontSize: 16,
-    fontWeight: 'bold',
     marginBottom: 10,
+  },
+  selectedVenue: {
+    color: 'black',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   placeholderText: {
     color: 'gray',
@@ -394,6 +396,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
+  },
+  packageContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  selectedImage: {
+    resizeMode: 'cover',
   },
   serviceItem: {
     flexDirection: 'row',
