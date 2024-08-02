@@ -11,7 +11,6 @@ const EventDetails = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { event } = route.params || {};
-  const { selectedPackage } = route.params || {};
   
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
@@ -93,6 +92,10 @@ const EventDetails = () => {
     }
   };
 
+  const calculateTotalPrice = (packageItems) => {
+    return packageItems.reduce((total, pkg) => total + parseFloat(pkg.price), 0);
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
@@ -138,17 +141,24 @@ const EventDetails = () => {
                 </View>
                 <View style={styles.detailGroup}>
                   <Text style={styles.detailLabel}>Selected Package:</Text>
-                  {selectedPackage && Array.isArray(selectedPackage) ? (
-                    selectedPackage.map((pkg, idx) => (
-                      <View key={idx} style={styles.serviceItem}>
-                      <Image source={pkg.image} style={styles.serviceImage} />
-                      <View style={styles.serviceS}>
-                        <Text style={styles.serviceName}>{pkg.name}</Text>
-                        <Text style={styles.serviceType}>{pkg.type}</Text>
-                        <Text style={styles.servicePrice}>{pkg.price}k</Text>
-                      </View>
-                    </View>
-                  ))
+                  {/* CUSTOMIZE PACKAGE */}
+                  {Array.isArray(event.package) ? (
+                    <View>
+                      {event.package.map((pkg, idx) => (
+                        <View key={idx} style={styles.serviceItem}>
+                          <Image source={pkg.image} style={styles.serviceImage} />
+                          <View style={styles.serviceS}>
+                            <Text style={styles.serviceName}>{pkg.name}</Text>
+                            <Text style={styles.serviceType}>{pkg.type}</Text>
+                            <Text style={styles.servicePrice}>{pkg.price}k</Text>
+                          </View>
+                        </View>
+                      ))}
+                      <Text style={styles.totalPrice}>
+                        Total Price: {calculateTotalPrice(event.package)}k
+                      </Text>
+                    </View>                  
+                  // PACKAGE (NOT CUSTOMIZE)
                   ) : event.package ? (
                     <Image source={event.package} style={styles.detailImage} />
                   ) : (
@@ -260,16 +270,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginLeft: 10,
     flex: 1,
+    color: '#fff',
   },
   serviceType: {
     fontSize: 16,
     marginLeft: 10,
     flex: 1,
+    color: '#fff',
   },
   servicePrice: {
     fontSize: 16,
     marginLeft: 10,
-    color: '#000',
+    color: '#fff',
+  },
+  totalPrice: {
+    fontSize: 20,
+    marginLeft: 15,
+    color: '#fff',
+    fontWeight: "bold"
   },
   deleteButton: {
     flexDirection: "row",

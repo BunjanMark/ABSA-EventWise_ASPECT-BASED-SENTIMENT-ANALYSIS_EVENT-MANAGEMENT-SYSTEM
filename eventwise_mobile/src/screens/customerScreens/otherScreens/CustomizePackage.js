@@ -43,8 +43,10 @@ const CustomizePackage = () => {
   };
 
   const handleSubmitPress = () => {
-    navigation.navigate('Book', { selectedPackage: selectedServices });
+    const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
+    navigation.navigate('Book', { selectedPackage: selectedServices, totalPrice: total });
   };
+  
 
   const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
 

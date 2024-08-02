@@ -1,17 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, TextInput, Button } from 'react-native';
 import { Divider } from "react-native-paper";
 import Header from "../elements/Header";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Guest = () => {
-  const [guests, setGuests] = useState([
-    { id: 1, name: 'name', email: 'name@example.com' },
-    { id: 2, name: 'name', email: 'name@example.com' },
-    { id: 3, name: 'name', email: 'name@example.com' },
-    { id: 4, name: 'name', email: 'name@example.com' },
-  ]);
-
+  const [guests, setGuests] = useState([]);
   const [editingGuest, setEditingGuest] = useState(null);
+
+  useEffect(() => {
+    const fetchGuests = async () => {
+      try {
+        const keys = await AsyncStorage.getAllKeys();
+        const eventKeys = keys.filter(key => key.startsWith('@booked_events:'));
+        const events = await AsyncStorage.multiGet(eventKeys);
+
+        const guestsList = events.flatMap(([key, value]) => {
+          try {
+            const event = JSON.parse(value);
+            console.log('Fetched event:', event);
+
+            // Ensure peopleToInvite is an array
+            const peopleToInvite = Array.isArray(event.peopleToInvite) 
+              ? event.peopleToInvite 
+              : (typeof event.peopleToInvite === 'string' 
+                ? [] 
+                : []);
+
+            return peopleToInvite.map((guest, index) => ({
+              id: `${key}-${index}`, // Unique ID based on event key and index
+              name: guest.name || 'Unknown Name', // Default values if data is missing
+              email: guest.email || 'unknown@example.com',
+            }));
+          } catch (e) {
+            console.error(`Error parsing JSON for key ${key}:`, e);
+            return [];
+          }
+        });
+
+        setGuests(guestsList);
+      } catch (e) {
+        console.error("Error fetching guest details:", e);
+      }
+    };
+
+    fetchGuests();
+  }, []);
 
   const handleNameChange = (id, newName) => {
     setGuests(guests.map(guest => guest.id === id ? { ...guest, name: newName } : guest));
@@ -46,10 +80,10 @@ const Guest = () => {
             <Text style={styles.headerText}>Guest List</Text>
             <Text style={styles.sub}>People Invited</Text>
           </View>
-             
+
           <View style={styles.tableBg}>
             <View style={styles.tableHeaderText}>
-              <Text style={styles.textHe}>The Booked Event (People To Invite) </Text>
+              <Text style={styles.textHe}>The Booked Event (People To Invite)</Text>
             </View>
             <Text style={styles.tableSubText}>People Invited</Text>
             <View style={styles.tableNameEmail}>

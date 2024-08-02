@@ -15,10 +15,12 @@ const Book = () => {
   const [description, setDescription] = useState('');
   const [invitationMessage, setInvitationMessage] = useState('');
   const [peopleToInvite, setPeopleToInvite] = useState('');
+  const [peopleToInviteString, setPeopleToInviteString] = useState('');
   const navigation = useNavigation();
   const route = useRoute();
   const [selectedVenueLocation, setSelectedVenueLocation] = useState(null);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
@@ -26,14 +28,15 @@ const Book = () => {
 
   useEffect(() => {
     if (route.params) {
-      const { selectedVenueLocation, selectedPackage } = route.params;
+      const { selectedVenueLocation, selectedPackage, totalPrice } = route.params;
       if (selectedVenueLocation) setSelectedVenueLocation(selectedVenueLocation);
       if (selectedPackage) setSelectedPackage(selectedPackage);
+      if (totalPrice) setTotalPrice(totalPrice);
     }
   }, [route.params]);  
 
   const saveEvent = async () => {
-    if (!eventName || !eventType || !selectedDate || !description || !selectedVenueLocation || !invitationMessage || !peopleToInvite || !selectedPackage) {
+    if (!eventName || !eventType || !selectedDate || !description || !selectedVenueLocation || !invitationMessage || !peopleToInvite.length || !selectedPackage) {
       Alert.alert('Missing Fields', 'Please fill out all required fields.');
       return;
     }
@@ -55,6 +58,7 @@ const Book = () => {
       showToast('Event booked successfully!');
       clearForm(); 
       navigation.navigate('EventDetails', { event: bookedEvent });
+      navigation.navigate('Guest', { peopleToInvite });
     } catch (e) {
       console.error('Error saving event:', e);
       showToast('Failed to save event.');
@@ -69,6 +73,7 @@ const Book = () => {
     setSelectedVenueLocation(null);
     setInvitationMessage('');
     setPeopleToInvite('');
+    setPeopleToInviteString('');
     setSelectedPackage(null);
   };
 
@@ -87,6 +92,20 @@ const Book = () => {
         setSelectedVenueLocation(venueLocation);
       },
     });
+  };
+
+  const addGuest = () => {
+    const guestsArray = peopleToInviteString
+      .split(/[\n,]/)
+      .map(entry => entry.trim())
+      .filter(entry => entry)
+      .map(entry => {
+        const [name, email] = entry.split(' and ');
+        return { name: name.trim(), email: (email || '').trim() };
+      });
+
+    setPeopleToInvite(guestsArray);
+    setPeopleToInviteString('');
   };
 
   return (
@@ -209,9 +228,12 @@ const Book = () => {
                 style={styles.input} 
                 placeholder="People To Invite (e.g. name and name@gmail.com, name2 and name2@gmail.com)" 
                 multiline
-                value={peopleToInvite}
-                onChangeText={setPeopleToInvite}
+                value={peopleToInviteString}
+                onChangeText={setPeopleToInviteString}
               />
+              <TouchableOpacity style={{ backgroundColor: '#C2B067', borderRadius: 10, padding: 10, alignItems: 'center', marginTop: 10 }} onPress={addGuest}>
+                <Text style={{ color: '#fff', fontSize: 16 }}>Add Guests</Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.formButton}>
               <TouchableOpacity
@@ -222,6 +244,7 @@ const Book = () => {
               </TouchableOpacity>
               <View style={styles.selectedItemsContainer}>
               <Text style={styles.selectedText}>Package</Text>
+              {/* CUSTOMIZE PACKAGE */}
               {Array.isArray(selectedPackage) ? (
                 selectedPackage.map((pkg, index) => (
                   <View key={index} style={styles.serviceItem}>
@@ -234,10 +257,16 @@ const Book = () => {
                   </View>
                 ))
               ) : (
+                // PACKAGE (NOT CUSTOMIZE)
                 <View style={styles.packageContainer}>
                   <Image source={selectedPackage} style={styles.selectedImage} />
                 </View>
               )}
+               {Array.isArray(selectedPackage) && (
+               <View>
+                    <Text style={styles.selectedText}>Total Price: {totalPrice}k</Text>
+               </View>
+               )}
               </View>
             </View>
             <View style={styles.formButton}>
