@@ -1,72 +1,87 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, TextInput, Button } from 'react-native';
-import { Divider } from "react-native-paper";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, FlatList, TextInput, Button, Alert } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import Header from "../elements/Header";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Guest = () => {
-  const [guests, setGuests] = useState([]);
+  const route = useRoute();
+  const { event } = route.params || {};
+  const { eventName, guests } = event || {};
+
+  const [guestList, setGuestList] = useState(guests);
   const [editingGuest, setEditingGuest] = useState(null);
+  const [guestDetails, setGuestDetails] = useState({ name: '', email: '' });
 
-  useEffect(() => {
-    const fetchGuests = async () => {
-      try {
-        const keys = await AsyncStorage.getAllKeys();
-        const eventKeys = keys.filter(key => key.startsWith('@booked_events:'));
-        const events = await AsyncStorage.multiGet(eventKeys);
-
-        const guestsList = events.flatMap(([key, value]) => {
-          try {
-            const event = JSON.parse(value);
-            console.log('Fetched event:', event);
-
-            // Ensure peopleToInvite is an array
-            const peopleToInvite = Array.isArray(event.peopleToInvite) 
-              ? event.peopleToInvite 
-              : (typeof event.peopleToInvite === 'string' 
-                ? [] 
-                : []);
-
-            return peopleToInvite.map((guest, index) => ({
-              id: `${key}-${index}`, // Unique ID based on event key and index
-              name: guest.name || 'Unknown Name', // Default values if data is missing
-              email: guest.email || 'unknown@example.com',
-            }));
-          } catch (e) {
-            console.error(`Error parsing JSON for key ${key}:`, e);
-            return [];
-          }
-        });
-
-        setGuests(guestsList);
-      } catch (e) {
-        console.error("Error fetching guest details:", e);
-      }
-    };
-
-    fetchGuests();
-  }, []);
-
-  const handleNameChange = (id, newName) => {
-    setGuests(guests.map(guest => guest.id === id ? { ...guest, name: newName } : guest));
-  };
-
-  const handleEmailChange = (id, newEmail) => {
-    setGuests(guests.map(guest => guest.id === id ? { ...guest, email: newEmail } : guest));
-  };
-
-  const handleDelete = (id) => {
-    setGuests(guests.filter(guest => guest.id !== id));
-    setEditingGuest(null);
-  };
-
-  const handleEditClick = (guest) => {
+  const handleEditGuest = (guest) => {
     setEditingGuest(guest.id);
+    setGuestDetails({ name: guest.name, email: guest.email });
+  };
+
+  const handleSaveGuest = () => {
+    setGuestList(prevList =>
+      prevList.map(guest =>
+        guest.id === editingGuest ? { ...guest, ...guestDetails } : guest
+      )
+    );
+    setEditingGuest(null);
   };
 
   const handleCancelEdit = () => {
     setEditingGuest(null);
   };
+
+  const handleDeleteGuest = (guestId) => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this guest?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: () => deleteGuest(guestId) }
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const deleteGuest = (guestId) => {
+    setGuestList((prevList) => prevList.filter((guest) => guest.id !== guestId));
+  };
+
+  const renderGuest = ({ item }) => (
+    <View style={styles.guestContainer}>
+      {editingGuest === item.id ? (
+        <View>
+          <TextInput
+            style={styles.input}
+            value={guestDetails.name}
+            onChangeText={(text) => setGuestDetails({ ...guestDetails, name: text })}
+          />
+          <TextInput
+            style={styles.input}
+            value={guestDetails.email}
+            onChangeText={(text) => setGuestDetails({ ...guestDetails, email: text })}
+          />
+          <View style={styles.actionsContainer}>
+            <Button title="Save" onPress={handleSaveGuest} />
+            <Button title="Cancel" onPress={handleCancelEdit} />
+          </View>
+        </View>
+      ) : (
+        <View>
+          <Text style={styles.guestName}>{item.name}</Text>
+          <Text style={styles.guestEmail}>{item.email}</Text>
+          <View style={styles.actionsContainer}>
+            <TouchableOpacity onPress={() => handleEditGuest(item)} style={styles.actionButton}>
+              <Icon name="edit" size={20} color="#e6b800" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleDeleteGuest(item.id)} style={styles.actionButton}>
+              <Icon name="trash" size={20} color="#e6b800" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+    </View>
+  );
 
   return (
     <View style={{ flex: 1 }}>
@@ -80,47 +95,18 @@ const Guest = () => {
             <Text style={styles.headerText}>Guest List</Text>
             <Text style={styles.sub}>People Invited</Text>
           </View>
-
+             
           <View style={styles.tableBg}>
             <View style={styles.tableHeaderText}>
-              <Text style={styles.textHe}>The Booked Event (People To Invite)</Text>
+              <Text style={styles.textHe}>{eventName}</Text>
             </View>
             <Text style={styles.tableSubText}>People Invited</Text>
             <View style={styles.tableNameEmail}>
-              {guests.map(guest => (
-                <View key={guest.id} style={styles.tableTextContainer}>
-                  {editingGuest === guest.id ? (
-                    <View>
-                      <TextInput
-                        style={styles.tableText}
-                        value={guest.name}
-                        onChangeText={text => handleNameChange(guest.id, text)}
-                      />
-                      <TextInput
-                        style={styles.tableText}
-                        value={guest.email}
-                        onChangeText={text => handleEmailChange(guest.id, text)}
-                      />
-                      <Button
-                        title="Save"
-                        onPress={() => handleCancelEdit()}
-                        color="#27ae60"
-                      />
-                      <Button
-                        title="Delete"
-                        onPress={() => handleDelete(guest.id)}
-                        color="#e74c3c"
-                      />
-                    </View>
-                  ) : (
-                    <TouchableOpacity onPress={() => handleEditClick(guest)}>
-                      <Text style={styles.tableText}>{guest.name}</Text>
-                      <Text style={styles.tableText}>{guest.email}</Text>
-                    </TouchableOpacity>
-                  )}
-                  <Divider />
-                </View>
-              ))}
+              <FlatList
+                data={guestList}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderGuest}
+              />
             </View>
           </View>
         </ScrollView>
@@ -187,6 +173,35 @@ const styles = StyleSheet.create({
   tableText: {
     fontSize: 16,
     marginBottom: 5,
+  },
+  guestContainer: {
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+  },
+  guestName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  guestEmail: {
+    fontSize: 16,
+    color: '#555',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+  },
+  actionButton: {
+    marginHorizontal: 5,
+  },
+  input: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    padding: 8,
+    marginBottom: 10,
+    borderRadius: 4,
   },
 });
 

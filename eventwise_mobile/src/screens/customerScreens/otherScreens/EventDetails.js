@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity, Image, Alert, FlatList } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
@@ -96,6 +96,13 @@ const EventDetails = () => {
     return packageItems.reduce((total, pkg) => total + parseFloat(pkg.price), 0);
   };
 
+  const renderGuest = ({ item }) => (
+    <View style={styles.guestContainer}>
+      <Text style={styles.guestName}>{item.name}</Text>
+      <Text style={styles.guestEmail}>{item.email}</Text>
+    </View>
+  );
+
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
@@ -137,7 +144,13 @@ const EventDetails = () => {
                 </View>
                 <View style={styles.detailGroup}>
                   <Text style={styles.detailLabel}>People to Invite:</Text>
-                  <Text style={styles.detailValue}>{event.peopleToInvite}</Text>
+                  <View style={styles.guestValue}> 
+                    <FlatList
+                      data={event.guests}
+                      keyExtractor={(item) => item.id.toString()}
+                      renderItem={renderGuest}
+                    />   
+                  </View>             
                 </View>
                 <View style={styles.detailGroup}>
                   <Text style={styles.detailLabel}>Selected Package:</Text>
@@ -234,6 +247,29 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderRadius: 10,
     overflow: 'hidden',
+  },
+  guestValue: {
+    backgroundColor: '#fff',
+    padding: 10,
+    marginLeft: 20,
+    marginRight: 20,
+    borderRadius: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  guestContainer: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    marginVertical: 5,
+  },
+  guestName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  guestEmail: {
+    fontSize: 14,
+    color: '#555',
   },
   detailImage: {
     alignSelf: "center",

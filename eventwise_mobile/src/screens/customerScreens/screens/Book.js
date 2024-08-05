@@ -15,7 +15,7 @@ const Book = () => {
   const [description, setDescription] = useState('');
   const [invitationMessage, setInvitationMessage] = useState('');
   const [peopleToInvite, setPeopleToInvite] = useState('');
-  const [peopleToInviteString, setPeopleToInviteString] = useState('');
+  const [guests, setGuests] = useState([]);
   const navigation = useNavigation();
   const route = useRoute();
   const [selectedVenueLocation, setSelectedVenueLocation] = useState(null);
@@ -36,7 +36,7 @@ const Book = () => {
   }, [route.params]);  
 
   const saveEvent = async () => {
-    if (!eventName || !eventType || !selectedDate || !description || !selectedVenueLocation || !invitationMessage || !peopleToInvite.length || !selectedPackage) {
+    if (!eventName || !eventType || !selectedDate || !description || !selectedVenueLocation || !invitationMessage || !peopleToInvite || !selectedPackage) {
       Alert.alert('Missing Fields', 'Please fill out all required fields.');
       return;
     }
@@ -48,7 +48,7 @@ const Book = () => {
       eventLocation: selectedVenueLocation,
       description,
       invitationMessage,
-      peopleToInvite,
+      guests: parseGuests(peopleToInvite),
       package: selectedPackage,
     };
 
@@ -58,7 +58,7 @@ const Book = () => {
       showToast('Event booked successfully!');
       clearForm(); 
       navigation.navigate('EventDetails', { event: bookedEvent });
-      navigation.navigate('Guest', { peopleToInvite });
+      navigation.navigate('Guest', { event: bookedEvent });
     } catch (e) {
       console.error('Error saving event:', e);
       showToast('Failed to save event.');
@@ -73,7 +73,6 @@ const Book = () => {
     setSelectedVenueLocation(null);
     setInvitationMessage('');
     setPeopleToInvite('');
-    setPeopleToInviteString('');
     setSelectedPackage(null);
   };
 
@@ -94,18 +93,11 @@ const Book = () => {
     });
   };
 
-  const addGuest = () => {
-    const guestsArray = peopleToInviteString
-      .split(/[\n,]/)
-      .map(entry => entry.trim())
-      .filter(entry => entry)
-      .map(entry => {
-        const [name, email] = entry.split(' and ');
-        return { name: name.trim(), email: (email || '').trim() };
-      });
-
-    setPeopleToInvite(guestsArray);
-    setPeopleToInviteString('');
+  const parseGuests = (input) => {
+    return input.split(',').map((guest, index) => {
+      const [name, email] = guest.trim().split(' and ');
+      return { id: index + 1, name, email };
+    });
   };
 
   return (
@@ -226,14 +218,10 @@ const Book = () => {
             <View style={styles.formGroup}>
               <TextInput 
                 style={styles.input} 
-                placeholder="People To Invite (e.g. name and name@gmail.com, name2 and name2@gmail.com)" 
-                multiline
-                value={peopleToInviteString}
-                onChangeText={setPeopleToInviteString}
+                placeholder="People to invite (Name and Email, separated by comma)" 
+                value={peopleToInvite}
+                onChangeText={setPeopleToInvite}
               />
-              <TouchableOpacity style={{ backgroundColor: '#C2B067', borderRadius: 10, padding: 10, alignItems: 'center', marginTop: 10 }} onPress={addGuest}>
-                <Text style={{ color: '#fff', fontSize: 16 }}>Add Guests</Text>
-              </TouchableOpacity>
             </View>
             <View style={styles.formButton}>
               <TouchableOpacity
@@ -349,7 +337,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
-    fontSize: 16,
+    fontSize: 12,
   },
   calendarButton: {
     backgroundColor: '#C2B067',
