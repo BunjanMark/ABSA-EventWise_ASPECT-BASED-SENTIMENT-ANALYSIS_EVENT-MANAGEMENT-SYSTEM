@@ -1,15 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ImageBackground,
+  Image,
+} from "react-native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-root-toast";
 import Header from "../elements/Header";
-import Icon from 'react-native-vector-icons/FontAwesome';
-
+import Icon from "react-native-vector-icons/FontAwesome";
+import { getAccountProfile, getUser } from "../../../services/authServices";
+import useStore from "../../../stateManagement/store";
 const Event = () => {
   const [eventDetails, setEventDetails] = useState([]);
   const navigation = useNavigation();
   const route = useRoute();
+
   const { eventName } = route.params || {};
 
   useEffect(() => {
@@ -19,24 +33,71 @@ const Event = () => {
         const events = await AsyncStorage.multiGet(keys);
 
         const filteredEvents = events
-          .filter(([key]) => key.startsWith('@booked_events:'))
+          .filter(([key]) => key.startsWith("@booked_events:"))
           .map(([key, value]) => {
             const event = JSON.parse(value);
             return { ...event, key };
           });
 
-        filteredEvents.sort((a, b) => parseInt(b.key.split(':')[1]) - parseInt(a.key.split(':')[1]));
+        filteredEvents.sort(
+          (a, b) =>
+            parseInt(b.key.split(":")[1]) - parseInt(a.key.split(":")[1])
+        );
 
         setEventDetails(filteredEvents);
       } catch (e) {
-        console.error('Error fetching event details:', e);
-        showToast('Failed to fetch event details.');
+        console.error("Error fetching event details:", e);
+        showToast("Failed to fetch event details.");
       }
     };
 
     fetchEventDetails();
   }, []);
+  const {
+    user,
+    accountProfiles,
+    setUser,
+    setAccountProfiles,
+    setActiveProfile,
+  } = useStore();
 
+  // Fetch account profiles and user details for demonstration
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchAccountProfile = async () => {
+        try {
+          const user = await getUser(); // Fetch user details
+          setUser(user);
+
+          const profileResponse = await getAccountProfile(); // Fetch account profiles
+          const profiles = profileResponse.data; // Extract profiles from response
+
+          // console.log("", profiles);
+          // console.log("\n\n\n", profiles[0].service_provider_name);
+
+          // Filtering logic
+          const filteredProfiles = profiles.filter(
+            (profile) => profile.user_id === user.id
+          );
+
+          setAccountProfiles(filteredProfiles); // Set account profiles state
+          // console.log(
+          //   "\n\n\n",
+          //   accountProfile.map((profile) => profile.service_provider_name)
+          // );
+        } catch (error) {
+          console.error("Error fetching account profiles:", error);
+          showToast("Failed to fetch account profiles.");
+        }
+      };
+
+      fetchAccountProfile();
+    }, [])
+  );
+  const handleProfileClick = (profiles) => {
+    setActiveProfile(profiles);
+    navigation.navigate("ServiceProviderSubStack"); // Navigate to ServiceProviderSubStack screen
+  };
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
   };
@@ -53,28 +114,55 @@ const Event = () => {
             <Text style={styles.headerText}>Joined Events</Text>
             <Text style={styles.sub}>Booked Event</Text>
           </View>
+          {accountProfiles.length > 0 && ( // Display account profiles
+            <View style={styles.profileContainer}>
+              {accountProfiles.map((profiles, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.profileItem}
+                  onPress={() => handleProfileClick(profiles)}
+                >
+                  <Text style={styles.profileDetail}>
+                    Profile ID: {profiles.id}
+                  </Text>
+                  <Text style={styles.profileDetail}>
+                    Profile Name: {profiles.service_provider_name}
+                  </Text>
+                  <Text style={styles.profileDetail}>
+                    Description: {profiles.description}
+                  </Text>
+                  {/* Add more profile details as needed */}
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
           {eventDetails.length === 0 ? (
             <Text style={styles.errorText}>No events booked yet.</Text>
           ) : (
             eventDetails.map((event, index) => (
               <View key={index} style={styles.eventFolder}>
                 <View style={styles.leftColumn}>
-                  <Image source={require("../pictures/user.png")} style={styles.accountImage} />
-                    <Text style={styles.orgName}>Organizer</Text>
+                  <Image
+                    source={require("../pictures/user.png")}
+                    style={styles.accountImage}
+                  />
+                  <Text style={styles.orgName}>Organizer</Text>
                 </View>
                 <View style={styles.centerColumn}>
-                 <View style={styles.line} />
+                  <View style={styles.line} />
                   <Text style={styles.eventType}>{event.eventType}</Text>
-                  <Text style={styles.eventLocation}>{event.eventLocation}</Text>
+                  <Text style={styles.eventLocation}>
+                    {event.eventLocation}
+                  </Text>
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('EventDetails')}
+                    onPress={() => navigation.navigate("EventDetails")}
                   >
                     <Text style={styles.viewAllButton}>View All</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.rightColumn}>
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('Feedback')}
+                    onPress={() => navigation.navigate("Feedback")}
                     style={styles.button}
                   >
                     <Icon name="thumbs-up" size={20} color="black" />
@@ -98,35 +186,35 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     flex: 1,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
     marginTop: 8,
   },
   headerText: {
-    color: '#e6b800',
+    color: "#e6b800",
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   sub: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   eventFolder: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    flexDirection: "row",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     padding: 15,
     borderRadius: 15,
     marginBottom: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   leftColumn: {
     flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
+    flexDirection: "column",
+    alignItems: "center",
   },
   accountImage: {
     width: 60,
@@ -134,9 +222,9 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   orgName: {
-    color: '#000',
+    color: "#000",
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 5,
   },
   centerColumn: {
@@ -144,31 +232,31 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   line: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     top: 0,
     bottom: 0,
     width: 1,
-    backgroundColor: 'gray',
+    backgroundColor: "gray",
     zIndex: 1,
   },
   eventType: {
-    color: '#000',
+    color: "#000",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 10,
   },
   eventLocation: {
-    color: '#000',
+    color: "#000",
     fontSize: 16,
     marginBottom: 15,
     marginLeft: 10,
   },
   viewAllButton: {
-    color: '#e6b800',
+    color: "#e6b800",
     fontSize: 14,
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
+    fontWeight: "bold",
+    textDecorationLine: "underline",
     marginLeft: 10,
   },
   button: {
@@ -180,32 +268,32 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   feedbackButton: {
-    color: '#000',
+    color: "#000",
     fontSize: 16,
     marginLeft: 8,
   },
   rightColumn: {
     flex: 2,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     flexDirection: "column",
   },
   lineLeft: {
-    position: 'absolute',
-    left: 70, 
+    position: "absolute",
+    left: 70,
     top: 55,
     bottom: 0,
     width: 1,
     height: 30,
-    backgroundColor: 'gray',
+    backgroundColor: "gray",
     zIndex: 1,
   },
   eventDate: {
-    color: '#000',
+    color: "#000",
     fontSize: 16,
   },
   errorText: {
-    color: 'red',
-    textAlign: 'center',
+    color: "red",
+    textAlign: "center",
     marginTop: 20,
     fontSize: 16,
   },

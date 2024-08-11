@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient from expo-linear-gradient
-import styles from './style';
-import logo from './assets/logo.png';
+import React, { useState } from "react";
+import { View, TouchableOpacity, Text, Image } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient"; // Import LinearGradient from expo-linear-gradient
+import styles from "./style";
+import logo from "./assets/logo.png";
 
 const CustomDrawerContent = () => {
   const navigation = useNavigation();
-  const [selectedItem, setSelectedItem] = useState('Home');
+  const [selectedItem, setSelectedItem] = useState("Home");
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const DrawerItem = ({ icon, label, screenName }) => (
     <TouchableOpacity
       style={[
         styles.drawerItem,
-        screenName === selectedItem && { backgroundColor: '#FFC42B' },
+        screenName === selectedItem && { backgroundColor: "#FFC42B" },
       ]}
       onPress={() => {
-        if (screenName === 'Events') {
-          navigation.navigate('MyEventScreen');
+        if (screenName === "Events") {
+          navigation.navigate("MyEventScreen");
           setSelectedItem(screenName);
         } else {
           navigation.navigate(screenName);
@@ -30,10 +30,15 @@ const CustomDrawerContent = () => {
       <Ionicons
         name={icon}
         size={24}
-        color={screenName === selectedItem ? 'black' : 'white'}
+        color={screenName === selectedItem ? "black" : "white"}
         style={styles.drawerIcon}
       />
-      <Text style={[styles.drawerItemText, { color: screenName === selectedItem ? 'black' : 'white' }]}>
+      <Text
+        style={[
+          styles.drawerItemText,
+          { color: screenName === selectedItem ? "black" : "white" },
+        ]}
+      >
         {label}
       </Text>
     </TouchableOpacity>
@@ -41,16 +46,21 @@ const CustomDrawerContent = () => {
 
   const DropdownItem = ({ icon, label, onPress }) => (
     <TouchableOpacity style={styles.dropdownItem} onPress={onPress}>
-      <Ionicons name={icon} size={20} color="black" style={styles.dropdownIcon} />
+      <Ionicons
+        name={icon}
+        size={20}
+        color="black"
+        style={styles.dropdownIcon}
+      />
       <Text style={styles.dropdownItemText}>{label}</Text>
     </TouchableOpacity>
   );
 
   return (
     <LinearGradient
-      colors={['#2A2600', '#000000']}  // Define the gradient colors
-      start={{ x: 0, y: 0 }}  // Top
-      end={{ x: 0, y: 1 }}    // Bottom
+      colors={["#2A2600", "#000000"]} // Define the gradient colors
+      start={{ x: 0, y: 0 }} // Top
+      end={{ x: 0, y: 1 }} // Bottom
       style={styles.drawerContent}
     >
       <View style={styles.drawerHeader}>
@@ -59,9 +69,21 @@ const CustomDrawerContent = () => {
       <View style={styles.drawerSeparator} />
       <View style={styles.drawerItemsContainer}>
         <DrawerItem icon="grid" label="Dashboard" screenName="Dashboard" />
-        <DrawerItem icon="person" label="Attendee Tracker" screenName="Package" />
-        <DrawerItem icon="archive" label="Inventory Tracker" screenName="Package" />
-        <DrawerItem icon="chatbubble-ellipses" label="Feedback" screenName="Feedback" />
+        <DrawerItem
+          icon="person"
+          label="Attendee Tracker"
+          screenName="Package"
+        />
+        <DrawerItem
+          icon="archive"
+          label="Inventory Tracker"
+          screenName="Package"
+        />
+        <DrawerItem
+          icon="chatbubble-ellipses"
+          label="Feedback"
+          screenName="Feedback"
+        />
       </View>
       <View style={styles.flexibleSpace} />
       <View style={styles.userInfo}>
@@ -70,9 +92,15 @@ const CustomDrawerContent = () => {
           onPress={() => setDropdownVisible(!dropdownVisible)}
         >
           <Text style={styles.userName}>Avril Carasco</Text>
-          <Ionicons name="chevron-down" size={20} color="white" style={styles.userInfoIcon} />
+          <Ionicons
+            name="chevron-down"
+            size={20}
+            color="white"
+            style={styles.userInfoIcon}
+          />
         </TouchableOpacity>
-        <Text style={styles.userRole}>Admin</Text>
+        <Text style={styles.userRole}>Admins</Text>
+        {/* Switch profile section */}
         {dropdownVisible && (
           <View style={styles.dropdown}>
             <DropdownItem
@@ -80,7 +108,7 @@ const CustomDrawerContent = () => {
               label="Profile"
               onPress={() => {
                 setDropdownVisible(false);
-                navigation.navigate('Profile');
+                navigation.navigate("Profile");
               }}
             />
             <DropdownItem
@@ -88,7 +116,7 @@ const CustomDrawerContent = () => {
               label="Settings"
               onPress={() => {
                 setDropdownVisible(false);
-                navigation.navigate('Settings');
+                navigation.navigate("Settings");
               }}
             />
             <DropdownItem

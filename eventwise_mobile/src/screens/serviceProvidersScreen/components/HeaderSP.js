@@ -6,7 +6,7 @@ import SidebarMenu from "./SidebarMenu";
 import { useNavigation } from "@react-navigation/native";
 import SearchBar from "./SearchBAr";
 
-const CustomHeader = ({ onBackPress, showBackButton }) => {
+const HeaderSP = ({ onBackPress, showBackButton }) => {
   const navigator = useNavigation();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -136,4 +136,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomHeader;
+export default HeaderSP;

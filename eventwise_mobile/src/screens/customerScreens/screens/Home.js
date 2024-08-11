@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ImageBackground,
+  Alert,
+  BackHandler,
+} from "react-native";
 import { Divider } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import Header from "../elements/Header";
@@ -15,7 +25,9 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const storedUsername = await AsyncStorage.getItem("username");
-        const storedProfilePicture = await AsyncStorage.getItem("profilePicture");
+        const storedProfilePicture = await AsyncStorage.getItem(
+          "profilePicture"
+        );
 
         setUsername(storedUsername || "Customer Name");
         if (storedProfilePicture) {
@@ -28,7 +40,32 @@ const Home = () => {
 
     fetchData();
   }, []);
-  
+  const handleBackPress = () => {
+    Alert.alert("Exit App", "Are you sure you want to exit?", [
+      {
+        text: "Cancel",
+        onPress: () => null,
+        style: "cancel",
+      },
+      { text: "OK", onPress: () => BackHandler.exitApp() },
+    ]);
+    return true;
+  };
+  useEffect(() => {
+    const unsubscribe = navigator.addListener("focus", () => {
+      BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+    });
+
+    const unsubscribeBlur = navigator.addListener("blur", () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeBlur();
+      BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
+    };
+  }, [navigator]);
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
@@ -37,63 +74,88 @@ const Home = () => {
       >
         <Header />
         <ScrollView contentContainerStyle={styles.container}>
-
-        <View style={styles.accountsSection}>
-        <View style={styles.userProfile}>
+          <View style={styles.accountsSection}>
+            <View style={styles.userProfile}>
+              <Image
+                source={
+                  profilePicture
+                    ? { uri: profilePicture }
+                    : require("../pictures/user.png")
+                }
+                style={styles.accountImage}
+              />
+              <View style={styles.accountInfo}>
+                <Text style={styles.accountName}>Welcome,</Text>
+                <Text style={styles.userName}>{username}</Text>
+              </View>
+              <View style={styles.accInfo}>
+                <View>
+                  <Text style={styles.placeName}>Cagayan de Oro</Text>
+                  <Divider style={styles.accDiv} />
+                </View>
+                <FontAwesome
+                  name="map-marker"
+                  size={20}
+                  color={"#9F7E1C"}
+                  style={styles.dot}
+                />
+              </View>
+            </View>
             <Image
-              source={
-                profilePicture
-                  ? { uri: profilePicture }
-                  : require("../pictures/user.png")
-              }
+              source={require("../pictures/background.png")}
+              style={styles.backImage}
+            />
+          </View>
+
+          <View style={styles.accountCard}>
+            <Image
+              source={require("../pictures/user.png")}
               style={styles.accountImage}
             />
             <View style={styles.accountInfo}>
-                <Text style={styles.accountName}>Welcome,</Text>
-                <Text style={styles.userName}>{username}</Text>
-                </View>
-                <View style={styles.accInfo}>
-                  <View>
-                <Text style={styles.placeName}>Cagayan de Oro</Text>
-                <Divider style={styles.accDiv}/>
-                </View>
-                <FontAwesome name="map-marker" size={20} color={"#9F7E1C"} style={styles.dot}/>
-                </View>
-                </View>
-              <Image source={require("../pictures/background.png")} style={styles.backImage} />
+              <Text style={styles.orgName}>Organizer Name</Text>
+              <Text style={styles.accountType}>Event Organizer</Text>
             </View>
-
-            <View style={styles.accountCard}>
-              <Image source={require("../pictures/user.png")} style={styles.accountImage} />
-                <View style={styles.accountInfo}>
-                  <Text style={styles.orgName}>Organizer Name</Text>
-                  <Text style={styles.accountType}>Event Organizer</Text>
-                </View>
-                  <View style={styles.accButton}>
-                    <View style={styles.aButton}>
-                      <TouchableOpacity style={styles.iconButton} onPress={() => alert('Message pressed')}>
-                        <FontAwesome name="comment" size={18} color={"#333"} />
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.iconButton} onPress={() => alert('Phone call pressed')}>
-                        <FontAwesome name="phone-square" size={18} color={"#333"} />
-                      </TouchableOpacity>
-                    </View>
-                    <View>
-                      <TouchableOpacity style={styles.viewProfileButton} onPress={() => {navigator.navigate("ProfileOrganizer");}}>
-                        <Text style={styles.viewProfileButtonText}>View Profile</Text>
-                        <Divider style={styles.viewLine}/>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+            <View style={styles.accButton}>
+              <View style={styles.aButton}>
+                <TouchableOpacity
+                  style={styles.iconButton}
+                  onPress={() => alert("Message pressed")}
+                >
+                  <FontAwesome name="comment" size={18} color={"#333"} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.iconButton}
+                  onPress={() => alert("Phone call pressed")}
+                >
+                  <FontAwesome name="phone-square" size={18} color={"#333"} />
+                </TouchableOpacity>
+              </View>
+              <View>
+                <TouchableOpacity
+                  style={styles.viewProfileButton}
+                  onPress={() => {
+                    navigator.navigate("ProfileOrganizer");
+                  }}
+                >
+                  <Text style={styles.viewProfileButtonText}>View Profile</Text>
+                  <Divider style={styles.viewLine} />
+                </TouchableOpacity>
+              </View>
             </View>
+          </View>
 
           <Image
-              source={require("../pictures/line.png")}
-              style={styles.line}
-              resizeMode="contain"
-            />
+            source={require("../pictures/line.png")}
+            style={styles.line}
+            resizeMode="contain"
+          />
           <Text style={styles.sectionTitle}>Popular Events</Text>
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.eventList}>
+          <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={styles.eventList}
+          >
             {[
               {
                 title: "Mr. & Mrs. Malik Wedding",
@@ -178,7 +240,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     marginLeft: -20,
     marginRight: -20,
-    marginBottom: 50
+    marginBottom: 50,
   },
   accDivider: {
     height: 7,
@@ -204,7 +266,7 @@ const styles = StyleSheet.create({
     height: 200,
     marginLeft: -20,
     marginRight: -20,
-    marginBottom: -50
+    marginBottom: -50,
   },
   accountImage: {
     width: 40,
@@ -227,16 +289,15 @@ const styles = StyleSheet.create({
   placeName: {
     fontSize: 10,
     color: "#fff",
-    marginTop: 8
+    marginTop: 8,
   },
   accDiv: {
-    width: 70  
+    width: 70,
   },
   orgName: {
     fontSize: 15,
     fontWeight: "bold",
     color: "#fff",
-
   },
   accountType: {
     fontSize: 14,
@@ -254,10 +315,10 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   accButton: {
-    flexDirection: "column"  
+    flexDirection: "column",
   },
   aButton: {
-    flexDirection: "row"  
+    flexDirection: "row",
   },
   iconButton: {
     padding: 5,
@@ -279,7 +340,7 @@ const styles = StyleSheet.create({
   },
   viewLine: {
     width: 65,
-    backgroundColor: "#EFBF04",  
+    backgroundColor: "#EFBF04",
   },
   sectionTitle: {
     fontSize: 20,
@@ -290,7 +351,7 @@ const styles = StyleSheet.create({
   eventList: {
     marginVertical: 10,
   },
-   eventItem: {
+  eventItem: {
     backgroundColor: "white",
     padding: 10,
     borderRadius: 8,

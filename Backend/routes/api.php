@@ -10,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SuperAdminController;
-use App\Http\Controllers\AccountManagement\AccountManagementController;
+use App\Http\Controllers\AccountManagementController;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -24,9 +24,18 @@ Route::prefix('auth')->group(function () {
     // Route::post('/signup', [AuthenticatedSessionController::class, 'signupAccount']);
     Route::patch('update', [AuthenticatedSessionController::class, 'accountUpdate'])->middleware(['auth:sanctum']);
     Route::get('/me', [AuthenticatedSessionController::class, 'show'])->middleware(['auth:sanctum']);
+
+    Route::post('switch-account', [AuthenticatedSessionController::class, 'switchAccount'])->middleware(['auth:sanctum']);
 });
 
+//for switch account profile admin
+Route::post('/admin/account-management', [AccountManagementController::class, 'addProfile'])->middleware(['auth:sanctum']);
+Route::get('/admin/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);
+Route::get('/admin/account-management/{user}', [AccountManagementController::class, 'edit']);
+Route::patch('/admin/account-management/{user}', [AccountManagementController::class, 'update']);
+Route::delete('/admin/account-management/{user}', [AccountManagementController::class, 'destroy']);
 
+Route::get('/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);
 
 
 

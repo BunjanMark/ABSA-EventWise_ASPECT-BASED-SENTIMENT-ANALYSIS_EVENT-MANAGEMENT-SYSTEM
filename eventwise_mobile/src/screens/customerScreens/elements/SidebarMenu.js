@@ -1,9 +1,17 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Modal } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ImageBackground,
+  Modal,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
+import useStore from "../../../stateManagement/store";
 const SidebarMenu = ({ visible, onClose }) => {
+  const { user, accountProfiles, setUser, setAccountProfiles } = useStore();
   const navigation = useNavigation();
 
   const handlePress = (screen) => {
@@ -27,30 +35,65 @@ const SidebarMenu = ({ visible, onClose }) => {
             <Icon name="close" size={24} color="#fff" />
           </TouchableOpacity>
           <View style={styles.divider} />
-          <TouchableOpacity style={styles.option} onPress={() => handlePress("Profile")}>
+          <TouchableOpacity
+            style={styles.option}
+            onPress={() => handlePress("Profile")}
+          >
             <Icon name="person" size={24} color="#fff" style={styles.icon} />
             <Text style={styles.text}>Profile</Text>
           </TouchableOpacity>
           <View style={styles.divider} />
-          <TouchableOpacity style={styles.option} onPress={() => handlePress("Home")}>
+          <TouchableOpacity
+            style={styles.option}
+            onPress={() => handlePress("Home")}
+          >
             <Icon name="home" size={24} color="#fff" style={styles.icon} />
             <Text style={styles.text}>Home</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.option} onPress={() => handlePress("InventoryTracker")}>
+          <TouchableOpacity
+            style={styles.option}
+            onPress={() => handlePress("InventoryTracker")}
+          >
             <Icon name="list" size={24} color="#fff" style={styles.icon} />
             <Text style={styles.text}>Inventory Tracker</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.option} onPress={() => handlePress("Schedule")}>
-            <Icon name="calendar-today" size={24} color="#fff" style={styles.icon} />
+          <TouchableOpacity
+            style={styles.option}
+            onPress={() => handlePress("Schedule")}
+          >
+            <Icon
+              name="calendar-today"
+              size={24}
+              color="#fff"
+              style={styles.icon}
+            />
             <Text style={styles.text}>Schedule</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.option} onPress={() => handlePress("Settings")}>
+          <TouchableOpacity
+            style={styles.option}
+            onPress={() => handlePress("Settings")}
+          >
             <Icon name="settings" size={24} color="#fff" style={styles.icon} />
             <Text style={styles.text}>Settings</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.option}
+            onPress={() => handlePress("ProfileSwitcher")}
+          >
+            <Icon name="person" size={24} color="#fff" style={styles.icon} />
+            <Text style={styles.text}>Profile Switch</Text>
+          </TouchableOpacity>
           <View style={styles.logoutContainer}>
-            <TouchableOpacity style={styles.logoutButton} onPress={() => handlePress("Login")}>
-              <Icon name="exit-to-app" size={24} color="#fff" style={styles.logoutIcon} />
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={() => handlePress("Login")}
+            >
+              <Icon
+                name="exit-to-app"
+                size={24}
+                color="#fff"
+                style={styles.logoutIcon}
+              />
               <Text style={styles.logoutText}>Log Out</Text>
             </TouchableOpacity>
           </View>
@@ -63,7 +106,7 @@ const SidebarMenu = ({ visible, onClose }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   background: {
     flex: 1,
@@ -73,7 +116,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     padding: 10,
     marginTop: 5,
-    marginLeft: -5
+    marginLeft: -5,
   },
   option: {
     flexDirection: "row",

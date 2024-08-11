@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 
 import { AuthProvider } from "./src/services/authContext";
+import { ProfileProvider } from "./src/services/profileContext";
 // import { Navigator } from "./src/helper/Navigator";
 
 import Navigator from "./src/helper/Navigator";
@@ -13,9 +14,11 @@ export default function App() {
   return (
     <PaperProvider>
       <AuthProvider>
-        <NavigationContainer>
-          <Navigator />
-        </NavigationContainer>
+        <ProfileProvider>
+          <NavigationContainer>
+            <Navigator />
+          </NavigationContainer>
+        </ProfileProvider>
       </AuthProvider>
     </PaperProvider>
   );
