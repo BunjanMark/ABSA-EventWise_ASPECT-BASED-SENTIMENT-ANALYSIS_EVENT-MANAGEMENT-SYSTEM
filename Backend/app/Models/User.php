@@ -8,7 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Role;
+use App\Models\AccountRole;
 use Spatie\Permission\Traits\HasRoles;
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens, HasRoles;
@@ -53,4 +55,17 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+  
+  
+     /**
+      * Get all of the comments for the User
+      *
+      * @return \Illuminate\Database\Eloquent\Relations\HasMany
+      */
+     public function accountroles(): HasMany
+     {
+         return $this->hasMany(AccountRole::class);
+     }
+
+
 }

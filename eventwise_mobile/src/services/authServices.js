@@ -23,7 +23,6 @@ export const login = async (email, password) => {
     const response = await api.post("/auth/login", { email, password });
     const { token } = response.data;
     await AsyncStorage.setItem("authToken", token);
-    console.log("Login successful");
     return response.data;
   } catch (error) {
     console.error("Login error:", error);
@@ -81,6 +80,17 @@ export const getParticipants = async () => {
     return response.data;
   } catch (error) {
     console.error("Get participants error:", error);
+    throw error;
+  }
+};
+
+export const getAccountProfile = async () => {
+  try {
+    const response = await api.get("/account-management"); // Replace with the appropriate API endpoint for account management backend
+    // console.log("Account profile:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Get account profile error:", error);
     throw error;
   }
 };

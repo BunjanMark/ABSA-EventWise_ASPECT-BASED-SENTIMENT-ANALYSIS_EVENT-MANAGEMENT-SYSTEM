@@ -23,7 +23,6 @@ import { useState } from "react";
 import Toast from "react-native-root-toast";
 import { AuthContext } from "../../services/authContext";
 import { getUser } from "../../services/authServices";
-import { login } from "../../services/authServices";
 
 const Login = ({ navigation }) => {
   const navigator = useNavigation();
@@ -44,8 +43,8 @@ const Login = ({ navigation }) => {
   const navigateBasedOnRole = (role_id) => {
     try {
       if (role_id === 2) {
-        console.log("Navigating to CustomerStack...");
-        navigation.navigate("CustomerStack");
+        console.log("Navigating to CustomCustomerStack...");
+        navigation.navigate("CustomCustomerStack");
       } else if (role_id === 1) {
         console.log("Navigating to AdminStack...");
         navigation.navigate("AdminStack");
@@ -70,7 +69,7 @@ const Login = ({ navigation }) => {
         return false;
       }
 
-      const result = await login(username, password);
+      const result = await signIn(username, password);
       // showToast(result?.message);
       showToast(result?.message);
 
