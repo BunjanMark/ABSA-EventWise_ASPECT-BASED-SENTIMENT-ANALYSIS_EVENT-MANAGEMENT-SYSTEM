@@ -23,16 +23,23 @@ import InboxView from "../screens/customerScreens/message/InboxView";
 import ConvoView from "../screens/customerScreens/message/ConvoView";
 import Notification from "../screens/customerScreens/notification/Notifications";
 import SelectContactView from "../screens/customerScreens/message/SelectContactView";
+import ProfileSwitcher from "../screens/customerScreens/screens/ProfileSwitcher";
+import EventDetails from "../screens/customerScreens/otherScreens/EventDetails";
+import CreateAnotherAccount from "../screens/customerScreens/otherScreens/CreateAnotherAccount";
+import ProfileOrganizer from "../screens/customerScreens/otherScreens/ProfileOrganizer";
+import Package from "../screens/customerScreens/otherScreens/Package";
+import CustomizePackage from "../screens/customerScreens/otherScreens/CustomizePackage";
 
 // import Feedback from "../screens/customerScreens/otherScreens/Feedback";
 
 // Service Provider Stack here
 import ServiceProviderIndex from "../screens/serviceProvidersScreen/ServiceProviderIndex";
+
 // Guest Stack here
 
 // Profile switcher screen
-import ProfileSwitcher from "../screens/customerScreens/screens/ProfileSwitcher";
 import { ProfileContext } from "../services/profileContext";
+import Venue from "../screens/customerScreens/otherScreens/Venue";
 const Stack = createNativeStackNavigator();
 
 const AuthenticationStack = () => {
@@ -148,6 +155,47 @@ function CustomerStack() {
         component={SelectContactView}
         options={{ headerShown: false }}
       />
+
+      <Stack.Screen
+        name="Notification"
+        component={Notification}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EventDetails"
+        component={EventDetails}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CreateAnotherAccount"
+        component={CreateAnotherAccount}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileOrganizer"
+        component={ProfileOrganizer}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Package"
+        component={Package}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CustomizePackage"
+        component={CustomizePackage}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Venue"
+        component={Venue}
+        options={{ headerShown: false }}
+      />
+      {/* <Stack.Screen
+          name="Feedback"
+          component={Feedback}
+          options={{ headerShown: false }}
+        /> */}
     </Stack.Navigator>
   );
 }
