@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -26,81 +26,42 @@ const Event = () => {
 
   const { eventName } = route.params || {};
 
-  useEffect(() => {
-    const fetchEventDetails = async () => {
-      try {
-        const keys = await AsyncStorage.getAllKeys();
-        const events = await AsyncStorage.multiGet(keys);
-
-        const filteredEvents = events
-          .filter(([key]) => key.startsWith("@booked_events:"))
-          .map(([key, value]) => {
-            const event = JSON.parse(value);
-            return { ...event, key };
-          });
-
-        filteredEvents.sort(
-          (a, b) =>
-            parseInt(b.key.split(":")[1]) - parseInt(a.key.split(":")[1])
-        );
-
-        setEventDetails(filteredEvents);
-      } catch (e) {
-        console.error("Error fetching event details:", e);
-        showToast("Failed to fetch event details.");
-      }
-    };
-
-    fetchEventDetails();
-  }, []);
-  const {
-    user,
-    accountProfiles,
-    setUser,
-    setAccountProfiles,
-    setActiveProfile,
-  } = useStore();
-
-  // Fetch account profiles and user details for demonstration
-  useFocusEffect(
-    React.useCallback(() => {
-      const fetchAccountProfile = async () => {
-        try {
-          const user = await getUser(); // Fetch user details
-          setUser(user);
-
-          const profileResponse = await getAccountProfile(); // Fetch account profiles
-          const profiles = profileResponse.data; // Extract profiles from response
-
-          // console.log("", profiles);
-          // console.log("\n\n\n", profiles[0].service_provider_name);
-
-          // Filtering logic
-          const filteredProfiles = profiles.filter(
-            (profile) => profile.user_id === user.id
-          );
-
-          setAccountProfiles(filteredProfiles); // Set account profiles state
-          // console.log(
-          //   "\n\n\n",
-          //   accountProfile.map((profile) => profile.service_provider_name)
-          // );
-        } catch (error) {
-          console.error("Error fetching account profiles:", error);
-          showToast("Failed to fetch account profiles.");
-        }
-      };
-
-      fetchAccountProfile();
-    }, [])
-  );
-  const handleProfileClick = (profiles) => {
-    setActiveProfile(profiles);
-    navigation.navigate("ServiceProviderSubStack"); // Navigate to ServiceProviderSubStack screen
-  };
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
   };
+
+  const fetchEventDetails = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      console.log("Keys:", keys);
+      const events = await AsyncStorage.multiGet(keys);
+      console.log("Events:", events);
+
+      const filteredEvents = events
+        .filter(([key]) => key.startsWith("@booked_events:"))
+        .map(([key, value]) => {
+          const event = JSON.parse(value);
+          return { ...event, key };
+        });
+
+      console.log("Filtered Events:", filteredEvents);
+
+      filteredEvents.sort(
+        (a, b) => parseInt(b.key.split(":")[1]) - parseInt(a.key.split(":")[1])
+      );
+
+      setEventDetails(filteredEvents);
+    } catch (e) {
+      console.error("Error fetching event details:", e);
+      showToast("Failed to fetch event details.");
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchEventDetails();
+    }, [])
+  );
 
   return (
     <View style={{ flex: 1 }}>
@@ -147,8 +108,14 @@ const Event = () => {
                     style={styles.accountImage}
                   />
                   <Text style={styles.orgName}>Organizer</Text>
+                  <Image
+                    source={require("../pictures/user.png")}
+                    style={styles.accountImage}
+                  />
+                  <Text style={styles.orgName}>Organizer</Text>
                 </View>
                 <View style={styles.centerColumn}>
+                  <View style={styles.line} />
                   <View style={styles.line} />
                   <Text style={styles.eventType}>{event.eventType}</Text>
                   <Text style={styles.eventLocation}>
@@ -157,6 +124,8 @@ const Event = () => {
                   <TouchableOpacity
                     onPress={() => navigation.navigate("EventDetails")}
                   >
+                    onPress=
+                    {() => navigation.navigate("EventDetails", { event })}
                     <Text style={styles.viewAllButton}>View All</Text>
                   </TouchableOpacity>
                 </View>
@@ -183,6 +152,7 @@ const Event = () => {
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
+    marginBottom: 70,
   },
   backgroundImage: {
     flex: 1,
@@ -244,17 +214,26 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: 18,
     fontWeight: "bold",
+    color: "#000",
+    fontSize: 14,
+    fontWeight: "bold",
     marginLeft: 10,
   },
   eventLocation: {
     color: "#000",
     fontSize: 16,
+    color: "#000",
+    fontSize: 12,
     marginBottom: 15,
     marginLeft: 10,
   },
   viewAllButton: {
     color: "#e6b800",
     fontSize: 14,
+    fontWeight: "bold",
+    textDecorationLine: "underline",
+    color: "#e6b800",
+    fontSize: 13,
     fontWeight: "bold",
     textDecorationLine: "underline",
     marginLeft: 10,
@@ -270,6 +249,8 @@ const styles = StyleSheet.create({
   feedbackButton: {
     color: "#000",
     fontSize: 16,
+    color: "#000",
+    fontSize: 15,
     marginLeft: 8,
   },
   rightColumn: {
