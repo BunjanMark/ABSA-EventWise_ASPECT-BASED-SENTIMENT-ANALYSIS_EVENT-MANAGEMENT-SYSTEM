@@ -205,7 +205,11 @@ const Login = ({ navigation }) => {
               </View>
               <Button
                 style={{ ...styles.buttonStyle, backgroundColor: "#CEB64C" }}
-                onPress={handleLogin}
+                // onPress={handleLogin}
+                // temporary change
+                onPress={()=> {
+                  navigator.navigate("CustomCustomerStack")
+                }}
                 loading={loading}
                 disabled={loading}
                 labelStyle={{
