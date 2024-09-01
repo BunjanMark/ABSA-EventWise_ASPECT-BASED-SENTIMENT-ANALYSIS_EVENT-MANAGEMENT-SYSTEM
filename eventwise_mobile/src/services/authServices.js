@@ -32,12 +32,13 @@ export const login = async (email, password) => {
 
 export const signup = async (userData) => {
   try {
-    await api.post("/user/signup", userData);
+    const response = await api.post("/auth/signup", userData);
+    return response.data;
   } catch (error) {
     if (error.response) {
       console.error("Signup error response data:", error.response.data);
       console.error("Signup error response status:", error.response.status);
-      console.error("Signup error response headers:", error.response.headers);
+      // console.error("Signup error response headers:", error.response.headers);
     } else {
       console.error("Signup error message:", error.message);
     }

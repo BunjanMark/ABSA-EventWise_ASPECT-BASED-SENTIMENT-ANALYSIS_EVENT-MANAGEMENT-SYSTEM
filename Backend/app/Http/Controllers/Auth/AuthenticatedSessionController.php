@@ -81,7 +81,7 @@ class AuthenticatedSessionController extends Controller
             return response(["message" => "User Successfully Created"], 200);
         } catch (\Throwable $th) {
             //throw $th;
-            return response(["message" => $th->getMessage()], 500);
+            return response(["status" => "error","message" => $th->getMessage()], 500);
 
         }
     }

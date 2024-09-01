@@ -40,9 +40,13 @@ Route::get('/account-management', [AccountManagementController::class, 'getProfi
 
 
 // Route::middleware(['admin'])->get('/admin', [AdminController::class, 'index']);
-// test route
-
- 
+// test route respond hello world
+Route::get('/hello', function () {
+//     echo(url('/login'));
+//  echo(route('login'));
+return response()->json(['status' => 200, 'message' => 'Hello World!']);
+// return response()->json(compact('token'))->header("Access-Control-Allow-Origin",  "*");
+});
 
 
 // Protected Routes for admin

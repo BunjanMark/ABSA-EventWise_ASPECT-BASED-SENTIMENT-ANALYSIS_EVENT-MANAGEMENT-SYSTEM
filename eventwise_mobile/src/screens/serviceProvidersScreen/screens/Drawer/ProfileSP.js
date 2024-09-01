@@ -9,6 +9,10 @@ const ProfileSP = ({ navigation }) => {
         title="Go to SwitchProfileSP"
         onPress={() => navigation.navigate("ProfileSwitchSP")} // We added an onPress event which would navigate to the About screen
       />
+      <Button
+        title="Go to Options"
+        onPress={() => navigation.navigate("OptionsSP")} // We added an onPress event which would navigate to the About screen
+      />
     </View>
   );
 };
