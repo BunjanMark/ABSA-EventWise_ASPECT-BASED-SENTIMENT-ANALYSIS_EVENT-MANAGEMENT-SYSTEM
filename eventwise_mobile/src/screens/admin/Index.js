@@ -2,9 +2,7 @@
 
 import React from "react";
 import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { Ionicons } from "@expo/vector-icons";
 import CustomDrawerContent from "./sidebar";
 import NavBar from "./nav";
 import EditScreen from "./edit";
