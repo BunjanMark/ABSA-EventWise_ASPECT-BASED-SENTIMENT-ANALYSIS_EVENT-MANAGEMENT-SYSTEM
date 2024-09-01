@@ -9,17 +9,14 @@ import {
 } from "react-native";
 import RadioButtonRN from "radio-buttons-react-native";
 import Colors from "../styles";
+import { get, save } from "../../../stateManagement/store";
 import { LinearGradient } from "expo-linear-gradient";
-import useStore from "../../../stateManagement/store"; // Ensure the correct path
 
+import { styling } from "../styles/styles";
 const ScheduleSP = () => {
-  const themes = useColorScheme();
+  const [themeValue, setThemeValue] = useState("default");
   const [initialValue, setInitialValue] = useState(3);
-  const { theme, setTheme, initializeTheme } = useStore((state) => ({
-    theme: state.theme,
-    setTheme: state.setTheme,
-    initializeTheme: state.initializeTheme,
-  }));
+  const themes = useColorScheme();
 
   const data = [
     { label: "Light Mode", value: "light" },
@@ -30,44 +27,52 @@ const ScheduleSP = () => {
   const themeOperations = (theme) => {
     switch (theme) {
       case "dark":
-        setTheme(theme);
+        setTheme(theme, false);
         setInitialValue(2);
         break;
       case "light":
-        setTheme(theme);
+        setTheme(theme, false);
         setInitialValue(1);
         break;
       case "default":
-        setTheme(themes);
+        setTheme(themes, true);
         setInitialValue(3);
         break;
       default:
-        setTheme(themes);
+        setTheme(themes, true);
         setInitialValue(3);
         break;
     }
   };
 
   const getAppTheme = useCallback(async () => {
-    await initializeTheme();
-    themeOperations(theme);
-  }, [initializeTheme, theme]);
+    const theme = await get("Theme");
+    const isDefault = await get("IsDefault");
+    isDefault ? themeOperations("default") : themeOperations(theme);
+  }, []);
+
+  const setTheme = useCallback(async (theme, isDefault) => {
+    await save("Theme", theme);
+    await save("IsDefault", isDefault);
+    setThemeValue(theme);
+  }, []);
 
   useEffect(() => {
     getAppTheme();
   }, [getAppTheme]);
 
-  const styles = styling(theme);
+  const styles = styling(themeValue);
   const gradientColors =
-    theme === "dark"
-      ? ["#1e1e1e", "#3c3c3c"]
-      : theme === "light"
-      ? ["#ffffff", "#ff0000"]
-      : ["#87ceeb", "#1e90ff"];
+    themeValue === "dark"
+      ? ["#1e1e1e", "#3c3c3c"] // Dark mode gradient
+      : themeValue === "light"
+      ? ["#ffffff", "#ff0000"] // Light mode gradient
+      : ["#87ceeb", "#1e90ff"]; // Default gradient (sky blue)
 
   return (
     <LinearGradient
-      colors={Colors[theme]?.themeColor || gradientColors}
+      colors={gradientColors} // Example gradient colors
+      // colors={Colors[themeValue]?.themeColor || ["#87ceeb", "#1e90ff"]}
       style={styles.container}
     >
       <Text style={styles.textStyle}>
@@ -77,7 +82,7 @@ const ScheduleSP = () => {
       <TextInput
         style={styles.textInputStyle}
         placeholder="Type here"
-        placeholderTextColor={Colors[theme]?.gray || "#888"}
+        placeholderTextColor={Colors[themeValue]?.gray || "#888"}
       />
       <TouchableOpacity style={styles.touchableStyle}>
         <Text style={styles.buttonTextStyle}>Button</Text>
@@ -86,10 +91,11 @@ const ScheduleSP = () => {
         data={data}
         selectedBtn={(e) => themeOperations(e?.value)}
         initial={initialValue}
-        activeColor={Colors[theme]?.activeColor || "#000"}
-        deactiveColor={Colors[theme]?.deactiveColor || "#ccc"}
-        boxActiveBgColor={Colors[theme]?.boxActiveColor || "#ddd"}
-        textColor={Colors[theme]?.white || "#000"}
+        activeColor={Colors[themeValue]?.activeColor || "#000"}
+        deactiveColor={Colors[themeValue]?.deactiveColor || "#ccc"}
+        boxActiveBgColor={Colors[themeValue]?.boxActiveColor || "#ddd"}
+        // boxDeactiveBgColor={Colors[themeValue]?.themeColor || "#fff"}
+        textColor={Colors[themeValue]?.white || "#000"}
       />
     </LinearGradient>
   );

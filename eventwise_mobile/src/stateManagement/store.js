@@ -8,6 +8,21 @@ const useStore = create((set) => ({
   loading: true,
   navigation: null, // Store navigation object here
 
+  // Theme-related state and methods
+  theme: "default", // Initial theme state
+  setTheme: async (theme) => {
+    await AsyncStorage.setItem("Theme", theme); // Persist the theme
+    set({ theme });
+  },
+  initializeTheme: async () => {
+    const savedTheme = await AsyncStorage.getItem("Theme");
+    if (savedTheme) {
+      set({ theme: savedTheme });
+    } else {
+      set({ theme: "default" });
+    }
+  },
+  // User-related state and methods
   setUser: (user) => set({ user }),
   setAccountProfiles: (profiles) => set({ accountProfiles: profiles }),
   setActiveProfile: (profile) => set({ activeProfile: profile }),
@@ -61,5 +76,31 @@ const useStore = create((set) => ({
     }
   },
 }));
+
+// Helper functions
+export const saveString = async (key, value) => {
+  try {
+    await AsyncStorage.setItem(key, value);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const save = async (key, value) =>
+  saveString(key, JSON.stringify(value));
+
+export const get = async (key) => {
+  try {
+    const itemString = await AsyncStorage.getItem(key);
+    if (itemString) {
+      return JSON.parse(itemString);
+    } else {
+      return null;
+    }
+  } catch (error) {
+    return null;
+  }
+};
 
 export default useStore;
