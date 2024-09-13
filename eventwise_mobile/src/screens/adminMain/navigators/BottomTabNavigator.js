@@ -10,60 +10,33 @@ import {
   GroupStackNavigator,
   FeedbackStackNavigator,
 } from "../navigators/StackNavigator";
-
+import { Text } from "react-native";
 const Tab = createBottomTabNavigator();
-const screenOptions1 = {
-  headerShown: false,
-  tabBarShowLabel: false,
-  tabBarStyle: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 0,
+import styles from "../styles/styles";
 
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    height: Platform.OS === "ios" ? 90 : 70,
-    backgroundColor: "#ffffff",
-  },
-  conse: ({ route }) => ({
-    tabBarIcon: ({ focused, color, size }) => {
-      let iconName;
-
-      if (route.name === "Home") {
-        iconName = focused ? "home" : "home-outline";
-      } else if (route.name === "Events") {
-        iconName = focused ? "list" : "list-outline";
-      }
-
-      // You can return any component that you like here!
-      return <Ionicons name={iconName} size={size} color={color} />;
-    },
-    tabBarActiveTintColor: "golden",
-    tabBarInactiveTintColor: "gray",
-  }),
-};
 const screenOptions = ({ route }) => ({
   headerShown: false,
   tabBarShowLabel: true,
-  tabBarStyle: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 0,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    height: Platform.OS === "ios" ? 80 : 90,
-    backgroundColor: "#ffffff",
-  },
+  tabBarStyle: styles.tabBarStyle,
 
   // to be put focused then lift
-  tabBarLabelStyle: {
-    fontSize: 14, // Font size for the label
-    bottom: 21, // This elevates the label upwards
-  },
+  // tabBarLabelStyle: {
+  //   fontSize: 14, // Font size for the label
+  //   bottom: 21, // This elevates the label upwards
+  // },
+
+  tabBarLabel: ({ children, color, focused }) => (
+    <Text
+      style={{
+        color: focused ? "#eeba2b" : "black",
+        fontSize: focused ? 14 : 13,
+        fontWeight: focused ? "bold" : "normal",
+        bottom: 21,
+      }}
+    >
+      {children}
+    </Text>
+  ),
   tabBarActiveTintColor: "golden",
   tabBarInactiveTintColor: "gray",
   tabBarIcon: ({ focused, color, size }) => {
@@ -73,7 +46,7 @@ const screenOptions = ({ route }) => ({
       // height: "100%",
       top: 14,
     };
-    const colorIcon = focused ? "#95720A" : "black";
+    const colorIcon = focused ? "#eeba2b" : "black";
     const sizeIcon = focused ? 34 : 30;
     let iconName;
 

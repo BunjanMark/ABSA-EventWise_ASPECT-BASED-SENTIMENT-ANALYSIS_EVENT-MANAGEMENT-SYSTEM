@@ -129,6 +129,8 @@ const useStore = create((set) => ({
       set({ count: JSON.parse(savedCount) });
     }
   },
+
+  // calendar-related state and methods
 }));
 
 // Helper functions

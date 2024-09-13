@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-
+import { Platform } from "react-native";
 const styles = StyleSheet.create({
   // SIDEBAR
   screen: {
@@ -87,7 +87,37 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 12,
   },
+  // tabBar Style tab bar tab
+  tabBarStyle: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 0,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    height: Platform.OS === "ios" ? 80 : 90,
+    backgroundColor: "#ffffff",
+  },
+  // tabBarStyle: {
+  //   height: Platform.OS === "ios" ? 80 : 90,
+  //   backgroundColor: "#fff",
+  //   position: "absolute",
+  //   bottom: 17,
+  //   left: 20,
+  //   right: 20,
+  //   borderRadius: 30,
+  //   borderTopWidth: 0,
+  //   shadowColor: "#000",
+  //   shadowOffset: {
+  //     width: 0,
+  //     height: 2,
+  //   },
+  //   shadowOpacity: 0.25,
+  //   shadowRadius: 3.84,
 
+  //   elevation: 5,
+  // },
   // header style
   // For header
   headerContainer: {
