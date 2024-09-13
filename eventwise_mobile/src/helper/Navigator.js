@@ -15,7 +15,7 @@ import Landing from "../screens/authentication/Landing";
 import GuestLanding from "../screens/authentication/GuestLanding";
 
 // Admin Stack here
-import Index from "../screens/admin/Index";
+import AdminIndex from "../screens/adminMain/AdminIndex";
 
 // Customer Stack here
 import TabNav from "../screens/customerScreens/TabNav";
@@ -89,7 +89,7 @@ const AuthenticationStack = () => {
       />
       <Stack.Screen
         name="AdminStack"
-        component={AdminStack}
+        component={AdminIndex}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
