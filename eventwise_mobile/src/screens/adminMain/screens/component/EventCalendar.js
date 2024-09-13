@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
 import React, { useState } from "react";
 import {
@@ -13,11 +14,17 @@ import CalendarStrip from "react-native-calendar-strip";
 export default function EventCalendar() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigation = useNavigation();
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  // handling events schedule to navigate to the main screen of Schedule
+  const handleEventSchedule = () => {
+    console.log("test");
+    navigation.navigate("Schedule");
+  };
   // Get today's date
   const today = moment().format("YYYY-MM-DD");
 
@@ -114,8 +121,13 @@ export default function EventCalendar() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        {/* <Text style={styles.title}>Your Schedule</Text> */}
-        {/* <Text style={styles.subtitle}>{selectedDate.toDateString()}</Text> */}
+        <Text style={styles.title}>Date Today</Text>
+        <TouchableOpacity
+          style={styles.scheduleTitleContainer}
+          onPress={handleEventSchedule}
+        >
+          <Text style={styles.subtitle}>{selectedDate.toDateString()}</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Calendar Strip */}
@@ -125,14 +137,20 @@ export default function EventCalendar() {
         iconRight={null}
         customDatesStyles={customDatesStyles}
         scrollable
-        calendarHeaderStyle={{
-          color: "#333",
-          fontSize: 10,
-          // backgroundColor: "green",
+        // calendarHeaderStyle={{
+        //   color: "#333",
+        //   fontSize: 10,
+        //   // backgroundColor: "green",
+        //   display: "flex",
+        //   width: "100%",
+        //   marginTop: 10,
+        //   right: 110,
+        // }}
+        calendarHeaderContainerStyle={{
           display: "flex",
-          width: "100%",
-          marginTop: 10,
-          right: 110,
+          // right: 110,
+          width: 0,
+          height: 0,
         }}
         dateNumberStyle={{ color: "#333" }}
         dateNameStyle={{ color: "#333" }}
@@ -141,7 +159,7 @@ export default function EventCalendar() {
         daySelectionAnimation={{
           type: "background",
           duration: 1100,
-          highlightColor: "#d8d9d9",
+          highlightColor: "rgba(218,218,218,0.6)", //color sa day selected (gray)
         }}
         highlightDateNumberStyle={{ color: "black" }}
         highlightDateNameStyle={{ color: "black" }}
@@ -189,28 +207,33 @@ export default function EventCalendar() {
                     <View style={styles.dropdown}>
                       {schedules[formatDate(selectedDate)].map(
                         (event, index) => (
-                          <View key={index} style={styles.scheduleItem}>
-                            {/* Event Title */}
-                            <Text style={styles.scheduleTitle}>
-                              {event.title}
-                            </Text>
-
-                            {/* Event Time */}
-                            <View style={styles.scheduleDetailRow}>
-                              <Text style={styles.label}>Time: </Text>
-                              <Text style={styles.scheduleTime}>
-                                {event.startTime} - {event.endTime}
+                          <TouchableOpacity
+                            style={styles.scheduleTitleContainer}
+                            onPress={handleEventSchedule}
+                          >
+                            <View key={index} style={styles.scheduleItem}>
+                              {/* Event Title */}
+                              <Text style={styles.scheduleTitle}>
+                                {event.title}
                               </Text>
-                            </View>
 
-                            {/* Event Description */}
-                            <View style={styles.scheduleDetailRow}>
-                              <Text style={styles.label}>Description: </Text>
-                              <Text style={styles.scheduleDescription}>
-                                {event.description}
-                              </Text>
+                              {/* Event Time */}
+                              <View style={styles.scheduleDetailRow}>
+                                <Text style={styles.label}>Time: </Text>
+                                <Text style={styles.scheduleTime}>
+                                  {event.startTime} - {event.endTime}
+                                </Text>
+                              </View>
+
+                              {/* Event Description */}
+                              <View style={styles.scheduleDetailRow}>
+                                <Text style={styles.label}>Description: </Text>
+                                <Text style={styles.scheduleDescription}>
+                                  {event.description}
+                                </Text>
+                              </View>
                             </View>
-                          </View>
+                          </TouchableOpacity>
                         )
                       )}
                     </View>
@@ -241,25 +264,34 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     padding: 12,
-    // backgroundColor: "red",
-    margin: 5,
+    // backgroundColor: "green",
+
+    // margin: 5,
     borderRadius: 8,
     paddingTop: 10,
+    height: "100%",
+    width: "100%",
   },
   header: {
-    paddingHorizontal: 16,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+
+    // backgroundColor: "red",
+    padding: 10,
   },
   title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#1d1d1d",
-    marginBottom: 12,
+    fontSize: 24,
+    fontWeight: "500",
+    color: "black",
+    // marginBottom: 12,
   },
   calendar: {
-    height: 100,
-    paddingBottom: 10,
+    height: 70,
+
     // apply glass effect
-    backgroundColor: "rgba(255,252,221,99)",
+    backgroundColor: "rgba(255,252,221,99)", //yellow ni sya sa calendar strip
 
     borderRadius: 8,
     shadowColor: "#000",
@@ -272,10 +304,11 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   subtitle: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#999999",
-    marginBottom: 12,
+    fontSize: 13,
+    fontWeight: "300",
+    color: "rgba(53,53,53,0.9)",
+    // marginBottom: 12,
+    paddingTop: 11,
   },
   placeholder: {
     flexGrow: 1,
@@ -296,9 +329,10 @@ const styles = StyleSheet.create({
     // padding: 0,
   },
   scheduleItem: {
-    marginBottom: 16,
+    marginBottom: 13,
     padding: 10,
-    backgroundColor: "#f9f9f9",
+    // backgroundColor: "#f9f9f9",
+    backgroundColor: "rgba(249,250,237,1)",
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -306,11 +340,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  scheduleTitleContainer: {
+    marginBottom: 8,
+  },
   scheduleTitle: {
     fontSize: 16,
     fontWeight: "700",
     color: "#333",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   scheduleDetailRow: {
     flexDirection: "row",
@@ -321,6 +358,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#666",
+  },
+  toggleButtonText: {
+    color: "black",
+    textAlign: "center",
+  },
+  dropdown: {
+    // backgroundColor: "red",
+    marginTop: 10,
   },
   scheduleTime: {
     fontSize: 14,

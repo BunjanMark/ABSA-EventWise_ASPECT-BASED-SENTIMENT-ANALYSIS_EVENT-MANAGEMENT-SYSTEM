@@ -40,6 +40,7 @@ import ServiceProviderIndex from "../screens/serviceProvidersScreen/ServiceProvi
 // Profile switcher screen
 import { ProfileContext } from "../services/profileContext";
 import Venue from "../screens/customerScreens/otherScreens/Venue";
+import GuestIndex from "../screens/guestScreens/GuestIndex";
 const Stack = createNativeStackNavigator();
 
 const AuthenticationStack = () => {
@@ -90,6 +91,11 @@ const AuthenticationStack = () => {
       <Stack.Screen
         name="AdminStack"
         component={AdminIndex}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="GuestStack"
+        component={GuestIndex}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
