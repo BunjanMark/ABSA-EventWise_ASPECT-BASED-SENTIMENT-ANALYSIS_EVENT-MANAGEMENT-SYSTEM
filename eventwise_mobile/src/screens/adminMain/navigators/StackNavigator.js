@@ -13,6 +13,9 @@ import FeedbackAdmin from "../screens/feedback/FeedbackAdmin";
 
 // event stack imports
 import EventAdmin from "../screens/event/EventAdmin";
+import ProfileAdmin from "../screens/profile/ProfileAdmin";
+import AttendeeAdmin from "../screens/attendee/AttendeeAdmin";
+import InventoryAdmin from "../screens/inventory/InventoryAdmin";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -44,10 +47,10 @@ const ScheduleStackNavigator = () => {
 const ProfileStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="ProfileSP" component={ProfileSP} />
-      <Stack.Screen name="ProfileEditSP" component={ProfileEditSP} />
+      <Stack.Screen name="ProfileAdmin" component={ProfileAdmin} />
+      {/* <Stack.Screen name="ProfileEditSP" component={ProfileEditSP} />
       <Stack.Screen name="OptionsSP" component={OptionsSP} />
-      <Stack.Screen name="ProfileSwitchSP" component={ProfileSwitchSP} />
+      <Stack.Screen name="ProfileSwitchSP" component={ProfileSwitchSP} /> */}
     </Stack.Navigator>
   );
 };
@@ -80,6 +83,22 @@ const SettingStackNavigator = () => {
     </Stack.Navigator>
   );
 };
+
+const AttendeeTrackerStackNavigator = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="AtendeeTrackerAdmin" component={AttendeeAdmin} />
+    </Stack.Navigator>
+  );
+};
+const InventoryTrackerStackNavigator = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="InventoryTrackerAdmin" component={InventoryAdmin} />
+    </Stack.Navigator>
+  );
+};
+
 export {
   MainStackNavigator,
   ScheduleStackNavigator,
@@ -88,4 +107,6 @@ export {
   SettingStackNavigator,
   GroupStackNavigator,
   FeedbackStackNavigator,
+  AttendeeTrackerStackNavigator,
+  InventoryTrackerStackNavigator,
 };

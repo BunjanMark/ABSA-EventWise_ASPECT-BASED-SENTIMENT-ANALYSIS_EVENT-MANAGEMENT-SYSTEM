@@ -11,6 +11,7 @@ const HeaderAdmin = ({
   navigation,
 }) => {
   return (
+    //
     <SafeAreaView style={styles.headerContainer}>
       <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
         <Ionicons name="menu-outline" size={24} color="#333" />
