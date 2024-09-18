@@ -32,11 +32,11 @@ const AdminDrawerContent = (props) => {
             break;
           case "Attendee Tracker":
             setSelectedItem(screenName);
-            // navigation.navigate("AttendeeTracker");
+            navigation.navigate("Attendee Tracker");
             break;
           case "Inventory Tracker":
             setSelectedItem(screenName);
-            // navigation.navigate("InventoryTracker");
+            navigation.navigate("Inventory Tracker");
             break;
           default:
             break;
@@ -152,7 +152,9 @@ const AdminDrawerContent = (props) => {
               style={styles.drawerIcon}
             />
           }
-          onPress={() => props.navigation.navigate("Profile")}
+          onPress={() =>
+            props.navigation.navigate("AtendeeTrackerStackNavigator")
+          }
           screenName={"Attendee Tracker"}
           icon={"people-group"}
         />
@@ -184,6 +186,7 @@ const AdminDrawerContent = (props) => {
             onPress={() => {
               setDropdownVisible(false);
               navigation.navigate("Profile");
+              console.log("Profile");
             }}
           />
           <DropdownItem
@@ -192,6 +195,7 @@ const AdminDrawerContent = (props) => {
             onPress={() => {
               setDropdownVisible(false);
               navigation.navigate("Settings");
+              console.log("Settings");
             }}
           />
           <DropdownItem
@@ -206,7 +210,7 @@ const AdminDrawerContent = (props) => {
       )}
       {/* Footer Content */}
 
-      <View style={styles.footer}>
+      <View style={styles.sidebarFooter}>
         <Text style={{ ...styles.footerText, color: "black" }}>
           Version 1.0.0
         </Text>

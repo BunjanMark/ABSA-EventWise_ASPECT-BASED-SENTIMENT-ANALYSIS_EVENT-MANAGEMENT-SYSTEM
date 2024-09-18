@@ -10,7 +10,7 @@ const HomeAdmin = () => {
       <ScrollView>
         <EventCalendar />
         {/* <Text>All events</Text> */}
-        {/* <EventPackages /> */}
+        <EventPackages />
       </ScrollView>
     </SafeAreaView>
   );

@@ -41,16 +41,19 @@ const EventPackages = () => {
   }, []);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       {/* test */}
       {/* <Button title="Increase" onPress={increaseCount} />
       <Button title="Decrease" onPress={decreaseCount} /> */}
-      <Text style={styles.sectionText}>Event Packages</Text>
-
+      <View>
+        <Text style={styles.header}>
+          <Text style={styles.title}>Event Packages</Text>
+        </Text>
+      </View>
       <ScrollView
         horizontal={true}
         showsHorizontalScrollIndicator={false}
-        style={styles.scrollView}
+        style={styles.scrollViewEventPackage}
       >
         {events.map((event) => (
           <View key={event.id} style={styles.eventCard}>
@@ -80,7 +83,6 @@ const EventPackages = () => {
           </View>
         ))}
       </ScrollView>
-      <Text style={{ fontSize: 24 }}>Likes count: {count}</Text>
     </SafeAreaView>
   );
 };

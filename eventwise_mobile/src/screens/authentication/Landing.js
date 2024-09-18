@@ -44,7 +44,7 @@ export default Landing = () => {
           <Button
             mode="contained"
             onPress={() => {
-              navigator.navigate("Login");
+              navigator.navigate("AdminStack");
             }}
             style={{
               backgroundColor: "#CEB64C",
