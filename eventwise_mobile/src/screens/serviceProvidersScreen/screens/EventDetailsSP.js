@@ -11,17 +11,17 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const eventsData = [
-  { id: '1', title: 'Mr. & Mrs. Malik Wedding', image: require('../assets/event1.png'), date: '2024-07-01', address: 'CDO', buttons: ['Feedback'] },
-  { id: '2', title: 'Elizabeth Birthday', image: require('../assets/event2.png'), date: '2024-08-12', address: 'CDO', buttons: ['Feedback'] },
-  { id: '3', title: 'Class of 1979 Reunion', image: require('../assets/event3.png'), date: '2024-09-25', address: 'CDO', buttons: ['Feedback'] },
-  { id: '4', title: 'Corporate Party', image: require('../assets/event1.png'), date: '2024-10-30', address: 'CDO', buttons: ['Feedback'] },
-  { id: '5', title: 'Annual Gala', image: require('../assets/event2.png'), date: '2024-11-15', address: 'CDO', buttons: ['Feedback'] },
-  { id: '6', title: 'New Year Celebration', image: require('../assets/event3.png'), date: '2024-12-31', address: 'CDO', buttons: ['Feedback'] },
-  { id: '7', title: 'Music Festival', image: require('../assets/event1.png'), date: '2024-06-22', address: 'CDO', buttons: ['Feedback'] },
-  { id: '8', title: 'Art Exhibition', image: require('../assets/event2.png'), date: '2024-07-05', address: 'CDO', buttons: ['Feedback'] },
+  { id: '1', title: 'Mr. & Mrs. Malik Wedding', image: require('../assets/event1.png'), date: '2024-07-01', address: 'CDO', buttons: ['Equipment'] },
+  { id: '2', title: 'Elizabeth Birthday', image: require('../assets/event2.png'), date: '2024-08-12', address: 'CDO', buttons: ['Inventory'] },
+  { id: '3', title: 'Class of 1979 Reunion', image: require('../assets/event3.png'), date: '2024-09-25', address: 'CDO', buttons: ['Equipment'] },
+  { id: '4', title: 'Corporate Party', image: require('../assets/event1.png'), date: '2024-10-30', address: 'CDO', buttons: ['Equipment'] },
+  { id: '5', title: 'Annual Gala', image: require('../assets/event2.png'), date: '2024-11-15', address: 'CDO', buttons: ['Inventory', 'Equipment'] },
+  { id: '6', title: 'New Year Celebration', image: require('../assets/event3.png'), date: '2024-12-31', address: 'CDO', buttons: ['Inventory'] },
+  { id: '7', title: 'Music Festival', image: require('../assets/event1.png'), date: '2024-06-22', address: 'CDO', buttons: ['Equipment'] },
+  { id: '8', title: 'Art Exhibition', image: require('../assets/event2.png'), date: '2024-07-05', address: 'CDO', buttons: ['Equipment'] },
 ];
 
-const EventsSP = ({ navigation }) => {
+const EventDetailsSP = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(eventsData);
   const [likedEvents, setLikedEvents] = useState({});
@@ -114,8 +114,9 @@ const EventsSP = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF', // Set background color to white
     padding: 10,
-    backgroundColor: '#F5F5F5',
+    paddingBottom: 100,
   },
   searchContainer: {
     marginBottom: 10,
@@ -124,11 +125,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     padding: 10,
     borderRadius: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
+    borderColor: '#CCCCCC',
+    borderWidth: 1,
   },
   list: {
     paddingBottom: 20,
@@ -140,10 +138,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-    position: 'relative',
+    shadowOpacity: 0.2, // Increased shadow opacity
+    shadowRadius: 6, // Increased shadow radius
+    elevation: 4, // Increased elevation for Android
   },
   image: {
     width: '100%',
@@ -195,4 +192,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventsSP;
+export default EventDetailsSP;
