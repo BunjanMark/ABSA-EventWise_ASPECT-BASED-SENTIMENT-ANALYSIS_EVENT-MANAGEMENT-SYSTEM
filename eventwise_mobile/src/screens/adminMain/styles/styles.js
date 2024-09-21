@@ -60,7 +60,39 @@ const styles = StyleSheet.create({
     marginRight: "auto",
     width: 100,
   },
+  //   admin drawer content
+  drawerContent: {
+    flex: 1,
+  },
+  sidebarFooter: {
+    padding: 20,
+    // borderTopWidth: 1,
+    // borderTopColor: "red",
+    backgroundColor: "transparent",
+    alignItems: "center",
+  },
+  footerText: {
+    fontSize: 14,
+    color: "#888",
+    textAlign: "center",
+    marginVertical: 5,
+  },
+  socialIcons: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "50%",
+    marginVertical: 10,
+  },
+  drawerHeader: {
+    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
 
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#ccc",
+  },
+
+  // Event Packages
   // NAV BAR STYLE
 
   bottomNav: {
@@ -99,25 +131,7 @@ const styles = StyleSheet.create({
     height: Platform.OS === "ios" ? 80 : 90,
     backgroundColor: "#ffffff",
   },
-  // tabBarStyle: {
-  //   height: Platform.OS === "ios" ? 80 : 90,
-  //   backgroundColor: "#fff",
-  //   position: "absolute",
-  //   bottom: 17,
-  //   left: 20,
-  //   right: 20,
-  //   borderRadius: 30,
-  //   borderTopWidth: 0,
-  //   shadowColor: "#000",
-  //   shadowOffset: {
-  //     width: 0,
-  //     height: 2,
-  //   },
-  //   shadowOpacity: 0.25,
-  //   shadowRadius: 3.84,
 
-  //   elevation: 5,
-  // },
   // header style
   // For header
   headerContainer: {
@@ -141,6 +155,198 @@ const styles = StyleSheet.create({
   headerButton: {
     marginLeft: 20,
   },
+
+  // Home container style (calendar)
+  container: {
+    flex: 1,
+    paddingVertical: 14,
+    padding: 12,
+    // backgroundColor: "green",
+
+    // margin: 5,
+    borderRadius: 8,
+    paddingTop: 10,
+    height: "100%",
+    width: "100%",
+  },
+  header: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+
+    // backgroundColor: "red",
+    padding: 10,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "500",
+    color: "black",
+    // marginBottom: 12,
+  },
+  subtitle: {
+    fontSize: 13,
+    fontWeight: "300",
+    color: "rgba(53,53,53,0.9)",
+    // marginBottom: 12,
+    paddingTop: 11,
+  },
+  calendar: {
+    height: 70,
+
+    // apply glass effect
+    backgroundColor: "rgba(255,252,221,99)", //yellow ni sya sa calendar strip
+
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: -3,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 4,
+  },
+
+  placeholder: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    marginTop: 0,
+    padding: 0,
+    backgroundColor: "transparent",
+  },
+  placeholderInset: {
+    // borderWidth: 3,
+    // borderColor: "#e5e7eb",
+    // borderStyle: "dashed",
+    borderRadius: 9,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 4,
+    // padding: 0,
+  },
+  scheduleItem: {
+    marginBottom: 13,
+    padding: 10,
+    // backgroundColor: "#f9f9f9",
+    backgroundColor: "rgba(249,250,237,1)",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  scheduleTitleContainer: {
+    // marginBottom: 7,
+    width: "100%",
+  },
+  scheduleTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 8,
+  },
+  scheduleDetailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#666",
+  },
+  toggleButtonText: {
+    color: "black",
+    textAlign: "center",
+    left: Platform.OS === "ios" ? 10 : 110,
+  },
+  // Dropdown Calendar scrollview
+  calendarScrollView: {
+    display: "flex",
+    position: "absolute",
+    bottom: 0,
+    height: "100%",
+    width: "100%",
+    backgroundColor: "red",
+
+    flexDirection: "column",
+    left: 12,
+  },
+  dropdownCalendar: {
+    display: "flex",
+    // position: "absolute",
+    top: 100,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    // height: "600",
+    width: "100%",
+    backgroundColor: "red",
+    zIndex: 1,
+  },
+
+  scheduleTime: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#007aff",
+  },
+  scheduleDescription: {
+    fontSize: 14,
+    color: "#666",
+  },
+
+  //   flexDirection: "row",
+  //   marginBottom: 16,
+  // },
+  // scheduleTime: {
+  //   fontSize: 16,
+  //   fontWeight: "600",
+  //   color: "#007aff",
+  //   marginRight: 12,
+  // },
+  // scheduleDetails: {
+  //   flex: 1,
+  // },
+  // scheduleTitle: {
+  //   fontSize: 16,
+  //   fontWeight: "700",
+  //   color: "#333",
+  // },
+  // scheduleDescription: {
+  //   fontSize: 14,
+  //   color: "#666",
+  // },
+  // noScheduleText: {
+  //   fontSize: 16,
+  //   color: "#999",
+  //   textAlign: "center",
+  //   marginTop: 20,
+  // },
+  footerSchedule: {
+    marginTop: "auto",
+    paddingHorizontal: 16,
+  },
+  btnSchedule: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    backgroundColor: "#007aff",
+    borderColor: "#007aff",
+  },
+  btnTextSchedule: {
+    fontSize: 18,
+    lineHeight: 26,
+    fontWeight: "600",
+    color: "#fff",
+  },
+
   // my event
 
   menuButton: {
@@ -285,36 +491,51 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  //   admin drawer content
-  drawerContent: {
+  // Event Packages, package EventPackages.js
+  scrollViewEventPackage: {
+    flexDirection: "row",
+  },
+  eventCard: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+    margin: 10,
     flex: 1,
   },
-  footer: {
-    padding: 20,
-    // borderTopWidth: 1,
-    // borderTopColor: "red",
-    backgroundColor: "transparent",
-    alignItems: "center",
-  },
-  footerText: {
-    fontSize: 14,
-    color: "#888",
-    textAlign: "center",
-    marginVertical: 5,
-  },
-  socialIcons: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "50%",
-    marginVertical: 10,
-  },
-  drawerHeader: {
-    height: 80,
+  heartIcon: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    backgroundColor: "white",
+    height: 30,
+    width: 30,
+    borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
+  },
 
-    // borderBottomWidth: 1,
-    // borderBottomColor: "#ccc",
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)", // Optional: semi-transparent background
+  },
+  modalView: {
+    width: "80%",
+    height: "60%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scrollViewContent: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  text: {
+    fontSize: 16,
+    marginVertical: 10,
   },
 });
 

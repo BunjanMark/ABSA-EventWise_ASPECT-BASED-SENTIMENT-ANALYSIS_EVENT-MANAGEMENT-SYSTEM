@@ -7,15 +7,19 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
 } from "react-native";
 import CalendarStrip from "react-native-calendar-strip";
+import styles from "../../styles/styles";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Modal, Button } from "react-native";
 
 export default function EventCalendar() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
 
+  const toggleModal = () => setModalVisible(!modalVisible);
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -24,6 +28,7 @@ export default function EventCalendar() {
   const handleEventSchedule = () => {
     console.log("test");
     navigation.navigate("Schedule");
+    toggleModal();
   };
   // Get today's date
   const today = moment().format("YYYY-MM-DD");
@@ -172,9 +177,9 @@ export default function EventCalendar() {
 
       {/* Schedule Content */}
       <View style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 24 }}>
-        <ScrollView style={styles.placeholder}>
-          <View style={styles.placeholderInset}>
-            {/* {schedules[formatDate(selectedDate)] ? (
+        {/* <ScrollView style={styles.placeholder}> */}
+        <View style={styles.placeholderInset}>
+          {/* {schedules[formatDate(selectedDate)] ? (
               schedules[formatDate(selectedDate)].map((event, index) => (
                 <View key={index} style={styles.scheduleItem}>
                   <Text style={styles.scheduleTime}>{event.time}</Text>
@@ -189,240 +194,145 @@ export default function EventCalendar() {
             ) : (
               <Text style={styles.noScheduleText}>No events for today</Text>
             )} */}
-            {schedules[formatDate(selectedDate)] &&
-              schedules[formatDate(selectedDate)].length > 0 && (
-                <>
-                  {/* Toggle Button */}
-                  <TouchableOpacity
-                    onPress={toggleDropdown}
-                    style={styles.toggleButton}
-                  >
-                    <Text style={styles.toggleButtonText}>
-                      {isDropdownOpen ? "Hide Events" : "Show Events"}
-                    </Text>
-                  </TouchableOpacity>
+          {schedules[formatDate(selectedDate)] &&
+            schedules[formatDate(selectedDate)].length > 0 && (
+              <>
+                {/* Toggle Button */}
+                <TouchableOpacity
+                  onPress={toggleDropdown}
+                  style={styles.toggleButton}
+                >
+                  <Text style={styles.toggleButtonText}>
+                    {isDropdownOpen ? (
+                      <Text>
+                        <MaterialCommunityIcons
+                          name={"arrow-up"}
+                          color={"rgba(34,7,177,1)"}
+                          size={14}
+                        />
+                        Hide Events
+                      </Text>
+                    ) : (
+                      <Text>
+                        <MaterialCommunityIcons
+                          name={"arrow-down"}
+                          color={"rgba(34,7,177,1)"}
+                          size={14}
+                        />
+                        Show Events
+                      </Text>
+                    )}
+                  </Text>
+                </TouchableOpacity>
 
-                  {/* Dropdown Content */}
-                  {isDropdownOpen && (
-                    <View style={styles.dropdown}>
-                      {schedules[formatDate(selectedDate)].map(
-                        (event, index) => (
-                          <TouchableOpacity
-                            style={styles.scheduleTitleContainer}
-                            onPress={handleEventSchedule}
-                          >
-                            <View key={index} style={styles.scheduleItem}>
-                              {/* Event Title */}
-                              <Text style={styles.scheduleTitle}>
-                                {event.title}
-                              </Text>
-
-                              {/* Event Time */}
-                              <View style={styles.scheduleDetailRow}>
-                                <Text style={styles.label}>Time: </Text>
-                                <Text style={styles.scheduleTime}>
-                                  {event.startTime} - {event.endTime}
-                                </Text>
-                              </View>
-
-                              {/* Event Description */}
-                              <View style={styles.scheduleDetailRow}>
-                                <Text style={styles.label}>Description: </Text>
-                                <Text style={styles.scheduleDescription}>
-                                  {event.description}
-                                </Text>
-                              </View>
-                            </View>
-                          </TouchableOpacity>
-                        )
-                      )}
-                    </View>
-                  )}
-                </>
-              )}
-          </View>
-        </ScrollView>
+                {/* Dropdown Content */}
+              </>
+            )}
+        </View>
+        {/* </ScrollView> */}
       </View>
 
-      {/* <View style={styles.footer}>
+      {isDropdownOpen && (
+        <View style={styles.container}>
+          <Button title="Open Modal" onPress={toggleModal} />
+
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={toggleModal}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalView}>
+                <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                  {/* Modal content */}
+                  {/* {Array.from({ length: 20 }).map((_, index) => (
+                    <Text key={index} style={styles.text}>
+                      Item {index + 1}
+                    </Text>
+                  ))} */}
+                </ScrollView>
+                <View>
+                  {schedules[formatDate(selectedDate)].map((event, index) => (
+                    <TouchableOpacity
+                      style={styles.scheduleTitleContainer}
+                      onPress={handleEventSchedule}
+                    >
+                      <View key={index} style={styles.scheduleItem}>
+                        {/* Event Title */}
+                        <Text style={styles.scheduleTitle}>{event.title}</Text>
+
+                        {/* Event Time */}
+                        <View style={styles.scheduleDetailRow}>
+                          <Text style={styles.label}>Time: </Text>
+                          <Text style={styles.scheduleTime}>
+                            {event.startTime} - {event.endTime}
+                          </Text>
+                        </View>
+
+                        {/* Event Description */}
+                        <View style={styles.scheduleDetailRow}>
+                          <Text style={styles.label}>Description: </Text>
+                          <Text style={styles.scheduleDescription}>
+                            {event.description}
+                          </Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {/* Button to close modal */}
+                <Button title="Close" onPress={toggleModal} />
+              </View>
+            </View>
+          </Modal>
+        </View>
+        // <SafeAreaView style={styles.calendarScrollView}>
+        //   <ScrollView>
+        // <View style={styles.dropdownCalendar}>
+        //   {schedules[formatDate(selectedDate)].map((event, index) => (
+        //     <TouchableOpacity
+        //       style={styles.scheduleTitleContainer}
+        //       onPress={handleEventSchedule}
+        //     >
+        //       <View key={index} style={styles.scheduleItem}>
+        //         {/* Event Title */}
+        //         <Text style={styles.scheduleTitle}>{event.title}</Text>
+
+        //         {/* Event Time */}
+        //         <View style={styles.scheduleDetailRow}>
+        //           <Text style={styles.label}>Time: </Text>
+        //           <Text style={styles.scheduleTime}>
+        //             {event.startTime} - {event.endTime}
+        //           </Text>
+        //         </View>
+
+        //         {/* Event Description */}
+        //         <View style={styles.scheduleDetailRow}>
+        //           <Text style={styles.label}>Description: </Text>
+        //           <Text style={styles.scheduleDescription}>
+        //             {event.description}
+        //           </Text>
+        //         </View>
+        //       </View>
+        //     </TouchableOpacity>
+        //   ))}
+        // </View>
+        //   </ScrollView>
+        // </SafeAreaView>
+      )}
+
+      {/* <View style={styles.footerSchedule}>
         <TouchableOpacity
           onPress={() => {
             // handle onPress
           }}
         >
-          <View style={styles.btn}>
-            <Text style={styles.btnText}>Add Schedule</Text>
+          <View style={styles.btnSchedule}>
+            <Text style={styles.btnTextSchedule}>Add Schedule</Text>
           </View>
         </TouchableOpacity>
       </View> */}
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingVertical: 14,
-    padding: 12,
-    // backgroundColor: "green",
-
-    // margin: 5,
-    borderRadius: 8,
-    paddingTop: 10,
-    height: "100%",
-    width: "100%",
-  },
-  header: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-
-    // backgroundColor: "red",
-    padding: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "500",
-    color: "black",
-    // marginBottom: 12,
-  },
-  calendar: {
-    height: 70,
-
-    // apply glass effect
-    backgroundColor: "rgba(255,252,221,99)", //yellow ni sya sa calendar strip
-
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: -3,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 4,
-  },
-  subtitle: {
-    fontSize: 13,
-    fontWeight: "300",
-    color: "rgba(53,53,53,0.9)",
-    // marginBottom: 12,
-    paddingTop: 11,
-  },
-  placeholder: {
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
-    marginTop: 0,
-    padding: 0,
-    backgroundColor: "transparent",
-  },
-  placeholderInset: {
-    // borderWidth: 3,
-    // borderColor: "#e5e7eb",
-    // borderStyle: "dashed",
-    borderRadius: 9,
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 4,
-    // padding: 0,
-  },
-  scheduleItem: {
-    marginBottom: 13,
-    padding: 10,
-    // backgroundColor: "#f9f9f9",
-    backgroundColor: "rgba(249,250,237,1)",
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  scheduleTitleContainer: {
-    marginBottom: 8,
-  },
-  scheduleTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#333",
-    marginBottom: 8,
-  },
-  scheduleDetailRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#666",
-  },
-  toggleButtonText: {
-    color: "black",
-    textAlign: "center",
-  },
-  dropdown: {
-    // backgroundColor: "red",
-    marginTop: 10,
-  },
-  scheduleTime: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#007aff",
-  },
-  scheduleDescription: {
-    fontSize: 14,
-    color: "#666",
-  },
-  // scheduleItem: {
-  //   flexDirection: "row",
-  //   marginBottom: 16,
-  // },
-  // scheduleTime: {
-  //   fontSize: 16,
-  //   fontWeight: "600",
-  //   color: "#007aff",
-  //   marginRight: 12,
-  // },
-  // scheduleDetails: {
-  //   flex: 1,
-  // },
-  // scheduleTitle: {
-  //   fontSize: 16,
-  //   fontWeight: "700",
-  //   color: "#333",
-  // },
-  // scheduleDescription: {
-  //   fontSize: 14,
-  //   color: "#666",
-  // },
-  // noScheduleText: {
-  //   fontSize: 16,
-  //   color: "#999",
-  //   textAlign: "center",
-  //   marginTop: 20,
-  // },
-  footer: {
-    marginTop: "auto",
-    paddingHorizontal: 16,
-  },
-  btn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    backgroundColor: "#007aff",
-    borderColor: "#007aff",
-  },
-  btnText: {
-    fontSize: 18,
-    lineHeight: 26,
-    fontWeight: "600",
-    color: "#fff",
-  },
-});

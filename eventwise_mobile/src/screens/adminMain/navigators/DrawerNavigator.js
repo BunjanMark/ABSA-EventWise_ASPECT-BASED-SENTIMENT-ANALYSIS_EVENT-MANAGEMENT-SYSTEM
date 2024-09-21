@@ -9,9 +9,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import HeaderAdmin from "../components/header/HeaderAdmin";
 import AdminDrawerContent from "./AdminDrawerContent";
 import BottomTabNavigator from "./BottomTabNavigator";
+import {
+  AttendeeTrackerStackNavigator,
+  InventoryTrackerStackNavigator,
+  ProfileStackNavigator,
+} from "./StackNavigator";
+import { useNavigation } from "@react-navigation/native";
 const AppDrawer = createDrawerNavigator();
-
 const DrawerNavigator = () => {
+  const navigator = useNavigation();
   return (
     <AppDrawer.Navigator
       initialRouteName="HomeAdmin"
@@ -41,8 +47,8 @@ const DrawerNavigator = () => {
             // title={route.name}
             title={""}
             navigation={navigation} // Pass navigation prop here
-            onMessagePress={() => console.log("Message pressed")}
-            onNotificationPress={() => console.log("Notification pressed")}
+            onMessagePress={() => navigator.navigate("MessagesAdmin")}
+            onNotificationPress={() => navigator.navigate("NotificationAdmin")}
           />
         ),
       })}
@@ -54,13 +60,27 @@ const DrawerNavigator = () => {
           headerShown: true,
         }}
       />
-      {/* <AppDrawer.Screen
+      <AppDrawer.Screen
         name="Profile"
         component={ProfileStackNavigator}
         options={{
           headerShown: true,
         }}
-      /> */}
+      />
+      <AppDrawer.Screen
+        name="Attendee Tracker"
+        component={AttendeeTrackerStackNavigator}
+        options={{
+          headerShown: true,
+        }}
+      />
+      <AppDrawer.Screen
+        name="Inventory Tracker"
+        component={InventoryTrackerStackNavigator}
+        options={{
+          headerShown: true,
+        }}
+      />
     </AppDrawer.Navigator>
   );
 };

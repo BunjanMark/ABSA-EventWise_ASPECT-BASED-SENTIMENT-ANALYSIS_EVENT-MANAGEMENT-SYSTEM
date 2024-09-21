@@ -4,7 +4,7 @@ import React from "react";
 const ProfileAdmin = () => {
   return (
     <View>
-      <Text>ProfileAdmin</Text>
+      <Text>ProfileAdminss</Text>
     </View>
   );
 };
