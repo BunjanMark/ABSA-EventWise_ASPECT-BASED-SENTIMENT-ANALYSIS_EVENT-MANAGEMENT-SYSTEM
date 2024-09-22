@@ -77,8 +77,8 @@ const EventsSP = ({ navigation }) => {
             key={index}
             style={styles.button}
             onPress={() => {
-              if (button === 'Equipment') {
-                navigation.navigate('EquipmentSP');
+              if (button === 'Feedback') {
+                navigation.navigate('FeedbackSP');
               } else if (button === 'Inventory') {
                 navigation.navigate('InventorySP');
               }

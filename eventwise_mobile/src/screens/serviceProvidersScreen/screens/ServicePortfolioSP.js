@@ -34,7 +34,7 @@ const ServicePortfolioSP = () => {
       >
         {/* Header with a back icon and Service Details text */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('SettingSP')} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigation.navigate('EditProfileSP')} style={styles.backButton}>
             <Ionicons name="arrow-back" size={32} color="#FFC42B" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Service Details</Text>

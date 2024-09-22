@@ -1,307 +1,279 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Alert, Image, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import moment from 'moment';
+import React, { useState } from "react";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  StyleSheet,
+} from "react-native";
+import { Calendar } from "react-native-calendars";
+import moment from "moment";
 
-const { width } = Dimensions.get('window');
+export default function SchedSP() {
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-const eventsData = [
-  { id: '1', title: 'Mr. & Mrs. Malik Wedding', day: 'Mon', location: 'CDO', date: '2024-07-01', status: 'Ongoing' },
-  { id: '2', title: 'Elizabeth Birthday', day: 'Thu', location: 'CDO', date: '2024-08-12', status: 'Upcoming' },
-  { id: '3', title: 'Class of 1979 Reunion', day: 'Wed', location: 'CDO', date: '2024-09-25', status: 'Upcoming' },
-  { id: '4', title: 'Corporate Party', day: 'Tue', location: 'CDO', date: '2024-10-30', status: 'Upcoming' },
-  { id: '5', title: 'Annual Gala', day: 'Fri', location: 'CDO', date: '2024-11-15', status: 'Upcoming' },
-  { id: '6', title: 'New Year Celebration', day: 'Tue', location: 'CDO', date: '2024-12-31', status: 'Upcoming' },
-  { id: '7', title: 'Music Festival', day: 'Sat', location: 'CDO', date: '2024-06-22', status: 'Ongoing' },
-  { id: '8', title: 'Art Exhibition', day: 'Fri', location: 'CDO', date: '2024-07-05', status: 'Upcoming' },
-];
-
-const SchedSp = () => {
-  const navigation = useNavigation();
-  const currentWeek = Array.from({ length: 7 }).map((_, index) => moment().startOf('week').add(index, 'days'));
-  const [isReminderSet, setIsReminderSet] = useState(false);
-
-  const handleCreateSchedule = () => {
-    Alert.alert('Create Schedule', 'Functionality to create a new schedule.');
+  const schedules = {
+    "2024-09-21": [
+      {
+        time: "09:00 AM",
+        title: "Team Meeting",
+        description: "Discuss project status.",
+        timeline: [
+          { time: "09:00 AM", description: "Event Start" },
+          { time: "09:15 AM", description: "Introduction to the team" },
+          { time: "09:30 AM", description: "Updates from each member" },
+          { time: "10:00 AM", description: "Discussion on blockers" },
+          { time: "10:30 AM", description: "Wrap up and next steps" },
+        ],
+      },
+      {
+        time: "02:00 PM",
+        title: "Client Call",
+        description: "Review client requirements.",
+        timeline: [
+          { time: "02:00 PM", description: "Event Start" },
+          { time: "02:05 PM", description: "Introduction to the client" },
+          { time: "02:15 PM", description: "Review requirements" },
+          { time: "02:45 PM", description: "Discuss feedback" },
+          { time: "03:00 PM", description: "Next steps and follow-up actions" },
+        ],
+      },
+    ],
   };
 
-  const handleToggleReminder = () => {
-    setIsReminderSet((prevState) => !prevState);
+  const markedDates = Object.keys(schedules).reduce((acc, date) => {
+    acc[date] = { marked: true, dots: [{ color: "#eeba2b" }] };
+    return acc;
+  }, {});
+
+  const handleDayPress = (day) => {
+    setSelectedDate(day.dateString);
+  };
+
+  const openModal = (event) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedEvent(null);
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        {/* Week Section */}
-        <View style={styles.weekSection}>
-          <Text style={styles.weekText}>Calendar</Text>
-          <Text style={styles.dateText}>{moment().format('D-MMMM YYYY')}</Text>
-        </View>
+    <SafeAreaView style={styles.container}>
+      <Calendar
+        markedDates={markedDates}
+        onDayPress={handleDayPress}
+        markingType="multi-dot"
+      />
 
-        {/* Table */}
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            {currentWeek.map((day, index) => (
-              <View key={index} style={styles.tableHeaderItem}>
-                <Text style={styles.tableHeaderText}>{day.format('ddd')}</Text>
-                <Text style={styles.tableHeaderDate}>{day.format('D')}</Text>
-              </View>
+      <ScrollView style={styles.agendaContainer}>
+        {selectedDate && schedules[selectedDate] ? (
+          <>
+            <Text style={styles.agendaTitle}>
+              Agenda for {moment(selectedDate).format("MMMM D, YYYY")}
+            </Text>
+            {schedules[selectedDate].map((event, index) => (
+              <TouchableOpacity key={index} onPress={() => openModal(event)} style={styles.eventContainer}>
+                <Text style={styles.eventTime}>{event.time}</Text>
+                <Text style={styles.eventTitle}>{event.title}</Text>
+                <Text style={styles.eventDescription}>{event.description}</Text>
+              </TouchableOpacity>
             ))}
-          </View>
-          <View style={styles.tableBody}>
-            {currentWeek.map((day, index) => (
-              <View key={index} style={styles.tableCell}>
-                {Math.random() > 0.5 && (
-                  <View style={styles.event}>
-                    <View style={styles.eventCircle} />
-                    <Text style={styles.eventText}>1-5pm</Text>
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
-        </View>
+          </>
+        ) : (
+          <Text style={styles.noEventsText}>
+            {selectedDate ? "No events for this date." : "Select a date to see the schedule."}
+          </Text>
+        )}
+      </ScrollView>
 
-        {/* My Schedule Section */}
-        <View style={styles.allContainer}>
-          <View style={styles.scheduleContainer}>
-            <View style={styles.scheduleHeader}>
-              <Text style={styles.scheduleTitle}>My Schedule</Text>
-              <TouchableOpacity style={styles.categoryButton}>
-                <Text style={styles.categoryButtonText}>Category</Text>
-                <Ionicons name="chevron-down" size={16} color="black" />
+      {/* Modal Component */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Time Frame</Text>
+              <TouchableOpacity onPress={closeModal}>
+                <Text style={styles.closeButton}>X</Text>
               </TouchableOpacity>
             </View>
-            {eventsData.map((event) => (
-              <View key={event.id} style={styles.eventDateTextContainer}>
-                <View style={styles.eventDateTextInnerContainer}>
-                  <Text style={styles.eventDateText}>{moment(event.date).format('D MMM YYYY')}</Text>
-                  <Text style={styles.ongoingEventText}>{event.status}</Text>
-                </View>
-                <View style={styles.scheduleContent}>
-                  <View style={styles.dayCircle}>
-                    <Text style={styles.dayText}>{event.day}</Text>
-                  </View>
-                  <View style={styles.eventDetailsWrapper}>
-                    <View style={styles.eventDetailsContainer}>
-                      <View style={styles.eventDetails}>
-                        <Text style={styles.eventTitle}>{event.title}</Text>
-                        <View style={styles.eventLocation}>
-                          <Ionicons name="location-outline" size={16} color="black" />
-                          <Text style={styles.eventLocationText}>{event.location}</Text>
-                        </View>
-                        <View style={styles.profilePictures}>
-                          {Array.from({ length: 5 }).map((_, index) => (
-                            <Image
-                              key={index}
-                              source={require('../assets/pro_pic.png')} // Updated to use pro_pic.png
-                              style={[styles.profilePicture, { left: index * 15 }]}
-                            />
-                          ))}
-                        </View>
-                      </View>
-                      <View style={styles.reminderContainer}>
-                        <Text style={styles.reminderText}>Set reminder</Text>
-                        <TouchableOpacity onPress={handleToggleReminder}>
-                          <Ionicons
-                            name={isReminderSet ? 'toggle-sharp' : 'toggle-outline'}
-                            size={24}
-                            color={isReminderSet ? '#FFC42B' : 'gray'}
-                          />
-                        </TouchableOpacity>
-                      </View>
+            <Text style={styles.modalDate}>{moment(selectedDate).format("MMMM D, YYYY")}</Text>
+            <Text style={styles.modalTime}>{selectedEvent?.time}</Text>
+            <View style={styles.horizontalDivider} />
+            <View style={styles.modalBody}>
+              <View style={styles.timeContainer}>
+                {selectedEvent?.timeline.map((timeEvent, index) => (
+                  <View key={index} style={styles.timeEntry}>
+                    <Text style={styles.eventTime}>{timeEvent.time}</Text>
+                    <View style={styles.circleContainer}>
+                      <View style={styles.topLine} />
+                      <View style={styles.circle} />
+                      <View style={styles.bottomLine} />
+                    </View>
+                    <View style={styles.timeDetails}>
+                      <Text style={styles.modalDescription}>{timeEvent.description}</Text>
                     </View>
                   </View>
-                </View>
+                ))}
               </View>
-            ))}
+            </View>
+
           </View>
         </View>
-      </ScrollView>
-    </View>
+      </Modal>
+    </SafeAreaView>
   );
-};
+}
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // White background
+    backgroundColor: "#fff",
   },
-  scrollContainer: {
-    padding: 20,
-  },
-  weekSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  weekText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  dateText: {
-    fontSize: 16,
-    color: 'black',
-  },
-  table: {
+  agendaContainer: {
     marginTop: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
-  tableHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  tableHeaderItem: {
-    alignItems: 'center',
-  },
-  tableHeaderText: {
-    color: 'black',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  tableHeaderDate: {
-    color: 'black',
-    fontSize: 14,
-  },
-  tableBody: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  tableCell: {
-    width: width / 7,
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  event: {
-    backgroundColor: '#FFC42B',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  eventCircle: {
-    backgroundColor: '#FFF',
-    width: 15,
-    height: 15,
-    borderRadius: 7.5,
-    marginBottom: 5,
-  },
-  eventText: {
-    color: 'black',
-    fontSize: 12,
-  },
-  scheduleContainer: {
-    marginTop: 20,
-  },
-  scheduleHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  scheduleTitle: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    color: 'black',
+  agendaTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
     marginBottom: 10,
+    color: "#333",
   },
-  categoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFC42B',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-  },
-  categoryButtonText: {
-    fontSize: 16,
-    color: 'black',
-  },
-  eventDateTextContainer: {
-    marginBottom: 20,
-  },
-  eventDateTextInnerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  eventDateText: {
-    color: 'black',
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  ongoingEventText: {
-    color: 'black',
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  scheduleContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dayCircle: {
-    backgroundColor: '#FFC42B',
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  dayText: {
-    color: 'black',
-    fontSize: 20,
-  },
-  eventDetailsWrapper: {
-    flex: 1,
-  },
-  eventDetailsContainer: {
-    backgroundColor: '#FFFFFF',
+  eventContainer: {
+    backgroundColor: "#f9f9f9",
+    padding: 15,
     borderRadius: 10,
-    padding: 10,
-    borderColor: '#E5E5E5',
-    borderWidth: 1,
-  },
-  eventDetails: {
     marginBottom: 10,
+    borderLeftWidth: 4,
+    borderColor: "#eeba2b",
+  },
+  eventTime: {
+    fontSize: 16,
+    color: "#888",
+    marginRight: 10,
   },
   eventTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
+    fontWeight: "bold",
+    color: "#333",
   },
-  eventLocation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  eventLocationText: {
-    color: 'black',
+  eventDescription: {
     fontSize: 14,
-    marginLeft: 5,
+    color: "#666",
+    marginTop: 5,
   },
-  profilePictures: {
-    flexDirection: 'row',
+  noEventsText: {
+    fontSize: 16,
+    color: "#888",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 10,
   },
-  profilePicture: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginRight: -10,
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
   },
-  reminderContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  closeButton: {
+    fontSize: 18,
+    color: "red",
   },
-  reminderText: {
-    color: 'black',
+  modalDate: {
+    fontSize: 16,
+    color: "#888",
+    marginVertical: 5,
+  },
+  modalTime: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 10,
+  },
+  horizontalDivider: {
+    height: 1,
+    backgroundColor: "#ccc",
+    marginVertical: 10,
+  },
+  modalBody: {
+    flexDirection: "column",
+  },
+  timeContainer: {
+    alignItems: "flex-start",
+  },
+  timeEntry: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  circleContainer: {
+    alignItems: "center",
+    marginRight: 10,
+  },
+  circle: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#eeba2b",
+  },
+  topLine: {
+    height: 10, // Adjust for gap above circle
+    width: 2,
+    backgroundColor: "#ccc",
+    marginBottom: 2, // Space between line and circle
+  },
+  bottomLine: {
+    height: 10, // Adjust for gap below circle
+    width: 2,
+    backgroundColor: "#ccc",
+    marginTop: 2, // Space between circle and line
+  },
+  timeDetails: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  modalDescription: {
     fontSize: 14,
+    color: "#666",
+  },
+  closeButtonContainer: {
+    marginTop: 10,
+    alignItems: "center",
   },
 });
-
-export default SchedSp;

@@ -6,38 +6,108 @@ import {
   FlatList,
   Image,
   ScrollView,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 
 const servicesData = [
-  { id: '1', name: 'Service A', image: require('../assets/service1.png'), price: '$100' },
-  { id: '2', name: 'Service B', image: require('../assets/service2.png'), price: '$150' },
-  { id: '3', name: 'Service C', image: require('../assets/service1.png'), price: '$200' },
-  { id: '4', name: 'Service D', image: require('../assets/service2.png'), price: '$250' },
-  { id: '5', name: 'Service E', image: require('../assets/service1.png'), price: '$300' },
-  { id: '6', name: 'Service F', image: require('../assets/service2.png'), price: '$350' },
+  {
+    id: '1',
+    name: 'Service A',
+    image: require('../assets/service1.png'),
+    price: '₱10,000',
+    details: 'Includes feature 1, feature 2, and feature 3.',
+  },
+  {
+    id: '2',
+    name: 'Service B',
+    image: require('../assets/service2.png'),
+    price: '₱15,000',
+    details: 'Includes feature A, feature B, and feature C.',
+  },
+  {
+    id: '3',
+    name: 'Service C',
+    image: require('../assets/service1.png'),
+    price: '₱200,000',
+    details: 'Includes feature X, feature Y, and feature Z.',
+  },
+  {
+    id: '4',
+    name: 'Service D',
+    image: require('../assets/service2.png'),
+    price: '₱25,000',
+    details: 'Includes feature 1, feature 2, and feature 3.',
+  },
+  {
+    id: '5',
+    name: 'Service E',
+    image: require('../assets/service1.png'),
+    price: '₱30,000',
+    details: 'Includes feature A, feature B, and feature C.',
+  },
+  {
+    id: '6',
+    name: 'Service F',
+    image: require('../assets/service2.png'),
+    price: '₱3,500',
+    details: 'Includes feature X, feature Y, and feature Z.',
+  },
 ];
 
 const ServiceSP = () => {
-  const [filteredServices, setFilteredServices] = useState(servicesData);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   const renderServiceItem = ({ item }) => (
-    <View style={styles.itemContainer}>
+    <TouchableOpacity
+      style={styles.itemContainer}
+      onPress={() => {
+        setSelectedService(item);
+        setModalVisible(true);
+      }}
+    >
       <Image source={item.image} style={styles.image} />
       <Text style={styles.name}>{item.name}</Text>
       <Text style={styles.price}>{item.price}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Service</Text>
+      <Text style={styles.title}>Services</Text>
       <ScrollView contentContainerStyle={styles.list}>
         <FlatList
-          data={filteredServices}
+          data={servicesData}
           renderItem={renderServiceItem}
           keyExtractor={(item) => item.id}
         />
       </ScrollView>
+
+      {/* Modal for service details */}
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeader}>{selectedService?.name}</Text>
+            <Image source={selectedService?.image} style={styles.modalImage} />
+            <Text style={styles.modalPrice}>{selectedService?.price}</Text>
+            <Text style={styles.modalDetails}>{selectedService?.details}</Text>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -46,12 +116,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: 'white', // Ensure the background color is consistent
+    backgroundColor: 'white',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFD700', // Gold color
+    color: '#FFD700',
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -83,6 +153,52 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     color: '#888',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+  },
+  modalHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  modalPrice: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalDetails: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    alignItems: 'center', // Center the button horizontally
+  },
+  closeButton: {
+    backgroundColor: 'red',
+    borderRadius: 5,
+    alignItems: 'center',
+    padding: 10,
+    width: '30%',
+  },
+  closeButtonText: {
+    color: '#000000',
+    fontWeight: 'bold',
   },
 });
 

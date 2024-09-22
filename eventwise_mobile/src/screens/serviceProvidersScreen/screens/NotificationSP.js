@@ -169,11 +169,15 @@ const NotificationSP = () => {
             <Text style={styles.modalDate}>Date: {selectedEvent.date}</Text>
             <Text style={styles.modalAddress}>Address: {selectedEvent.address}</Text>
             <Text style={styles.modalDescription}>Detailed information about the event goes here.</Text>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>
     </Modal>
   );
+  
 
   return (
     <LinearGradient
@@ -391,7 +395,19 @@ const styles = StyleSheet.create({
   modalDescription: {
     fontSize: 14,
     color: 'black',
+  },closeButton: {
+    marginTop: 16,
+    backgroundColor: 'red',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignSelf: 'center',
   },
+  closeButtonText: {
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  
 });
 
 export default NotificationSP;

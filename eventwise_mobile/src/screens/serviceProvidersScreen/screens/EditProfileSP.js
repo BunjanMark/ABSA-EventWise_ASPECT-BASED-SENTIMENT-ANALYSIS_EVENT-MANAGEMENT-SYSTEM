@@ -93,6 +93,13 @@ const EditProfileSP = () => {
             <Ionicons name="add" size={24} color="white" style={styles.icon} />
             <Text style={styles.createPortfolioText}>Add Another Account</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.createPortfolioButton}
+            onPress={() => navigation.navigate('ServicePortfolioSP')}
+          >
+            <Ionicons name="add" size={24} color="white" style={styles.icon} />
+            <Text style={styles.createPortfolioText}>Create New Service Portfolio</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
@@ -189,6 +196,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 15,
     borderRadius: 10,
+    marginBottom: 15,
   },
   buttonText: {
     color: '#FFFFFF',
