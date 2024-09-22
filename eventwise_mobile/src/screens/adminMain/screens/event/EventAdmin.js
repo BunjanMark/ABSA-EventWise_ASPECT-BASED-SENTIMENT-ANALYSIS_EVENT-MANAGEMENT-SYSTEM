@@ -1,11 +1,24 @@
-import { View, Text } from "react-native";
+import { View, Text, SafeAreaView } from "react-native";
 import React from "react";
+import EventPackages from "../component/EventPackages";
+import { ScrollView } from "react-native-gesture-handler";
+import EventsMain from "../component/EventsMain";
 
 const EventAdmin = () => {
   return (
-    <View>
-      <Text>EventAdmin</Text>
-    </View>
+    <SafeAreaView>
+      <ScrollView>
+        <ScrollView>
+          <EventsMain />
+        </ScrollView>
+        <ScrollView>
+          <EventPackages />
+        </ScrollView>
+        <View style={{ height: 100 }} />
+        <View style={{ height: 100 }} />
+        <View style={{ height: 100 }} />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

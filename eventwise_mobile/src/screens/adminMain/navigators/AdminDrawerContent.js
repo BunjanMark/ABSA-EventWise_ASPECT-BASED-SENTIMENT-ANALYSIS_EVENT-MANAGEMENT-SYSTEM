@@ -1,9 +1,9 @@
 import React from "react";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, Alert } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Image } from "react-native";
+import { Image, BackHandler } from "react-native";
 import { Linking } from "react-native";
 import logo from "../../../../assets/logo.png";
 import profilepic from "../../../../assets/profilepic.jpg";
@@ -13,29 +13,31 @@ import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import styles from "../styles/styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-
+import useStore from "../../../stateManagement/useStore";
 const AdminDrawerContent = (props) => {
-  const [selectedItem, setSelectedItem] = useState("HomeAdmin");
+  const { selectedDrawerScreen, setSelectedDrawerScreen } = useStore();
+
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const navigation = useNavigation();
+
   const DrawerItem = ({ iconComponent, label, screenName }) => (
     <TouchableOpacity
       style={[
         styles.drawerItem,
-        screenName === selectedItem && { backgroundColor: "#FFC42B" },
+        screenName === selectedDrawerScreen && { backgroundColor: "#FFC42B" },
       ]}
       onPress={() => {
         switch (screenName) {
           case "HomeAdmin":
-            setSelectedItem(screenName);
+            setSelectedDrawerScreen(screenName);
             navigation.navigate("HomeAdmin");
             break;
           case "Attendee Tracker":
-            setSelectedItem(screenName);
+            setSelectedDrawerScreen(screenName);
             navigation.navigate("Attendee Tracker");
             break;
           case "Inventory Tracker":
-            setSelectedItem(screenName);
+            setSelectedDrawerScreen(screenName);
             navigation.navigate("Inventory Tracker");
             break;
           default:
@@ -46,14 +48,14 @@ const AdminDrawerContent = (props) => {
       {/* <MaterialCommunityIcons
         name={icon}
         size={24}
-        color={screenName === selectedItem ? "black" : "dark-gray"}
+        color={screenName === selectedDrawerScreen ? "black" : "dark-gray"}
         style={styles.drawerIcon}
       /> */}
       {iconComponent}
       <Text
         style={[
           styles.drawerItemText,
-          { color: screenName === selectedItem ? "white" : "black" },
+          { color: screenName === selectedDrawerScreen ? "white" : "black" },
         ]}
       >
         {label}
@@ -71,6 +73,7 @@ const AdminDrawerContent = (props) => {
       <Text style={styles.dropdownItemText}>{label}</Text>
     </TouchableOpacity>
   );
+
   return (
     <LinearGradient
       colors={["#FFFF", "#FFC42B"]}
@@ -126,9 +129,13 @@ const AdminDrawerContent = (props) => {
           label="Home"
           iconComponent={
             <Ionicons
-              name={selectedItem === "HomeAdmin" ? "home" : "home-outline"}
+              name={
+                selectedDrawerScreen === "HomeAdmin" ? "home" : "home-outline"
+              }
               size={24}
-              color={selectedItem === "HomeAdmin" ? "black" : "dark-gray"}
+              color={
+                selectedDrawerScreen === "HomeAdmin" ? "black" : "dark-gray"
+              }
               style={styles.drawerIcon}
             />
           }
@@ -141,13 +148,15 @@ const AdminDrawerContent = (props) => {
           iconComponent={
             <Ionicons
               name={
-                selectedItem === "Attendee Tracker"
+                selectedDrawerScreen === "Attendee Tracker"
                   ? "people-circle-sharp"
                   : "people-circle-outline"
               }
               size={24}
               color={
-                selectedItem === "Attendee Tracker" ? "black" : "dark-gray"
+                selectedDrawerScreen === "Attendee Tracker"
+                  ? "black"
+                  : "dark-gray"
               }
               style={styles.drawerIcon}
             />
@@ -163,13 +172,15 @@ const AdminDrawerContent = (props) => {
           iconComponent={
             <MaterialCommunityIcons
               name={
-                selectedItem === "Inventory Tracker"
+                selectedDrawerScreen === "Inventory Tracker"
                   ? "toolbox"
                   : "toolbox-outline"
               }
               size={24}
               color={
-                selectedItem === "Inventory Tracker" ? "black" : "dark-gray"
+                selectedDrawerScreen === "Inventory Tracker"
+                  ? "black"
+                  : "dark-gray"
               }
               style={styles.drawerIcon}
             />

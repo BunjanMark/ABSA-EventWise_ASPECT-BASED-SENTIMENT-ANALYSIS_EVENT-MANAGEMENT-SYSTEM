@@ -87,7 +87,7 @@ const SettingStackNavigator = () => {
 const AttendeeTrackerStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="AtendeeTrackerAdmin" component={AttendeeAdmin} />
+      <Stack.Screen name="AttendeeTrackerAdmin" component={AttendeeAdmin} />
     </Stack.Navigator>
   );
 };

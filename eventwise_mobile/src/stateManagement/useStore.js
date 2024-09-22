@@ -76,7 +76,10 @@ const useStore = create((set) => ({
       console.error("Error switching profile:", error);
     }
   },
-
+  // adminDrawerContent Drawer Admin
+  selectedDrawerScreen: "HomeAdmin",
+  setSelectedDrawerScreen: (screenName) =>
+    set({ selectedDrawerScreen: screenName }),
   // Event-related state and methods
   count: 0,
   increaseCount: async () => {
@@ -131,6 +134,28 @@ const useStore = create((set) => ({
   },
 
   // calendar-related state and methods
+
+  // attendee-related state and methods attendee modals
+  attendeeSeries: [150, 700, 500], // Add series state
+  attendeeSliceColor: ["#ff3c00", "rgba(9,226,0,1)", "#fbd203"], // Add sliceColor state
+  modalVisiblePresent: false,
+  modalVisibleAbsent: false,
+  modalVisibleLate: false,
+  setmodalVisiblePresent: (visible) => set({ modalVisiblePresent: visible }),
+  setmodalVisibleAbsent: (visible) => set({ modalVisibleAbsent: visible }),
+  setmodalVisibleLate: (visible) => set({ modalVisibleLate: visible }),
+  // feedback-related state and methods feedback analysis, feedback form,
+  modalVisiblePositive: false,
+  modalVisibleNegative: false,
+  modalVisibleNeutral: false,
+  series: [150, 700, 500], // Add series state
+  sliceColor: ["#ff3c00", "rgba(9,226,0,1)", "#fbd203"], // Add sliceColor state
+
+  setModalVisiblePositive: (visible) => set({ modalVisiblePositive: visible }),
+  setModalVisibleNegative: (visible) => set({ modalVisibleNegative: visible }),
+  setModalVisibleNeutral: (visible) => set({ modalVisibleNeutral: visible }),
+
+  setSeries: (newSeries) => set({ series: newSeries }), // Function to update series
 }));
 
 // Helper functions
