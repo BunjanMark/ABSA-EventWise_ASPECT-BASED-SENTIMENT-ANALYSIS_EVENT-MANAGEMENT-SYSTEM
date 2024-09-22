@@ -7,9 +7,14 @@ import {
   TouchableOpacity,
   Modal,
   Button,
+  SafeAreaView,
+  Platform,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
+import { SimpleLineIcons } from "@expo/vector-icons";
+import styles from "../../styles/styles";
 
+import Timeline from "react-native-timeline-flatlist";
 const ScheduleScreen = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [markedDates, setMarkedDates] = useState({});
@@ -45,16 +50,66 @@ const ScheduleScreen = () => {
         description: "Discuss new UI designs.",
       },
     ],
-    "2024-09-03": [
+    "2024-09-20": [
       {
-        startTime: "11:00 AM",
-        endTime: "12:00 PM",
-        title: "Marketing Strategy",
+        startTime: "8:00 AM",
+        endTime: "1:00 PM",
+        title: "Mr. & Mrs. Malik Weddings ",
         description: "Plan Q4 campaigns.",
       },
     ],
   };
-
+  const timeline = [
+    {
+      time: "8:00 am",
+      title: "Start of Event",
+      description: "Introduction to the event",
+    },
+    {
+      time: "8:15 am",
+      title: "wedding preparation",
+      description: "Make up and attire for the bride and groom their entourage",
+    },
+    {
+      time: "8:50 am",
+      title: "Preparation PhotoShoot",
+      description:
+        "Final for the preparation of bride and groom and creative shoots for their entourage",
+    },
+    {
+      time: "9:30 am",
+      title: "Depart to Church",
+      description:
+        "Prepare everyone to go to church, check all the entourage especially the groom and bride and their families",
+    },
+    {
+      time: "9:50 am",
+      title: "Wedding at Church",
+      description: "Prepare for the ceremony",
+    },
+    {
+      time: "10:50 am",
+      title: "Depart to the Reception",
+      description: "Prepare for the reception",
+    },
+    {
+      time: "11:30 am",
+      title: "Lunch",
+      description:
+        "Prepare the food and some entertainment while the guest are eating their lunch",
+    },
+    {
+      time: "12:30 am",
+      title: "Thanksgiving",
+      description:
+        "About to the Bride and Groom prepare their thank you message to the guest",
+    },
+    {
+      time: "1:00 pm",
+      title: "End of event",
+      description: "End of event, let's evaluate",
+    },
+  ];
   // Dynamically mark the dates that have schedules
   useEffect(() => {
     const newMarkedDates = {};
@@ -138,103 +193,123 @@ const ScheduleScreen = () => {
       </View>
 
       {/* Modal for Detailed Event Information */}
-      <Modal visible={isModalVisible} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+      <Modal visible={isModalVisible} transparent={true} animationType="fade">
+        <View style={[styles.modalContainer]}>
+          <View style={[styles.modalContent, { borderRadius: 14 }]}>
             {selectedEvent && (
-              <>
-                <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
-                <Text style={styles.modalTime}>
-                  Time: {selectedEvent.startTime} - {selectedEvent.endTime}
-                </Text>
-                <Text style={styles.modalDescription}>
-                  Description: {selectedEvent.description}
-                </Text>
-                <Button title="Close" onPress={closeModal} />
-              </>
+              <View>
+                <View
+                  style={[
+                    styles.header,
+                    {
+                      // backgroundColor: "red",
+                      alignContent: "center",
+                      alignItems: "center",
+                      borderRadius: 14,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.modalTitle,
+                      { fontWeight: "bold", left: 10 },
+                    ]}
+                  >
+                    Time Frame
+                  </Text>
+
+                  <TouchableOpacity
+                    onPress={closeModal}
+                    style={[{ position: "absolute", top: 10, right: 12 }]}
+                  >
+                    <SimpleLineIcons name="close" size={27} color="black" />
+                  </TouchableOpacity>
+                </View>
+
+                <View>
+                  <View style={[styles.modalBodyHeader, {}]}>
+                    <Text style={styles.modalh2Title}>Event Title: </Text>
+                    <Text>{selectedEvent.title}</Text>
+                    <View>
+                      <Text style={styles.subtitle}>
+                        {selectedDate} | {selectedEvent.startTime} {"- "}
+                        {selectedEvent.endTime}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* <Text style={styles.modalDescription}>
+                    Description: {selectedEvent.description}
+                  </Text> */}
+                  {/* timeline flatlist  */}
+                </View>
+                <SafeAreaView
+                  style={{
+                    backgroundColor: "rgba(255,235,137,0.10)",
+                    height: 480,
+                    width: "100%",
+                    paddingHorizontal: "2.3%",
+                  }}
+                >
+                  <Timeline
+                    data={timeline}
+                    circleSize={20}
+                    innerCircle={"dot"}
+                    circleColor="gold"
+                    lineColor="#CECECE"
+                    timeContainerStyle={{
+                      minWidth: Platform.OS === "ios" ? 90 : "25.2%",
+                    }}
+                    separator
+                    separatorStyle={{ backgroundColor: "#CECECE" }}
+                    eventDetailStyle={{ marginTop: -13 }}
+                    eventContainerStyle={{ marginTop: 5, marginBottom: 10 }}
+                    timeStyle={{
+                      textAlign: "center",
+
+                      color: "#5E616B",
+                      padding: 5,
+                      borderRadius: 13,
+                    }}
+                    descriptionStyle={{ color: "gray" }}
+                    options={{
+                      style: { paddingTop: 5 },
+                    }}
+                    isUsingFlatlist={true}
+                    titleStyle={{ color: "black", marginBottom: 10 }}
+                  />
+                </SafeAreaView>
+              </View>
             )}
           </View>
         </View>
       </Modal>
+      {/* <Timeline
+        data={timeline}
+        circleSize={20}
+        innerCircle={"dot"}
+        circleColor="gold"
+        lineColor="gray"
+        timeContainerStyle={{ minWidth: 90, marginTop: -5 }}
+        separator
+        separatorStyle={{ backgroundColor: "gray" }}
+        eventDetailStyle={{ marginTop: 5 }}
+        eventContainerStyle={{ marginTop: 15, marginBottom: 5 }}
+        timeStyle={{
+          textAlign: "center",
+          backgroundColor: "#ff9797",
+          color: "white",
+          padding: 5,
+          borderRadius: 13,
+        }}
+        descriptionStyle={{ color: "gray" }}
+        options={{
+          style: { paddingTop: 5 },
+        }}
+        isUsingFlatlist={true}
+      /> */}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8f8f8",
-  },
-  agendaContainer: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: "#fff",
-  },
-  selectedDateText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  agendaScroll: {
-    flex: 1,
-  },
-  eventContainer: {
-    padding: 10,
-    marginVertical: 5,
-    backgroundColor: "#f1f1f1",
-    borderRadius: 5,
-  },
-  eventTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  eventDetailRow: {
-    flexDirection: "row",
-    marginTop: 5,
-  },
-  label: {
-    fontWeight: "bold",
-    marginRight: 5,
-  },
-  eventTime: {
-    fontSize: 14,
-    color: "#333",
-  },
-  eventDescription: {
-    fontSize: 14,
-    color: "#666",
-  },
-  noEventsText: {
-    fontSize: 16,
-    color: "#999",
-    textAlign: "center",
-    marginTop: 20,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    width: 300,
-    padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  modalTime: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  modalDescription: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-});
 
 export default ScheduleScreen;
