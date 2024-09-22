@@ -50,7 +50,7 @@ const EditProfileSP = () => {
           <TextInput
             style={styles.textInput}
             placeholder="Enter your Email"
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor="white"
             value={email}
             onChangeText={setEmail}
           />
@@ -58,7 +58,7 @@ const EditProfileSP = () => {
           <TextInput
             style={styles.textInput}
             placeholder="Enter your Username"
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor="white"
             value={username}
             onChangeText={setUsername}
           />
@@ -66,7 +66,7 @@ const EditProfileSP = () => {
           <TextInput
             style={styles.textInput}
             placeholder="Enter new Password"
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor="white"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -75,7 +75,7 @@ const EditProfileSP = () => {
           <TextInput
             style={styles.textInput}
             placeholder="Enter your Contact Number"
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor="white"
             value={contactNumber}
             onChangeText={setContactNumber}
           />
@@ -141,11 +141,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   textInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#c2b067',
     borderRadius: 10,
     paddingHorizontal: 15,
     height: 50,
-    color: '#000000', // Set text color to black
+    color: 'white', // Set text color to black
     fontSize: 16,
     marginBottom: 15,
     borderWidth: 1,

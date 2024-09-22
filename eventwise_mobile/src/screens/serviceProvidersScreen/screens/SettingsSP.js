@@ -5,20 +5,16 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
+  Switch,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
 
 const SettingSP = () => {
   const [language, setLanguage] = useState('en');
-  const [theme, setTheme] = useState('light'); // State for theme selection
-  const [textSize, setTextSize] = useState('medium'); // State for text size selection
-  const navigation = useNavigation();
-
-  const handleThemeChange = (selectedTheme) => {
-    setTheme(selectedTheme);
-    console.log(`Selected theme: ${selectedTheme}`);
-  };
+  const [timeZone, setTimeZone] = useState('GMT');
+  const [dateFormat, setDateFormat] = useState('MM/DD/YYYY');
+  const [darkMode, setDarkMode] = useState(false);
+  const [useDeviceSettings, setUseDeviceSettings] = useState(false);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -40,51 +36,56 @@ const SettingSP = () => {
           </Picker>
         </View>
 
-        {/* Text Sizing Picker */}
+        {/* Time Zone Picker */}
         <View style={styles.settingOption}>
-          <Text style={styles.optionLabel}>Text Size</Text>
+          <Text style={styles.optionLabel}>Time Zone</Text>
           <Picker
-            selectedValue={textSize}
+            selectedValue={timeZone}
             style={styles.picker}
-            onValueChange={(itemValue) => setTextSize(itemValue)}
+            onValueChange={(itemValue) => setTimeZone(itemValue)}
           >
-            <Picker.Item label="Small" value="small" />
-            <Picker.Item label="Medium" value="medium" />
-            <Picker.Item label="Large" value="large" />
+            <Picker.Item label="GMT" value="GMT" />
+            <Picker.Item label="EST" value="EST" />
+            <Picker.Item label="CST" value="CST" />
+            <Picker.Item label="PST" value="PST" />
           </Picker>
         </View>
 
-        {/* Theme Selection (Light / Dark) */}
+        {/* Date Format Picker */}
         <View style={styles.settingOption}>
-          <Text style={styles.optionLabel}>Theme</Text>
-          <View style={styles.themeSelectionContainer}>
-            <TouchableOpacity
-              style={[
-                styles.themeOption,
-                theme === 'light' && styles.selectedThemeOption,
-              ]}
-              onPress={() => handleThemeChange('light')}
-            >
-              <View style={[styles.themeLight, theme === 'light' && styles.selectedThemeLight]} />
-              <Text style={styles.themeText}>Light Mode</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.themeOption,
-                theme === 'dark' && styles.selectedThemeOption,
-              ]}
-              onPress={() => handleThemeChange('dark')}
-            >
-              <View style={[styles.themeDark, theme === 'dark' && styles.selectedThemeDark]} />
-              <Text style={styles.themeText}>Dark Mode</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.optionLabel}>Date Format</Text>
+          <Picker
+            selectedValue={dateFormat}
+            style={styles.picker}
+            onValueChange={(itemValue) => setDateFormat(itemValue)}
+          >
+            <Picker.Item label="MM/DD/YYYY" value="MM/DD/YYYY" />
+            <Picker.Item label="DD/MM/YYYY" value="DD/MM/YYYY" />
+            <Picker.Item label="YYYY/MM/DD" value="YYYY/MM/DD" />
+          </Picker>
         </View>
 
-        {/* Log Out */}
+        {/* Fading Separation Line */}
+        <View style={styles.lineContainer}>
+          <View style={styles.separationLine} />
+        </View>
+
+        {/* Dark Mode Toggle */}
         <View style={styles.settingOption}>
-          
+          <Text style={styles.optionLabel}>Dark Mode</Text>
+          <Switch
+            value={darkMode}
+            onValueChange={() => setDarkMode((prev) => !prev)}
+          />
+        </View>
+
+        {/* Use Device Settings Toggle */}
+        <View style={styles.settingOption}>
+          <Text style={styles.optionLabel}>Use Device Settings</Text>
+          <Switch
+            value={useDeviceSettings}
+            onValueChange={() => setUseDeviceSettings((prev) => !prev)}
+          />
         </View>
       </View>
     </ScrollView>
@@ -121,63 +122,18 @@ const styles = StyleSheet.create({
     height: 50,
     width: '100%',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#C2B067',
+    backgroundColor: 'rgba(194, 176, 103, 0.17)', // 17% transparency
     borderRadius: 10,
   },
-  themeSelectionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  lineContainer: {
+    marginVertical: 20,
+    alignItems: "center",
   },
-  themeOption: {
-    width: '48%',
-    padding: 20,
-    borderWidth: 1,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderColor: '#ddd',
-  },
-  selectedThemeOption: {
-    borderColor: '#eeba2b',
-  },
-  themeLight: {
-    width: 50,
-    height: 50,
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  themeDark: {
-    width: 50,
-    height: 50,
-    backgroundColor: '#000',
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  selectedThemeLight: {
-    borderColor: '#eeba2b',
-    borderWidth: 2,
-  },
-  selectedThemeDark: {
-    borderColor: '#eeba2b',
-    borderWidth: 2,
-  },
-  themeText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#000',
-  },
-  button: {
-    backgroundColor: '#FFC42B',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+  separationLine: {
+    height: 1,
+    width: "100%",
+    backgroundColor: "black", // Black color for separation line
   },
 });
 

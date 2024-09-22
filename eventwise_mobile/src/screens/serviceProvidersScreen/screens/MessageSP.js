@@ -4,19 +4,19 @@ import { Ionicons } from '@expo/vector-icons';
 import proPic from '../assets/pro_pic.png'; // Import profile picture
 
 const initialMessagesData = [
-  { id: '1', name: 'John Doe', messages: [{ text: 'Looking forward to the event!', time: '1d', fromUser: false }], unreadCount: 2 },
+  { id: '1', name: 'John Doe', messages: [{ text: 'Looking forward to the event!', time: 'Today 9:27 PM', fromUser: false }], unreadCount: 2 },
   { id: '2', name: 'Jane Smith', messages: [{ text: 'Can I get more details?', time: '3d', fromUser: false }], unreadCount: 1 },
   { id: '3', name: 'Emily Johnson', messages: [{ text: 'Excited to attend!', time: '5d', fromUser: false }], unreadCount: 0 },
 ];
 
 const MessageSP = ({ navigation }) => {
-  const [messagesData, setMessagesData] = useState(initialMessagesData); // Manage messages with state
+  const [messagesData, setMessagesData] = useState(initialMessagesData);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [newMessage, setNewMessage] = useState('');
 
-  const handleBack = () => {
-    navigation.goBack();
+  const handleModalClose = () => {
+    setModalVisible(false);
   };
 
   const handleSendMessage = () => {
@@ -26,29 +26,19 @@ const MessageSP = ({ navigation }) => {
         { text: newMessage, time: 'now', fromUser: true }
       ];
 
-      // Update the messages in the state
       const updatedMessagesData = messagesData.map(message =>
         message.id === selectedMessage.id ? { ...message, messages: updatedMessages } : message
       );
 
-      setMessagesData(updatedMessagesData); // Update the messages state
-      setSelectedMessage({ ...selectedMessage, messages: updatedMessages }); // Update the selected message
-      setNewMessage(''); // Clear input
+      setMessagesData(updatedMessagesData);
+      setSelectedMessage({ ...selectedMessage, messages: updatedMessages });
+      setNewMessage('');
     }
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack} style={styles.closeButton}>
-          <Ionicons name="close" size={32} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Messages</Text>
-      </View>
-      <ScrollView
-        contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
         {messagesData.map((message) => (
           <TouchableOpacity key={message.id} style={styles.messageContainer} onPress={() => {
             setSelectedMessage(message);
@@ -72,35 +62,38 @@ const MessageSP = ({ navigation }) => {
       </ScrollView>
 
       <Modal
-        transparent={true}
+        transparent={false}
         visible={modalVisible}
         animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={handleModalClose}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalHeader}>{selectedMessage?.name}</Text>
-            <ScrollView style={styles.chatContainer}>
-              {selectedMessage?.messages.map((msg, index) => (
-                <View key={index} style={[styles.chatMessage, msg.fromUser ? styles.sentMessage : styles.receivedMessage]}>
-                  <Text style={msg.fromUser ? styles.sentText : styles.receivedText}>{msg.text}</Text>
-                  <Text style={styles.chatTime}>{msg.time}</Text>
-                </View>
-              ))}
-            </ScrollView>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                value={newMessage}
-                onChangeText={setNewMessage}
-                placeholder="Type your message"
-              />
-              <TouchableOpacity onPress={handleSendMessage}>
-                <Ionicons name="send" size={24} color="#FFC42B" />
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeModalButton}>
-              <Text style={styles.closeModalText}>Close</Text>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={handleModalClose} style={styles.closeButton}>
+              <Ionicons name="close" size={32} color="black" />
+            </TouchableOpacity>
+            <Image source={proPic} style={styles.profilePic} />
+            <Text style={styles.modalTitle}>{selectedMessage?.name}</Text>
+          </View>
+          <View style={styles.separator} />
+          <Text style={styles.modalTime}>{selectedMessage?.messages[selectedMessage.messages.length - 1]?.time}</Text>
+          <ScrollView style={styles.chatContainer}>
+            {selectedMessage?.messages.map((msg, index) => (
+              <View key={index} style={[styles.chatMessage, msg.fromUser ? styles.sentMessage : styles.receivedMessage]}>
+                <Text style={msg.fromUser ? styles.sentText : styles.receivedText}>{msg.text}</Text>
+                <Text style={styles.chatTime}>{msg.time}</Text>
+              </View>
+            ))}
+          </ScrollView>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={newMessage}
+              onChangeText={setNewMessage}
+              placeholder="Type your message"
+            />
+            <TouchableOpacity onPress={handleSendMessage}>
+              <Ionicons name="send" size={24} color="#FFC42B" />
             </TouchableOpacity>
           </View>
         </View>
@@ -113,22 +106,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 20,
-    position: 'relative',
-  },
-  closeButton: {
-    position: 'absolute',
-    left: 20,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFC42B',
   },
   scrollViewContent: {
     paddingHorizontal: 20,
@@ -183,24 +160,48 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 10,
     padding: 20,
-    width: '80%',
-    maxHeight: '80%',
   },
   modalHeader: {
-    fontSize: 20,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  closeButton: {
+    position: 'absolute',
+    left: 20,
+    top: 20,
+  },
+  profilePic: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginVertical: 10,
+  },
+  modalTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
+    color: '#FFC42B',
+    textAlign: 'center',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: 'black',
+    opacity: 0.3,
+    marginVertical: 10,
+    width: '100%',
+  },
+  modalTime: {
+    textAlign: 'center',
+    fontSize: 16,
     marginBottom: 10,
+    color: '#000000',
   },
   chatContainer: {
-    maxHeight: 300,
+    flex: 1,
+    maxHeight: '60%',
   },
   chatMessage: {
     marginBottom: 5,
@@ -238,14 +239,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginRight: 10,
-  },
-  closeModalButton: {
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  closeModalText: {
-    color: '#FFC42B',
-    fontWeight: 'bold',
   },
 });
 

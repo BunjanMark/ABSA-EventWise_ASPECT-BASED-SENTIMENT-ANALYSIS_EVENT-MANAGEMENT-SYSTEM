@@ -239,12 +239,12 @@ const styles = StyleSheet.create({
   },
   timeEntry: {
     flexDirection: "row",
-    alignItems: "center",
     marginBottom: 10,
   },
   circleContainer: {
     alignItems: "center",
     marginRight: 10,
+    marginVertical: 5,
   },
   circle: {
     width: 10,
@@ -252,21 +252,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: "#eeba2b",
   },
-  topLine: {
-    height: 10, // Adjust for gap above circle
-    width: 2,
-    backgroundColor: "#ccc",
-    marginBottom: 2, // Space between line and circle
-  },
+  
   bottomLine: {
-    height: 10, // Adjust for gap below circle
+    height: 40, // Adjust for gap below circle
     width: 2,
     backgroundColor: "#ccc",
     marginTop: 2, // Space between circle and line
   },
   timeDetails: {
     flex: 1,
-    justifyContent: "center",
   },
   modalDescription: {
     fontSize: 14,

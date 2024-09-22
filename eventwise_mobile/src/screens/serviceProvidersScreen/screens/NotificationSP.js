@@ -164,11 +164,13 @@ const NotificationSP = () => {
       <View style={styles.modalContent}>
         {selectedEvent && (
           <View style={styles.modalDetails}>
-            <Image source={selectedEvent.image} style={styles.modalImage} />
             <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
-            <Text style={styles.modalDate}>Date: {selectedEvent.date}</Text>
-            <Text style={styles.modalAddress}>Address: {selectedEvent.address}</Text>
-            <Text style={styles.modalDescription}>Detailed information about the event goes here.</Text>
+            <View style={styles.titleLine} />
+            <Text style={styles.modalDate}>Event Date: {selectedEvent.date}</Text>
+            <Image source={require('../assets/cover.png')} style={styles.modalImage} />
+            <Text style={styles.modalDescription}>
+              This event, hosted by {selectedEvent.name}, is expected to be a memorable occasion with various activities planned for all attendees. Join us for a day filled with joy and celebration.
+            </Text>
             <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
@@ -177,6 +179,7 @@ const NotificationSP = () => {
       </View>
     </Modal>
   );
+  
   
 
   return (
@@ -372,7 +375,7 @@ const styles = StyleSheet.create({
   },
   modalImage: {
     width: '100%',
-    height: 200,
+    height: '50%',
     borderRadius: 8,
     marginBottom: 16,
   },
@@ -407,6 +410,13 @@ const styles = StyleSheet.create({
     color: 'black',
     fontWeight: 'bold',
   },
+  titleLine: {
+    height: 2,
+    backgroundColor: '#FFC42B',
+    marginVertical: 8,
+    width: '100%',
+  },
+  
   
 });
 

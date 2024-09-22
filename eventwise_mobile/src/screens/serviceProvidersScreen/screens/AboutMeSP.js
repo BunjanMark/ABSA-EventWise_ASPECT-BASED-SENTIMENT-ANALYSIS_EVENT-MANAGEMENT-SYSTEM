@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from "react-native";
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for the back arrow
+
 
 const { width } = Dimensions.get("window");
 
 const AboutMeSP = () => {
+  const navigation = useNavigation(); // Initialize navigation
   const [selectedAbout, setSelectedAbout] = useState("A&A");
   const fadeAnim = useRef(new Animated.Value(1)).current; // for description fade animation
   const lineAnim = useRef(new Animated.Value(0)).current; // for line animation (X translation)
@@ -11,10 +15,8 @@ const AboutMeSP = () => {
 
   // Descriptions for the "A&A" and "EMS"
   const descriptions = {
-    "A&A":
-      "A&A is a leading provider of event management solutions, offering innovative and customized services to make your events memorable. With a focus on creativity and attention to detail, A&A has become synonymous with excellence in the event industry.",
-    EMS:
-      "EMS is a premier service provider specializing in equipment and logistics for large-scale events. Our solutions ensure seamless execution and support, making EMS the preferred choice for organizations looking for reliable event services.",
+    "A&A": "A&A is a leading provider of event management solutions, offering innovative and customized services to make your events memorable. With a focus on creativity and attention to detail, A&A has become synonymous with excellence in the event industry.",
+    EMS: "EMS is a premier service provider specializing in equipment and logistics for large-scale events. Our solutions ensure seamless execution and support, making EMS the preferred choice for organizations looking for reliable event services.",
   };
 
   useEffect(() => {
@@ -45,6 +47,10 @@ const AboutMeSP = () => {
 
   return (
     <View style={styles.container}>
+      {/* X Button */}
+      <TouchableOpacity onPress={() => navigation.navigate('HomeSP')}>
+            <Ionicons name="arrow-back" size={24} color="#FFCE00" />
+          </TouchableOpacity>
       <Text style={styles.title}>About Us</Text>
 
       {/* Tab Navigation for A&A and EMS */}
@@ -103,6 +109,15 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#FFFFFF", // White background
+  },
+  closeButton: {
+    position: 'absolute',
+    left: 30,
+    top: 20,
+  },
+  closeButtonText: {
+    fontSize: 24,
+    color: "#000", // Black text color
   },
   title: {
     fontSize: 24,

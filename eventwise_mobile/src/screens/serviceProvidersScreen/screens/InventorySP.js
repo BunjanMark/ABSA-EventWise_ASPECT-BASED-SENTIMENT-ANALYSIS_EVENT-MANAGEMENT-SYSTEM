@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-// Removed LinearGradient import
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for the back arrow
 import { useNavigation } from '@react-navigation/native';
 
 const inventoryData = [
@@ -36,6 +36,9 @@ const InventorySP = () => {
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.headerSection}>
+          <TouchableOpacity onPress={() => navigation.navigate('EventDetailsSP')}>
+            <Ionicons name="arrow-back" size={24} color="#FFCE00" />
+          </TouchableOpacity>
           <Text style={styles.headerText}>
             <Text style={styles.headerHighlight}>Inventory</Text> Tracker
           </Text>
@@ -80,12 +83,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 20,
     borderRadius: 10,
-    alignItems: 'center', // Center the header text
+    flexDirection: 'row', // Align items in a row
+    alignItems: 'center', // Center items vertically
   },
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#eeba2b", // Header text color
+    textAlign: 'center', // Center the text in the header
+    flex: 1, // Take up remaining space for centering
   },
   headerHighlight: {
     color: "#eeba2b",
@@ -100,8 +106,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#777",
   },
   tableHeaderText: {
     color: "black", // Header text color

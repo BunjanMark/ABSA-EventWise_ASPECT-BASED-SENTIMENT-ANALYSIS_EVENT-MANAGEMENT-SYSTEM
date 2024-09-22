@@ -54,6 +54,9 @@ const EquipmentSP = () => {
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.headerSection}>
+          <TouchableOpacity onPress={() => navigation.navigate('EventDetailsSP')}>
+            <Ionicons name="arrow-back" size={24} color="#FFCE00" />
+          </TouchableOpacity>
           <Text style={styles.headerText}>
             Equipment
           </Text>
@@ -140,16 +143,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   headerSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 10,
     padding: 20,
     backgroundColor: "transparent",
     borderRadius: 10,
-    alignItems: 'center', // Center the header text
   },
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#FFCE00", // Equipment text color
+    marginLeft: 88,
   },
   table: {
     marginTop: 20,
@@ -161,8 +166,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#777",
   },
   tableHeaderText: {
     color: "black", // Header text color
@@ -188,11 +191,6 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "transparent",
     borderRadius: 10,
-  },
-  summaryText: {
-    color: "black", // Summary text color
-    fontSize: 16,
-    marginVertical: 5,
   },
   addButton: {
     flexDirection: 'row',
