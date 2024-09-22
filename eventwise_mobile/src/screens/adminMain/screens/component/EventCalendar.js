@@ -125,7 +125,7 @@ export default function EventCalendar() {
   //   }
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, {}]}>
         <Text style={styles.title}>Date Today</Text>
         <TouchableOpacity
           style={styles.scheduleTitleContainer}

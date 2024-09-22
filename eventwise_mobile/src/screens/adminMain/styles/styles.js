@@ -161,13 +161,12 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     padding: 12,
-    // backgroundColor: "green",
-
-    // margin: 5,
     borderRadius: 8,
     paddingTop: 10,
     height: "100%",
     width: "100%",
+    // backgroundColor: "green",
+    // margin: 5,
   },
   header: {
     display: "flex",
@@ -240,7 +239,7 @@ const styles = StyleSheet.create({
   },
   scheduleTitleContainer: {
     // marginBottom: 7,
-    width: "100%",
+    // width: "100%",
   },
   scheduleTitle: {
     fontSize: 16,
@@ -264,6 +263,102 @@ const styles = StyleSheet.create({
     left: Platform.OS === "ios" ? 10 : 110,
   },
   // Dropdown Calendar scrollview
+
+  agendaContainer: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "#fff",
+  },
+  selectedDateText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  agendaScroll: {
+    flex: 1,
+  },
+  eventContainer: {
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: "#f1f1f1",
+    borderRadius: 5,
+  },
+  // eventTitle: {
+  //   fontSize: 16,
+  //   fontWeight: "bold",
+  // },
+  // eventDetailRow: {
+  //   flexDirection: "row",
+  //   marginTop: 5,
+  // },
+  // label: {
+  //   fontWeight: "bold",
+  //   marginRight: 5,
+  // },
+  eventTime: {
+    fontSize: 14,
+    color: "#333",
+  },
+  eventDescription: {
+    fontSize: 14,
+    color: "#666",
+  },
+  noEventsText: {
+    fontSize: 16,
+    color: "#999",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  // modalContainer: {
+  //   flex: 1,
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  //   backgroundColor: "rgba(0,0,0,0.5)",
+  // },
+  modalContent: {
+    width: Platform.OS === "android" ? "95%" : "80%",
+    // padding: 10,
+    backgroundColor: "#fff",
+    display: "flex",
+    flexDirection: "column",
+
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalh2Title: {
+    fontSize: 18,
+    fontWeight: "500",
+    // marginBottom: 7,
+  },
+  modalBodyHeader: {
+    display: "flex",
+
+    flexDirection: "column",
+    alignItems: "center",
+    marginBottom: 20,
+    justifyContent: "center",
+
+    alignContent: "center",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  modalTime: {
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  modalDescription: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
   calendarScrollView: {
     display: "flex",
     position: "absolute",
@@ -325,6 +420,28 @@ const styles = StyleSheet.create({
   //   textAlign: "center",
   //   marginTop: 20,
   // },
+
+  // table data data table DataTable
+  DTcontainer: {
+    flex: 1,
+    padding: 16,
+    paddingTop: 30,
+    backgroundColor: "#fff",
+  },
+  DThead: {
+    height: 40,
+    backgroundColor: "#f1f8ff",
+  },
+  DTheadText: {
+    margin: 6,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  DTtext: {
+    margin: 6,
+    textAlign: "center",
+  },
+
   footerSchedule: {
     marginTop: "auto",
     paddingHorizontal: 16,
@@ -413,12 +530,7 @@ const styles = StyleSheet.create({
     color: "black",
     fontSize: 14,
   },
-  text: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginTop: 30,
-    marginBottom: 10,
-  },
+
   editButton: {
     marginTop: 30,
     paddingHorizontal: 15,
@@ -504,8 +616,19 @@ const styles = StyleSheet.create({
   },
   heartIcon: {
     position: "absolute",
-    bottom: 10,
-    right: 10,
+    bottom: 200,
+    right: 20,
+    backgroundColor: "white",
+    height: 30,
+    width: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  eventHeartIcon: {
+    position: "absolute",
+    bottom: 220,
+    right: 20,
     backgroundColor: "white",
     height: 30,
     width: 30,
@@ -519,6 +642,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)", // Optional: semi-transparent background
+    height: "100%",
   },
   modalView: {
     width: "80%",
@@ -537,6 +661,115 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginVertical: 10,
   },
+  eventDetailRow: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    marginBottom: 10,
+    justifyContent: "space-between",
+    marginHorizontal: 1,
+    gap: 6,
+  },
+  eventDetailText: {
+    color: "black",
+    fontSize: 13,
+    fontWeight: "300",
+  },
+  eventPackageDetailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    justifyContent: "space-between",
+    marginHorizontal: 10,
+  },
+
+  // EventFeedbackAnalysis EventFeedbackSenmtiment
+
+  feedbackContainer: {
+    paddingVertical: 14,
+    padding: 12,
+    borderRadius: 8,
+    paddingTop: 10,
+  },
+  feedbackMainContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "rgba(255,252,221,99)",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.15)", // Add dimming effect
+  },
+  modalView: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    fontSize: 18,
+  },
+  button: {
+    borderRadius: 10,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  sentimentChartBlock: {
+    display: "flex",
+    flexDirection: "row",
+
+    alignItems: "center",
+    gap: 20,
+  },
+  sentimentBlock: {
+    width: "48%",
+    // backgroundColor: "gray",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    padding: 10,
+  },
+  sentimentList: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 2.3,
+    gap: 15,
+  },
+  // scrollViewContent: {
+  //   alignItems: "center",
+  //   justifyContent: "center",
+  // },
+  // text: {
+  //   fontSize: 16,
+  //   marginVertical: 10,
+  // },
 });
 
 export default styles;
