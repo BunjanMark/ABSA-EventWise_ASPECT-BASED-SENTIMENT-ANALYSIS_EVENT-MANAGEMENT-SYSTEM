@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   eventContainer: {
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#F9EDC6",
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
