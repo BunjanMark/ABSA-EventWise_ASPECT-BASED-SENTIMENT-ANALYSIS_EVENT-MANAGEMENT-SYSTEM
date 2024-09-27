@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
   },
   eventsListContainer: {
     paddingBottom: 20, // Adjust this based on your needs
+    
   },
 });
 

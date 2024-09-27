@@ -51,6 +51,8 @@ const MainStackNavigator = () => {
       <Stack.Screen name="ServicePortfolioSP" component={ServicePortfolioSP} />
       <Stack.Screen name="FeedbackSP" component={FeedbackSP} />
       <Stack.Screen name="CustomHeader" component={CustomHeader}/>
+      <Stack.Screen name="EventsSP" component={EventsSP} />
+
     </Stack.Navigator>
   );
 };
