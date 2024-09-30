@@ -145,12 +145,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   eventItem: {
-    backgroundColor: '#2A2A2A',
+    backgroundColor: 'white',
     borderRadius: 10,
     padding: 10,
     marginRight: 10,
     width: 200,
-  },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3, // For Android
+},
+
   image: {
     width: '100%',
     height: 100,
@@ -158,7 +164,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: '#FFF',
+    color: 'black',
     fontWeight: 'bold',
     marginTop: 10,
   },

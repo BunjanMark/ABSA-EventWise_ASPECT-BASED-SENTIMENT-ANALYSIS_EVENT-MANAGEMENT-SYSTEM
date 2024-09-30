@@ -9,9 +9,15 @@ import {
   StyleSheet,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
+import { useNavigation } from '@react-navigation/native';
 import moment from "moment";
+import Ionicons from "react-native-vector-icons/Ionicons"; // Importing icons
 
-export default function SchedSP() {
+export default function SchedSP({ route }) {
+  const navigation = useNavigation();
+  
+  // Manage the activeButton state locally, default to "checklist" if not passed via route
+  const [activeButton, setActiveButton] = useState(route.params?.activeButton || "checklist");
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -43,7 +49,7 @@ export default function SchedSP() {
         ],
       },
     ],
-  };
+  }; 
 
   const markedDates = Object.keys(schedules).reduce((acc, date) => {
     acc[date] = { marked: true, dots: [{ color: "#eeba2b" }] };
@@ -66,6 +72,29 @@ export default function SchedSP() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Navigation Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.iconButton, activeButton === "checklist" && styles.activeButton]}
+          onPress={() => {
+            setActiveButton("checklist");
+            navigation.navigate("SchedSP", { activeButton: "checklist" });
+          }}
+        >
+          <Ionicons name="checkbox-outline" size={24} color={activeButton === "checklist" ? "#fff" : "#888"} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.iconButton, activeButton === "calendar" && styles.activeButton]}
+          onPress={() => {
+            setActiveButton("calendar");
+            navigation.navigate("SetSchedSP", { activeButton: "calendar" });
+          }}
+        >
+          <Ionicons name="calendar-outline" size={24} color={activeButton === "calendar" ? "#fff" : "#888"} />
+        </TouchableOpacity>
+      </View>
+
       <Calendar
         markedDates={markedDates}
         onDayPress={handleDayPress}
@@ -79,7 +108,11 @@ export default function SchedSP() {
               Agenda for {moment(selectedDate).format("MMMM D, YYYY")}
             </Text>
             {schedules[selectedDate].map((event, index) => (
-              <TouchableOpacity key={index} onPress={() => openModal(event)} style={styles.eventContainer}>
+              <TouchableOpacity
+                key={index}
+                onPress={() => openModal(event)}
+                style={styles.eventContainer}
+              >
                 <Text style={styles.eventTime}>{event.time}</Text>
                 <Text style={styles.eventTitle}>{event.title}</Text>
                 <Text style={styles.eventDescription}>{event.description}</Text>
@@ -88,7 +121,9 @@ export default function SchedSP() {
           </>
         ) : (
           <Text style={styles.noEventsText}>
-            {selectedDate ? "No events for this date." : "Select a date to see the schedule."}
+            {selectedDate
+              ? "No events for this date."
+              : "Select a date to see the schedule."}
           </Text>
         )}
       </ScrollView>
@@ -108,7 +143,9 @@ export default function SchedSP() {
                 <Text style={styles.closeButton}>X</Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.modalDate}>{moment(selectedDate).format("MMMM D, YYYY")}</Text>
+            <Text style={styles.modalDate}>
+              {moment(selectedDate).format("MMMM D, YYYY")}
+            </Text>
             <Text style={styles.modalTime}>{selectedEvent?.time}</Text>
             <View style={styles.horizontalDivider} />
             <View style={styles.modalBody}>
@@ -122,13 +159,14 @@ export default function SchedSP() {
                       <View style={styles.bottomLine} />
                     </View>
                     <View style={styles.timeDetails}>
-                      <Text style={styles.modalDescription}>{timeEvent.description}</Text>
+                      <Text style={styles.modalDescription}>
+                        {timeEvent.description}
+                      </Text>
                     </View>
                   </View>
                 ))}
               </View>
             </View>
-
           </View>
         </View>
       </Modal>
@@ -136,11 +174,29 @@ export default function SchedSP() {
   );
 }
 
-// Styles
+
+// Styles (same as before)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  iconButton: {
+    width: 100,
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 50,
+    backgroundColor: "#e0e0e0",
+    marginHorizontal: -15,
+  },
+  activeButton: {
+    backgroundColor: "#EEBA2B",
   },
   agendaContainer: {
     marginTop: 20,
@@ -206,7 +262,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
   },
   modalTitle: {
     fontSize: 20,
@@ -214,17 +269,17 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     fontSize: 18,
-    color: "red",
+    color: "#EEBA2B",
   },
   modalDate: {
     fontSize: 16,
-    color: "#888",
-    marginVertical: 5,
+    color: "#666",
+    marginTop: 10,
   },
   modalTime: {
-    fontSize: 16,
-    color: "#333",
-    marginBottom: 10,
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 10,
   },
   horizontalDivider: {
     height: 1,
@@ -232,19 +287,26 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   modalBody: {
-    flexDirection: "column",
+    marginTop: 10,
   },
   timeContainer: {
-    alignItems: "flex-start",
+    flexDirection: "column",
+    marginTop: 10,
   },
   timeEntry: {
     flexDirection: "row",
-    marginBottom: 10,
+    alignItems: "center",
+    marginVertical: 5,
   },
   circleContainer: {
     alignItems: "center",
-    marginRight: 10,
-    marginVertical: 5,
+    width: 30,
+  },
+  topLine: {
+    height: 20,
+    width: 2,
+    backgroundColor: "#888",
+    marginBottom: 5,
   },
   circle: {
     width: 10,
@@ -252,22 +314,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: "#eeba2b",
   },
-  
   bottomLine: {
-    height: 40, // Adjust for gap below circle
+    height: 20,
     width: 2,
-    backgroundColor: "#ccc",
-    marginTop: 2, // Space between circle and line
+    backgroundColor: "#888",
+    marginTop: 5,
   },
   timeDetails: {
     flex: 1,
+    marginLeft: 10,
   },
   modalDescription: {
     fontSize: 14,
     color: "#666",
-  },
-  closeButtonContainer: {
-    marginTop: 10,
-    alignItems: "center",
   },
 });

@@ -24,6 +24,7 @@ import SettingSP from "../screens/SettingsSP";
 import ServicePortfolioSP from "../screens/ServicePortfolioSP";
 import FeedbackSP from "../screens/FeedbackSP";
 import CustomHeader from "../screens/CustomHeaderSP";
+import SetSchedSP from "../screens/SetschedSP";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -52,7 +53,7 @@ const MainStackNavigator = () => {
       <Stack.Screen name="FeedbackSP" component={FeedbackSP} />
       <Stack.Screen name="CustomHeader" component={CustomHeader}/>
       <Stack.Screen name="EventsSP" component={EventsSP} />
-
+      <Stack.Screen name="SetSchedSP" component={SetSchedSP} />
     </Stack.Navigator>
   );
 };
