@@ -36,9 +36,10 @@ const InventorySP = () => {
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.headerSection}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#FFCE00" />
-          </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('EventsSP')}>
+  <Ionicons name="arrow-back" size={24} color="#FFCE00" />
+</TouchableOpacity>
+
           <Text style={styles.headerText}>
             <Text style={styles.headerHighlight}>Inventory</Text> Tracker
           </Text>

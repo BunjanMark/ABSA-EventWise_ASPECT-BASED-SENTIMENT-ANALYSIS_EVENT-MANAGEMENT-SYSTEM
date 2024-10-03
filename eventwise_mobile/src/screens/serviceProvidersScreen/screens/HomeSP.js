@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, FlatList, Modal, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, Dimensions, FlatList, Modal, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,11 +14,9 @@ const eventsData = [
 ];
 
 const HomeSP = () => {
-  // State to handle modal visibility and the selected event
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Function to render each event item
   const renderEventItem = ({ item }) => (
     <TouchableOpacity onPress={() => openEventModal(item)} style={styles.eventItem}>
       <Image source={item.image} style={styles.image} />
@@ -36,13 +34,11 @@ const HomeSP = () => {
     </TouchableOpacity>
   );
 
-  // Function to open the modal and set the selected event
   const openEventModal = (event) => {
     setSelectedEvent(event);
     setModalVisible(true);
   };
 
-  // Function to close the modal
   const closeEventModal = () => {
     setModalVisible(false);
     setSelectedEvent(null);
@@ -50,42 +46,45 @@ const HomeSP = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Gray Rectangle */}
-      <View style={styles.rectangle}>
-        <View style={styles.row}>
-          <Image source={require("../assets/pro_pic.png")} style={styles.profileImage} />
-          <View style={styles.textContainer}>
-            <Text style={styles.welcomeText}>Welcome</Text>
-            <Text style={styles.nameText}>Service Provider</Text>
+      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        {/* Gray Rectangle */}
+        <View style={styles.rectangle}>
+          <View style={styles.row}>
+            <Image source={require("../assets/pro_pic.png")} style={styles.profileImage} />
+            <View style={styles.textContainer}>
+              <Text style={styles.welcomeText}>Welcome</Text>
+              <Text style={styles.nameText}>Service Provider</Text>
+            </View>
+            <View style={styles.locationContainer}>
+              <MaterialIcons name="location-on" size={24} color="black" />
+              <Text style={styles.locationText}>Cagayan de Oro City</Text>
+            </View>
           </View>
-          <View style={styles.locationContainer}>
-            <MaterialIcons name="location-on" size={24} color="black" />
-            <Text style={styles.locationText}>Cagayan de Oro City</Text>
-          </View>
+          <Image source={require("../assets/home.png")} style={styles.homeImage} />
         </View>
-        <Image source={require("../assets/home.png")} style={styles.homeImage} />
-      </View>
 
-      {/* Fading Line */}
-      <LinearGradient
-        colors={['rgba(255,196,43,0)', 'rgba(255,196,43,1)', 'rgba(255,196,43,0)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.fadingLine}
-      />
+        {/* Fading Line */}
+        <LinearGradient
+          colors={['rgba(255,196,43,0)', 'rgba(255,196,43,1)', 'rgba(255,196,43,0)']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.fadingLine}
+        />
 
-      {/* Popular Event Text */}
-      <Text style={styles.popularEventText}>Popular Events</Text>
+        {/* Popular Event Text */}
+        <Text style={styles.popularEventText}>Popular Events</Text>
 
-      {/* Horizontal Scrolling Event List */}
-      <FlatList
-        data={eventsData}
-        renderItem={renderEventItem}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.eventsListContainer}
-      />
+        {/* Horizontal Scrolling Event List */}
+        <FlatList
+          data={eventsData}
+          renderItem={renderEventItem}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.eventsListContainer}
+        />
+
+      </ScrollView>
 
       {/* Modal for event details */}
       <Modal
@@ -96,7 +95,6 @@ const HomeSP = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            {/* 'X' button to close the modal */}
             <TouchableOpacity style={styles.closeButton} onPress={closeEventModal}>
               <MaterialIcons name="close" size={24} color="#000" />
             </TouchableOpacity>
@@ -128,6 +126,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 16,
+  },
+  scrollViewContainer: {
+    paddingBottom: 60,
   },
   rectangle: {
     backgroundColor: "#d3d3d3",
@@ -226,7 +227,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     backgroundColor: 'white',

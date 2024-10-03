@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#FFCE00",
-    marginLeft: 88,
+    marginLeft: 70,
   },
   table: {
     marginTop: 20,

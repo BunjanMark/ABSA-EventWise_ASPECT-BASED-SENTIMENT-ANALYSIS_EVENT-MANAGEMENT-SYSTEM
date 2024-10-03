@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
   Animated,
+  ScrollView,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -119,12 +120,19 @@ const EventsSP = ({ navigation }) => {
           onChangeText={handleSearch}
         />
       </View>
-      <FlatList
-        data={filteredEvents}
-        renderItem={renderEventItem}
-        keyExtractor={(item) => item.id}
+      <ScrollView
         contentContainerStyle={styles.list}
-      />
+        showsVerticalScrollIndicator={false}
+      >
+        <FlatList
+          data={filteredEvents}
+          renderItem={renderEventItem}
+          keyExtractor={(item) => item.id}
+          scrollEnabled={false} // Disable FlatList scrolling
+        />
+        {/* Add padding to the bottom of the ScrollView */}
+        <View style={styles.paddingBottom} />
+      </ScrollView>
     </View>
   );
 };
@@ -214,6 +222,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginLeft: 10,
     fontSize: 16,
+  },
+  paddingBottom: {
+    height: 60, // Set height for the bottom padding
   },
 });
 

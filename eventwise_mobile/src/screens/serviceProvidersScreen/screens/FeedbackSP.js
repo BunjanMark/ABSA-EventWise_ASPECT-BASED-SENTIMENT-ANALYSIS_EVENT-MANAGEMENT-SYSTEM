@@ -78,8 +78,8 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 24,
+    color: '#eeba2b',
     fontWeight: 'bold',
-    marginLeft: 10,
     textAlign: 'center',
     flex: 1, // Center header text
   },
