@@ -1,12 +1,11 @@
-import React from "react";
-import { View, Text, StyleSheet, Image, Dimensions, FlatList } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Image, Dimensions, FlatList, Modal, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'; // Icons
-import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient for fading effect
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const screenWidth = Dimensions.get("window").width; // Get the screen width
+const screenWidth = Dimensions.get("window").width;
 
-// Sample events data
 const eventsData = [
   { id: '1', title: 'Mr. & Mrs. Malik Wedding', image: require('../assets/event1.png'), date: '2024-07-01', address: 'CDO', buttons: ['Edit', 'Equipment'] },
   { id: '2', title: 'Elizabeth Birthday', image: require('../assets/event2.png'), date: '2024-08-12', address: 'CDO', buttons: ['Attendee', 'Feedback', 'Inventory'] },
@@ -15,9 +14,13 @@ const eventsData = [
 ];
 
 const HomeSP = () => {
+  // State to handle modal visibility and the selected event
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   // Function to render each event item
   const renderEventItem = ({ item }) => (
-    <View style={styles.eventItem}>
+    <TouchableOpacity onPress={() => openEventModal(item)} style={styles.eventItem}>
       <Image source={item.image} style={styles.image} />
       <Text style={styles.title}>{item.title}</Text>
       <View style={styles.detailContainer}>
@@ -30,39 +33,44 @@ const HomeSP = () => {
           <Text style={styles.detailText}>{item.address}</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
+
+  // Function to open the modal and set the selected event
+  const openEventModal = (event) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  // Function to close the modal
+  const closeEventModal = () => {
+    setModalVisible(false);
+    setSelectedEvent(null);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Gray Rectangle */}
       <View style={styles.rectangle}>
         <View style={styles.row}>
-          {/* Left Side: Profile Image */}
           <Image source={require("../assets/pro_pic.png")} style={styles.profileImage} />
-
-          {/* Middle: Welcome Text */}
           <View style={styles.textContainer}>
             <Text style={styles.welcomeText}>Welcome</Text>
             <Text style={styles.nameText}>Service Provider</Text>
           </View>
-
-          {/* Right Side: Location */}
           <View style={styles.locationContainer}>
             <MaterialIcons name="location-on" size={24} color="black" />
             <Text style={styles.locationText}>Cagayan de Oro City</Text>
           </View>
         </View>
-
-        {/* Below the First Row: Home Image */}
         <Image source={require("../assets/home.png")} style={styles.homeImage} />
       </View>
 
       {/* Fading Line */}
       <LinearGradient
-        colors={['rgba(255,196,43,0)', 'rgba(255,196,43,1)', 'rgba(255,196,43,0)']} // Transparent at both ends, solid in the middle
-        start={{ x: 0, y: 0 }} // Start of the line (left side, transparent)
-        end={{ x: 1, y: 0 }}   // End of the line (right side, transparent again)
+        colors={['rgba(255,196,43,0)', 'rgba(255,196,43,1)', 'rgba(255,196,43,0)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
         style={styles.fadingLine}
       />
 
@@ -78,6 +86,39 @@ const HomeSP = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.eventsListContainer}
       />
+
+      {/* Modal for event details */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={closeEventModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {/* 'X' button to close the modal */}
+            <TouchableOpacity style={styles.closeButton} onPress={closeEventModal}>
+              <MaterialIcons name="close" size={24} color="#000" />
+            </TouchableOpacity>
+
+            {/* Event details */}
+            {selectedEvent && (
+              <>
+                <Image source={selectedEvent.image} style={styles.modalImage} />
+                <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
+                <View style={styles.modalDetailRow}>
+                  <MaterialCommunityIcons name="calendar" size={16} color="#2A93D5" />
+                  <Text style={styles.modalDetailText}>{selectedEvent.date}</Text>
+                </View>
+                <View style={styles.modalDetailRow}>
+                  <MaterialCommunityIcons name="map-marker" size={16} color="#2A93D5" />
+                  <Text style={styles.modalDetailText}>{selectedEvent.address}</Text>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -89,20 +130,20 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   rectangle: {
-    backgroundColor: "#d3d3d3", // Gray background for the rectangle
+    backgroundColor: "#d3d3d3",
     padding: 10,
     borderRadius: 10,
     marginBottom: 20,
-    alignItems: "center", // Align content to center horizontally
+    alignItems: "center",
   },
   row: {
-    flexDirection: "row", // Align profile, text, and location horizontally
-    alignItems: "center", // Vertically center items
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    width: "100%", // Ensure it takes up the full width of the rectangle
+    width: "100%",
   },
   profileImage: {
-    width: 50,  // Small profile image size
+    width: 50,
     height: 50,
     borderRadius: 25,
   },
@@ -127,10 +168,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   homeImage: {
-    width: screenWidth - 32,  // Dynamically fit image to screen width
-    height: (screenWidth - 32) * 0.5,  // Maintain a good aspect ratio
+    width: screenWidth - 32,
+    height: (screenWidth - 32) * 0.5,
     marginTop: 20,
-    resizeMode: "contain",  // Ensures the image scales correctly
+    resizeMode: "contain",
   },
   fadingLine: {
     height: 2,
@@ -154,9 +195,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    elevation: 3, // For Android
-},
-
+    elevation: 3,
+  },
   image: {
     width: '100%',
     height: 100,
@@ -181,8 +221,44 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   eventsListContainer: {
-    paddingBottom: 20, // Adjust this based on your needs
-    
+    paddingBottom: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    marginHorizontal: 20,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  modalImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  modalDetailText: {
+    color: '#2A93D5',
+    marginLeft: 5,
   },
 });
 
