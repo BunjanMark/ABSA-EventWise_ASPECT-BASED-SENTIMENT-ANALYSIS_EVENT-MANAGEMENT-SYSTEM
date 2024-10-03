@@ -67,9 +67,9 @@ const EquipmentSP = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollContainer}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerSection}>
-          <TouchableOpacity onPress={() => navigation.navigate('EventDetailsSP')}>
+          <TouchableOpacity onPress={() => navigation.navigate('EventsSP')}>
             <Ionicons name="arrow-back" size={24} color="#FFCE00" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Equipment</Text>
@@ -92,11 +92,11 @@ const EquipmentSP = () => {
               <Text style={styles.tableRowText}>{item.noOfItems}</Text>
               <View style={styles.sortItemsContainer}>
                 <TouchableOpacity onPress={() => handleSortItemsChange(index, -1)}>
-                  <Ionicons name="remove-circle-outline" size={24} color="red" />
+                  <Ionicons name="remove-circle-outline" size={20} color="red" />
                 </TouchableOpacity>
                 <Text style={styles.sortItemsText}>{item.noOfSortItems}</Text>
                 <TouchableOpacity onPress={() => handleSortItemsChange(index, 1)}>
-                  <Ionicons name="add-circle-outline" size={24} color="green" />
+                  <Ionicons name="add-circle-outline" size={20} color="green" />
                 </TouchableOpacity>
               </View>
               <TouchableOpacity onPress={() => toggleDropdown(index)} style={styles.statusContainer}>
@@ -134,6 +134,7 @@ const EquipmentSP = () => {
           <Text style={styles.summaryText}>Total Items Broken: {totalBroken}</Text>
           <Text style={styles.summaryText}>Total Items Missing: {totalMissing}</Text>
         </View>
+        <View style={{ height: 20 }} />
       </ScrollView>
       <Modal
         animationType="slide"
@@ -143,6 +144,9 @@ const EquipmentSP = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Ionicons name="close" size={24} color="black" />
+            </TouchableOpacity>
             <Text style={styles.modalText}>Name of Item</Text>
             <TextInput
               style={styles.input}
@@ -170,7 +174,6 @@ const EquipmentSP = () => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -179,6 +182,9 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
     paddingHorizontal: 20,
+  },
+  scrollContent: {
+    paddingBottom: 50,
   },
   headerSection: {
     flexDirection: 'row',
@@ -293,6 +299,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     alignItems: "center",
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
   modalText: {
     marginBottom: 10,

@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   Image,
-  ScrollView,
   Modal,
   TouchableOpacity,
 } from 'react-native';
@@ -76,13 +75,11 @@ const ServiceSP = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Services</Text>
-      <ScrollView contentContainerStyle={styles.list}>
-        <FlatList
-          data={servicesData}
-          renderItem={renderServiceItem}
-          keyExtractor={(item) => item.id}
-        />
-      </ScrollView>
+      <FlatList
+        data={servicesData}
+        renderItem={renderServiceItem}
+        keyExtractor={(item) => item.id}
+      />
 
       {/* Modal for service details */}
       <Modal
@@ -93,18 +90,20 @@ const ServiceSP = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalHeader}>{selectedService?.name}</Text>
-            <Image source={selectedService?.image} style={styles.modalImage} />
-            <Text style={styles.modalPrice}>{selectedService?.price}</Text>
-            <Text style={styles.modalDetails}>{selectedService?.details}</Text>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+            {selectedService && (
+              <>
+                <Text style={styles.modalHeader}>{selectedService.name}</Text>
+                <Image source={selectedService.image} style={styles.modalImage} />
+                <Text style={styles.modalPrice}>{selectedService.price}</Text>
+                <Text style={styles.modalDetails}>{selectedService.details}</Text>
+              </>
+            )}
           </View>
         </View>
       </Modal>
@@ -124,9 +123,6 @@ const styles = StyleSheet.create({
     color: '#FFD700',
     textAlign: 'center',
     marginBottom: 10,
-  },
-  list: {
-    paddingBottom: 20,
   },
   itemContainer: {
     backgroundColor: '#FFFFFF',
@@ -165,6 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     width: '80%',
+    position: 'relative',
   },
   modalHeader: {
     fontSize: 20,
@@ -186,19 +183,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
   },
-  buttonContainer: {
-    alignItems: 'center', // Center the button horizontally
-  },
   closeButton: {
-    backgroundColor: 'red',
-    borderRadius: 5,
-    alignItems: 'center',
-    padding: 10,
-    width: '30%',
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
   closeButtonText: {
-    color: '#000000',
+    fontSize: 24,
     fontWeight: 'bold',
+    color: 'red',
   },
 });
 

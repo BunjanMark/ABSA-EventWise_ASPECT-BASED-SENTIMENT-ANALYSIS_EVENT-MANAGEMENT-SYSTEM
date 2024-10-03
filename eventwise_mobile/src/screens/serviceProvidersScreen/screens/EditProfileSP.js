@@ -29,7 +29,17 @@ const EditProfileSP = () => {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.container}>
-        <Text style={styles.headerText}>Edit Profile</Text>
+        {/* Header with Back Button */}
+        <View style={styles.headerContainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.navigate('ProfileSP')} // Navigate to ProfileSP
+          >
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Edit Profile</Text>
+        </View>
+
         <View style={styles.profileContainer}>
           <Image
             source={require('../assets/pro_pic.png')}
@@ -115,11 +125,20 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20, // Space below the header
+  },
+  backButton: {
+    marginRight: 10, // Space between button and text
+  },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000000', // Set text color to black
-    textAlign: 'center',
+    flex: 1, // Take remaining space to center
+    textAlign: 'center', // Center the text
   },
   line: {
     width: '100%',
@@ -145,7 +164,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     height: 50,
-    color: 'white', // Set text color to black
+    color: 'white', // Set text color to white
     fontSize: 16,
     marginBottom: 15,
     borderWidth: 1,

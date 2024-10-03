@@ -86,25 +86,26 @@ export default function ScheduleApp() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.iconButton, activeButton === "calendar" && styles.activeButton]}
-          onPress={() => {
-            setActiveButton("calendar");
-            navigation.navigate("ScheduleApp", { activeButton: "calendar" });
-          }}
-        >
-          <Ionicons name="calendar-outline" size={24} color={activeButton === "calendar" ? "#fff" : "#888"} />
-        </TouchableOpacity>
+      <TouchableOpacity
+  style={[styles.iconButton, activeButton === "calendar" && styles.activeButton]}
+  onPress={() => {
+    setActiveButton("calendar");
+    navigation.navigate("ScheduleApp", { activeButton: "calendar" });
+  }}
+>
+  <Ionicons name="calendar-outline" size={24} color={activeButton === "calendar" ? "#fff" : "#888"} />
+</TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.iconButton, activeButton === "checklist" && styles.activeButton]}
-          onPress={() => {
-            setActiveButton("checklist");
-            navigation.navigate("ScheduleApp", { activeButton: "checklist" });
-          }}
-        >
-          <Ionicons name="checkbox-outline" size={24} color={activeButton === "checklist" ? "#fff" : "#888"} />
-        </TouchableOpacity>
+<TouchableOpacity
+  style={[styles.iconButton, activeButton === "checklist" && styles.activeButton]}
+  onPress={() => {
+    setActiveButton("checklist");
+    navigation.navigate("ScheduleApp", { activeButton: "checklist" });
+  }}
+>
+  <Ionicons name="checkbox-outline" size={24} color={activeButton === "checklist" ? "#fff" : "#888"} />
+</TouchableOpacity>
+
       </View>
 
       {activeButton === "calendar" ? (
@@ -256,6 +257,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  checklistButton: {
+    left: 50, // Adjust to position overlap
   },
   buttonContainer: {
     flexDirection: "row",
