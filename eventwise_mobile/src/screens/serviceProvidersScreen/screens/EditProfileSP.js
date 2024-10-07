@@ -29,7 +29,17 @@ const EditProfileSP = () => {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.container}>
-        <Text style={styles.headerText}>Edit Profile</Text>
+        {/* Header with Back Button */}
+        <View style={styles.headerContainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.navigate('ProfileSP')} // Navigate to ProfileSP
+          >
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Edit Profile</Text>
+        </View>
+
         <View style={styles.profileContainer}>
           <Image
             source={require('../assets/pro_pic.png')}
@@ -50,7 +60,7 @@ const EditProfileSP = () => {
           <TextInput
             style={styles.textInput}
             placeholder="Enter your Email"
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor="white"
             value={email}
             onChangeText={setEmail}
           />
@@ -58,7 +68,7 @@ const EditProfileSP = () => {
           <TextInput
             style={styles.textInput}
             placeholder="Enter your Username"
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor="white"
             value={username}
             onChangeText={setUsername}
           />
@@ -66,7 +76,7 @@ const EditProfileSP = () => {
           <TextInput
             style={styles.textInput}
             placeholder="Enter new Password"
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor="white"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -75,7 +85,7 @@ const EditProfileSP = () => {
           <TextInput
             style={styles.textInput}
             placeholder="Enter your Contact Number"
-            placeholderTextColor="#B0B0B0"
+            placeholderTextColor="white"
             value={contactNumber}
             onChangeText={setContactNumber}
           />
@@ -93,6 +103,7 @@ const EditProfileSP = () => {
             <Ionicons name="add" size={24} color="white" style={styles.icon} />
             <Text style={styles.createPortfolioText}>Add Another Account</Text>
           </TouchableOpacity>
+         
         </View>
       </View>
     </ScrollView>
@@ -108,11 +119,20 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20, // Space below the header
+  },
+  backButton: {
+    marginRight: 10, // Space between button and text
+  },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000000', // Set text color to black
-    textAlign: 'center',
+    flex: 1, // Take remaining space to center
+    textAlign: 'center', // Center the text
   },
   line: {
     width: '100%',
@@ -134,11 +154,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   textInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#c2b067',
     borderRadius: 10,
     paddingHorizontal: 15,
     height: 50,
-    color: '#000000', // Set text color to black
+    color: 'white', // Set text color to white
     fontSize: 16,
     marginBottom: 15,
     borderWidth: 1,
@@ -189,6 +209,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 15,
     borderRadius: 10,
+    marginBottom: 15,
   },
   buttonText: {
     color: '#FFFFFF',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,27 +7,36 @@ import {
   ScrollView,
   Image,
   FlatList,
+  Modal,
 } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const eventsData = [
-  { id: '1', title: 'Mr. & Mrs. Malik Wedding', image: require('../assets/service1.png'), date: '2024-07-01', address: 'CDO', buttons: ['Feedback'] },
-  { id: '2', title: 'Elizabeth Birthday', image: require('../assets/service1.png'), date: '2024-08-12', address: 'CDO', buttons: ['Feedback'] },
-  { id: '3', title: 'Class of 1979 Reunion', image: require('../assets/service1.png'), date: '2024-09-25', address: 'CDO', buttons: ['Feedback'] },
-  { id: '4', title: 'Corporate Party', image: require('../assets/service1.png'), date: '2024-10-30', address: 'CDO', buttons: ['Feedback'] },
-  { id: '5', title: 'Annual Gala', image: require('../assets/service1.png'), date: '2024-11-15', address: 'CDO', buttons: ['Feedback'] },
-  { id: '6', title: 'New Year Celebration', image: require('../assets/service1.png'), date: '2024-12-31', address: 'CDO', buttons: ['Feedback'] },
-  { id: '7', title: 'Music Festival', image: require('../assets/service1.png'), date: '2024-06-22', address: 'CDO', buttons: ['Feedback'] },
-  { id: '8', title: 'Art Exhibition', image: require('../assets/service1.png'), date: '2024-07-05', address: 'CDO', buttons: ['Feedback'] },
+  { id: '1', title: 'Mr. & Mrs. Malik Wedding', image: require('../assets/service1.png'), date: '2024-07-01', address: 'CDO', details: 'A beautiful wedding ceremony.' },
+  { id: '2', title: 'Elizabeth Birthday', image: require('../assets/service1.png'), date: '2024-08-12', address: 'CDO', details: 'Celebrating Elizabeth’s special day!' },
+  { id: '3', title: 'Class of 1979 Reunion', image: require('../assets/service1.png'), date: '2024-09-25', address: 'CDO', details: 'Reconnecting with old classmates.' },
+  { id: '4', title: 'Corporate Party', image: require('../assets/service1.png'), date: '2024-10-30', address: 'CDO', details: 'Annual company party with fun activities.' },
+  { id: '5', title: 'Annual Gala', image: require('../assets/service1.png'), date: '2024-11-15', address: 'CDO', details: 'A night of elegance and fundraising.' },
+  { id: '6', title: 'New Year Celebration', image: require('../assets/service1.png'), date: '2024-12-31', address: 'CDO', details: 'Ring in the New Year with festivities.' },
+  { id: '7', title: 'Music Festival', image: require('../assets/service1.png'), date: '2024-06-22', address: 'CDO', details: 'Enjoy performances from various artists.' },
+  { id: '8', title: 'Art Exhibition', image: require('../assets/service1.png'), date: '2024-07-05', address: 'CDO', details: 'Showcasing local artists and their work.' },
 ];
 
 const ProfileSP = () => {
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Function to render each event item
   const renderEventItem = ({ item }) => (
-    <View style={styles.eventItem}>
+    <TouchableOpacity
+      style={styles.eventItem}
+      onPress={() => {
+        setSelectedEvent(item);
+        setModalVisible(true);
+      }}
+    >
       <Image source={item.image} style={styles.image} />
       <Text style={styles.title}>{item.title}</Text>
       <View style={styles.detailContainer}>
@@ -40,13 +49,15 @@ const ProfileSP = () => {
           <Text style={styles.detailText}>{item.address}</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
-    <ScrollView style={styles.scrollView} contentContainerStyle={styles.container}>
-      
-      {/* Profile Section */}
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.profileSection}>
         <Image
           source={require('../assets/pro_pic.png')}
@@ -54,11 +65,11 @@ const ProfileSP = () => {
         />
         <Text style={styles.nameText}>Organizer</Text>
         <Text style={styles.addressText}>Service Provider Address</Text>
-        
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={() => navigation.navigate('EditProfileSP')} // Update to navigate to the Settings page
+            onPress={() => navigation.navigate('EditProfileSP')}
           >
             <Ionicons name="pencil" size={24} color="white" />
             <Text style={styles.editButtonText}>Edit Profile</Text>
@@ -66,10 +77,8 @@ const ProfileSP = () => {
         </View>
       </View>
 
-      {/* Popular Event Text */}
       <Text style={styles.popularEventText}>Popular Events</Text>
 
-      {/* Horizontal Scrolling Event List */}
       <FlatList
         data={eventsData}
         renderItem={renderEventItem}
@@ -79,13 +88,46 @@ const ProfileSP = () => {
         contentContainerStyle={styles.eventsListContainer}
       />
 
+      {/* Add padding to the bottom of the ScrollView */}
+      <View style={styles.paddingBottom} />
+
+      {selectedEvent && (
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => {
+            setModalVisible(false);
+            setSelectedEvent(null);
+          }}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => {
+                  setModalVisible(false);
+                  setSelectedEvent(null);
+                }}
+              >
+                <Text style={styles.closeButtonText}>X</Text>
+              </TouchableOpacity>
+              <Image source={selectedEvent.image} style={styles.modalImage} />
+              <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
+              <Text style={styles.modalDate}>{selectedEvent.date}</Text>
+              <Text style={styles.modalAddress}>{selectedEvent.address}</Text>
+              <Text style={styles.modalDetails}>{selectedEvent.details}</Text>
+            </View>
+          </View>
+        </Modal>
+      )}
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   scrollView: {
-    backgroundColor: '#FFFFFF', // Set background color to white
+    backgroundColor: '#FFFFFF',
   },
   container: {
     flexGrow: 1,
@@ -93,19 +135,19 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   profileSection: {
-    borderColor: '#C2B067', // Border color of the rectangle
+    borderColor: '#C2B067',
     borderWidth: 2,
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
     marginTop: 20,
     width: '100%',
-    backgroundColor: '#FFFFFF', // Set background color to white
+    backgroundColor: '#FFFFFF',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // Increase shadow offset
-    shadowOpacity: 0.3, // Increase shadow opacity
-    shadowRadius: 10, // Increase shadow radius
-    elevation: 8, // Increase elevation
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
   },
   profilePicture: {
     width: 100,
@@ -116,12 +158,12 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000', // Set text color to black
+    color: '#000',
     marginBottom: 5,
   },
   addressText: {
     fontSize: 16,
-    color: '#000', // Set text color to black
+    color: '#000',
     marginBottom: 10,
   },
   buttonContainer: {
@@ -131,7 +173,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   editButton: {
-    backgroundColor: '#eeba2b', // Set background color to #eeba2b
+    backgroundColor: '#eeba2b',
     borderRadius: 5,
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -139,7 +181,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editButtonText: {
-    color: '#FFFFFF', // Set text color to white
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 10,
@@ -147,21 +189,21 @@ const styles = StyleSheet.create({
   popularEventText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000', // Set text color to black
+    color: '#000',
     marginTop: 30,
     marginBottom: 20,
   },
   eventItem: {
-    backgroundColor: '#FFFFFF', // Set background color to white
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 10,
     marginRight: 10,
     width: 200,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 }, // Increase shadow offset
-    shadowOpacity: 0.3, // Increase shadow opacity
-    shadowRadius: 10, // Increase shadow radius
-    elevation: 8, // Increase elevation
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
   },
   image: {
     width: '100%',
@@ -170,7 +212,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: '#000', // Set text color to black
+    color: '#000',
     fontWeight: 'bold',
     marginTop: 10,
   },
@@ -187,7 +229,65 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   eventsListContainer: {
-    paddingBottom: 20, // Adjust this based on your needs
+    paddingBottom: 20,
+  },
+  paddingBottom: {
+    height: 60, // Set height for the bottom padding
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 10,
+  },
+  closeButtonText: {
+    color: '#000000',
+    fontSize: 25,
+    fontWeight: 'bold',
+    textAlign: 'right',
+    marginBottom: 20,
+  },
+  modalImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 10,
+    color: '#000',
+  },
+  modalDate: {
+    fontSize: 16,
+    color: '#2A93D5',
+  },
+  modalAddress: {
+    fontSize: 16,
+    color: '#2A93D5',
+    marginBottom: 10,
+  },
+  modalDetails: {
+    fontSize: 16,
+    color: '#000',
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
 

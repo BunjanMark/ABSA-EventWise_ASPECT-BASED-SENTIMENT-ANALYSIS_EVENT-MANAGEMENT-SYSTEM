@@ -11,6 +11,10 @@ const NotificationSP = () => {
   const [selectedTab, setSelectedTab] = useState('All');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [modalVisibleAccept, setModalVisibleAccept] = useState(false);
+  const [modalVisibleDecline, setModalVisibleDecline] = useState(false);
+
+  
 
   const notificationsData = {
     'This Week': [
@@ -113,10 +117,18 @@ const NotificationSP = () => {
               >
                 <Text style={styles.buttonText}>View Details</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.acceptButton}>
+              <TouchableOpacity style={styles.acceptButton}
+                onPress={() => {
+                  setSelectedEvent(notification);
+                  setModalVisibleAccept(true);
+                }}>
                 <Text style={styles.buttonText}>Accept</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.declineButton}>
+              <TouchableOpacity style={styles.declineButton}
+              onPress={() => {
+                  setSelectedEvent(notification);
+                  setModalVisibleDecline(true);
+                }}>
                 <Text style={styles.buttonText}>Decline</Text>
               </TouchableOpacity>
             </View>
@@ -164,16 +176,82 @@ const NotificationSP = () => {
       <View style={styles.modalContent}>
         {selectedEvent && (
           <View style={styles.modalDetails}>
-            <Image source={selectedEvent.image} style={styles.modalImage} />
+            <Ionicons
+              name="close"
+              size={24}
+              color="black"
+              style={styles.closeIcon}
+              onPress={() => setModalVisible(false)}
+            />
             <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
-            <Text style={styles.modalDate}>Date: {selectedEvent.date}</Text>
-            <Text style={styles.modalAddress}>Address: {selectedEvent.address}</Text>
-            <Text style={styles.modalDescription}>Detailed information about the event goes here.</Text>
+            <View style={styles.titleLine} />
+            <Text style={styles.modalDate}>Event Date: {selectedEvent.date}</Text>
+            <Image source={require('../assets/cover.png')} style={styles.modalImage} />
+            <Text style={styles.modalDescription}>
+              This event, hosted by {selectedEvent.name}, is expected to be a memorable occasion with various activities planned for all attendees. Join us for a day filled with joy and celebration.
+            </Text>
           </View>
         )}
       </View>
     </Modal>
   );
+  
+  const renderModalAccept = () => (
+    <Modal
+      transparent={true}
+      visible={modalVisibleAccept}
+      animationType="slide"
+      onRequestClose={() => setModalVisibleAccept(false)}
+    >
+      <TouchableWithoutFeedback onPress={() => setModalVisibleAccept(false)}>
+        <View style={styles.modalOverlay} />
+      </TouchableWithoutFeedback>
+      <View style={styles.modalContent}>
+        {selectedEvent && (
+          <View style={styles.modalDetails}>
+            <Ionicons
+              name="close"
+              size={24}
+              color="black"
+              style={styles.closeIcon}
+              onPress={() => setModalVisibleAccept(false)}
+            />
+            <Image source={require('../assets/popup-accept.png')} style={styles.modalImageAccept} />
+          </View>
+        )}
+      </View>
+    </Modal>
+  );
+  
+  const renderModalDecline = () => (
+    <Modal
+      transparent={true}
+      visible={modalVisibleDecline}
+      animationType="slide"
+      onRequestClose={() => setModalVisibleDecline(false)}
+    >
+      <TouchableWithoutFeedback onPress={() => setModalVisibleDecline(false)}>
+        <View style={styles.modalOverlay} />
+      </TouchableWithoutFeedback>
+      <View style={styles.modalContent}>
+        {selectedEvent && (
+          <View style={styles.modalDetails}>
+            <Ionicons
+              name="close"
+              size={24}
+              color="black"
+              style={styles.closeIcon}
+              onPress={() => setModalVisibleDecline(false)}
+            />
+            <Image source={require('../assets/popup-decline.png')} style={styles.modalImageAccept} />
+          </View>
+        )}
+      </View>
+    </Modal>
+  );
+  
+  
+  
 
   return (
     <LinearGradient
@@ -226,6 +304,8 @@ const NotificationSP = () => {
       </ScrollView>
 
       {renderModal()}
+      {renderModalAccept()}
+      {renderModalDecline()}
     </LinearGradient>
   );
 };
@@ -233,6 +313,12 @@ const NotificationSP = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  closeIcon: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 1, // Ensure it is above other elements
   },
   header: {
     flexDirection: 'row',
@@ -253,6 +339,7 @@ const styles = StyleSheet.create({
   tabsContainer: {
     flexDirection: 'row',
     marginVertical: 8,
+    marginLeft: 43,
   },
   tabsContentContainer: {
     flexDirection: 'row',
@@ -368,9 +455,13 @@ const styles = StyleSheet.create({
   },
   modalImage: {
     width: '100%',
-    height: 200,
+    height: '50%',
     borderRadius: 8,
     marginBottom: 16,
+  },
+  modalImageAccept: {
+    width: '100%',
+    borderRadius: 8,
   },
   modalTitle: {
     fontSize: 24,
@@ -391,7 +482,26 @@ const styles = StyleSheet.create({
   modalDescription: {
     fontSize: 14,
     color: 'black',
+  },closeButton: {
+    marginTop: 16,
+    backgroundColor: 'red',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignSelf: 'center',
   },
+  closeButtonText: {
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  titleLine: {
+    height: 2,
+    backgroundColor: '#FFC42B',
+    marginVertical: 8,
+    width: '100%',
+  },
+  
+  
 });
 
 export default NotificationSP;

@@ -1,29 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Modal, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-
-let inventoryData = [
-  { item: "Spoon", noOfItems: 20, noOfSortItems: 0, status: "" },
-  { item: "Fork", noOfItems: 40, noOfSortItems: 0, status: "" },
-  { item: "Glass", noOfItems: 16, noOfSortItems: 0, status: "" },
-  { item: "Plates", noOfItems: 50, noOfSortItems: 0, status: "" },
-  { item: "Mug", noOfItems: 35, noOfSortItems: 0, status: "" },
-  { item: "Knife", noOfItems: 45, noOfSortItems: 0, status: "" },
-];
-
-const getStatusStyle = (status) => {
-  switch (status) {
-    case "Complete":
-      return { color: "green" };
-    case "Missing":
-      return { color: "orange" };
-    case "Broken":
-      return { color: "red" };
-    default:
-      return { color: "black" }; // Changed to black
-  }
-};
 
 const EquipmentSP = () => {
   const navigation = useNavigation();
@@ -31,6 +9,24 @@ const EquipmentSP = () => {
   const [newItem, setNewItem] = useState("");
   const [newItemCount, setNewItemCount] = useState("");
   const [removeMode, setRemoveMode] = useState(false);
+  const [selectedStatusIndex, setSelectedStatusIndex] = useState(null);
+  const [inventoryData, setInventoryData] = useState([
+    { item: "Spoon", noOfItems: 20, noOfSortItems: 0, status: "" },
+    { item: "Fork", noOfItems: 40, noOfSortItems: 0, status: "" },
+    { item: "Glass", noOfItems: 16, noOfSortItems: 0, status: "" },
+    { item: "Plates", noOfItems: 50, noOfSortItems: 0, status: "" },
+    { item: "Mug", noOfItems: 35, noOfSortItems: 0, status: "" },
+    { item: "Knife", noOfItems: 45, noOfSortItems: 0, status: "" },
+  ]);
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Complete": return { color: "green" };
+      case "Missing": return { color: "orange" };
+      case "Broken": return { color: "red" };
+      default: return { color: "black" };
+    }
+  };
 
   const totalItems = inventoryData.reduce((sum, item) => sum + item.noOfItems, 0);
   const totalBroken = inventoryData.filter(item => item.status === "Broken").length;
@@ -38,7 +34,8 @@ const EquipmentSP = () => {
 
   const handleAddItem = () => {
     if (newItem && newItemCount) {
-      inventoryData.push({ item: newItem, noOfItems: parseInt(newItemCount), noOfSortItems: 0, status: "" });
+      const newInventory = [...inventoryData, { item: newItem, noOfItems: parseInt(newItemCount), noOfSortItems: 0, status: "" }];
+      setInventoryData(newInventory);
       setNewItem("");
       setNewItemCount("");
       setModalVisible(false);
@@ -46,17 +43,36 @@ const EquipmentSP = () => {
   };
 
   const handleRemoveItem = (index) => {
-    inventoryData.splice(index, 1);
-    setRemoveMode(false); // Exit remove mode after deletion
+    const newInventory = inventoryData.filter((_, i) => i !== index);
+    setInventoryData(newInventory);
+    setRemoveMode(false);
+  };
+
+  const handleSortItemsChange = (index, change) => {
+    const newInventory = [...inventoryData];
+    newInventory[index].noOfSortItems = Math.max(0, newInventory[index].noOfSortItems + change);
+    setInventoryData(newInventory);
+  };
+
+  const handleStatusChange = (index, status) => {
+    const newInventory = [...inventoryData];
+    newInventory[index].status = status;
+    setInventoryData(newInventory);
+    setSelectedStatusIndex(null);
+  };
+
+  const toggleDropdown = (index) => {
+    setSelectedStatusIndex(selectedStatusIndex === index ? null : index);
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollContainer}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerSection}>
-          <Text style={styles.headerText}>
-            Equipment
-          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('EventsSP')}>
+            <Ionicons name="arrow-back" size={24} color="#FFCE00" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Equipment</Text>
         </View>
         <View style={styles.table}>
           <View style={styles.tableHeader}>
@@ -74,10 +90,34 @@ const EquipmentSP = () => {
               )}
               <Text style={styles.tableRowText}>{item.item}</Text>
               <Text style={styles.tableRowText}>{item.noOfItems}</Text>
-              <Text style={styles.tableRowText}>{item.noOfSortItems}</Text>
-              <Text style={[styles.tableRowText, getStatusStyle(item.status)]}>
-                {item.status}
-              </Text>
+              <View style={styles.sortItemsContainer}>
+                <TouchableOpacity onPress={() => handleSortItemsChange(index, -1)}>
+                  <Ionicons name="remove-circle-outline" size={20} color="red" />
+                </TouchableOpacity>
+                <Text style={styles.sortItemsText}>{item.noOfSortItems}</Text>
+                <TouchableOpacity onPress={() => handleSortItemsChange(index, 1)}>
+                  <Ionicons name="add-circle-outline" size={20} color="green" />
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity onPress={() => toggleDropdown(index)} style={styles.statusContainer}>
+                <Text style={[styles.tableRowText, getStatusStyle(item.status)]}>
+                  {item.status || "Set Status"}
+                </Text>
+                <Ionicons name="chevron-down-outline" size={20} color="gray" />
+              </TouchableOpacity>
+              {selectedStatusIndex === index && (
+                <View style={styles.statusDropdown}>
+                  <TouchableOpacity onPress={() => handleStatusChange(index, "Complete")}>
+                    <Text style={{ color: 'green' }}>Complete</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleStatusChange(index, "Missing")}>
+                    <Text style={{ color: 'orange' }}>Missing</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleStatusChange(index, "Broken")}>
+                    <Text style={{ color: 'red' }}>Broken</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           ))}
           <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
@@ -94,6 +134,7 @@ const EquipmentSP = () => {
           <Text style={styles.summaryText}>Total Items Broken: {totalBroken}</Text>
           <Text style={styles.summaryText}>Total Items Missing: {totalMissing}</Text>
         </View>
+        <View style={{ height: 20 }} />
       </ScrollView>
       <Modal
         animationType="slide"
@@ -103,6 +144,9 @@ const EquipmentSP = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Ionicons name="close" size={24} color="black" />
+            </TouchableOpacity>
             <Text style={styles.modalText}>Name of Item</Text>
             <TextInput
               style={styles.input}
@@ -133,23 +177,28 @@ const EquipmentSP = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white', // Background color set to white
+    backgroundColor: 'white',
   },
   scrollContainer: {
     flex: 1,
     paddingHorizontal: 20,
   },
+  scrollContent: {
+    paddingBottom: 50,
+  },
   headerSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 10,
     padding: 20,
     backgroundColor: "transparent",
     borderRadius: 10,
-    alignItems: 'center', // Center the header text
   },
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#FFCE00", // Equipment text color
+    color: "#FFCE00",
+    marginLeft: 70,
   },
   table: {
     marginTop: 20,
@@ -161,11 +210,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#777",
   },
   tableHeaderText: {
-    color: "black", // Header text color
+    color: "black",
     flex: 1,
     textAlign: "center",
   },
@@ -176,87 +223,108 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   tableRowText: {
-    color: "black", // Row text color
     flex: 1,
     textAlign: "center",
+    color: "black",
+  },
+  sortItemsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
   },
   removeIcon: {
-    marginRight: 10,
-  },
-  summary: {
-    margin: 20,
-    padding: 10,
-    backgroundColor: "transparent",
-    borderRadius: 10,
-  },
-  summaryText: {
-    color: "black", // Summary text color
-    fontSize: 16,
-    marginVertical: 5,
+    marginRight: 5,
   },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    marginTop: 20,
-    backgroundColor: '#eeba2b', // Button color
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#28a745",
+    paddingVertical: 10,
     borderRadius: 5,
+    marginTop: 20,
   },
   addButtonText: {
-    color: 'white', // Button text color
-    fontSize: 16,
-    marginLeft: 5,
+    color: "white",
+    marginLeft: 10,
   },
   removeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    marginTop: 10,
-    backgroundColor: '#eeba2b', // Button color
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "red",
+    paddingVertical: 10,
     borderRadius: 5,
+    marginTop: 10,
   },
   removeButtonText: {
-    color: 'white', // Button text color
+    color: "white",
+    marginLeft: 10,
+  },
+  summary: {
+    marginTop: 20,
+  },
+  summaryText: {
     fontSize: 16,
-    marginLeft: 5,
+    marginBottom: 5,
+  },
+  statusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  statusDropdown: {
+    position: "absolute",
+    top: 40,
+    left: 250,
+    right: 0,
+    backgroundColor: "white",
+    borderRadius: 5,
+    padding: 10,
+    elevation: 5,
+    zIndex: 1,
+    width: "30%",
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalView: {
     width: 300,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
   modalText: {
-    fontSize: 16,
     marginBottom: 10,
-    color: 'black', // Modal text color
+    textAlign: "center",
   },
   input: {
-    width: '100%',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    marginBottom: 20,
-    fontSize: 16,
-    paddingHorizontal: 10,
-    color: 'black', // Input text color
+    width: "100%",
+    padding: 10,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    color: "black",
   },
   modalButton: {
+    backgroundColor: "#28a745",
     padding: 10,
-    backgroundColor: '#eeba2b',
     borderRadius: 5,
   },
   modalButtonText: {
-    color: 'white', // Button text color
-    fontSize: 16,
+    color: "white",
   },
 });
 

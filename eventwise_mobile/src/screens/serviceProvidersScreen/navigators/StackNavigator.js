@@ -5,11 +5,9 @@ import { createStackNavigator } from "@react-navigation/stack";
 import HomeSP from "../screens/HomeSP";
 
 // Schedule Stack imports
-import Schedule from "../screens/ScheduleSP3";
 
 import ProfileEditSP from "../screens/Drawer/ProfileEditSP";
 import AboutMeSP from "../screens/AboutMeSP";
-import ScheduleSP from "../screens/ScheduleSP3";
 import ProfileSwitchSP from "../screens/Drawer/ProfileSwitchSP";
 import MessageSP from "../screens/MessageSP";
 import NotificationSP from "../screens/NotificationSP";
@@ -24,6 +22,9 @@ import EditProfileSP from "../screens/EditProfileSP";
 import AddAnotherAccSP from "../screens/AddAcountSP";
 import SettingSP from "../screens/SettingsSP";
 import ServicePortfolioSP from "../screens/ServicePortfolioSP";
+import FeedbackSP from "../screens/FeedbackSP";
+import CustomHeader from "../screens/CustomHeaderSP";
+import SetSchedSP from "../screens/SetschedSP";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -49,6 +50,10 @@ const MainStackNavigator = () => {
       <Stack.Screen name="AddAnotherAccSP" component={AddAnotherAccSP} />
       <Stack.Screen name="SettingSP" component={SettingSP} />
       <Stack.Screen name="ServicePortfolioSP" component={ServicePortfolioSP} />
+      <Stack.Screen name="FeedbackSP" component={FeedbackSP} />
+      <Stack.Screen name="CustomHeader" component={CustomHeader}/>
+      <Stack.Screen name="EventsSP" component={EventsSP} />
+      <Stack.Screen name="SetSchedSP" component={SetSchedSP} />
     </Stack.Navigator>
   );
 };

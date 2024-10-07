@@ -99,6 +99,11 @@ const AuthenticationStack = () => {
         component={GuestIndex}
         options={{ headerShown: false }}
       />
+       <Stack.Screen
+        name="ServiceProviderStack"
+        component={ServiceProviderStack}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };

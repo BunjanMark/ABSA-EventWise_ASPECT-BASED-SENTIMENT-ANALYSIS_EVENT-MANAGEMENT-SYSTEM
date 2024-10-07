@@ -1,307 +1,485 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Alert, Image, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import moment from 'moment';
+import React, { useState, useEffect } from "react";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+  StyleSheet,
+} from "react-native";
+import { Calendar } from "react-native-calendars";
+import { useNavigation, useRoute } from '@react-navigation/native';
+import moment from "moment";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-const { width } = Dimensions.get('window');
-
-const eventsData = [
-  { id: '1', title: 'Mr. & Mrs. Malik Wedding', day: 'Mon', location: 'CDO', date: '2024-07-01', status: 'Ongoing' },
-  { id: '2', title: 'Elizabeth Birthday', day: 'Thu', location: 'CDO', date: '2024-08-12', status: 'Upcoming' },
-  { id: '3', title: 'Class of 1979 Reunion', day: 'Wed', location: 'CDO', date: '2024-09-25', status: 'Upcoming' },
-  { id: '4', title: 'Corporate Party', day: 'Tue', location: 'CDO', date: '2024-10-30', status: 'Upcoming' },
-  { id: '5', title: 'Annual Gala', day: 'Fri', location: 'CDO', date: '2024-11-15', status: 'Upcoming' },
-  { id: '6', title: 'New Year Celebration', day: 'Tue', location: 'CDO', date: '2024-12-31', status: 'Upcoming' },
-  { id: '7', title: 'Music Festival', day: 'Sat', location: 'CDO', date: '2024-06-22', status: 'Ongoing' },
-  { id: '8', title: 'Art Exhibition', day: 'Fri', location: 'CDO', date: '2024-07-05', status: 'Upcoming' },
-];
-
-const SchedSp = () => {
+export default function ScheduleApp() {
   const navigation = useNavigation();
-  const currentWeek = Array.from({ length: 7 }).map((_, index) => moment().startOf('week').add(index, 'days'));
-  const [isReminderSet, setIsReminderSet] = useState(false);
+  const route = useRoute();
 
-  const handleCreateSchedule = () => {
-    Alert.alert('Create Schedule', 'Functionality to create a new schedule.');
+  const [activeButton, setActiveButton] = useState(route.params?.activeButton || "calendar");
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventTypeVisible, setEventTypeVisible] = useState(false);
+  const [eventType, setEventType] = useState("");
+  const [eventVenue, setEventVenue] = useState("");
+  const [eventStartTime, setEventStartTime] = useState("");
+  const [eventEndTime, setEventEndTime] = useState("");
+
+  const schedules = {
+    "2024-09-21": [
+      {
+        time: "09:00 AM",
+        title: "Team Meeting",
+        description: "Discuss project status.",
+        timeline: [
+          { time: "09:00 AM", description: "Event Start" },
+          { time: "09:15 AM", description: "Introduction to the team" },
+          { time: "09:30 AM", description: "Updates from each member" },
+          { time: "10:00 AM", description: "Discussion on blockers" },
+          { time: "10:30 AM", description: "Wrap up and next steps" },
+        ],
+      },
+    ],
   };
 
-  const handleToggleReminder = () => {
-    setIsReminderSet((prevState) => !prevState);
+  const markedDates = Object.keys(schedules).reduce((acc, date) => {
+    acc[date] = { marked: true, dots: [{ color: "#eeba2b" }] };
+    return acc;
+  }, {});
+
+  const handleDayPress = (day) => {
+    setSelectedDate(day.dateString);
+    setModalVisible(false);
   };
+
+  const openModal = (event) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedEvent(null);
+  };
+
+  const toggleEventTypeOverlay = () => {
+    setEventTypeVisible(!eventTypeVisible);
+  };
+
+  const handleSave = () => {
+    if (!eventType || !selectedDate || !eventVenue || !eventStartTime || !eventEndTime) {
+      alert("Please fill in all fields");
+      return;
+    }
+    // Save logic here...
+  };
+
+  useEffect(() => {
+    if (route.params?.activeButton) {
+      setActiveButton(route.params.activeButton);
+    }
+  }, [route.params?.activeButton]);
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        {/* Week Section */}
-        <View style={styles.weekSection}>
-          <Text style={styles.weekText}>Calendar</Text>
-          <Text style={styles.dateText}>{moment().format('D-MMMM YYYY')}</Text>
-        </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.buttonContainer}>
+      <TouchableOpacity
+  style={[styles.iconButton, activeButton === "calendar" && styles.activeButton]}
+  onPress={() => {
+    setActiveButton("calendar");
+    navigation.navigate("ScheduleApp", { activeButton: "calendar" });
+  }}
+>
+  <Ionicons name="calendar-outline" size={24} color={activeButton === "calendar" ? "#fff" : "#888"} />
+</TouchableOpacity>
 
-        {/* Table */}
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            {currentWeek.map((day, index) => (
-              <View key={index} style={styles.tableHeaderItem}>
-                <Text style={styles.tableHeaderText}>{day.format('ddd')}</Text>
-                <Text style={styles.tableHeaderDate}>{day.format('D')}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.tableBody}>
-            {currentWeek.map((day, index) => (
-              <View key={index} style={styles.tableCell}>
-                {Math.random() > 0.5 && (
-                  <View style={styles.event}>
-                    <View style={styles.eventCircle} />
-                    <Text style={styles.eventText}>1-5pm</Text>
+<TouchableOpacity
+  style={[styles.iconButton, activeButton === "checklist" && styles.activeButton]}
+  onPress={() => {
+    setActiveButton("checklist");
+    navigation.navigate("ScheduleApp", { activeButton: "checklist" });
+  }}
+>
+  <Ionicons name="checkbox-outline" size={24} color={activeButton === "checklist" ? "#fff" : "#888"} />
+</TouchableOpacity>
+
+      </View>
+
+      {activeButton === "calendar" ? (
+        <>
+          <Calendar
+            markedDates={markedDates}
+            onDayPress={handleDayPress}
+            markingType="multi-dot"
+          />
+
+          <ScrollView style={styles.agendaContainer}>
+            {selectedDate && schedules[selectedDate] ? (
+              <>
+                <Text style={styles.agendaTitle}>
+                  Agenda for {moment(selectedDate).format("MMMM D, YYYY")}
+                </Text>
+                {schedules[selectedDate].map((event, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => openModal(event)}
+                    style={styles.eventContainer}
+                  >
+                    <Text style={styles.eventTime}>{event.time}</Text>
+                    <Text style={styles.eventTitle}>{event.title}</Text>
+                    <Text style={styles.eventDescription}>{event.description}</Text>
+                  </TouchableOpacity>
+                ))}
+              </>
+            ) : (
+              <Text style={styles.noEventsText}>
+                {selectedDate ? "No events for this date." : "Select a date to see the schedule."}
+              </Text>
+            )}
+          </ScrollView>
+
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={closeModal}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Time Frame</Text>
+                  <TouchableOpacity onPress={closeModal}>
+                    <Text style={styles.closeButton}>X</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.modalDate}>
+                  {moment(selectedDate).format("MMMM D, YYYY")}
+                </Text>
+                <Text style={styles.modalTime}>{selectedEvent?.time}</Text>
+                <View style={styles.horizontalDivider} />
+                <View style={styles.modalBody}>
+                  <View style={styles.timeContainer}>
+                    {selectedEvent?.timeline.map((timeEvent, index) => (
+                      <View key={index} style={styles.timeEntry}>
+                        <Text style={styles.eventTime}>{timeEvent.time}</Text>
+                        <View style={styles.circleContainer}>
+                          <View style={styles.topLine} />
+                          <View style={styles.circle} />
+                          <View style={styles.bottomLine} />
+                        </View>
+                        <View style={styles.timeDetails}>
+                          <Text style={styles.modalDescription}>
+                            {timeEvent.description}
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
                   </View>
-                )}
+                </View>
               </View>
-            ))}
-          </View>
-        </View>
-
-        {/* My Schedule Section */}
-        <View style={styles.allContainer}>
-          <View style={styles.scheduleContainer}>
-            <View style={styles.scheduleHeader}>
-              <Text style={styles.scheduleTitle}>My Schedule</Text>
-              <TouchableOpacity style={styles.categoryButton}>
-                <Text style={styles.categoryButtonText}>Category</Text>
-                <Ionicons name="chevron-down" size={16} color="black" />
-              </TouchableOpacity>
             </View>
-            {eventsData.map((event) => (
-              <View key={event.id} style={styles.eventDateTextContainer}>
-                <View style={styles.eventDateTextInnerContainer}>
-                  <Text style={styles.eventDateText}>{moment(event.date).format('D MMM YYYY')}</Text>
-                  <Text style={styles.ongoingEventText}>{event.status}</Text>
-                </View>
-                <View style={styles.scheduleContent}>
-                  <View style={styles.dayCircle}>
-                    <Text style={styles.dayText}>{event.day}</Text>
-                  </View>
-                  <View style={styles.eventDetailsWrapper}>
-                    <View style={styles.eventDetailsContainer}>
-                      <View style={styles.eventDetails}>
-                        <Text style={styles.eventTitle}>{event.title}</Text>
-                        <View style={styles.eventLocation}>
-                          <Ionicons name="location-outline" size={16} color="black" />
-                          <Text style={styles.eventLocationText}>{event.location}</Text>
-                        </View>
-                        <View style={styles.profilePictures}>
-                          {Array.from({ length: 5 }).map((_, index) => (
-                            <Image
-                              key={index}
-                              source={require('../assets/pro_pic.png')} // Updated to use pro_pic.png
-                              style={[styles.profilePicture, { left: index * 15 }]}
-                            />
-                          ))}
-                        </View>
-                      </View>
-                      <View style={styles.reminderContainer}>
-                        <Text style={styles.reminderText}>Set reminder</Text>
-                        <TouchableOpacity onPress={handleToggleReminder}>
-                          <Ionicons
-                            name={isReminderSet ? 'toggle-sharp' : 'toggle-outline'}
-                            size={24}
-                            color={isReminderSet ? '#FFC42B' : 'gray'}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            ))}
+          </Modal>
+        </>
+      ) : (
+        <View style={styles.formContainer}>
+          <TextInput style={styles.inputField} placeholder="Enter Your Name" />
+          <View style={styles.dateContainer}>
+            <TextInput 
+              style={styles.inputFielddate}   
+              placeholder="Enter Date" 
+              value={selectedDate ? moment(selectedDate).format("MMMM D, YYYY") : ""}
+              editable={false}
+              
+            />
+            <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.calendarIconContainer}>
+              <Ionicons name="calendar-outline" size={24} color="#888" />
+            </TouchableOpacity>
           </View>
-        </View>
-      </ScrollView>
-    </View>
-  );
-};
+          <TouchableOpacity style={styles.dropdownField} onPress={toggleEventTypeOverlay}>
+  <Text style={styles.dropdownText}>{eventType || "Choose Event Type"}</Text>
+  <Ionicons name="caret-down" size={16} style={styles.iconRight} />
+</TouchableOpacity>
+{eventTypeVisible && (
+  <ScrollView style={styles.eventTypeDropdown}>
+    {["Wedding", "Birthday", "Meeting", "Party"].map((type) => (
+      <TouchableOpacity
+        key={type}
+        onPress={() => {
+          setEventType(type);
+          setEventTypeVisible(false);
+        }}
+        style={styles.eventTypeOption}
+      >
+        <Text style={styles.eventTypeText}>{type}</Text>
+      </TouchableOpacity>
+    ))}
+  </ScrollView>
+)}
 
+
+          <TextInput style={styles.inputField} placeholder="Enter Event Venue" value={eventVenue} onChangeText={setEventVenue} />
+          <TextInput style={styles.inputField} placeholder="Enter Event Start Time" value={eventStartTime} onChangeText={setEventStartTime} />
+          <TextInput style={styles.inputField} placeholder="Enter Event End Time" value={eventEndTime} onChangeText={setEventEndTime} />
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+
+          {/* Calendar Modal for Date Selection */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Calendar
+                  onDayPress={handleDayPress}
+                  markedDates={markedDates}
+                />
+                <TouchableOpacity style={styles.closeCalendarButton} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.closeCalendarText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </View>
+      )}
+    </SafeAreaView>
+  );
+}
+
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // White background
+    backgroundColor: "#fff",
   },
-  scrollContainer: {
-    padding: 20,
+  checklistButton: {
+    left: 50, // Adjust to position overlap
   },
-  weekSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 10,
   },
-  weekText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  dateText: {
-    fontSize: 16,
-    color: 'black',
-  },
-  table: {
-    marginTop: 20,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  tableHeaderItem: {
-    alignItems: 'center',
-  },
-  tableHeaderText: {
-    color: 'black',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  tableHeaderDate: {
-    color: 'black',
-    fontSize: 14,
-  },
-  tableBody: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  tableCell: {
-    width: width / 7,
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  event: {
-    backgroundColor: '#FFC42B',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  eventCircle: {
-    backgroundColor: '#FFF',
-    width: 15,
-    height: 15,
-    borderRadius: 7.5,
-    marginBottom: 5,
-  },
-  eventText: {
-    color: 'black',
-    fontSize: 12,
-  },
-  scheduleContainer: {
-    marginTop: 20,
-  },
-  scheduleHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  scheduleTitle: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    color: 'black',
-    marginBottom: 10,
-  },
-  categoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFC42B',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-  },
-  categoryButtonText: {
-    fontSize: 16,
-    color: 'black',
-  },
-  eventDateTextContainer: {
-    marginBottom: 20,
-  },
-  eventDateTextInnerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  eventDateText: {
-    color: 'black',
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  ongoingEventText: {
-    color: 'black',
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  scheduleContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dayCircle: {
-    backgroundColor: '#FFC42B',
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  dayText: {
-    color: 'black',
-    fontSize: 20,
-  },
-  eventDetailsWrapper: {
-    flex: 1,
-  },
-  eventDetailsContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
+  iconButton: {
+    width: 100,
     padding: 10,
-    borderColor: '#E5E5E5',
-    borderWidth: 1,
+    alignItems: "center",
+    borderRadius: 50,
+    backgroundColor: "#e0e0e0",
+    marginHorizontal: -15,
   },
-  eventDetails: {
+  activeButton: {
+    backgroundColor: "#EEBA2B",
+  },
+  agendaContainer: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  agendaTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
     marginBottom: 10,
+  },
+  eventContainer: {
+    backgroundColor: "#f9f9f9",
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 5,
+  },
+  eventTime: {
+    fontWeight: "bold",
+    fontSize: 16,
   },
   eventTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  eventLocation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  eventLocationText: {
-    color: 'black',
     fontSize: 14,
-    marginLeft: 5,
+    color: "#333",
   },
-  profilePictures: {
-    flexDirection: 'row',
+  eventDescription: {
+    fontSize: 12,
+    color: "#666",
+  },
+  noEventsText: {
+    fontSize: 16,
+    color: "#888",
+    textAlign: "center",
+  },
+  inputFielddate : {
+    marginLeft: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    fontSize: 20,
+    color: "#EEBA2B",
+  },
+  modalDate: {
+    fontSize: 16,
+    marginVertical: 10,
+  },
+  modalTime: {
+    fontSize: 16,
+    fontWeight: "bold",
     marginBottom: 10,
   },
-  profilePicture: {
+  horizontalDivider: {
+    height: 1,
+    backgroundColor: "#eee",
+    marginVertical: 10,
+  },
+  modalBody: {
+    marginTop: 10,
+  },
+  timeContainer: {
+    marginTop: 10,
+  },
+  timeEntry: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  circleContainer: {
+    alignItems: "center",
     width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginRight: -10,
   },
-  reminderContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  circle: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#EEBA2B",
   },
-  reminderText: {
-    color: 'black',
+  topLine: {
+    height: 20,
+    width: 2,
+    backgroundColor: "#EEBA2B",
+  },
+  bottomLine: {
+    height: 20,
+    width: 2,
+    backgroundColor: "#EEBA2B",
+  },
+  timeDetails: {
+    marginLeft: 10,
+    flex: 1,
+  },
+  modalDescription: {
     fontSize: 14,
+    color: "#555",
+  },
+  formContainer: {
+    padding: 20,
+  },
+  inputField: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+    height: 50, // Equal height for all text fields
+    
+  },
+  dateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    marginBottom: 15,
+    height: 50,
+  },
+  calendarIconContainer: {
+    position: "absolute",
+    right: 10,
+    padding: 10,
+  },
+  dropdownField: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+    height: 50,
+    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  dropdownText: {
+    color: "#999",
+  },
+  iconRight: {
+    marginLeft: 10,
+  },
+  eventTypeDropdown: {
+    position: "absolute", // Keep it absolutely positioned
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    width: "100%",
+    maxHeight: 150,
+    zIndex: 100,
+    marginTop: 5, // Ensure it's slightly below the text field
+    elevation: 5,
+    top: 200, // Adjust this to be the height of your text input to position below it
+    right: 20,
+  },
+  
+  
+  
+
+  eventTypeOption: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  eventTypeText: {
+    color: "#333",
+  },
+  saveButton: {
+    backgroundColor: "#EEBA2B",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  closeCalendarButton: {
+    marginTop: 10,
+    padding: 10,
+    alignItems: "center",
+    backgroundColor: "#EEBA2B",
+    borderRadius: 5,
+  },
+  closeCalendarText: {
+    color: "#fff",
   },
 });
-
-export default SchedSp;

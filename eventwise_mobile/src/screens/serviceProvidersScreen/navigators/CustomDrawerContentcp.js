@@ -42,7 +42,7 @@ const CustomDrawerContent = (props) => {
               color={color}
             />
           )}
-          onPress={() => props.navigation.navigate("EventDetailsSP")}
+          onPress={() => props.navigation.navigate("EventsSP")}
         />
 
         {/* About Drawer Item */}

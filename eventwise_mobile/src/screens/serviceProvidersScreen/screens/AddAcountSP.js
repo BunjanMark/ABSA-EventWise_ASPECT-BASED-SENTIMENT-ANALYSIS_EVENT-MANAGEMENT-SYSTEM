@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   bigRectangle: {
-    backgroundColor: 'grey',
+    backgroundColor: '#F9EDC6',
     borderRadius: 10,
     padding: 20,
     shadowColor: '#000000', // Shadow color
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   roleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2A2600',
+    backgroundColor: '#C2B067',
     borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 15,
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    borderColor: '#B0B0B0',
+    borderColor: 'black',
     borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',

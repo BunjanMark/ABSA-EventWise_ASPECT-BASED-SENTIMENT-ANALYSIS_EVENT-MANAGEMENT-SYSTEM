@@ -5,109 +5,87 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  Image,
-  TextInput,
+  Switch,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Picker } from '@react-native-picker/picker';
 
 const SettingSP = () => {
-  const navigation = useNavigation();
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-
-  const handleSubmit = () => {
-    // Handle Submit button press
-    console.log('Submit button pressed');
-    // Add logic for form submission
-  };
-
-  const handleCreatePortfolio = () => {
-    // Handle Create New Service Portfolio button press
-    console.log('Create New Service Portfolio button pressed');
-    // Add navigation or logic for creating a new service portfolio
-  };
+  const [language, setLanguage] = useState('en');
+  const [timeZone, setTimeZone] = useState('GMT');
+  const [dateFormat, setDateFormat] = useState('MM/DD/YYYY');
+  const [darkMode, setDarkMode] = useState(false);
+  const [useDeviceSettings, setUseDeviceSettings] = useState(false);
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollViewContent}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <View style={styles.container}>
-
         <Text style={styles.headerText}>Settings</Text>
-        <View style={styles.profileContainer}>
-          <Image
-            source={require('../assets/pro_pic.png')}
-            style={styles.profileImage}
-          />
-          <View style={styles.profileTextContainer}>
-            <Text style={styles.profileName}>John Doe</Text>
-            <Text style={styles.profileEmail}>johndoe@example.com</Text>
-          </View>
+
+        {/* Language Picker */}
+        <View style={styles.settingOption}>
+          <Text style={styles.optionLabel}>Language</Text>
+          <Picker
+            selectedValue={language}
+            style={styles.picker}
+            onValueChange={(itemValue) => setLanguage(itemValue)}
+          >
+            <Picker.Item label="English" value="en" />
+            <Picker.Item label="Spanish" value="es" />
+            <Picker.Item label="French" value="fr" />
+            <Picker.Item label="German" value="de" />
+          </Picker>
         </View>
-        {/* Fading Line */}
-        <LinearGradient
-          colors={['#00000000', '#000000', '#00000000']} // Black fading effect
-          start={{ x: 0, y: 0.5 }} // Horizontal gradient
-          end={{ x: 1, y: 0.5 }}   // Horizontal gradient
-          style={styles.line}
-        />
 
-        {/* Settings Options */}
-        <Text style={styles.settingText}>Account Details</Text>
-
-        <View style={styles.content}>
-          <Text style={styles.settingsText}>Edit Email</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Enter your Email"
-            placeholderTextColor="#B0B0B0"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <Text style={styles.settingsText}>Username</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Enter your Username"
-            placeholderTextColor="#B0B0B0"
-            value={username}
-            onChangeText={setUsername}
-          />
-          <Text style={styles.settingsText}>Change Password</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Enter new Password"
-            placeholderTextColor="#B0B0B0"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-          <Text style={styles.settingsText}>Contact Number</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Enter your Contact Number"
-            placeholderTextColor="#B0B0B0"
-            value={contactNumber}
-            onChangeText={setContactNumber}
-          />
-
-          <TouchableOpacity
-            style={[styles.button, styles.submitButton]}
-            onPress={handleSubmit}
+        {/* Time Zone Picker */}
+        <View style={styles.settingOption}>
+          <Text style={styles.optionLabel}>Time Zone</Text>
+          <Picker
+            selectedValue={timeZone}
+            style={styles.picker}
+            onValueChange={(itemValue) => setTimeZone(itemValue)}
           >
-            <Text style={styles.buttonText}>Submit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.createPortfolioButton}
-            onPress={() => navigation.navigate('ServicePortfolioSP')}
+            <Picker.Item label="GMT" value="GMT" />
+            <Picker.Item label="EST" value="EST" />
+            <Picker.Item label="CST" value="CST" />
+            <Picker.Item label="PST" value="PST" />
+          </Picker>
+        </View>
+
+        {/* Date Format Picker */}
+        <View style={styles.settingOption}>
+          <Text style={styles.optionLabel}>Date Format</Text>
+          <Picker
+            selectedValue={dateFormat}
+            style={styles.picker}
+            onValueChange={(itemValue) => setDateFormat(itemValue)}
           >
-            <Ionicons name="add" size={24} color="white" style={styles.icon} />
-            <Text style={styles.createPortfolioText}>Create New Service Portfolio</Text>
-          </TouchableOpacity>
+            <Picker.Item label="MM/DD/YYYY" value="MM/DD/YYYY" />
+            <Picker.Item label="DD/MM/YYYY" value="DD/MM/YYYY" />
+            <Picker.Item label="YYYY/MM/DD" value="YYYY/MM/DD" />
+          </Picker>
+        </View>
+
+        {/* Fading Separation Line */}
+        <View style={styles.lineContainer}>
+          <View style={styles.separationLine} />
+        </View>
+
+        {/* Dark Mode Toggle */}
+        <View style={styles.settingOption}>
+          <Text style={styles.optionLabel}>Dark Mode</Text>
+          <Switch
+            value={darkMode}
+            onValueChange={() => setDarkMode((prev) => !prev)}
+          />
+        </View>
+
+        {/* Use Device Settings Toggle */}
+        <View style={styles.settingOption}>
+          <Text style={styles.optionLabel}>Use Device Settings</Text>
+          <Switch
+            value={useDeviceSettings}
+            onValueChange={() => setUseDeviceSettings((prev) => !prev)}
+          />
         </View>
       </View>
     </ScrollView>
@@ -116,9 +94,9 @@ const SettingSP = () => {
 
 const styles = StyleSheet.create({
   scrollViewContent: {
-    flexGrow: 1, // Make ScrollView grow to fill available space
+    flexGrow: 1,
     padding: 20,
-    backgroundColor: '#FFFFFF', // White background
+    backgroundColor: '#FFFFFF',
   },
   container: {
     flex: 1,
@@ -127,95 +105,35 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#eeba2b', // Black text color
+    color: '#eeba2b',
     textAlign: 'center',
+    marginBottom: 20,
   },
-  line: {
-    width: '100%',
-    height: 2,
-    marginVertical: 20,
+  settingOption: {
+    marginBottom: 30,
   },
-  content: {
-    flex: 1,
-    paddingBottom: 100,
-  },
-  settingsText: {
-    fontSize: 15,
-    color: '#000000', // Black text color
-    marginVertical: 10,
-  },
-  settingText: {
-    fontSize: 20,
-    color: '#000000', // Black text color
-    marginVertical: 10,
-  },
-  textInput: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    height: 50,
-    color: '#000000',
-    fontSize: 16,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#B0B0B0',
-    shadowColor: '#000000', // Box shadow color
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2, // Android shadow
-  },
-  profileContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    backgroundColor: 'transparent',
-    borderRadius: 10,
-  },
-  profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-  },
-  profileTextContainer: {
-    marginLeft: 15,
-  },
-  profileName: {
+  optionLabel: {
     fontSize: 18,
-    color: '#000000', // Black text color
-    fontWeight: 'bold',
+    fontWeight: '500',
+    marginBottom: 10,
+    color: '#000',
   },
-  profileEmail: {
-    fontSize: 14,
-    color: '#000000', // Black text color
-  },
-  submitButton: {
-    backgroundColor: '#FFC42B',
-    paddingVertical: 15,
-    alignItems: 'center',
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  createPortfolioButton: {
-    backgroundColor: '#FFC42B',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 15,
+  picker: {
+    height: 50,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#C2B067',
+    backgroundColor: 'rgba(194, 176, 103, 0.17)', // 17% transparency
     borderRadius: 10,
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+  lineContainer: {
+    marginVertical: 20,
+    alignItems: "center",
   },
-  createPortfolioText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 10,
+  separationLine: {
+    height: 1,
+    width: "100%",
+    backgroundColor: "black", // Black color for separation line
   },
 });
 

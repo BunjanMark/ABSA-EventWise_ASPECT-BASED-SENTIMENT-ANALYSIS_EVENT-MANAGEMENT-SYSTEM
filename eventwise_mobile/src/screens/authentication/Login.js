@@ -60,36 +60,38 @@ const Login = ({ navigation }) => {
     }
   };
   const handleLogin = async () => {
-    try {
-      setLoading(!loading);
+    // try {
+    //   setLoading(!loading);
 
-      if (username === "" || password === "") {
-        showToast("Please input required data");
-        setIsError(true);
-        return false;
-      }
+    //   if (username === "" || password === "") {
+    //     showToast("Please input required data");
+    //     setIsError(true);
+    //     return false;
+    //   }
 
-      const result = await signIn(username, password);
-      // showToast(result?.message);
-      showToast(result?.message);
+    //   const result = await signIn(username, password);
+    //   // showToast(result?.message);
+    //   showToast(result?.message);
 
-      const user = await getUser();
-      console.log(user);
+    //   const user = await getUser();
+    //   console.log(user);
 
-      // Navigate vased on user's role
-      navigateBasedOnRole(user.role_id);
+    //   // Navigate vased on user's role
+    //   navigateBasedOnRole(user.role_id);
 
-      if (result.message != null) {
-        showToast(result?.message);
-      } else {
-        navigator.navigate("Tabs");
-      }
-    } catch (e) {
-      console.error("Login error:", error);
-      showToast("An error occurred during login.");
-    } finally {
-      setLoading(false);
-    }
+    //   if (result.message != null) {
+    //     showToast(result?.message);
+    //   } else {
+    //     navigator.navigate("Tabs");
+    //   }
+    // } catch (e) {
+    //   console.error("Login error:", error);
+    //   showToast("An error occurred during login.");
+    // } finally {
+    //   setLoading(false);
+    // }
+    navigator.navigate("ServiceProviderStack");
+   
   };
 
   const toggleSecureEntry = () => {

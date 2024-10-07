@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-// Removed LinearGradient import
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 const inventoryData = [
@@ -21,12 +21,12 @@ const getStatusStyle = (status) => {
     case "Broken":
       return { color: "red" };
     default:
-      return { color: "black" }; // Default color for text
+      return { color: "black" };
   }
 };
 
 const InventorySP = () => {
-  const navigation = useNavigation(); // Hook to use navigation
+  const navigation = useNavigation();
 
   const totalItems = inventoryData.reduce((sum, item) => sum + item.noOfItems, 0);
   const totalBroken = inventoryData.filter(item => item.status === "Broken").length;
@@ -36,6 +36,10 @@ const InventorySP = () => {
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.headerSection}>
+        <TouchableOpacity onPress={() => navigation.navigate('EventsSP')}>
+  <Ionicons name="arrow-back" size={24} color="#FFCE00" />
+</TouchableOpacity>
+
           <Text style={styles.headerText}>
             <Text style={styles.headerHighlight}>Inventory</Text> Tracker
           </Text>
@@ -71,7 +75,7 @@ const InventorySP = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white', // Set background color to white
+    backgroundColor: 'white',
   },
   scrollContainer: {
     flex: 1,
@@ -80,12 +84,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 20,
     borderRadius: 10,
-    alignItems: 'center', // Center the header text
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#eeba2b", // Header text color
+    color: "#eeba2b",
+    textAlign: 'center',
+    flex: 1,
   },
   headerHighlight: {
     color: "#eeba2b",
@@ -100,11 +107,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#777",
   },
   tableHeaderText: {
-    color: "black", // Header text color
+    color: "black",
     flex: 1,
     textAlign: "center",
   },
@@ -114,7 +119,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   tableRowText: {
-    color: "black", // Row text color
+    color: "black",
     flex: 1,
     textAlign: "center",
   },
@@ -124,7 +129,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   summaryText: {
-    color: "black", // Summary text color
+    color: "black",
     fontSize: 16,
     marginVertical: 5,
   },
