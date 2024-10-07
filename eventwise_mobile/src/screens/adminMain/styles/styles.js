@@ -1,5 +1,6 @@
-import { StyleSheet } from "react-native";
+import { StatusBar, StyleSheet } from "react-native";
 import { Platform } from "react-native";
+
 const styles = StyleSheet.create({
   // SIDEBAR
   screen: {
@@ -60,7 +61,10 @@ const styles = StyleSheet.create({
     marginRight: "auto",
     width: 100,
   },
+  // Add photo
+
   //   admin drawer content
+
   drawerContent: {
     flex: 1,
   },
@@ -92,7 +96,72 @@ const styles = StyleSheet.create({
     // borderBottomColor: "#ccc",
   },
 
+  // card
+  totalGuestsCard: {
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    marginBottom: 10,
+  },
+  totalGuestsText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
   // Event Packages
+
+  // Input styles
+  profileHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F9EDC6",
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginRight: 15,
+  },
+  profileInfo: {
+    justifyContent: "center",
+  },
+  profileName: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: "gray",
+  },
+  accountDetails: {
+    marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 5,
+  },
+  buttonContainer: {
+    marginTop: 30,
+    alignItems: "center",
+  },
   // NAV BAR STYLE
 
   bottomNav: {
@@ -135,13 +204,17 @@ const styles = StyleSheet.create({
   // header style
   // For header
   headerContainer: {
-    height: 100,
+    display: "flex",
+    // flex: 1,
+    height: 80,
+    // paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0, // Handle status bar overlap on Android
     backgroundColor: "#fff",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 35,
     elevation: 4,
+    // backgroundColor: "red",
   },
   titleText: {
     fontSize: 20,
@@ -155,7 +228,14 @@ const styles = StyleSheet.create({
   headerButton: {
     marginLeft: 20,
   },
-
+  // scrollview bottom padding
+  scrollViewContentFeedback: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 20,
+    paddingBottom: 100,
+    // backgroundColor: "red",
+  },
   // Home container style (calendar)
   container: {
     flex: 1,
@@ -281,7 +361,27 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 5,
     backgroundColor: "#f1f1f1",
-    borderRadius: 5,
+    borderRadius: 13,
+  },
+  noEventContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  noEventText: {
+    fontSize: 18,
+    color: "white",
+  },
+
+  EventPackageOrEventCard: {
+    backgroundColor: "#FFC42B",
+    height: 100,
+    width: 100,
+    marginHorizontal: 10,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
   },
   // eventTitle: {
   //   fontSize: 16,
@@ -637,6 +737,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  InputmodalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: 20,
+  },
+  Inputheader: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  inputStyle: {
+    width: "80%",
+    padding: 10,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -682,6 +801,22 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
 
+  // badge
+  badgeContainer: {
+    // position: "absolute",
+    right: 60,
+    bottom: 10,
+  },
+  badge: {
+    backgroundColor: "rgba(250,54,54,1)",
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    color: "#fff",
+    fontSize: 12,
+  },
   // EventFeedbackAnalysis EventFeedbackSenmtiment
 
   feedbackContainer: {
@@ -690,11 +825,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingTop: 10,
   },
-  feedbackMainContainer: {
+
+  feedbackSubContainer: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  feedbackMainContainer: {
+    flexDirection: "column",
     backgroundColor: "rgba(255,252,221,99)",
     borderRadius: 10,
     shadowColor: "#000",
@@ -762,14 +901,6 @@ const styles = StyleSheet.create({
     marginVertical: 2.3,
     gap: 15,
   },
-  // scrollViewContent: {
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  // },
-  // text: {
-  //   fontSize: 16,
-  //   marginVertical: 10,
-  // },
 });
 
 export default styles;

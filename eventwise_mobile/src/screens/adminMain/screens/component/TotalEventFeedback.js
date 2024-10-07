@@ -1,49 +1,47 @@
-import React, { useState } from "react";
-import { View, Text, SafeAreaView, Pressable, Modal } from "react-native";
-import PieChart from "react-native-pie-chart";
-import styles from "../../styles/styles"; // Ensure path is correct
+import React from "react";
+import { View, Text, StyleSheet, SafeAreaView, Pressable } from "react-native";
+import styles from "../../styles/styles";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
+import PieChart from "react-native-pie-chart";
+import useStore from "../../../../stateManagement/useStore";
+import { useState } from "react";
+import { Modal } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-const EventFeedbackSentiment = ({
-  eventId,
-  title,
-  eventName,
-  feedbackData,
-
-  sliceColor,
-}) => {
+const TotalEventFeedback = ({ eventData, sliceColor }) => {
+  // Initialize counters
   const navigation = useNavigation();
-  const handleGoToButtonPress = () => {
-    navigation.push("FeedbackEventDetails", { eventId });
-    // FeedbackEventDetails
+  const totalEvents = eventData.length;
+  const feedbackCount = {
+    positive: 0,
+    negative: 0,
+    neutral: 0,
   };
-
-  const widthAndHeight = 160;
   const [modalVisiblePositive, setModalVisiblePositive] = useState(false);
   const [modalVisibleNegative, setModalVisibleNegative] = useState(false);
   const [modalVisibleNeutral, setModalVisibleNeutral] = useState(false);
-  // Extract positive, negative, and neutral counts from feedbackData
-
-  const classifiedFeedbackData = {
-    positive: feedbackData.filter(
-      (feedback) => feedback.sentiment === "positive"
-    ),
-    negative: feedbackData.filter(
-      (feedback) => feedback.sentiment === "negative"
-    ),
-    neutral: feedbackData.filter(
-      (feedback) => feedback.sentiment === "neutral"
-    ),
+  // Process all feedback data across events
+  eventData.forEach((event) => {
+    event.feedbackData.forEach((feedback) => {
+      // Tally feedback based on sentiment
+      if (feedback.sentiment in feedbackCount) {
+        feedbackCount[feedback.sentiment]++;
+      } else {
+        feedbackCount[feedback.sentiment] = 1;
+      }
+    });
+  });
+  const handleGoToButtonPress = () => {
+    console.log("Go to FeedbackAdmin");
+    navigation.navigate("Feedback");
+    // FeedbackEventDetails
   };
-  const positiveCount = classifiedFeedbackData.positive.length;
-  const negativeCount = classifiedFeedbackData.negative.length;
-  const neutralCount = classifiedFeedbackData.neutral.length;
-  const series = [negativeCount, positiveCount, neutralCount];
-
   return (
-    <SafeAreaView>
+    <SafeAreaView style={[styles.container]}>
+      {/* <View style={[styles.header, {}]}>
+        <Text style={styles.title}>Feedback Summary</Text>
+      </View> */}
       <View style={[styles.feedbackMainContainer]}>
         <View
           style={[
@@ -73,40 +71,67 @@ const EventFeedbackSentiment = ({
                 width: "100%",
 
                 marginBottom: -5,
+                fontSize: 20,
+                fontWeight: "500",
+                color: "black",
               },
             ]}
             lineBreakMode="tail"
             numberOfLines={1}
           >
-            {eventName} Total Feedback
+            Total Feedback Summary
           </Text>
           <TouchableOpacity onPress={handleGoToButtonPress}>
             <Text style={styles.subtitle}>go to</Text>
             <AntDesign name="swapright" size={24} color="black" />
           </TouchableOpacity>
         </View>
-        <View style={styles.feedbackSubContainer}>
-          <View style={styles.sentimentBlock}>
+        <View
+          style={[
+            styles.feedbackContainer,
+            {
+              flex: 1,
+              display: "flex",
+              flexDirection: "row",
+              gap: 7,
+            },
+          ]}
+        >
+          <View style={[styles.sentimentBlock, {}]}>
             <PieChart
-              widthAndHeight={widthAndHeight}
-              series={series}
+              widthAndHeight={160}
+              series={[
+                feedbackCount.negative,
+                feedbackCount.positive,
+                feedbackCount.neutral,
+              ]}
               sliceColor={sliceColor}
               coverRadius={0.6}
             />
           </View>
-          <View style={styles.sentimentBlock}>
-            <View style={[styles.sentimentList, { marginBottom: 15 }]}>
-              <Text style={{ fontSize: 12, fontWeight: "500" }}>
-                Total feedbacks:
+          <View style={[styles.sentimentBlock, {}]}>
+            <View
+              style={[
+                styles.sentimentList,
+                {
+                  marginBottom: 30,
+                  flexDirection: "column",
+
+                  alignItems: "flex-start",
+                  // backgroundColor: "white",
+                },
+              ]}
+            >
+              <Text style={{ fontSize: 15, fontWeight: "500" }}>
+                Total Events: {totalEvents}
               </Text>
-              <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-                {/* {series.reduce((a, b) => a + b, 0)}
-                 */}
-                {feedbackData.length}
+              <Text style={{ fontSize: 15, fontWeight: "500" }}>
+                Total feedbacks:
+                {feedbackCount.positive +
+                  feedbackCount.negative +
+                  feedbackCount.neutral}
               </Text>
             </View>
-
-            {/* Modal Trigger Buttons */}
             <View>
               <View style={styles.sentimentList}>
                 <Pressable
@@ -129,7 +154,7 @@ const EventFeedbackSentiment = ({
                   <View style={styles.modalOverlay}>
                     <View style={styles.modalView}>
                       <Text style={styles.modalText}>
-                        Number of Positive feedbacks: {positiveCount}
+                        Number of Positive feedbacks: {feedbackCount.positive}
                       </Text>
                       <Pressable
                         style={[styles.button, styles.buttonClose]}
@@ -163,7 +188,7 @@ const EventFeedbackSentiment = ({
                   <View style={styles.modalOverlay}>
                     <View style={styles.modalView}>
                       <Text style={styles.modalText}>
-                        Number of Negative feedbacks: {negativeCount}
+                        Number of Negative feedbacks: {feedbackCount.negative}
                       </Text>
                       <Pressable
                         style={[styles.button, styles.buttonClose]}
@@ -197,7 +222,7 @@ const EventFeedbackSentiment = ({
                   <View style={styles.modalOverlay}>
                     <View style={styles.modalView}>
                       <Text style={styles.modalText}>
-                        Number of Neutral feedbacks: {neutralCount}
+                        Number of Neutral feedbacks: {feedbackCount.neutral}
                       </Text>
                       <Pressable
                         style={[styles.button, styles.buttonClose]}
@@ -213,8 +238,25 @@ const EventFeedbackSentiment = ({
           </View>
         </View>
       </View>
+      {/* Display total counts for each sentiment */}
     </SafeAreaView>
   );
 };
 
-export default EventFeedbackSentiment;
+// const styles = StyleSheet.create({
+//   container: {
+//     padding: 16,
+//     backgroundColor: "#f8f9fa",
+//   },
+//   heading: {
+//     fontSize: 18,
+//     fontWeight: "bold",
+//     marginBottom: 10,
+//   },
+//   text: {
+//     fontSize: 16,
+//     marginVertical: 4,
+//   },
+// });
+
+export default TotalEventFeedback;

@@ -18,17 +18,25 @@ export default function EventCalendar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
-
-  const toggleModal = () => setModalVisible(!modalVisible);
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+  const [isEventsVisible, setIsEventsVisible] = useState(false);
+  const toggleEvents = () => {
+    setIsEventsVisible(!isEventsVisible);
   };
 
   // handling events schedule to navigate to the main screen of Schedule
   const handleEventSchedule = () => {
-    console.log("test");
-    navigation.navigate("Schedule");
-    toggleModal();
+    if (
+      schedules[formatDate(selectedDate)] &&
+      schedules[formatDate(selectedDate)].length > 0
+    ) {
+      console.log("test");
+      navigation.navigate("Schedule");
+      toggleEvents();
+    } else {
+      console.log("No events for today");
+      // You can handle this case by showing a message or doing something else
+      navigation.navigate("Schedule");
+    }
   };
   // Get today's date
   const today = moment().format("YYYY-MM-DD");
@@ -127,6 +135,16 @@ export default function EventCalendar() {
     <SafeAreaView style={styles.container}>
       <View style={[styles.header, {}]}>
         <Text style={styles.title}>Date Today</Text>
+        {schedules[formatDate(selectedDate)] &&
+          schedules[formatDate(selectedDate)].length > 0 && (
+            <View style={styles.badgeContainer}>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {schedules[formatDate(selectedDate)].length}
+                </Text>
+              </View>
+            </View>
+          )}
         <TouchableOpacity
           style={styles.scheduleTitleContainer}
           onPress={handleEventSchedule}
@@ -199,11 +217,11 @@ export default function EventCalendar() {
               <>
                 {/* Toggle Button */}
                 <TouchableOpacity
-                  onPress={toggleDropdown}
+                  onPress={toggleEvents}
                   style={styles.toggleButton}
                 >
                   <Text style={styles.toggleButtonText}>
-                    {isDropdownOpen ? (
+                    {isEventsVisible ? (
                       <Text>
                         <MaterialCommunityIcons
                           name={"arrow-up"}
@@ -232,107 +250,53 @@ export default function EventCalendar() {
         {/* </ScrollView> */}
       </View>
 
-      {isDropdownOpen && (
-        <View style={styles.container}>
-          <Button title="Open Modal" onPress={toggleModal} />
-
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={toggleModal}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalView}>
-                <ScrollView contentContainerStyle={styles.scrollViewContent}>
-                  {/* Modal content */}
-                  {/* {Array.from({ length: 20 }).map((_, index) => (
-                    <Text key={index} style={styles.text}>
-                      Item {index + 1}
-                    </Text>
-                  ))} */}
-                </ScrollView>
-                <View>
-                  {schedules[formatDate(selectedDate)].map((event, index) => (
-                    <TouchableOpacity
-                      style={styles.scheduleTitleContainer}
-                      onPress={handleEventSchedule}
-                    >
-                      <View key={index} style={styles.scheduleItem}>
-                        {/* Event Title */}
-                        <Text style={styles.scheduleTitle}>{event.title}</Text>
-
-                        {/* Event Time */}
-                        <View style={styles.scheduleDetailRow}>
-                          <Text style={styles.label}>Time: </Text>
-                          <Text style={styles.scheduleTime}>
-                            {event.startTime} - {event.endTime}
-                          </Text>
-                        </View>
-
-                        {/* Event Description */}
-                        <View style={styles.scheduleDetailRow}>
-                          <Text style={styles.label}>Description: </Text>
-                          <Text style={styles.scheduleDescription}>
-                            {event.description}
-                          </Text>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                {/* Button to close modal */}
-                <Button title="Close" onPress={toggleModal} />
-              </View>
-            </View>
-          </Modal>
-        </View>
-        // <SafeAreaView style={styles.calendarScrollView}>
-        //   <ScrollView>
-        // <View style={styles.dropdownCalendar}>
-        //   {schedules[formatDate(selectedDate)].map((event, index) => (
-        //     <TouchableOpacity
-        //       style={styles.scheduleTitleContainer}
-        //       onPress={handleEventSchedule}
-        //     >
-        //       <View key={index} style={styles.scheduleItem}>
-        //         {/* Event Title */}
-        //         <Text style={styles.scheduleTitle}>{event.title}</Text>
-
-        //         {/* Event Time */}
-        //         <View style={styles.scheduleDetailRow}>
-        //           <Text style={styles.label}>Time: </Text>
-        //           <Text style={styles.scheduleTime}>
-        //             {event.startTime} - {event.endTime}
-        //           </Text>
-        //         </View>
-
-        //         {/* Event Description */}
-        //         <View style={styles.scheduleDetailRow}>
-        //           <Text style={styles.label}>Description: </Text>
-        //           <Text style={styles.scheduleDescription}>
-        //             {event.description}
-        //           </Text>
-        //         </View>
-        //       </View>
-        //     </TouchableOpacity>
-        //   ))}
-        // </View>
-        //   </ScrollView>
-        // </SafeAreaView>
-      )}
-
-      {/* <View style={styles.footerSchedule}>
-        <TouchableOpacity
-          onPress={() => {
-            // handle onPress
-          }}
+      {isEventsVisible && (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={isEventsVisible}
+          onRequestClose={toggleEvents}
         >
-          <View style={styles.btnSchedule}>
-            <Text style={styles.btnTextSchedule}>Add Schedule</Text>
+          <View style={styles.modalContainer}>
+            <View style={[styles.modalView, { width: "90%" }]}>
+              <ScrollView
+                contentContainerStyle={styles.scrollViewContent}
+              ></ScrollView>
+              <View>
+                {schedules[formatDate(selectedDate)].map((event, index) => (
+                  <TouchableOpacity
+                    style={styles.scheduleTitleContainer}
+                    onPress={handleEventSchedule}
+                  >
+                    <View key={index} style={styles.scheduleItem}>
+                      {/* Event Title */}
+                      <Text style={styles.scheduleTitle}>{event.title}</Text>
+
+                      {/* Event Time */}
+                      <View style={styles.scheduleDetailRow}>
+                        <Text style={styles.label}>Time: </Text>
+                        <Text style={styles.scheduleTime}>
+                          {event.startTime} - {event.endTime}
+                        </Text>
+                      </View>
+
+                      {/* Event Description */}
+                      <View style={styles.scheduleDetailRow}>
+                        <Text style={styles.label}>Description: </Text>
+                        <Text style={styles.scheduleDescription}>
+                          {event.description}
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {/* Button to close modal */}
+              <Button title="Close" onPress={toggleEvents} />
+            </View>
           </View>
-        </TouchableOpacity>
-      </View> */}
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }

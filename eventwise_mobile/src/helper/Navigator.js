@@ -30,6 +30,7 @@ import ProfileOrganizer from "../screens/customerScreens/otherScreens/ProfileOrg
 import Package from "../screens/customerScreens/otherScreens/Package";
 import CustomizePackage from "../screens/customerScreens/otherScreens/CustomizePackage";
 
+import EventFeedbackDetails from "../screens/adminMain/screens/feedback/EventFeedbackDetails";
 // import Feedback from "../screens/customerScreens/otherScreens/Feedback";
 
 // Service Provider Stack here
@@ -90,7 +91,7 @@ const AuthenticationStack = () => {
       />
       <Stack.Screen
         name="AdminStack"
-        component={AdminIndex}
+        component={AdminStack}
         options={{ headerShown: false }}
       />
       <Stack.Screen
@@ -107,8 +108,13 @@ function AdminStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="AdminStack"
-        component={Index}
+        name="AdminStackIndex"
+        component={AdminIndex}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="FeedbackEventDetails"
+        component={EventFeedbackDetails}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
