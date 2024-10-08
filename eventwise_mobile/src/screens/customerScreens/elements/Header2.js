@@ -2,30 +2,19 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import SidebarMenu from "./SidebarMenu";
 import { useNavigation } from "@react-navigation/native";
 import AntDesign from "react-native-vector-icons/AntDesign";
 
-const CustomHeader = ({ onBackPress, showBackButton }) => {
+const Header2 = ({ onBackPress, showBackButton }) => {
   const navigator = useNavigation();
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
-
+  const navigation = useNavigation();
+  
   return (
     <SafeAreaView>
       <SafeAreaView style={styles.headerContainer}>
-        {showBackButton && (
-          <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-            <Icon name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity onPress={toggleDropdown} style={styles.dropdownButton}>
-          <Icon name="menu" size={24} color="black" />
+        <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+          <Icon name="close" size={24} color="black" />
         </TouchableOpacity>
-        {showDropdown && <SidebarMenu onClose={() => setShowDropdown(false)} />}
         <Image
           source={require("../../../../assets/logoWhite.png")}
           style={styles.logo}
@@ -40,7 +29,7 @@ const CustomHeader = ({ onBackPress, showBackButton }) => {
             style={styles.iconmessage}
           >
             <AntDesign name="message1" size={18} color="black" />
-          </TouchableOpacity>
+            </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => {
@@ -68,16 +57,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 15,
-    backgroundColor: "white",  
+    backgroundColor: "#fff", 
     zIndex: 1,
     marginTop: -20,
   },
-  backButton: {
-    position: "absolute",
-    marginTop: 35,
-    left: 15,
-    top: "50%",
-    transform: [{ translateY: -12 }],
+  closeButton: {
+    alignSelf: "flex-start",
+    padding: 10,
+    marginTop: 15,
+    marginLeft: -5
   },
   dropdownButton: {
     padding: 10,
@@ -86,7 +74,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: "100%",
     resizeMode: "contain",
-    marginLeft: "15",
+    marginLeft: "auto",
     marginRight: "auto",
   },
   line: {
@@ -121,4 +109,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomHeader;
+export default Header2;

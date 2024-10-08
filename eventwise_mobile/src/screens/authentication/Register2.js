@@ -30,7 +30,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import * as ImagePicker from "expo-image-picker";
 import { signup } from "../../services/authServices";
 
-const Register = () => {
+const Register2 = () => {
   const navigator = useNavigation();
   const [username, setUsername] = useState("");
 
@@ -265,141 +265,71 @@ const Register = () => {
             <Text style={styles.headerTe}>Form</Text>
 
             <PaperProvider>
-              <View
+            <View
                 style={[
                   styles.inputContainer,
                   {
-                    backgroundColor: "rgba(255, 255, 255, 0.5)",
-                    borderWidth: 2,
-                    borderColor: "#C2B067",
-                    borderRadius: 5,
-                    margin: 30,
-                    width: widthPercentageToDP("80%"),
                     alignItems: "center",
-                    mode: "contained-tonal",
                   },
                 ]}
               >
-                <Menu
-                  visible={visible}
-                  onDismiss={closeMenu}
-                  contentStyle={styles.menuContent}
-                  anchor={
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
-                      <View
-                        style={[
-                          styles.menuStyle,
-                          {
-                            backgroundColor: "#C2B067",
-                            padding: 1,
-                            borderRadius: 30,
-                            marginBottom: 5,
-                            marginTop: 5,
-                            margin: 18,
-                            zIndex: 999,
-                          },
-                        ]}
-                      >
-                        <Text
-                          style={{
-                            color: "white",
-                            fontWeight: "bold",
-                            textAlign: "center",
-                            margin: 10,
-                          }}
-                        >
-                          {selectedRole ?? "User Role: "}
-                        </Text>
-                      </View>
-                      <Icon
-                        name="arrow-down-bold-circle"
-                        size={40}
-                        color="#000"
-                        style={{ marginLeft: 10 }}
-                        onPress={openMenu}
-                      />
-                    </View>
-                  }
-                  style={{
-                    position: "absolute",
-                    zIndex: 999,
-                    top: 85,
-                    left: 90,
-                  }}
-                >
-                  <View style={styles.menuItemContainer}>
-                    <Text style={styles.menuTitle}>PLEASE SELECT</Text>
-                  </View>
+                <View style={styles.genderContainer}>
+                  <Text style={styles.Gender}>Gender </Text>
                   <TouchableOpacity
                     style={[
-                      styles.menuItemButton,
-                      selectedRole === "SERVICE PROVIDER" &&
-                        styles.selectedMenuItemButton,
+                      styles.genderButton,
+                      gender === "Male" && styles.selectedGender,
                     ]}
-                    onPress={() => handleRoleChange("SERVICE PROVIDER")}
+                    onPress={() => setGender("Male")}
                   >
-                    <Text style={styles.menuItemText}>SERVICE PROVIDER</Text>
+                    <Text style={styles.genderText}>Male</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
-                      styles.menuItemButton,
-                      selectedRole === "CUSTOMER" &&
-                        styles.selectedMenuItemButton,
+                      styles.genderButton,
+                      gender === "Female" && styles.selectedGender,
                     ]}
-                    onPress={() => handleRoleChange("CUSTOMER")}
+                    onPress={() => setGender("Female")}
                   >
-                    <Text style={styles.menuItemText}>CUSTOMER</Text>
+                    <Text style={styles.genderText}>Female</Text>
                   </TouchableOpacity>
-                </Menu>
-              </View>
-              <View
-                style={[
-                  styles.inputStyleContainer,
-                  {
-                    borderRadius: 5,
-                    margin: 30,
-                    width: widthPercentageToDP("80%"),
-                    alignItems: "center",
-                    marginTop: -15,
-                  },
-                ]}
-              >
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="contained-tonal"
-                  label="Username"
-                  placeholder="Enter your username"
-                  error={isError}
-                  value={username}
-                  onChangeText={(text) => setUsername(text)}
-                  theme={{
-                    colors: {
-                      primary: "#000",
-                      text: "#000",
-                      placeholder: "#000",
-                      background: "#000",
-                    },
-                  }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Icon name="account" size={24} color="#000" />
-                      )}
-                    />
-                  }
-                />
+                </View>
+                <View style={styles.dateContainer}>
+                  <Text style={styles.Date}>Date of Birth </Text>
+                  <TouchableOpacity
+                    style={styles.datePickerButton}
+                    onPress={() => setDatePickerVisibility(true)}
+                  >
+                    <Text style={styles.datePickerText}>
+                      {date.toLocaleDateString()}
+                    </Text>
+                  </TouchableOpacity>
+                  <DateTimePickerModal
+                    isVisible={isDatePickerVisible}
+                    mode="date"
+                    onConfirm={handleDateConfirm}
+                    onCancel={() => setDatePickerVisibility(false)}
+                    maximumDate={new Date()}
+                    textColor="#000"
+                    theme={{
+                      colors: {
+                        primary: "#FFC42B",
+                        text: "#000",
+                        placeholder: "#FFC42B",
+                        background: "#fff",
+                      },
+                    }}
+                  />
+                </View>
 
                 <TextInput
                   style={styles.inputStyle}
                   mode="contained-tonal"
-                  label="Email"
-                  placeholder="Enter your email"
-                  inputMode="email"
-                  value={email}
+                  label="Enter Valid ID No."
+                  placeholder="Enter valid ID number"
                   error={isError}
-                  onChangeText={(text) => setEmail(text)}
+                  value={validID}
+                  onChangeText={(text) => setvalidID(text)}
                   theme={{
                     colors: {
                       primary: "#000",
@@ -408,104 +338,85 @@ const Register = () => {
                       background: "#000",
                     },
                   }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => <Icon name="email" size={24} color="#000" />}
-                    />
-                  }
                 />
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="contained-tonal"
-                  label="Phone number"
-                  placeholder="Enter your phone number"
-                  value={phoneNumber}
-                  error={isError}
-                  onChangeText={(text) => setPhoneNumber(text)}
-                  theme={{
-                    colors: {
-                      primary: "#000",
-                      text: "#000",
-                      placeholder: "#000",
-                      background: "#000",
-                    },
-                  }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => <Icon name="phone" size={24} color="#000" />}
-                    />
-                  }
-                />
-                <TextInput
-                  mode="contained-tonal"
-                  style={styles.inputStyle}
-                  label="Password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChangeText={(text) => setPassword(text)}
-                  secureTextEntry={HideEntry}
-                  error={isError}
-                  right={
-                    <TextInput.Icon
-                      onPress={toggleSecureEntry}
-                      icon={!HideEntry ? "eye" : "eye-off"}
-                    />
-                  }
-                  theme={{
-                    colors: {
-                      primary: "#000",
-                      text: "#000",
-                      placeholder: "#000",
-                      background: "#000",
-                    },
-                  }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => <Icon name="lock" size={24} color="#000" />}
-                    />
-                  }
-                />
-                <TextInput
-                  mode="contained-tonal"
-                  style={styles.inputStyle}
-                  label="Confirm Password"
-                  placeholder="Re-enter your password"
-                  value={repassword}
-                  onChangeText={(text) => setRepassword(text)}
-                  secureTextEntry={HideEntry}
-                  error={isError}
-                  right={
-                    <TextInput.Icon
-                      onPress={toggleSecureEntry}
-                      icon={!HideEntry ? "eye" : "eye-off"}
-                    />
-                  }
-                  theme={{
-                    colors: {
-                      primary: "#000",
-                      text: "#000",
-                      placeholder: "#000",
-                      background: "#000",
-                    },
-                  }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => <Icon name="lock" size={24} color="#000" />}
-                    />
-                  }
-                />
-               
+
+                <View>
+                  <TouchableOpacity
+                    style={[styles.uploadButton]}
+                    title="Pick an image from camera roll"
+                    onPress={pickImage}
+                  >
+                    {image && (
+                      <Image
+                        source={{ uri: image }}
+                        style={{ width: 200, height: 200 }}
+                      />
+                    )}
+                    <Text style={styles.uploadText}>Upload Valid ID Photo</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.checkboxContainer}>
+                  <View style={styles.checkboxWrapper}>
+                    <View
+                      style={{
+                        transform: [{ scale: 0.8 }],
+                        marginTop: -5,
+                        marginBottom: -5,
+                      }}
+                    >
+                      <Checkbox
+                        status={termsAccepted ? "checked" : "unchecked"}
+                        onPress={() => setTermsAccepted(!termsAccepted)}
+                        color="black"
+                      />
+                    </View>
+                  </View>
+                  <Text style={styles.checkboxText}>
+                    Agree with terms & conditions
+                  </Text>
+                </View>
+
                 <Button
                   loading={loading}
                   disabled={loading}
                   style={styles.buttonStyle}
                   mode="contained"
-                  onPress={() => navigator.navigate("Register2")}
-                  labelStyle={{ color: "#fff", fontWeight: "bold" }}
+                  onPress={handleRegistration}
+                  labelStyle={{ color: "white", fontWeight: "bold" }}
                 >
-                  Next
+                  Register Account
                 </Button>
-               
+                <SafeAreaView
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "black" }}>
+                    Already have an account?
+                  </Text>
+                  <Button
+                    labelStyle={{ color: "#A97E00" }}
+                    loading={loading}
+                    disabled={loading}
+                    onPress={() => navigator.navigate("Login")}
+                  >
+                    Login Now
+                  </Button>
+                </SafeAreaView>
+                <View>
+                <Button
+                  style={{ ...styles.goback }}
+                  labelStyle={{ color: "#000" }}
+                  onPress={() => {
+                    navigator.goBack();
+                  }}
+                >
+                  Go Back
+                </Button>
+              </View>
               </View>
             </PaperProvider>
           </ScrollView>
@@ -529,14 +440,14 @@ const styles = StyleSheet.create({
     paddingVertical: heightPercentageToDP("5%"),
   },
   headerText: {
-    marginTop: heightPercentageToDP("4%"),
+    marginTop: heightPercentageToDP("3%"),
     color: "#fff",
     fontWeight: "bold",
     fontSize: widthPercentageToDP("10%"),
   },
   headerTe: {
     marginTop: heightPercentageToDP("1%"),
-    marginBottom: heightPercentageToDP("5%"),
+    marginBottom: heightPercentageToDP("15%"),
     color: "#fff",
     fontWeight: "bold",
     fontSize: widthPercentageToDP("10%"),
@@ -559,39 +470,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 5,
   },
-  menuTitle: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 12,
-    textAlign: "center",
-  },
-  menuItemButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#C2B067",
-    marginVertical: 5,
-    width: 200,
-  },
-  selectedMenuItemButton: {
-    backgroundColor: "#C2B067",
-  },
-  menuItemText: {
-    color: "white",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  dropdown: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 10,
-    backgroundColor: "#FFC42B",
-    borderRadius: 30,
-    marginBottom: 10,
-    width: widthPercentageToDP("80%"),
-  },
   genderContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -609,14 +487,14 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     width: "23%",
     alignItems: "center",
-    color: "#fff",
+    color: "#000",
   },
   Date: {
     padding: 10,
     borderRadius: 30,
     width: "30%",
     alignItems: "center",
-    color: "#fff",
+    color: "#000",
   },
   genderButton: {
     padding: 10,
@@ -630,7 +508,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#A97E00",
   },
   genderText: {
-    color: "white",
+    color: "#000",
     fontWeight: "bold",
   },
   datePickerButton: {
@@ -644,7 +522,7 @@ const styles = StyleSheet.create({
     marginBottom: heightPercentageToDP("2%"),
   },
   datePickerText: {
-    color: "white",
+    color: "#000",
     fontWeight: "bold",
   },
   uploadButton: {
@@ -654,10 +532,11 @@ const styles = StyleSheet.create({
     borderColor: "#FFC42B",
     width: "60%",
     alignItems: "center",
+    alignContent: "center",
     marginBottom: 10,
   },
   uploadText: {
-    color: "#fff",
+    color: "#000",
     fontWeight: "bold",
   },
   image: {
@@ -671,18 +550,18 @@ const styles = StyleSheet.create({
     marginBottom: heightPercentageToDP("3%"),
   },
   checkboxWrapper: {
-    backgroundColor: "rgba(255, 255, 255, 0.50)",
+    backgroundColor: "rgba(220, 220, 220, 0.80)",
     borderRadius: 12,
     marginRight: 10,
     height: 23,
   },
   checkboxText: {
-    color: "white",
+    color: "#000",
     fontSize: 16,
   },
   buttonStyle: {
-    width: widthPercentageToDP("30%"),
-    height: heightPercentageToDP("5%"),
+    width: widthPercentageToDP("50%"),
+    height: heightPercentageToDP("6%"),
     marginBottom: heightPercentageToDP("2%"),
     backgroundColor: "#EEBA2B",
   },
@@ -691,4 +570,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Register;
+export default Register2;

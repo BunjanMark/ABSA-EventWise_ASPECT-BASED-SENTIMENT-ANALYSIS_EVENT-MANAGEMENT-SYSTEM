@@ -3,22 +3,19 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground }
 import { FontAwesome } from "@expo/vector-icons";
 import { Divider } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-import Header from "../elements/Header";
+import Header2 from "../elements/Header2";
 
 const CreateAnotherAccount = () => {
   const [isToggled, setIsToggled] = useState(false);
   const navigator = useNavigation(); 
+  const navigation = useNavigation();
 
   return (
-    <View style={{ flex: 1 }}>
-      <ImageBackground
-        source={require("../pictures/bg.png")}
-        style={styles.backgroundImage}
-      >
-        <Header />
+    <View style={{ flex: 1, backgroundColor: "#fff" }}> 
+        <Header2 />
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.header}>
-            <Text style={styles.headerText}>Create</Text>
+            <Text style={styles.headerText}>Create Account</Text>
           </View>
 
           <View style={styles.accountsSection}>
@@ -50,7 +47,6 @@ const CreateAnotherAccount = () => {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </ImageBackground>
     </View>
   );
 };
@@ -69,14 +65,13 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   headerText: {
-    color: '#e6b800',
+    color: '#000',
     fontSize: 24,
-    fontWeight: 'bold',
   },
   accountsSection: {
     marginTop: 20,
     padding: 20,
-    backgroundColor: "rgba(245, 245, 245, 0.8)",
+    backgroundColor: "#f4e7b5",
     borderRadius: 10,
   },
   accDivider: {
@@ -97,7 +92,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderTopWidth: 2,
     borderTopColor: "#545454",
-    backgroundColor: "#ffe9d2",
+    backgroundColor: "#d1c38b",
     marginBottom: 15,
     borderRadius: 8,
     marginLeft: 20,
