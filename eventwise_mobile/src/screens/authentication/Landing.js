@@ -16,21 +16,12 @@ export default Landing = () => {
       style={styles.backgroundImage}
     >
       <SafeAreaView style={styles.container}>
-        <Image
-          source={require("../customerScreens/pictures/logo.png")}
-          style={{
-            ...styles.logo,
-            width: 200,
-            height: 300,
-          }}
-          resizeMode="contain"
-        />
         <SafeAreaView style={styles.welcome}>
           <Text
             variant="headlineMedium"
             style={{
               fontSize: widthPercentageToDP("9%"),
-              color: "#A97E00",
+              color: "#fff",
               marginBottom: heightPercentageToDP("1%"),
               fontWeight: "bold",
               fontFamily: "Roboto",
@@ -44,12 +35,12 @@ export default Landing = () => {
           <Button
             mode="contained"
             onPress={() => {
-              navigator.navigate("AdminStack");
+              navigator.navigate("TabNav");
             }}
             style={{
-              backgroundColor: "#CEB64C",
+              backgroundColor: "#ffffff",
               borderWidth: 2,
-              width: widthPercentageToDP("70%"),
+              width: widthPercentageToDP("50%"),
               height: heightPercentageToDP("6%"),
             }}
             contentStyle={{
@@ -61,9 +52,10 @@ export default Landing = () => {
               fontSize: widthPercentageToDP("4%"),
               fontFamily: "Roboto",
               fontWeight: "bold",
+              color: "#FFC42B",
             }}
           >
-            Log In
+            Login
           </Button>
           <Button
             mode="contained"
@@ -71,9 +63,9 @@ export default Landing = () => {
               navigator.navigate("Register");
             }}
             style={{
-              backgroundColor: "#61481C",
+              backgroundColor: "#A97E00",
               borderWidth: 2,
-              width: widthPercentageToDP("70%"),
+              width: widthPercentageToDP("50%"),
               height: heightPercentageToDP("6%"),
             }}
             contentStyle={{
@@ -116,7 +108,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonContainer: {
-    bottom: 170,
+    bottom: 100,
     flexDirection: "column",
     gap: heightPercentageToDP("4%"),
   },

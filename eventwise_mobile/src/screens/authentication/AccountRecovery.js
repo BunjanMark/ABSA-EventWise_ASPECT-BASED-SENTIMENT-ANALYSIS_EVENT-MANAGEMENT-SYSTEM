@@ -66,20 +66,31 @@ const AccountRecovery = () => {
   return (
     <PaperProvider>
       <ImageBackground
-        source={require("../customerScreens/pictures/forgotbg.png")}
+        source={require("../customerScreens/pictures/authbg.png")}
         style={styles.backgroundImage}
       >
         <SafeAreaView style={FormStyle.formContainer}>
             <Text
               variant="headlineLarge"
               style={{
-                top: 250,
+                top: 70,
                 fontWeight: "bold",
                 fontSize: widthPercentageToDP("8%"),
-                color: "#A97E00"
+                color: "#fff"
               }}
             >
-              FORGOT PASSWORD
+              Forgot 
+            </Text>
+            <Text
+              variant="headlineLarge"
+              style={{
+                top: 70,
+                fontWeight: "bold",
+                fontSize: widthPercentageToDP("8%"),
+                color: "#fff"
+              }}
+            >
+               Password
             </Text>
             <TextInput
               style={{ ...styles.inputStyle }}
@@ -92,18 +103,18 @@ const AccountRecovery = () => {
               onChangeText={(text) => setEmail(text)}
               theme={{
                 colors: {
-                  primary: "#fff",
-                  text: "#fff",
-                  placeholder: "#fff",
-                  background: "#fff",
+                  primary: "#000",
+                  text: "#000",
+                  placeholder: "#000",
+                  background: "#000",
                 },
               }}
-              left={<TextInput.Icon icon={() => <CustomIcon name="email" size={24} color="white" />} />}
+              left={<TextInput.Icon icon={() => <CustomIcon name="email" size={24} color="black" />} />}
             />
             <Button
               loading={loading}
               disabled={loading}
-              style={{ ...styles.buttonStyle, backgroundColor: "#CEB64C" }}
+              style={{ ...styles.buttonStyle, backgroundColor: "#EEBA2B" }}
               mode="contained-tonal"
               onPress={handleSendCode}
               labelStyle={{ color: "white", fontWeight: "bold" }}
@@ -133,14 +144,15 @@ const styles = StyleSheet.create({
   inputStyle: {
     width: widthPercentageToDP("80%"),
     marginBottom: heightPercentageToDP("20%"),
-    marginTop: "70%",
+    marginTop: "50%",
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderWidth: 2,
     borderColor: "#C2B067",
   },
   buttonStyle: {
     marginBottom: 130,
-    marginVertical: -130,
+    marginVertical: -120,
+    width: widthPercentageToDP("40%"),
   },
   goback: {
     marginBottom: 250,

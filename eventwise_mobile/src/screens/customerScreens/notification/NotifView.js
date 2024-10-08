@@ -4,15 +4,12 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const ConvoView = ({ route }) => {
+const NotifView = ({ route }) => {
   const navigator = useNavigation();
-  const { contact } = route.params;
+  const contact = route && route.params && route.params.contact ? route.params.contact : { name: 'Unknown' };
 
   const [messages, setMessages] = useState([
-    { id: 1, text: 'Hi', sender: 'other', timestamp: '2021-06-01T09:41:00Z' },
-    { id: 2, text: 'How are you?', sender: 'other', timestamp: '2021-06-01T09:42:00Z' },
-    { id: 3, text: 'Fine! What\'s your email?', sender: 'user', timestamp: '2021-06-01T09:43:00Z' },
-    { id: 4, text: 'Good Night.', sender: 'other', timestamp: '2021-06-01T09:44:00Z' }
+    { id: 1, text: 'Good day, Dear Customer! This is a notification to remind you the event date. bxchsvdchdvfkhdgvbdfvjkhgkjhvbjcxhfvuygvbh', sender: 'other', timestamp: '2021-06-01T09:41:00Z' },
   ]);
 
   const [newMessage, setNewMessage] = useState('');
@@ -163,4 +160,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ConvoView;
+export default NotifView;
