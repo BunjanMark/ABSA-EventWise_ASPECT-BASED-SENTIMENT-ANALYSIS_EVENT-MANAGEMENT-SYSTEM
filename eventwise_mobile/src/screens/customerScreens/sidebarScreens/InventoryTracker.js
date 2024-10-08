@@ -1,84 +1,33 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Header from "../elements/Header";
-
-const inventoryData = [
-  { item: "Spoon", noOfItems: 20, noOfSortItems: 20, status: "Complete" },
-  { item: "Fork", noOfItems: 40, noOfSortItems: 20, status: "Missing" },
-  { item: "Glass", noOfItems: 16, noOfSortItems: 20, status: "Broken" },
-  { item: "Plates", noOfItems: 50, noOfSortItems: 20, status: "Broken" },
-  { item: "Mug", noOfItems: 35, noOfSortItems: 20, status: "Missing" },
-  { item: "Knife", noOfItems: 45, noOfSortItems: 20, status: "Complete" },
-];
-
-const getStatusStyle = (status) => {
-  switch (status) {
-    case "Complete":
-      return { color: "green" };
-    case "Missing":
-      return { color: "orange" };
-    case "Broken":
-      return { color: "red" };
-    default:
-      return { color: "white" };
-  }
-};
+import Header2 from "../elements/Header2";
 
 const InventoryTracker = () => {
-    const navigation = useNavigation(); 
+  const navigation = useNavigation(); 
 
-    const totalItems = inventoryData.reduce((sum, item) => sum + item.noOfItems, 0);
-    const totalBroken = inventoryData.filter(item => item.status === "Broken").length;
-    const totalMissing = inventoryData.filter(item => item.status === "Missing").length;
 
-    return (
-    <View style={{ flex: 1 }}>
-      <ImageBackground
-        source={require("../pictures/bg.png")}
-        style={styles.backgroundImage}
-      >
-        <Header />
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Inventory Tracker</Text>
-          </View>
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.tableHeaderText}>ITEMS</Text>
-            <Text style={styles.tableHeaderText}>NO. OF ITEMS</Text>
-            <Text style={styles.tableHeaderText}>NO. OF SORT ITEMS</Text>
-            <Text style={styles.tableHeaderText}>STATUS</Text>
-          </View>
-          {inventoryData.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={styles.tableRowText}>{item.item}</Text>
-              <Text style={styles.tableRowText}>{item.noOfItems}</Text>
-              <Text style={styles.tableRowText}>{item.noOfSortItems}</Text>
-              <Text style={[styles.tableRowText, getStatusStyle(item.status)]}>
-                {item.status}
-              </Text>
-            </View>
-          ))}
+  return (
+    <View style={styles.container}>
+      <Header2 />
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Inventory Tracker</Text>
         </View>
-        <View style={styles.summary}>
-          <Text style={styles.summaryText}>Total Items: {totalItems}</Text>
-          <Text style={styles.summaryText}>Total Items Broken: {totalBroken}</Text>
-          <Text style={styles.summaryText}>Total Items Missing: {totalMissing}</Text>
-        </View>
+
       </ScrollView>
-      </ImageBackground>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
-  },
-  backgroundImage: {
     flex: 1,
-    resizeMode: 'cover', 
+    backgroundColor: '#f2f2f2',
+  },
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 50,
   },
   header: {
     alignItems: 'center',
@@ -93,8 +42,10 @@ const styles = StyleSheet.create({
   table: {
     margin: 20,
     padding: 10,
-    backgroundColor: "rgba(163, 151, 39, 0.1)",
+    backgroundColor: '#fff',
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   tableHeader: {
     flexDirection: "row",
@@ -104,7 +55,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#777",
   },
   tableHeaderText: {
-    color: "#fff",
+    color: "#000",
     flex: 1,
     textAlign: "center",
   },
@@ -114,30 +65,30 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   tableRowText: {
-    color: "#fff",
+    color: "#000",
     flex: 1,
     textAlign: "center",
   },
   summary: {
     margin: 20,
     padding: 10,
-    backgroundColor: "rgba(163, 151, 39, 0.1)",
+    backgroundColor: '#fff',
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   summaryText: {
-    color: "#fff",
+    color: "#000",
     fontSize: 16,
     marginVertical: 5,
   },
   menuButton: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    zIndex: 1,
+    alignSelf: 'center',
+    marginTop: 20,
   },
   text: {
     fontSize: 16,
-    color: 'white',
+    color: '#000',
   },
 });
 

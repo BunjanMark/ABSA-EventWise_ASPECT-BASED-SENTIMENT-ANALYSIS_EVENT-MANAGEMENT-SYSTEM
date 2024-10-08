@@ -1,61 +1,52 @@
-import React, { useState } from "react";
-import { View, Image, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
-import { Button } from "react-native-paper";
+import React, { useState, useEffect } from "react";
+import { View, Image, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import Header from "../elements/Header";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Header2 from "../elements/Header2";
 
 const ProfileOrganizer = () => {
   const navigator = useNavigation();
-  const [activeTab, setActiveTab] = useState('About');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const [profilePicture, setProfilePicture] = useState("");
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'About':
-        return (
-          <View style={styles.content}>
-            <Text style={styles.contentTitle}>About</Text>
-            <Text style={styles.contentText}>
-              I am committed to providing the best possible experience for both customers and service providers. I am dedicated to creating a welcoming and inclusive atmosphere that celebrates diversity & promotes cultural exchange. With continuing to set the standard for event organization and curation in the world event community.
-            </Text>
-          </View>
-        );
-      case 'Events':
-        return (
-          <View style={styles.content}>
-            <Text style={styles.contentTitle}>Events</Text>
-            {/* events */}
-          </View>
-        );
-      case 'Reviews':
-        return (
-          <View style={styles.content}>
-            <Text style={styles.contentTitle}>Reviews</Text>
-            {/* reviews */}
-          </View>
-        );
-      default:
-        return null;
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem("username");
+        const storedEmail = await AsyncStorage.getItem("email");
+        const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber");
+        const storedBirthday = await AsyncStorage.getItem("birthday");
+        const storedProfilePicture = await AsyncStorage.getItem("profilePicture");
+
+        setUsername(storedUsername || "Customer Name");
+        setEmail(storedEmail || "My Email");
+        setPhoneNumber(storedPhoneNumber || "My Phone number");
+        setBirthday(storedBirthday || "My Birthday");
+        if (storedProfilePicture) {
+          setProfilePicture(storedProfilePicture);
+        }
+      } catch (error) {
+        console.error("Error loading data from AsyncStorage:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <View style={{ flex: 1 }}>
-      <ImageBackground
-        source={require("../pictures/bg.png")}
-        style={styles.backgroundImage}
-      >
-        <Header />
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Organizer</Text>
-          </View>
-
+    <View style={styles.container}>
+      <Header2 />
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.box}>
           <View style={styles.userProfile}>
-            <Image
-              source={require("../pictures/user.png")}
-              style={styles.avatarImage}
-            />
-            <Text style={styles.userName}>Organizer Name</Text>
+              <Image source={require("../pictures/adminProf.png")}  style={styles.avatarImage} />
+            <Text style={styles.userName}>Admin Name</Text>
+            <Text style={styles.userName}>admin@gmail.com</Text>
+            <Text style={styles.userName}>09123456789</Text>
             <Image
               source={require("../pictures/line.png")}
               style={styles.line}
@@ -63,52 +54,32 @@ const ProfileOrganizer = () => {
             />
           </View>
 
-          <View style={styles.tabs}>
-            <TouchableOpacity onPress={() => setActiveTab('About')} style={[styles.tab, activeTab === 'About' && styles.activeTab]}>
-              <Text style={[styles.tabText, activeTab === 'About' && styles.activeTabText]}>About</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setActiveTab('Events')} style={[styles.tab, activeTab === 'Events' && styles.activeTab]}>
-              <Text style={[styles.tabText, activeTab === 'Events' && styles.activeTabText]}>Events</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setActiveTab('Reviews')} style={[styles.tab, activeTab === 'Reviews' && styles.activeTab]}>
-              <Text style={[styles.tabText, activeTab === 'Reviews' && styles.activeTabText]}>Reviews</Text>
-            </TouchableOpacity>
+          <View style={styles.admintime}>
+            <Text style={styles.timeo}>Time Open: 8:00 am</Text>
+            <Text style={styles.timeo}>Time Close: 8:00 pm</Text>
           </View>
+        </View>
 
-          {renderContent()}
-
-          <Button
-            style={{ ...styles.goback }}
-            labelStyle={{ color: "#fff" }}
-            onPress={() => {
-              navigator.goBack();
-            }}
-          >
-            Go Back
-          </Button>
+        <Text style={styles.venueTitle}>Popular Services</Text>
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.packageList}>
+            <Image source={require("../pictures/s1.png")} style={styles.packageImage} />
+            <Image source={require("../pictures/s2.png")} style={styles.packageImage} />
+            <Image source={require("../pictures/s3.png")} style={styles.packageImage} />
         </ScrollView>
-      </ImageBackground>
+
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContainer: {
     paddingHorizontal: 20,
     paddingBottom: 50,
-  },
-  backgroundImage: {
-    flex: 1,
-    resizeMode: 'cover',
-  },
-  header: {
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  headerText: {
-    color: '#e6b800',
-    fontSize: 24,
-    fontWeight: 'bold',
   },
   userProfile: {
     alignItems: "center",
@@ -119,52 +90,77 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: "#ccc",
+    marginTop: -90,
   },
   userName: {
     marginTop: 10,
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
+    color: "#000",
+  },
+  admintime: {
+    alignItems: "flext-start",
+    marginTop: -9,
+  },
+  timeo: {
+    marginTop: 6,
+    fontSize: 16,
+    color: "#000",
   },
   line: {
-    marginTop: 20,
+    marginTop: 8,
   },
-  tabs: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
+  lineSec: {
+    marginTop: 25,
   },
-  tab: {
-    marginHorizontal: 10,
+  editButton: {
+    backgroundColor: '#FFC42B',
     paddingVertical: 10,
+    paddingHorizontal: 30,
+    alignItems: "center",
+    alignSelf: "center",
+    borderRadius: 15,
+    marginBottom: 0,
+    marginTop: 30,
+    position: "relative",
+    flexDirection: "row",
+    width: 170,
   },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#e6b800',
-  },
-  tabText: {
-    color: '#fff',
+  editButtonText: {
+    color: "#fff",
     fontSize: 18,
+    marginLeft: 10,
   },
-  activeTabText: {
-    color: '#e6b800',
+  box: {
+    borderWidth: 1.5,
+    borderColor: "#d9cda0",
+    backgroundColor: '#f2eee1',
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    top: 70,
   },
-  content: {
-    marginTop: 20,
+  sectionTitle: {
+    fontSize: 20,
+    color: "#000", 
+    fontWeight: "bold",
+    marginVertical: 20,
   },
-  contentTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 10,
+  venueTitle: {
+    fontSize: 20,
+    color: "#000",
+    marginTop: 80,
   },
-  contentText: {
-    fontSize: 16,
-    color: '#fff',
+  packageList: {
+    marginVertical: 10,
+    marginLeft: -30,
   },
-  goback: {
-    marginTop: 50,
+  packageImage: {
+    width: 300,
+    height: 250,
+    resizeMode: "contain",
+    borderRadius: 8,
+    marginRight: -70,
   },
 });
 

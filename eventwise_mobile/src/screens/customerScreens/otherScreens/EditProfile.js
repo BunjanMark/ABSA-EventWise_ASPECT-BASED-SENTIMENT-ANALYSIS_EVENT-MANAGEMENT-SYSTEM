@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, SafeAreaView, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { View, Image, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, KeyboardAvoidingView, SafeAreaView, TextInput, ActivityIndicator, Alert, Modal } from 'react-native';
 import { Ionicons, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Button } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
-import Header from "../elements/Header";
+import Header2 from "../elements/Header2";
 
 const EditProfile = () => {
   const navigator = useNavigation();
+  const navigation = useNavigation();
   const [editableUsername, setEditableUsername] = useState("");
   const [editableEmail, setEditableEmail] = useState("");
   const [editablePhoneNumber, setEditablePhoneNumber] = useState("");
@@ -16,6 +17,7 @@ const EditProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profilePicture, setProfilePicture] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,25 +90,18 @@ const EditProfile = () => {
       await AsyncStorage.setItem("email", editableEmail);
       await AsyncStorage.setItem("phoneNumber", editablePhoneNumber);
       await AsyncStorage.setItem("password", editablePassword);
-      Alert.alert("Profile edited successfully!");
 
-      navigator.navigate("Profile"); 
+      setModalVisible(true);
     } catch (error) {
       console.error("Error saving profile to AsyncStorage:", error);
     }
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <ImageBackground
-        source={require("../pictures/bg.png")}
-        style={styles.backgroundImage}
-      >
-        <Header />
+    <View style={{ flex: 1, backgroundColor: "#fff" }}> 
+        <Header2 />
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
         <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Edit Profile</Text>
-          </View>
              
           <View style={styles.userProfile}>
             <View style={styles.userAvatar}>
@@ -144,7 +139,7 @@ const EditProfile = () => {
               onChangeText={setEditableEmail}
               keyboardType="email-address"
             />
-            <Text style={styles.inputText}>Edit Phone Number</Text>
+            <Text style={styles.inputText}>Edit Contact Number</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter your Phone Number"
@@ -168,19 +163,43 @@ const EditProfile = () => {
             labelStyle={{ color: "black", fontWeight: "bold" }}
             onPress={handleSaveProfile}
           >
-            SUBMIT
+            Save
           </Button>
-          <Button
-            style={{ ...styles.goback }}
-            labelStyle={{ color: "#FFC42B" }}
-            onPress={() => {
-              navigator.goBack();
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
             }}
           >
-            Go Back
-          </Button>
+             <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+              <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+              style={styles.closeIcon}
+            >
+              <Ionicons name="close" size={30} color="#6B6B6B" />
+            </TouchableOpacity>
+                <Image source={require("../pictures/success.png")} style={styles.modalImage} />
+              </View>
+            </View>
+          </Modal>
+
+          <TouchableOpacity onPress={() => navigator.navigate("CreateAnotherAccount")}>
+          <View style={styles.createButton}>
+            <FontAwesome
+              name="user-plus"
+              size={24}
+              color={"black"}
+            />
+            <Text style={styles.createButtonText}>
+              Create Another Account
+            </Text>
+          </View>
+        </TouchableOpacity>
         </ScrollView>
-      </ImageBackground>
+        </KeyboardAvoidingView>
     </View>
   );
 };
@@ -188,10 +207,6 @@ const EditProfile = () => {
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
-  },
-  backgroundImage: {
-    flex: 1,
-    resizeMode: 'cover', 
   },
   header: {
     alignItems: 'center',
@@ -204,13 +219,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   accDet: {
-    color: '#fff',
+    color: '#000',
     fontSize: 20,
     fontWeight: 'bold',
     marginTop: 20,
   },
   inputText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 14,
   },
   userProfile: {
@@ -224,7 +239,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     overflow: "hidden",
     borderWidth: 3,
-    borderColor: "#fff",
+    borderColor: "#000",
   },
   editProfileIcon: {
     justifyContent: "center",
@@ -246,9 +261,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#C2B067',
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 15,
     marginVertical: 5,
   },
   buttonStyle: {
@@ -256,8 +271,53 @@ const styles = StyleSheet.create({
     marginLeft: 90,
     marginRight: 90,
   },
-  goback: {
-    marginTop: -10,
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    borderRadius: 20,
+    padding: 5,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    position: "relative",
+  },
+  modalImage: {
+    width: 300,
+    height: 300,
+    resizeMode: "contain",
+  },
+  closeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 15,
+    zIndex: 1,
+  },
+  createButton: {
+    backgroundColor: '#FFC42B',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    alignItems: "center",
+    alignSelf: "center",
+    borderRadius: 15,
+    marginTop: 5,
+    marginBottom: 200,
+    position: "relative",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: 290,
+  },
+  createButtonText: {
+    color: "black",
+    fontSize: 18,
+    marginLeft: 10,
   },
 });
 

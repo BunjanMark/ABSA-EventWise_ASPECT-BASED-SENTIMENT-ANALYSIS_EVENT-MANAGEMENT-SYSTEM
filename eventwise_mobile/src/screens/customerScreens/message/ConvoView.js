@@ -42,7 +42,7 @@ const ConvoView = ({ route }) => {
             style={styles.goBackButton}
             onPress={() => navigator.goBack()}
           >
-            <Icon name="arrow-left" size={20} color="#fff" />
+            <Icon name="arrow-left" size={20} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerText}>{contact.name}</Text>
         </View>
@@ -89,21 +89,24 @@ const formatTimestamp = (timestamp) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1c1c1c',
+    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#3e3e3e',
+    backgroundColor: '#fff',
     paddingVertical: 10,
     paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderColor: "gray",
+    marginTop: 10,
   },
   goBackButton: {
     marginRight: 20,
     marginLeft: 10,
   },
   headerText: {
-    color: '#ffffff',
+    color: '#000',
     fontSize: 20,
     fontWeight: 'bold',
   },

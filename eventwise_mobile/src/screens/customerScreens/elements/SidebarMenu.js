@@ -1,161 +1,240 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ImageBackground,
-  Modal,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import useStore from "../../../stateManagement/store";
-const SidebarMenu = ({ visible, onClose }) => {
-  const { user, accountProfiles, setUser, setAccountProfiles } = useStore();
-  const navigation = useNavigation();
+import Ionicons from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-  const handlePress = (screen) => {
+const SidebarMenu = ({ visible, onClose }) => {
+  const navigation = useNavigation();
+  const [hoveredOption, setHoveredOption] = useState(null);
+  const [activeOption, setActiveOption] = useState(null); 
+  const [profilePicture, setProfilePicture] = useState("");
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem("username");
+        const storedProfilePicture = await AsyncStorage.getItem("profilePicture");
+
+        setUsername(storedUsername || "Customer Name");
+        if (storedProfilePicture) {
+          setProfilePicture(storedProfilePicture);
+        }
+      } catch (error) {
+        console.error("Error loading data from AsyncStorage:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handlePress = (screen, item) => {
+    setActiveOption(item);
     onClose();
-    navigation.navigate(screen);
+    if (item === "Logout") {
+      navigation.navigate("Login");  
+    } else {
+      navigation.navigate(screen);
+    }
   };
 
   return (
     <Modal
-      animationType="none"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
     >
       <View style={styles.container}>
-        <ImageBackground
-          source={require("../pictures/bg.png")}
-          style={styles.background}
+        <LinearGradient
+          colors={["#FFF", "#FFC42B"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={styles.sidebar}
         >
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Icon name="close" size={24} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.divider} />
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => handlePress("Profile")}
-          >
-            <Icon name="person" size={24} color="#fff" style={styles.icon} />
-            <Text style={styles.text}>Profile</Text>
-          </TouchableOpacity>
-          <View style={styles.divider} />
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => handlePress("Home")}
-          >
-            <Icon name="home" size={24} color="#fff" style={styles.icon} />
-            <Text style={styles.text}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => handlePress("InventoryTracker")}
-          >
-            <Icon name="list" size={24} color="#fff" style={styles.icon} />
-            <Text style={styles.text}>Inventory Tracker</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => handlePress("Schedule")}
-          >
-            <Icon
-              name="calendar-today"
-              size={24}
-              color="#fff"
-              style={styles.icon}
-            />
-            <Text style={styles.text}>Schedule</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => handlePress("Settings")}
-          >
-            <Icon name="settings" size={24} color="#fff" style={styles.icon} />
-            <Text style={styles.text}>Settings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => handlePress("ProfileSwitcher")}
-          >
-            <Icon name="person" size={24} color="#fff" style={styles.icon} />
-            <Text style={styles.text}>Profile Switch</Text>
-          </TouchableOpacity>
-          <View style={styles.logoutContainer}>
-            <TouchableOpacity
-              style={styles.logoutButton}
-              onPress={() => handlePress("Login")}
-            >
-              <Icon
-                name="exit-to-app"
-                size={24}
-                color="#fff"
-                style={styles.logoutIcon}
-              />
-              <Text style={styles.logoutText}>Log Out</Text>
-            </TouchableOpacity>
+          <View style={styles.closeButton} onTouchStart={onClose}>
+            <Icon name="close" size={25} color="#000" />
           </View>
-        </ImageBackground>
+
+          <View style={styles.drawerHeader}>
+            <View style={styles.userProfile}>
+              <Image
+                source={
+                  profilePicture
+                    ? { uri: profilePicture }
+                    : require("../pictures/user.png")
+                }
+                style={styles.accountImage}
+              />
+            </View>
+
+            <View style={styles.drawer2}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={styles.userName}>{username}</Text>
+              </View>
+              <Text style={styles.userRole}>Customer</Text>
+            </View>
+          </View>
+
+          {["Home", "Profile", "Settings", "About", "Logout"].map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.option,
+                hoveredOption === item && styles.optionHovered,  
+                activeOption === item && styles.optionActive  
+              ]}              
+              onPress={() => handlePress(item === "Logout" ? "Login" : item, item)}  
+              onPressIn={() => setHoveredOption(item)}  
+              onPressOut={() => setHoveredOption(null)}  
+            >
+              <Ionicons
+                name={getIconName(item)}
+                size={24}
+                color={(activeOption === item || hoveredOption === item) ? "#FFF" : "#000"}  
+                style={styles.icon}
+              />
+              <Text style={[styles.text, (activeOption === item || hoveredOption === item) && { color: "#FFF" }]}>
+                {item}
+              </Text>            
+            </TouchableOpacity>
+          ))}
+
+          <View style={styles.divider} />
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Version 1.0.0</Text>
+            <Text style={styles.footerText}>
+              <Text
+                style={{ color: "blue" }}
+                onPress={() => Linking.openURL("http://google.com")}
+              >
+                EventWise
+              </Text>
+              {" "}© 2024
+            </Text>
+            <Text style={styles.footerText}>
+              Powered by{" "}
+              <Text
+                style={{ color: "blue" }}
+                onPress={() => Linking.openURL("http://google.com")}
+              >
+                EventTech
+              </Text>
+            </Text>
+          </View>
+        </LinearGradient>
       </View>
     </Modal>
   );
 };
 
+const getIconName = (item) => {
+  switch (item) {
+    case "Home":
+      return "home-outline";
+    case "Profile":
+      return "person";
+    case "Settings":
+      return "settings";
+    case "About":
+      return "information-circle";
+    case "Logout":
+      return "log-out-outline";
+    default:
+      return "help";
+  }
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  background: {
+  sidebar: {
     flex: 1,
+    backgroundColor: "#FFC42B",
     padding: 20,
+    paddingTop: 50,
   },
   closeButton: {
-    alignSelf: "flex-start",
+    alignSelf: "flex-end",
     padding: 10,
-    marginTop: 5,
+    zIndex: 1,
+    marginTop: -20,
     marginLeft: -5,
+  },
+  drawerHeader: {
+    flexDirection: "row",
+    marginBottom: 40,
+  },
+  userProfile: {
+    marginTop: 10,
+  },
+  accountImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 100,
+    marginLeft: -5,
+  },
+  drawer2: {
+    marginLeft: 40,
+    marginTop: 40,
+    alignItems: "center",
+  },
+  userName: {
+    fontSize: 24,
+    color: '#000',
+    fontWeight: 'bold',
+    fontFamily: "Poppins",
+  },
+  userRole: {
+    fontSize: 16,
+    color: '#8d8d8d',
+    fontFamily: "Poppins",
   },
   option: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 15,
+    paddingHorizontal: 10, 
+  },
+  optionHovered: {
+    backgroundColor: '#eeba2b', 
+    borderColor: "#eeba2b", 
+    borderWidth: 1,
+    width: 700,
+  },
+  optionActive: {  
+    backgroundColor: '#eeba2b',
   },
   icon: {
     marginRight: 15,
   },
   text: {
-    fontSize: 18,
-    color: "#fff",
+    fontSize: 16,
+    color: "#000",
+    fontWeight: "bold",
+    fontFamily: "Poppins",
   },
   divider: {
+    marginTop: 130,
     height: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#9a9a9a",
     marginVertical: 10,
   },
-  logoutContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
-    paddingVertical: 20,
+  footer: {
+    alignItems: 'center',
+    marginBottom: 10,
   },
-  logoutButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#444",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  logoutIcon: {
-    marginRight: 10,
-  },
-  logoutText: {
-    fontSize: 18,
-    color: "#fff",
+  footerText: {
+    fontSize: 16,
+    color: '#8d8d8d',
+    fontFamily: "Poppins",
   },
 });
 

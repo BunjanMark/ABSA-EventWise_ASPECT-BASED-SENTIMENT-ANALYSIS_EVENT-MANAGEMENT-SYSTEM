@@ -60,38 +60,36 @@ const Login = ({ navigation }) => {
     }
   };
   const handleLogin = async () => {
-    // try {
-    //   setLoading(!loading);
+    try {
+      setLoading(!loading);
 
-    //   if (username === "" || password === "") {
-    //     showToast("Please input required data");
-    //     setIsError(true);
-    //     return false;
-    //   }
+      if (username === "" || password === "") {
+        showToast("Please input required data");
+        setIsError(true);
+        return false;
+      }
 
-    //   const result = await signIn(username, password);
-    //   // showToast(result?.message);
-    //   showToast(result?.message);
+      const result = await signIn(username, password);
+      // showToast(result?.message);
+      showToast(result?.message);
 
-    //   const user = await getUser();
-    //   console.log(user);
+      const user = await getUser();
+      console.log(user);
 
-    //   // Navigate vased on user's role
-    //   navigateBasedOnRole(user.role_id);
+      // Navigate vased on user's role
+      navigateBasedOnRole(user.role_id);
 
-    //   if (result.message != null) {
-    //     showToast(result?.message);
-    //   } else {
-    //     navigator.navigate("Tabs");
-    //   }
-    // } catch (e) {
-    //   console.error("Login error:", error);
-    //   showToast("An error occurred during login.");
-    // } finally {
-    //   setLoading(false);
-    // }
-    navigator.navigate("ServiceProviderStack");
-   
+      if (result.message != null) {
+        showToast(result?.message);
+      } else {
+        navigator.navigate("Tabs");
+      }
+    } catch (e) {
+      console.error("Login error:", error);
+      showToast("An error occurred during login.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleSecureEntry = () => {
@@ -100,7 +98,7 @@ const Login = ({ navigation }) => {
   return (
     <PaperProvider>
       <ImageBackground
-        source={require("../customerScreens/pictures/loginbg.png")}
+        source={require("../customerScreens/pictures/authbg.png")}
         style={styles.backgroundImage}
       >
         <SafeAreaView style={styles.container}>
@@ -110,7 +108,7 @@ const Login = ({ navigation }) => {
             // keyboardVerticalOffset={
             //   Platform.OS === "ios" ? 0 : heightPercentageToDP("15%")
             // }
-            keyboardVerticalOffset={heightPercentageToDP("15%")}
+            keyboardVerticalOffset={heightPercentageToDP("-25%")}
             enabled
           >
             <SafeAreaView style={styles.welcome}>
@@ -118,8 +116,8 @@ const Login = ({ navigation }) => {
                 variant="headlineMedium"
                 style={{
                   fontSize: widthPercentageToDP("9%"),
-                  color: "#A97E00",
-                  marginBottom: heightPercentageToDP("1%"),
+                  color: "#fff",
+                  marginBottom: heightPercentageToDP("15%"),
                   fontWeight: "bold",
                   fontFamily: "Roboto",
                 }}
@@ -144,16 +142,16 @@ const Login = ({ navigation }) => {
                 }}
                 theme={{
                   colors: {
-                    primary: "#fff",
-                    text: "#fff",
-                    placeholder: "#fff",
-                    label: "#fff",
+                    primary: "#000",
+                    text: "#000",
+                    placeholder: "#000",
+                    label: "#000",
                   },
                 }}
                 left={
                   <TextInput.Icon
                     icon={() => (
-                      <CustomIcon name="account" size={24} color="white" />
+                      <CustomIcon name="account" size={24} color="black" />
                     )}
                   />
                 }
@@ -180,24 +178,24 @@ const Login = ({ navigation }) => {
                 }
                 theme={{
                   colors: {
-                    primary: "#fff",
-                    text: "#fff",
-                    placeholder: "#fff",
-                    label: "#fff",
+                    primary: "#000",
+                    text: "#000",
+                    placeholder: "#000",
+                    label: "#000",
                   },
                 }}
                 left={
                   <TextInput.Icon
                     icon={() => (
-                      <CustomIcon name="lock" size={24} color="white" />
+                      <CustomIcon name="lock" size={24} color="black" />
                     )}
                   />
                 }
               />
               <View style={styles.forgotPasswordContainer}>
-                <Text style={{ color: "white" }}>Forgot Password? </Text>
+                <Text style={{ color: "black" }}>Forgot Password? </Text>
                 <Button
-                  labelStyle={{ color: "#A97E00" }}
+                  labelStyle={{ color: "#EEBA2B" }}
                   onPress={() => {
                     navigator.navigate("AccountRecovery");
                   }}
@@ -206,7 +204,7 @@ const Login = ({ navigation }) => {
                 </Button>
               </View>
               <Button
-                style={{ ...styles.buttonStyle, backgroundColor: "#CEB64C" }}
+                style={{ ...styles.buttonStyle, backgroundColor: "#EEBA2B" }}
                 onPress={handleLogin}
                 loading={loading}
                 disabled={loading}
@@ -216,7 +214,7 @@ const Login = ({ navigation }) => {
                   fontSize: widthPercentageToDP("4%"),
                 }}
               >
-                Log In
+                Login
               </Button>
 
               <SafeAreaView
@@ -227,10 +225,10 @@ const Login = ({ navigation }) => {
                   marginTop: -30,
                 }}
               >
-                <Text style={{ color: "white" }}>Not a member? </Text>
+                <Text style={{ color: "black" }}>Not a member? </Text>
                 <Button
                   mode="text"
-                  labelStyle={{ color: "#A97E00" }}
+                  labelStyle={{ color: "#EEBA2B" }}
                   onPress={() => {
                     navigator.navigate("Register");
                   }}
@@ -243,7 +241,7 @@ const Login = ({ navigation }) => {
               <View>
                 <Button
                   style={{ ...styles.goback }}
-                  labelStyle={{ color: "#A97E00" }}
+                  labelStyle={{ color: "#000" }}
                   onPress={() => {
                     navigator.goBack();
                   }}
@@ -277,7 +275,6 @@ const styles = StyleSheet.create({
     width: widthPercentageToDP("100%"),
 
     position: "absolute",
-    // paddingBottom: heightPercentageToDP("-1%"),
   },
   logo: {
     top: heightPercentageToDP("5%"),

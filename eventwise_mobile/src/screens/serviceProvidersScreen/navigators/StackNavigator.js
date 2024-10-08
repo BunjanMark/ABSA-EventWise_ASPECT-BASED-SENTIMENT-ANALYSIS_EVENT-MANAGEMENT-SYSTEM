@@ -5,26 +5,19 @@ import { createStackNavigator } from "@react-navigation/stack";
 import HomeSP from "../screens/HomeSP";
 
 // Schedule Stack imports
+import Schedule from "../screens/ScheduleSP3";
 
+import ProfileSP from "../screens/Drawer/ProfileSP";
 import ProfileEditSP from "../screens/Drawer/ProfileEditSP";
 import AboutMeSP from "../screens/AboutMeSP";
+import ScheduleSP from "../screens/ScheduleSP3";
+import SettingsSP from "../screens/Drawer/SettingsSP";
 import ProfileSwitchSP from "../screens/Drawer/ProfileSwitchSP";
 import MessageSP from "../screens/MessageSP";
 import NotificationSP from "../screens/NotificationSP";
 import EventsSP from "../screens/EventsSP";
-import SchedSp from "../screens/SchedSP";
-import EventDetailsSP from "../screens/EventDetailsSP";
-import InventorySP from "../screens/InventorySP";
-import EquipmentSP from "../screens/EquipmentSP";
-import ServiceSP from "../screens/ServiceSP";
-import ProfileSP from "../screens/ProfileSP";
-import EditProfileSP from "../screens/EditProfileSP";
-import AddAnotherAccSP from "../screens/AddAcountSP";
-import SettingSP from "../screens/SettingsSP";
-import ServicePortfolioSP from "../screens/ServicePortfolioSP";
-import FeedbackSP from "../screens/FeedbackSP";
-import CustomHeader from "../screens/CustomHeaderSP";
-import SetSchedSP from "../screens/SetschedSP";
+
+import OptionsSP from "../screens/OptionsSP";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -33,27 +26,14 @@ const screenOptionStyle = {
   headerTintColor: "white",
   headerBackTitle: "Back",
 };
-
-
 const MainStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeSP" component={HomeSP} />
-      <Stack.Screen name="EventDetailsSP" component={EventDetailsSP} />
+
       <Stack.Screen name="AboutMeSP" component={AboutMeSP} />
-      <Stack.Screen name="MessageSP" component={MessageSP} />
+      <Stack.Screen name="MessagesSP" component={MessageSP} />
       <Stack.Screen name="NotificationSP" component={NotificationSP} />
-      <Stack.Screen name="InventorySP" component={InventorySP} />
-      <Stack.Screen name="EquipmentSP" component={EquipmentSP} />
-      <Stack.Screen name="ProfileSP" component={ProfileSP} />
-      <Stack.Screen name="EditProfileSP" component={EditProfileSP} />
-      <Stack.Screen name="AddAnotherAccSP" component={AddAnotherAccSP} />
-      <Stack.Screen name="SettingSP" component={SettingSP} />
-      <Stack.Screen name="ServicePortfolioSP" component={ServicePortfolioSP} />
-      <Stack.Screen name="FeedbackSP" component={FeedbackSP} />
-      <Stack.Screen name="CustomHeader" component={CustomHeader}/>
-      <Stack.Screen name="EventsSP" component={EventsSP} />
-      <Stack.Screen name="SetSchedSP" component={SetSchedSP} />
     </Stack.Navigator>
   );
 };
@@ -61,7 +41,7 @@ const MainStackNavigator = () => {
 const ScheduleStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="SchedSP" component={SchedSp} />
+      <Stack.Screen name="ScheduleSP" component={ScheduleSP} />
     </Stack.Navigator>
   );
 };
@@ -70,9 +50,10 @@ const ScheduleStackNavigator = () => {
 const ProfileStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ProfileSP" component={ProfileSP} />
       <Stack.Screen name="ProfileEditSP" component={ProfileEditSP} />
+      <Stack.Screen name="OptionsSP" component={OptionsSP} />
       <Stack.Screen name="ProfileSwitchSP" component={ProfileSwitchSP} />
-      
     </Stack.Navigator>
   );
 };
@@ -93,22 +74,10 @@ const SettingStackNavigator = () => {
     </Stack.Navigator>
   );
 };
-
-const ServiceStackNavigator = () => {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="ServiceSP" component={ServiceSP} />
-    </Stack.Navigator>
-  );
-};
-
-
-
 export {
   MainStackNavigator,
   ScheduleStackNavigator,
   EventStackNavigator,
   ProfileStackNavigator,
   SettingStackNavigator,
-  ServiceStackNavigator
 };

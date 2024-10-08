@@ -15,7 +15,7 @@ const SearchBar = ({ onClose, onSearch }) => {
         onSubmitEditing={() => onSearch(searchQuery)}
       />
       <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-        <Icon name="close" size={24} color="white" />
+        <Icon name="close" size={24} color="black" />
       </TouchableOpacity>
     </View>
   );
@@ -28,11 +28,14 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 10,
     marginTop: 6,
+    backgroundColor: '#D9D9D9',  
+    borderRadius: 20,
+    marginBottom: 20,
   },
   searchInput: {
     flex: 1,
     height: 40,
-    backgroundColor: "#fff",
+    backgroundColor: '#D9D9D9',  
     borderRadius: 20,
     paddingHorizontal: 10,
   },
