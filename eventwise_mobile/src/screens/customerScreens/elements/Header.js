@@ -4,20 +4,14 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SidebarMenu from "./SidebarMenu";
 import { useNavigation } from "@react-navigation/native";
-import SearchBar from "./SearchBAr";
+import AntDesign from "react-native-vector-icons/AntDesign";
 
 const CustomHeader = ({ onBackPress, showBackButton }) => {
   const navigator = useNavigation();
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
-  };
-
-  const handleSearch = (query) => {
-    console.log("Searching for:", query);
-    // Add your search logic here
   };
 
   return (
@@ -25,18 +19,15 @@ const CustomHeader = ({ onBackPress, showBackButton }) => {
       <SafeAreaView style={styles.headerContainer}>
         {showBackButton && (
           <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-            <Icon name="arrow-back" size={24} color="#FFC42B" />
+            <Icon name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          onPress={toggleDropdown}
-          style={styles.dropdownButton}
-        >
-          <Icon name="menu" size={24} color="white" />
+        <TouchableOpacity onPress={toggleDropdown} style={styles.dropdownButton}>
+          <Icon name="menu" size={24} color="black" />
         </TouchableOpacity>
         {showDropdown && <SidebarMenu onClose={() => setShowDropdown(false)} />}
         <Image
-          source={require("../pictures/logo1.png")}
+          source={require("../../../../assets/logoWhite.png")}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -46,9 +37,9 @@ const CustomHeader = ({ onBackPress, showBackButton }) => {
             onPress={() => {
               navigator.navigate("InboxView");
             }}
-            style={styles.iconButton}
+            style={styles.iconmessage}
           >
-            <Icon name="message" size={24} color="white" />
+            <AntDesign name="message1" size={18} color="black" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -57,14 +48,7 @@ const CustomHeader = ({ onBackPress, showBackButton }) => {
             }}
             style={styles.iconButton}
           >
-            <Icon name="notifications" size={24} color="white" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => setShowSearch(true)}
-            style={styles.searchIconButton}
-          >
-            <Icon name="search" size={18} color="black" />
+            <Icon name="notifications" size={24} color="black" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -73,12 +57,6 @@ const CustomHeader = ({ onBackPress, showBackButton }) => {
         style={styles.line}
         resizeMode="contain"
       />
-      {showSearch && (
-        <SearchBar
-          onClose={() => setShowSearch(false)}
-          onSearch={handleSearch}
-        />
-      )}
     </SafeAreaView>
   );
 };
@@ -90,6 +68,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 15,
+    backgroundColor: "white",  
     zIndex: 1,
     marginTop: -20,
   },
@@ -107,31 +86,37 @@ const styles = StyleSheet.create({
     flex: 1,
     height: "100%",
     resizeMode: "contain",
-    marginLeft: "auto",
+    marginLeft: "15",
     marginRight: "auto",
   },
   line: {
     marginLeft: "auto",
     marginRight: "auto",
     alignItems: "center",
-    marginTop: 5,
   },
   rightIcons: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: -40,
+    marginLeft: -35,
+    marginRight: -7,
+    padding: 10,
+  },
+  iconmessage: {
+    padding: 10,
+    marginHorizontal: -5,
+    marginTop: 3,
   },
   iconButton: {
     padding: 10,
-    marginHorizontal: -10,
+    marginHorizontal: -5,
   },
   searchIconButton: {
-    backgroundColor: "#fff",
+    backgroundColor: '#D3D3D3', 
     borderRadius: 20,
     width: 24,
     height: 24,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginHorizontal: 5,
   },
 });

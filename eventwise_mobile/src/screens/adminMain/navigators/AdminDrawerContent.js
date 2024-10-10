@@ -12,9 +12,14 @@ import { Avatar } from "react-native-paper";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import styles from "../styles/styles";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  MaterialCommunityIcons,
+  AntDesign,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import useStore from "../../../stateManagement/useStore";
 const AdminDrawerContent = (props) => {
+  const { userName } = useStore();
   const { selectedDrawerScreen, setSelectedDrawerScreen } = useStore();
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -39,6 +44,14 @@ const AdminDrawerContent = (props) => {
           case "Inventory Tracker":
             setSelectedDrawerScreen(screenName);
             navigation.navigate("Inventory Tracker");
+            break;
+          case "GroupAdmin":
+            setSelectedDrawerScreen(screenName);
+            navigation.navigate("GroupAdmin");
+            break;
+          case "AboutAdmin":
+            setSelectedDrawerScreen(screenName);
+            navigation.navigate("AboutAdmin");
             break;
           default:
             break;
@@ -102,7 +115,7 @@ const AdminDrawerContent = (props) => {
               alignItems: "center",
             }}
           >
-            <Text style={styles.userName}>Avril Carasco</Text>
+            <Text style={styles.userName}>{userName}</Text>
             <Ionicons
               name="chevron-down"
               size={20}
@@ -188,6 +201,40 @@ const AdminDrawerContent = (props) => {
           screenName={"Inventory Tracker"}
           onPress={() => props.navigation.navigate("OptionsSP")}
         />
+        <DrawerItem
+          label="GroupAdmin"
+          iconComponent={
+            <MaterialIcons
+              name={selectedDrawerScreen === "GroupAdmin" ? "groups" : "groups"}
+              size={24}
+              color={
+                selectedDrawerScreen === "GroupAdmin" ? "black" : "dark-gray"
+              }
+              style={styles.drawerIcon}
+            />
+          }
+          screenName={"GroupAdmin"}
+          onPress={() => props.navigation.navigate("GroupAdmin")}
+        />
+        <DrawerItem
+          label="AboutAdmin"
+          iconComponent={
+            <AntDesign
+              name={
+                selectedDrawerScreen === "AboutAdmin"
+                  ? "exclamationcircle"
+                  : "exclamationcircleo"
+              }
+              size={24}
+              color={
+                selectedDrawerScreen === "AboutAdmin" ? "black" : "dark-gray"
+              }
+              style={styles.drawerIcon}
+            />
+          }
+          screenName={"AboutAdmin"}
+          onPress={() => props.navigation.navigate("AboutAdmin")}
+        />
       </DrawerContentScrollView>
       {dropdownVisible && (
         <View style={styles.dropdown}>
@@ -205,8 +252,8 @@ const AdminDrawerContent = (props) => {
             label="Settings"
             onPress={() => {
               setDropdownVisible(false);
-              navigation.navigate("Settings");
-              console.log("Settings");
+              navigation.navigate("SettingsAdmin");
+              // console.log("Settings");
             }}
           />
           <DropdownItem

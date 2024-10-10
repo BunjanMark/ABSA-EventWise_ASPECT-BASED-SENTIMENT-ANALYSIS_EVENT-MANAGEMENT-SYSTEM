@@ -9,12 +9,14 @@ import {
   Button,
   SafeAreaView,
   Platform,
+  TextInput,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
-import { SimpleLineIcons } from "@expo/vector-icons";
+import { SimpleLineIcons, MaterialIcons } from "@expo/vector-icons";
 import styles from "../../styles/styles";
 
 import Timeline from "react-native-timeline-flatlist";
+import { Picker } from "@react-native-picker/picker";
 const ScheduleScreen = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [markedDates, setMarkedDates] = useState({});
@@ -40,14 +42,14 @@ const ScheduleScreen = () => {
       {
         startTime: "10:00 AM",
         endTime: "11:30 AM",
-        title: "Code Review",
+        title: "Meeting sa Team",
         description: "Review recent PRs with the team.",
       },
       {
         startTime: "04:00 PM",
         endTime: "05:30 PM",
         title: "Design Discussion",
-        description: "Discuss new UI designs.",
+        description: "Discuss new floor designs.",
       },
     ],
     "2024-09-20": [
@@ -136,6 +138,20 @@ const ScheduleScreen = () => {
     setIsModalVisible(false);
     setSelectedEvent(null);
   };
+  // Add a new state to store the modal visibility
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+
+  // Add a new state to store the event date
+  const [eventDate, setEventDate] = useState(null);
+
+  // Add a new state to store the event start time
+  const [eventStartTime, setEventStartTime] = useState(null);
+
+  // Add a new state to store the event end time
+  const [eventEndTime, setEventEndTime] = useState(null);
+
+  // Add a new state to store the time frames
+  const [timeFrames, setTimeFrames] = useState([]);
 
   return (
     <View style={styles.container}>
@@ -284,6 +300,120 @@ const ScheduleScreen = () => {
           </View>
         </View>
       </Modal>
+      <Modal
+        visible={isAddModalVisible}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={[styles.modalContainer]}>
+          <View style={[styles.modalContent, { borderRadius: 14 }]}>
+            <Text style={[styles.modalTitle, { fontWeight: "bold" }]}>
+              Create Time Frame
+            </Text>
+            <View style={{ padding: 20 }}>
+              <Text style={styles.label}>Choose Event:</Text>
+              <Picker
+                selectedValue={selectedEvent}
+                onValueChange={(itemValue) => setSelectedEvent(itemValue)}
+              >
+                {Object.keys(schedules).map((date) => (
+                  <Picker.Item label={date} value={date} key={date} />
+                ))}
+              </Picker>
+              <Text style={styles.label}>Choose Event Date:</Text>
+              <TextInput
+                value={eventDate}
+                onChangeText={(text) => setEventDate(text)}
+                placeholder="YYYY-MM-DD"
+              />
+              <Text style={styles.label}>Set Event Started:</Text>
+              <TextInput
+                value={eventStartTime}
+                onChangeText={(text) => setEventStartTime(text)}
+                placeholder="HH:MM"
+              />
+              <Text style={styles.label}>Set Event Ended:</Text>
+              <TextInput
+                value={eventEndTime}
+                onChangeText={(text) => setEventEndTime(text)}
+                placeholder="HH:MM"
+              />
+              <Text style={styles.label}>Time Frames:</Text>
+              <View style={{ height: 200, overflow: "scroll" }}>
+                {timeFrames.map((timeFrame, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Text style={styles.label}>Time:</Text>
+                    <TextInput
+                      value={timeFrame.time}
+                      onChangeText={(text) =>
+                        setTimeFrames((prevTimeFrames) => {
+                          const newTimeFrames = [...prevTimeFrames];
+                          newTimeFrames[index].time = text;
+                          return newTimeFrames;
+                        })
+                      }
+                    />
+                    <Text style={styles.label}>Event:</Text>
+                    <TextInput
+                      value={timeFrame.event}
+                      onChangeText={(text) =>
+                        setTimeFrames((prevTimeFrames) => {
+                          const newTimeFrames = [...prevTimeFrames];
+                          newTimeFrames[index].event = text;
+                          return newTimeFrames;
+                        })
+                      }
+                    />
+                    <Text style={styles.label}>Description:</Text>
+                    <TextInput
+                      value={timeFrame.description}
+                      onChangeText={(text) =>
+                        setTimeFrames((prevTimeFrames) => {
+                          const newTimeFrames = [...prevTimeFrames];
+                          newTimeFrames[index].description = text;
+                          return newTimeFrames;
+                        })
+                      }
+                    />
+                  </View>
+                ))}
+              </View>
+              <TouchableOpacity
+                onPress={() =>
+                  setTimeFrames((prevTimeFrames) => [
+                    ...prevTimeFrames,
+                    { time: "", event: "", description: "" },
+                  ])
+                }
+              >
+                <Text style={styles.label}>Add Time Frame</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  setTimeFrames((prevTimeFrames) => prevTimeFrames.slice(0, -1))
+                }
+              >
+                <Text style={styles.label}>Delete Time Frame</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  // Save the time frames
+                  // ...
+                  setIsAddModalVisible(false);
+                }}
+              >
+                <Text style={styles.label}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       {/* <Timeline
         data={timeline}
         circleSize={20}
@@ -308,6 +438,31 @@ const ScheduleScreen = () => {
         }}
         isUsingFlatlist={true}
       /> */}
+      {/* // Add the floating add button */}
+      <View
+        style={{
+          position: "absolute",
+
+          backgroundColor: "rgba(255,200,89,1)",
+
+          width: 50,
+          height: 50,
+          justifyContent: "center",
+          alignContent: "center",
+          alignItems: "center",
+          borderRadius: 25,
+          bottom: 120,
+          right: 40,
+        }}
+      >
+        <TouchableOpacity onPress={() => setIsAddModalVisible(true)}>
+          <MaterialIcons
+            name="format-list-bulleted-add"
+            size={27}
+            color="black"
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

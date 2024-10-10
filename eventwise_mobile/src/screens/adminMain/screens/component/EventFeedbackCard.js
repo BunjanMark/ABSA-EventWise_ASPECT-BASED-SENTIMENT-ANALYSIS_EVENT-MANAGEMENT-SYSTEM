@@ -1,12 +1,12 @@
 import { View, Text } from "react-native";
 import React from "react";
 
-const AboutAdmin = () => {
+const EventFeedbackCard = ({ title }) => {
   return (
     <View>
-      <Text>AboutAdmin</Text>
+      <Text>EventFeedbackCard</Text>
     </View>
   );
 };
 
-export default AboutAdmin;
+export default EventFeedbackCard;

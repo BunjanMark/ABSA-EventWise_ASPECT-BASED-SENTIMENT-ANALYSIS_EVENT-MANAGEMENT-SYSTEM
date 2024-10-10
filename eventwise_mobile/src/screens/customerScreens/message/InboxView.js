@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBar from '../elements/SearchBAr';
@@ -17,7 +17,6 @@ const conversations = [
 
 const InboxView = () => {
   const navigator = useNavigation();
-  const navigation = useNavigation();
   const [showSearch, setShowSearch] = useState(false);
 
   const renderConversation = ({ item }) => (
@@ -37,36 +36,26 @@ const InboxView = () => {
   };
 
   return (
-      <View style={styles.container}>
-        <ImageBackground
-          source={require("../pictures/bg.png")}
-          style={styles.background}
-        >
+    <View style={styles.container}>
       <View style={styles.head}>
-      <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-        <Icon name="close" size={24} color="#fff" />
-      </TouchableOpacity>
-      <TouchableOpacity
-            onPress={() => setShowSearch(true)}
-            style={styles.searchIconButton}
-          >
-            <Icon name="search" size={20} color="#fff" />
-          </TouchableOpacity>
-        </View>
-        {showSearch && (
+        <TouchableOpacity style={styles.closeButton} onPress={() => navigator.goBack()}>
+          <Icon name="close" size={24} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setShowSearch(true)}
+          style={styles.searchIconButton}
+        >
+          <Icon name="search" size={20} color="#000" />
+        </TouchableOpacity>
+      </View>
+      {showSearch && (
         <SearchBar
           onClose={() => setShowSearch(false)}
           onSearch={handleSearch}
         />
       )}
-          <View style={styles.titleCon}>
-            <Text style={styles.title}>Messages</Text>
-          </View>
-     <View style={styles.tabs}>
-        <TouchableOpacity style={styles.tab}><Text style={styles.tabText}>Customer</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.tab}><Text style={styles.tabText}>Supplier</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.tab}><Text style={styles.tabText}>Groups</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.tab}><Text style={styles.tabText}>Add More</Text></TouchableOpacity>
+      <View style={styles.titleCon}>
+        <Text style={styles.title}>Messages</Text>
       </View>
       <FlatList
         data={conversations}
@@ -78,10 +67,9 @@ const InboxView = () => {
         style={styles.newMessageButton} 
         onPress={() => navigator.navigate('SelectContactView')}
       >
-        <Icon name="plus" size={20} color="#fff" />
+        <Icon name="plus" size={20} color="#000" />
         <Text style={styles.newMessageButtonText}>Create New Message</Text>
       </TouchableOpacity>
-      </ImageBackground>
     </View>
   );
 };
@@ -89,10 +77,7 @@ const InboxView = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  background: {
-    flex: 1,
+    backgroundColor: '#fff',
     padding: 20,
   },
   head: {
@@ -103,7 +88,6 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     padding: 10,
     marginTop: 5,
-    marginLeft: -5
   },
   searchIconButton: {
     width: 24,
@@ -117,33 +101,19 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: 18,
     marginBottom: 18,
-    fontSize: 25,
+    fontSize: 24,
+    fontFamily: "Poppins",
     fontWeight: 'bold',
-    color: "#EFBF04",
+    color: "#000",
     alignItems: "center"
   },
   titleCon: {
     alignSelf: "center",
     marginTop: -20,
   },
-  tabs: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  tab: {
-    marginRight: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: '#e6b800',
-  },
-  tabText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
   contactsList: {
     paddingBottom: 16,
-    backgroundColor: "white",
+    backgroundColor: "#fff",
     borderRadius: 30,
   },
   contactContainer: {
@@ -153,21 +123,27 @@ const styles = StyleSheet.create({
   },
   contactName: {
     fontSize: 18,
+    fontFamily: "Poppins",
     fontWeight: 'bold',
+    color: '#000',
   },
   contactMessage: {
     color: '#666',
     marginVertical: 4,
+    fontSize: 16,
+    fontFamily: "Poppins",
   },
   contactTime: {
     color: '#999',
     alignSelf: 'flex-end',
+    fontSize: 16,
+    fontFamily: "Poppins",
   },
   newMessageButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#e6b800',
+    backgroundColor: '#e6e6e6',
     padding: 16,
     borderRadius: 20,
     position: 'absolute',
@@ -175,9 +151,11 @@ const styles = StyleSheet.create({
     right: 16,
   },
   newMessageButtonText: {
-    color: '#fff',
+    color: '#000',
     marginLeft: 8,
     fontWeight: 'bold',
+    fontSize: 16,
+    fontFamily: "Poppins",
   },
 });
 

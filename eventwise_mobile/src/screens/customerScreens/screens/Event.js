@@ -1,282 +1,266 @@
-import React, { useEffect, useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ImageBackground,
-  Image,
-} from "react-native";
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
 import Header from "../elements/Header";
-import Icon from "react-native-vector-icons/FontAwesome";
-import { getAccountProfile, getUser } from "../../../services/authServices";
-import useStore from "../../../stateManagement/store";
-const Event = () => {
-  const [eventDetails, setEventDetails] = useState([]);
-  const navigation = useNavigation();
-  const route = useRoute();
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-  const { eventName } = route.params || {};
+const Event = () => {
+  const navigation = useNavigation();
+  const [events, setEvents] = useState([]);  
+  const [isDropdownVisible, setDropdownVisible] = useState(false); 
+  const [activeEventIndex, setActiveEventIndex] = useState(null); 
+  const [searchQuery, setSearchQuery] = useState(''); 
 
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
   };
 
-  const fetchEventDetails = async () => {
+  const loadEvents = async () => {
     try {
-      const keys = await AsyncStorage.getAllKeys();
-      console.log("Keys:", keys);
-      const events = await AsyncStorage.multiGet(keys);
-      console.log("Events:", events);
-
-      const filteredEvents = events
-        .filter(([key]) => key.startsWith("@booked_events:"))
-        .map(([key, value]) => {
-          const event = JSON.parse(value);
-          return { ...event, key };
-        });
-
-      console.log("Filtered Events:", filteredEvents);
-
-      filteredEvents.sort(
-        (a, b) => parseInt(b.key.split(":")[1]) - parseInt(a.key.split(":")[1])
-      );
-
-      setEventDetails(filteredEvents);
-    } catch (e) {
-      console.error("Error fetching event details:", e);
-      showToast("Failed to fetch event details.");
+      const savedEventsJson = await AsyncStorage.getItem('@event_data');
+      const savedEvents = savedEventsJson ? JSON.parse(savedEventsJson) : [];
+      const sortedEvents = savedEvents.sort((a, b) => new Date(b.selectedDate) - new Date(a.selectedDate));
+      setEvents(sortedEvents); 
+    } catch (error) {
+      console.error('Error loading events:', error);
     }
   };
 
   useFocusEffect(
-    useCallback(() => {
-      fetchEventDetails();
+    React.useCallback(() => {
+      loadEvents(); 
     }, [])
-  );
+  );  
+
+  const filteredEvents = events.filter(event => 
+    (event.eventName && event.eventName.toLowerCase().includes(searchQuery.toLowerCase())) || 
+    (event.venue && event.venue.toLowerCase().includes(searchQuery.toLowerCase()))
+  );   
+
+  const handleDropdownToggle = (index) => {
+    if (activeEventIndex === index) {
+      setDropdownVisible(prev => !prev); 
+      setActiveEventIndex(null); 
+    } else {
+      setActiveEventIndex(index); 
+      setDropdownVisible(true); 
+    }
+  };
+
+  const handleLocationPress = (event) => {
+    // Navigate to Venue screen and pass venue details
+    navigation.navigate('Venue', {
+      selectedVenue: event.venue,
+      selectedAddress: event.address,
+      selectedPackage: require('../pictures/v1.png'), // Replace with your actual package image if needed
+    });
+  };
+  
 
   return (
-    <View style={{ flex: 1 }}>
-      <ImageBackground
-        source={require("../pictures/bg.png")}
-        style={styles.backgroundImage}
-      >
-        <Header />
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Joined Events</Text>
-            <Text style={styles.sub}>Booked Event</Text>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}> 
+      <Header />
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search events..."
+              value={searchQuery}
+              onChangeText={text => setSearchQuery(text)}
+            />
           </View>
-          {accountProfiles.length > 0 && ( // Display account profiles
-            <View style={styles.profileContainer}>
-              {accountProfiles.map((profiles, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.profileItem}
-                  onPress={() => handleProfileClick(profiles)}
-                >
-                  <Text style={styles.profileDetail}>
-                    Profile ID: {profiles.id}
-                  </Text>
-                  <Text style={styles.profileDetail}>
-                    Profile Name: {profiles.service_provider_name}
-                  </Text>
-                  <Text style={styles.profileDetail}>
-                    Description: {profiles.description}
-                  </Text>
-                  {/* Add more profile details as needed */}
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-          {eventDetails.length === 0 ? (
-            <Text style={styles.errorText}>No events booked yet.</Text>
-          ) : (
-            eventDetails.map((event, index) => (
+
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map((event, index) => (
               <View key={index} style={styles.eventFolder}>
-                <View style={styles.leftColumn}>
-                  <Image
-                    source={require("../pictures/user.png")}
-                    style={styles.accountImage}
-                  />
-                  <Text style={styles.orgName}>Organizer</Text>
-                  <Image
-                    source={require("../pictures/user.png")}
-                    style={styles.accountImage}
-                  />
-                  <Text style={styles.orgName}>Organizer</Text>
-                </View>
-                <View style={styles.centerColumn}>
-                  <View style={styles.line} />
-                  <View style={styles.line} />
-                  <Text style={styles.eventType}>{event.eventType}</Text>
-                  <Text style={styles.eventLocation}>
-                    {event.eventLocation}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate("EventDetails")}
-                  >
-                    onPress=
-                    {() => navigation.navigate("EventDetails", { event })}
-                    <Text style={styles.viewAllButton}>View All</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.rightColumn}>
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate("Feedback")}
-                    style={styles.button}
-                  >
-                    <Icon name="thumbs-up" size={20} color="black" />
-                    <Text style={styles.feedbackButton}>Feedback</Text>
-                  </TouchableOpacity>
-                  <View style={styles.lineLeft} />
-                  <Text style={styles.eventDate}>{event.eventDate}</Text>
+                <Image
+                  source={require("../pictures/bookpic.png")} 
+                  style={styles.eventImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.eventDetailsContainer}>
+                  <Text style={styles.eventName}>{event.eventName || 'No event name'}</Text>
+                  <View style={styles.eventInfo}>
+                  <View style={styles.eventDetails}>
+                      <Icon name="calendar" size={16} color="#007BFF" />
+                      <Text style={styles.eventDate}>{event.selectedDate || 'No date'}</Text>
+                    </View>
+                    <View style={styles.eventDetails}>
+                      <Icon name="map-marker" size={16} color="#007BFF" />
+                      <TouchableOpacity onPress={() => handleLocationPress(event)}>
+                        <Text style={styles.eventLocation}>{event.venue || 'No location'}</Text>
+                      </TouchableOpacity>                    
+                    </View>
+                  </View>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('EventDetails', { event })}
+                    >
+                      <Text style={styles.viewAllButton}>View All</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleDropdownToggle(index)} 
+                      style={styles.button}
+                    >
+                      <Icon name="dots-vertical" size={24} color="#000" />
+                    </TouchableOpacity>
+                  </View>
+
+                  {isDropdownVisible && activeEventIndex === index && ( 
+                    <View style={styles.dropdown}>
+                      <TouchableOpacity 
+                        onPress={() => setDropdownVisible(false)} 
+                        style={styles.closeButton}
+                      >
+                        <Icon name="close" size={20} color="#fff" />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => navigation.navigate('InventoryTracker')} style={styles.dropdownItem}>
+                        <Icon name="calendar-multiple-check" size={16} color="#fff" style={styles.dropdownIcon} />
+                        <Text style={styles.dropdownText}>Inventory</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => navigation.navigate('Feedback')} style={styles.dropdownItem}>
+                        <Icon name="comment-account-outline" size={16} color="#fff" style={styles.dropdownIcon} />
+                        <Text style={styles.dropdownText}>Feedback</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => navigation.navigate('Guest')} style={styles.dropdownItem}>
+                        <Icon name="account-multiple-outline" size={16} color="#fff" style={styles.dropdownIcon} />
+                        <Text style={styles.dropdownText}>Guest</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
               </View>
             ))
+          ) : (
+            <Text style={styles.errorText}>No events found.</Text>
           )}
         </ScrollView>
-      </ImageBackground>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
-    marginBottom: 70,
-  },
-  backgroundImage: {
     flex: 1,
-    resizeMode: "cover",
   },
-  header: {
-    alignItems: "center",
-    marginVertical: 20,
-    marginTop: 8,
+  scrollViewContainer: {
+    marginHorizontal: 20,
+    paddingBottom: 40,
   },
-  headerText: {
-    color: "#e6b800",
-    fontSize: 24,
-    fontWeight: "bold",
+  searchContainer: {
+    marginBottom: 20,
+    paddingHorizontal: 20,
+    marginTop: 20,
   },
-  sub: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+  searchInput: {
+    borderColor: '#f0f0f0',
+    borderRadius: 10,
+    borderWidth: 2,
+    padding: 10,
+    fontSize: 16,
+    fontFamily: "Poppins",
   },
   eventFolder: {
-    flexDirection: "row",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    flexDirection: 'column',
+    backgroundColor: '#fff',
     padding: 15,
     borderRadius: 15,
     marginBottom: 20,
-    alignItems: "center",
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  leftColumn: {
-    flex: 1,
-    flexDirection: "column",
-    alignItems: "center",
+  eventImage: {
+    width: '100%', 
+    height: 220,
+    borderRadius: 15,
+    marginBottom: 10,
   },
-  accountImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  eventDetailsContainer: {
+    marginLeft: 0,
   },
-  orgName: {
-    color: "#000",
-    fontSize: 12,
-    fontWeight: "bold",
-    marginTop: 5,
-  },
-  centerColumn: {
-    flex: 1,
-    marginLeft: 10,
-  },
-  line: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 1,
-    backgroundColor: "gray",
-    zIndex: 1,
-  },
-  eventType: {
-    color: "#000",
+  eventName: {
+    color: '#000',
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#000",
-    fontSize: 14,
-    fontWeight: "bold",
-    marginLeft: 10,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
-  eventLocation: {
-    color: "#000",
-    fontSize: 16,
-    color: "#000",
-    fontSize: 12,
-    marginBottom: 15,
-    marginLeft: 10,
+  eventInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
-  viewAllButton: {
-    color: "#e6b800",
-    fontSize: 14,
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-    color: "#e6b800",
-    fontSize: 13,
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-    marginLeft: 10,
-  },
-  button: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "#e6b800",
-    borderRadius: 20,
-    padding: 10,
-    marginBottom: 20,
-  },
-  feedbackButton: {
-    color: "#000",
-    fontSize: 16,
-    color: "#000",
-    fontSize: 15,
-    marginLeft: 8,
-  },
-  rightColumn: {
-    flex: 2,
-    alignItems: "flex-end",
-    flexDirection: "column",
-  },
-  lineLeft: {
-    position: "absolute",
-    left: 70,
-    top: 55,
-    bottom: 0,
-    width: 1,
-    height: 30,
-    backgroundColor: "gray",
-    zIndex: 1,
+  eventDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   eventDate: {
-    color: "#000",
+    marginLeft: 5,
+    color: '#555',
+  },
+  eventLocation: {
+    marginLeft: 5,
+    color: '#555',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  viewAllButton: {
+    color: '#FFC42B',
     fontSize: 16,
+    fontFamily: "Poppins",
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+  },
+  button: {
+    padding: 10,
+    zIndex: 1,
   },
   errorText: {
-    color: "red",
-    textAlign: "center",
+    color: '#f00',
+    textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
+    fontFamily: "Poppins",
+  },
+  dropdown: {
+    position: 'absolute',
+    top: -12, 
+    backgroundColor: '#efbc31',
+    borderRadius: 20,
+    padding: 10,
+    elevation: 5,
+    zIndex: 2,
+    minWidth: '100%',
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+  dropdownIcon: {
+    marginRight: 10,
+  },
+  dropdownText: {
+    fontSize: 16,
+    fontFamily: "Poppins",
+    color: '#fff',
+  },
+  closeButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    padding: 10,
+    zIndex: 3, 
   },
 });
 

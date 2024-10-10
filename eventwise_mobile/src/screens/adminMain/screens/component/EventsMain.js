@@ -3,41 +3,18 @@ import { SafeAreaView, Text, ScrollView, View } from "react-native";
 import styles from "../../styles/styles";
 import useStore from "../../../../stateManagement/useStore";
 import EventMainCard from "./EventMainCard";
-import event2 from "../../../../../assets/event2.png";
-
-const events = [
-  {
-    id: 1,
-    image: event2,
-    title: "Mr. & Mrs. Malik Wedding",
-    date: "June 12, 2024",
-    location: "Manila",
-  },
-  {
-    id: 2,
-    image: event2,
-    title: "BIRTHDAY NAKO!!!",
-    date: "July 20, 2024",
-    location: "Quezon City",
-  },
-  {
-    id: 3,
-    image: event2,
-    title: "TOUCH ME PLEASEEE",
-    date: "August 15, 2024",
-    location: "Cebu",
-  },
-];
+import event2 from "../../../../../assets/event2.png"; // Ensure you have the right path for the image
 
 const EventsMain = () => {
-  const { likedEvents, toggleLike, initializeLikedEvents } = useStore();
+  const { eventData, likedEvents, toggleLike, initializeLikedEvents } =
+    useStore();
 
   useEffect(() => {
     initializeLikedEvents(); // Load liked events from storage
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: "red" }]}>
       <View>
         <Text style={styles.header}>
           <Text style={styles.title}>My Events</Text>
@@ -48,10 +25,16 @@ const EventsMain = () => {
         showsHorizontalScrollIndicator={false}
         style={styles.scrollViewEventPackage}
       >
-        {events.map((event) => (
+        {eventData.map((event) => (
           <EventMainCard
-            key={event.id}
-            event={event}
+            key={event.eventId} // Assuming each event has a unique eventId
+            event={{
+              id: event.eventId, // Use eventId from your data
+              image: event.image || event2, // Default to event2 if no image in data
+              title: event.eventName, // Using the eventName from your data
+              date: event.eventDate, // Using the eventDate from your data
+              location: event.eventLocation, // Using the eventLocation from your data
+            }}
             likedEvents={likedEvents}
             toggleLike={toggleLike}
           />

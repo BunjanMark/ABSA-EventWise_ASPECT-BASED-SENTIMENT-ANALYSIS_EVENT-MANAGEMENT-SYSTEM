@@ -32,12 +32,12 @@ const AttendeeAdmin = () => {
     <SafeAreaView>
       <ScrollView>
         <AttendeeHeaderCard />
-        <AttendeeStatistics />
-        <DataTable
+        {/* <AttendeeStatistics /> */}
+        {/* <DataTable
           tableHead={tableHead}
           tableData={tableData}
           widthArr={widthArr}
-        />
+        /> */}
         <View style={{ height: 2000 }} />
       </ScrollView>
     </SafeAreaView>

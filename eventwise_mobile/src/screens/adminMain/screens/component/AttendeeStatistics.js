@@ -55,7 +55,7 @@ const AttendeeStatistics = () => {
               Total attendees:
             </Text>
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-              {series.reduce((a, b) => a + b)}
+              {/* {series.reduce((a, b) => a + b)} */}
             </Text>
           </View>
           {/* Pressable modal for number of feedbacks */}

@@ -3,21 +3,50 @@ import React from "react";
 
 import EventFeedbackSentiment from "../component/EventFeedbackSentiment";
 import styles from "../../styles/styles";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import LongPressComponent from "./LongPressComponent";
 import EventFeedbackAspect from "./EventFeedbackAspect";
+import useStore from "../../../../stateManagement/useStore";
 const FeedbackAdmin = () => {
+  const { eventData, sliceColor } = useStore(); // Using your state store
+
+  // No need to fetch event data as it's already set in useStore
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container]}>
       <View style={[styles.header, {}]}>
-        <Text style={styles.title}>Feedback Analysis</Text>
-        <TouchableOpacity>
-          {/* <Text style={styles.subtitle}>Go to</Text> */}
-        </TouchableOpacity>
+        <Text
+          style={[
+            styles.title,
+            {
+              textAlign: "center",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              // backgroundColor: "red",
+              width: "100%",
+              marginBottom: 15,
+            },
+          ]}
+        >
+          Event Feedbacks
+        </Text>
       </View>
       {/* Components */}
-      <EventFeedbackSentiment />
-      <EventFeedbackAspect />
+      <ScrollView>
+        <SafeAreaView style={[styles.scrollViewContentFeedback]}>
+          {eventData.map((event) => (
+            <EventFeedbackSentiment
+              key={event.eventId}
+              eventId={event.eventId}
+              eventName={event.eventName}
+              feedbackData={event.feedbackData || []} // Handle empty feedbackData
+              sliceColor={sliceColor}
+            />
+          ))}
+        </SafeAreaView>
+      </ScrollView>
+      {/* <EventFeedbackAspect /> */}
     </SafeAreaView>
   );
 };

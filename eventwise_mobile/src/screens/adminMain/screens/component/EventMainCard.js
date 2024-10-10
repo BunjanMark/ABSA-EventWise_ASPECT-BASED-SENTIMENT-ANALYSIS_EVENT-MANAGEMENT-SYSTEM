@@ -6,17 +6,21 @@ import event3 from "../../../../../assets/event3.png";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import useStore from "../../../../stateManagement/useStore";
+
 const EventMainCard = ({ event, likedEvents, toggleLike }) => {
+  const { eventData } = useStore();
   const [showMoreVisible, setShowMoreVisible] = useState(false);
   const { selectedDrawerScreen, setSelectedDrawerScreen } = useStore();
   const navigation = useNavigation();
   const toggleMore = () => {
     setShowMoreVisible(!showMoreVisible);
-    console.log(showMoreVisible);
+    // console.log(showMoreVisible);
   };
-  const handleMorePress = () => {
-    console.log("test");
-  };
+  // const handleMorePress = () => {
+  //   console.log("test");
+  // };
+  // list down all eventData
+
   const DropdownItem = ({ icon, label, onPress }) => (
     <TouchableOpacity style={styles.dropdownItem} onPress={onPress}>
       <MaterialCommunityIcons
@@ -108,7 +112,7 @@ const EventMainCard = ({ event, likedEvents, toggleLike }) => {
                 setShowMoreVisible(false);
                 // navigation.navigate("Account");
 
-                console.log("attendee nav pressed");
+                navigation.push("FeedbackEventDetails", { eventData1 });
               }}
             />
             <DropdownItem
@@ -117,8 +121,8 @@ const EventMainCard = ({ event, likedEvents, toggleLike }) => {
               onPress={() => {
                 setShowMoreVisible(false);
                 // navigation.navigate("Account");
-
-                console.log("attendee nav pressed");
+                // console.log("attendee nav pressed");
+                navigation.navigate("Inventory Tracker");
               }}
             />
           </View>
