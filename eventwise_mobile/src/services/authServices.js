@@ -18,6 +18,8 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+
+
 export const login = async (email, password) => {
   try {
     const response = await api.post("/auth/login", { email, password });
@@ -30,19 +32,21 @@ export const login = async (email, password) => {
   }
 };
 
-export const signup = async (userData) => {
+export const signup = async (data) => {
   try {
-    const response = await api.post("/auth/signup", userData);
+    const response = await axios.post(API_URL, data);
     return response.data;
   } catch (error) {
     if (error.response) {
-      console.error("Signup error response data:", error.response.data);
-      console.error("Signup error response status:", error.response.status);
-      // console.error("Signup error response headers:", error.response.headers);
+      // Server responded with a status other than 2xx
+      return { error: error.response.data.errors || 'Registration failed' };
+    } else if (error.request) {
+      // No response was received
+      return { error: 'No response from the server' };
     } else {
-      console.error("Signup error message:", error.message);
+      // Something happened in setting up the request
+      return { error: error.message };
     }
-    throw error;
   }
 };
 

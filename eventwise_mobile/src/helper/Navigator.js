@@ -11,6 +11,7 @@ import Register from "../screens/authentication/Register";
 import Login from "../screens/authentication/Login";
 import AccountRecovery from "../screens/authentication/AccountRecovery";
 import Landing from "../screens/authentication/Landing";
+import Register2 from "../screens/authentication/Register2";
 
 import GuestLanding from "../screens/authentication/GuestLanding";
 
@@ -77,6 +78,12 @@ const AuthenticationStack = () => {
       <Stack.Screen
         name="Register"
         component={Register}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="Register2"
+        component={Register2}
         options={{ headerShown: false }}
       />
       <Stack.Screen
