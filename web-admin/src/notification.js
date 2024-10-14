@@ -30,32 +30,82 @@ const Notification = () => {
     setModalVisibleDecline(false); // Close the overlay
   };
 
-  useEffect(() => {
-    const fetchServiceProviderRequests = async () => {
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/api/pending'); // Replace with your actual endpoint
-        setServiceProviderRequests(response.data); // Assuming the response data is an array
-      } catch (error) {
-        console.error('Error fetching service provider requests:', error);
-      }
-    };
+  const acceptPendingUser = async (id) => {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/accept-pending-user/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-    fetchServiceProviderRequests();
+        // Attempt to parse JSON regardless of response status
+        const data = await response.json().catch(() => null); 
+
+        if (response.ok) {
+            alert('User accepted successfully!');
+            fetchServiceProviderRequests(); // Refresh the list after acceptance
+        } else {
+            console.error('Error response:', data);
+            alert('Error: ' + (data?.error || 'An unknown error occurred'));
+        }
+    } catch (error) {
+        console.error('Error accepting user:', error);
+    }
+};
+
+
+
+  // Decline pending user
+  const declinePendingUser = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/decline-pending-user/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('User declined successfully!');
+        fetchServiceProviderRequests(); // Refresh the list after decline
+      } else {
+        console.error(data.error);
+        alert('Error: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error declining user:', error);
+    }
+  };
+
+  const fetchServiceProviderRequests = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/api/pending'); // Replace with your actual endpoint
+      setServiceProviderRequests(response.data); // Assuming the response data is an array
+    } catch (error) {
+      console.error('Error fetching service provider requests:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchServiceProviderRequests(); // Fetch data when component mounts
   }, []);
 
   function formatDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     const date = new Date(dateString);
     return date.toLocaleDateString(undefined, options);
-}
+  }
 
-function capitalizeWords(str) {
-  return str
+  function capitalizeWords(str) {
+    return str
       .toLowerCase() // Convert the entire string to lowercase
       .split(' ') // Split the string into words
       .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
       .join(' '); // Join the words back into a single string
-}
+  }
 
   const notificationsData = {
     'This Week': [
@@ -101,7 +151,7 @@ function capitalizeWords(str) {
       name: `${request.name} ${request.lastname}`,
       role: capitalizeWords(request.role), // Capitalize the role here
       daysAgo: formatDate(request.created_at), // Format the date here
-  })),
+    })),
     'All': [
       {
         id: '1',
@@ -181,10 +231,10 @@ function capitalizeWords(str) {
               </div>
             </div>
             <div className="buttons-container">
-              <button className="accept-button">
+              <button className="accept-button" onClick={() => acceptPendingUser(notification.id)}>
                 <FontAwesomeIcon icon={faCheck} /> Accept
               </button>
-              <button className="decline-button">
+              <button className="decline-button" onClick={() => declinePendingUser(notification.id)}>
                 <FontAwesomeIcon icon={faTimes} /> Decline
               </button>
             </div>
@@ -196,18 +246,11 @@ function capitalizeWords(str) {
             <div className="left-container">
               <img src={proPic} className="profile-picture" alt="Profile" />
               <div className="notification-details">
-                {notification.title && <h3 className="notification-title">{notification.title}</h3>}
-                {notification.name && <p className="notification-name">{notification.name}</p>}
-                {notification.service && <p className="notification-service">{notification.service}</p>}
-                {notification.joined && <p className="notification-joined">{notification.joined}</p>}
+                <h3 className="notification-name">{notification.name}</h3>
+                <p className="notification-service">{notification.service}</p>
                 <p className="days-ago">{notification.daysAgo}</p>
               </div>
             </div>
-            {notification.rightImage && (
-              <div className="right-container">
-                <img src={notification.rightImage} className="right-image" alt="Right" />
-              </div>
-            )}
           </div>
         ));
       default:
@@ -241,35 +284,40 @@ function capitalizeWords(str) {
       {selectedEvent && (
         <div className="overlay">
           <div className="modal">
-            <h2>{selectedEvent.title}</h2>
-            <img src={selectedEvent.image} alt={selectedEvent.title} />
-            <p>Date: {selectedEvent.date}</p>
-            <p>Address: {selectedEvent.address}</p>
-            <p>Pax: {selectedEvent.pax}</p>
-            <button onClick={() => setSelectedEvent(null)}>Close</button>
+            <h2>{selectedEvent.name}'s {selectedEvent.title}</h2>
+            <p><strong>Date:</strong> {selectedEvent.date}</p>
+            <p><strong>Address:</strong> {selectedEvent.address}</p>
+            <p><strong>Pax:</strong> {selectedEvent.pax}</p>
+            <img src={selectedEvent.image} alt="Event" className="event-image" />
+            <button className="close-button" onClick={() => setSelectedEvent(null)}>Close</button>
           </div>
         </div>
       )}
 
-      {/* Accept Modal */}
-      {modalVisible && (
-        <Modal open={modalVisible} onClose={handleCloseModal}>
-          <div className="modal-content">
-            <h2>Booking Confirmed!</h2>
-            <button onClick={handleCloseModal}>Close</button>
-          </div>
-        </Modal>
-      )}
-
-      {/* Decline Modal */}
-      {modalVisibleDecline && (
-        <Modal open={modalVisibleDecline} onClose={handleCloseModalDecline}>
-          <div className="modal-content">
-            <h2>Booking Declined!</h2>
-            <button onClick={handleCloseModalDecline}>Close</button>
-          </div>
-        </Modal>
-      )}
+      <Modal
+        open={modalVisible}
+        onClose={handleCloseModal}
+        className="modal-overlay-guestpage"
+      >
+        <div className="modal-content-guestpage">
+          <button className="close-modal-btn-guestpage" onClick={handleCloseModal}>
+            &times; {/* X Button */}
+          </button>
+          <img src={require('./images/popup-accept.png')} alt="Popup" className="popup-image-guestpage" />
+        </div>
+      </Modal>
+      <Modal
+        open={modalVisibleDecline}
+        onClose={handleCloseModalDecline}
+        className="modal-overlay-guestpage"
+      >
+        <div className="modal-content-guestpage">
+          <button className="close-modal-btn-guestpage" onClick={handleCloseModalDecline}>
+            &times; {/* X Button */}
+          </button>
+          <img src={require('./images/popup-delete.png')} alt="Popup" className="popup-image-guestpage" />
+        </div>
+      </Modal>
     </div>
   );
 };
