@@ -39,7 +39,7 @@ export default function ScheduleApp() {
           { time: "09:15 AM", description: "Introduction to the team" },
           { time: "09:30 AM", description: "Updates from each member" },
           { time: "10:00 AM", description: "Discussion on blockers" },
-          { time: "10:30 AM", description: "Wrap up and next steps" },
+          { time: "10:30 AM", description: "Wrap up and next stepsss" },
         ],
       },
     ],
