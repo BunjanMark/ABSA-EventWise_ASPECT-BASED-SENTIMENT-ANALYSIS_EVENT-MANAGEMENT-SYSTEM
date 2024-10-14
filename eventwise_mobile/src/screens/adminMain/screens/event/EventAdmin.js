@@ -3,8 +3,11 @@ import React from "react";
 import EventPackages from "../component/EventPackages";
 import { ScrollView } from "react-native-gesture-handler";
 import EventsMain from "../component/EventsMain";
+import AddEventOrPackageModalNew from "../component/AddEventOrPackageModalNew";
+import { useState } from "react";
 
 const EventAdmin = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
   return (
     <SafeAreaView>
       <ScrollView>

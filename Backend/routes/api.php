@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\AccountManagementController;
+use App\Http\Controllers\PackageController;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -48,6 +49,8 @@ return response()->json(['status' => 200, 'message' => 'Hello World!']);
 // return response()->json(compact('token'))->header("Access-Control-Allow-Origin",  "*");
 });
 
+// Admin Package Management
+Route::post('/admin/packages', [PackageController::class, 'store']);
 
 // Protected Routes for admin
 // sample

@@ -11,6 +11,7 @@ import styles from "../../styles/styles";
 import { useNavigation } from "@react-navigation/native";
 import TotalEventFeedback from "../component/TotalEventFeedback";
 import useStore from "../../../../stateManagement/useStore";
+import TestUploadComponent from "../component/testUploadComponent";
 
 const HomeAdmin = () => {
   const { eventData, sliceColor } = useStore(); // Using your state store

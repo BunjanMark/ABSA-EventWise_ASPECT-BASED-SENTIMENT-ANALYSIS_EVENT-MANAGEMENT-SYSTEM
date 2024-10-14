@@ -262,6 +262,7 @@ const AdminDrawerContent = (props) => {
             onPress={() => {
               setDropdownVisible(false);
               // Handle logout functionality here
+              navigation.goBack();
             }}
           />
         </View>

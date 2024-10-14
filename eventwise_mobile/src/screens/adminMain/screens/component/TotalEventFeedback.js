@@ -8,6 +8,7 @@ import useStore from "../../../../stateManagement/useStore";
 import { useState } from "react";
 import { Modal } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { VictoryPie, VictoryLabel } from "victory-native"; // Import Victory Pie Chart
 
 const TotalEventFeedback = ({ eventData, sliceColor }) => {
   // Initialize counters
@@ -23,19 +24,49 @@ const TotalEventFeedback = ({ eventData, sliceColor }) => {
   const [modalVisibleNeutral, setModalVisibleNeutral] = useState(false);
   // Process all feedback data across events
   eventData.forEach((event) => {
-    event.feedbackData.forEach((feedback) => {
-      // Tally feedback based on sentiment
-      if (feedback.sentiment in feedbackCount) {
-        feedbackCount[feedback.sentiment]++;
-      } else {
-        feedbackCount[feedback.sentiment] = 1;
-      }
-    });
+    if (event.feedbackData && event.feedbackData.length > 0) {
+      // Add this check
+      event.feedbackData.forEach((feedback) => {
+        if (feedback.sentiment in feedbackCount) {
+          feedbackCount[feedback.sentiment]++;
+        } else {
+          feedbackCount[feedback.sentiment] = 1;
+        }
+      });
+    }
   });
   const handleGoToButtonPress = () => {
     console.log("Go to FeedbackAdmin");
     navigation.navigate("Feedback");
     // FeedbackEventDetails
+  };
+  const totalFeedbackCount =
+    feedbackCount.positive + feedbackCount.negative + feedbackCount.neutral ||
+    1;
+  const data = [
+    {
+      x: "Positive",
+      y: (feedbackCount.positive / totalFeedbackCount) * 100 || 0.01, // Display at least a very small value
+      color: "rgba(9,226,0,1)",
+      blurColor: "rgba(9,226,0,0.5)",
+    },
+    {
+      x: "Negative",
+      y: (feedbackCount.negative / totalFeedbackCount) * 100 || 0.01, // Display at least a very small value
+      color: "#ff3c00",
+      blurColor: "rgba(255,60,0,0.5)",
+    },
+    {
+      x: "Neutral",
+      y: (feedbackCount.neutral / totalFeedbackCount) * 100 || 0.01, // Ensure neutral value is displayed
+      color: "#fbd203",
+      blurColor: "rgba(251,210,3,0.5)",
+    },
+  ];
+  const [clickedIndex, setClickedIndex] = useState(null);
+
+  const handleClick = (index) => {
+    setClickedIndex(clickedIndex === index ? null : index);
   };
   return (
     <SafeAreaView style={[styles.container]}>
@@ -97,16 +128,45 @@ const TotalEventFeedback = ({ eventData, sliceColor }) => {
             },
           ]}
         >
-          <View style={[styles.sentimentBlock, {}]}>
-            <PieChart
-              widthAndHeight={160}
-              series={[
-                feedbackCount.negative,
-                feedbackCount.positive,
-                feedbackCount.neutral,
+          <View style={[styles.sentimentBlock, { height: 160 }]}>
+            <VictoryPie
+              // origin={{ y: 250 }}
+              height={260}
+              // width={100}
+              labelPosition={"centroid"}
+              labelRadius={43}
+              // padding={110}
+              data={data}
+              labels={({ datum }) =>
+                datum.y === data[clickedIndex]?.y
+                  ? `${Math.round(datum.y)}%` // Display total sentiment feedback
+                  : datum.x
+              }
+              padAngle={2.4}
+              innerRadius={1}
+              style={{
+                data: {
+                  fill: ({ index }) =>
+                    index === clickedIndex
+                      ? data[index].blurColor // Blurred color when clicked
+                      : data[index].color, // Original color
+                },
+                labels: { fill: "black", fontSize: 14 },
+              }}
+              colorScale={data.map((item) => item.color)}
+              events={[
+                {
+                  target: "data",
+                  eventHandlers: {
+                    onPressIn: (event, props) => {
+                      handleClick(props.index);
+                    },
+                  },
+                },
               ]}
-              sliceColor={sliceColor}
-              coverRadius={0.6}
+              labelComponent={
+                <VictoryLabel textAnchor="middle" style={{ fill: "black" }} />
+              } // Customize label appearance
             />
           </View>
           <View style={[styles.sentimentBlock, {}]}>
@@ -126,7 +186,7 @@ const TotalEventFeedback = ({ eventData, sliceColor }) => {
                 Total Events: {totalEvents}
               </Text>
               <Text style={{ fontSize: 15, fontWeight: "500" }}>
-                Total feedbacks:
+                Total feedbacks:{" "}
                 {feedbackCount.positive +
                   feedbackCount.negative +
                   feedbackCount.neutral}
@@ -242,21 +302,5 @@ const TotalEventFeedback = ({ eventData, sliceColor }) => {
     </SafeAreaView>
   );
 };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     padding: 16,
-//     backgroundColor: "#f8f9fa",
-//   },
-//   heading: {
-//     fontSize: 18,
-//     fontWeight: "bold",
-//     marginBottom: 10,
-//   },
-//   text: {
-//     fontSize: 16,
-//     marginVertical: 4,
-//   },
-// });
 
 export default TotalEventFeedback;

@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Text, ScrollView, View, Button } from "react-native";
+import {
+  SafeAreaView,
+  Text,
+  ScrollView,
+  View,
+  Button,
+  Modal,
+} from "react-native";
 import styles from "../../styles/styles";
 import useStore from "../../../../stateManagement/useStore";
 import EventPackageCard from "./EventPackageCard";
-import AddEventOrPackageModal from "./AddEventOrPackageModal"; // Import the new modal component
-
+import AddEventOrPackageModalNew from "./AddEventOrPackageModalNew";
+import AddEventOrPackageModal from "./AddEventOrPackage/AddEventOrPackageModal";
+import AddPackageG from "./AddPackageGcp";
+import TestUploadComponent from "./testUploadComponent";
 const EventPackages = () => {
   const { likedEvents, toggleLike, initializeLikedEvents, eventPackages } =
     useStore();
@@ -49,11 +58,14 @@ const EventPackages = () => {
       </ScrollView>
 
       {/* Modal for adding new event/package */}
-      <AddEventOrPackageModal
+      {/* <AddEventOrPackageModalNew
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         type="package" // Set type to "package"
-      />
+      /> */}
+
+      <AddPackageG onClose={() => setIsModalVisible(false)} />
+      <TestUploadComponent />
     </SafeAreaView>
   );
 };

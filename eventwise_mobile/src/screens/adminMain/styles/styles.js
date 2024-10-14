@@ -727,7 +727,7 @@ const styles = StyleSheet.create({
   },
   eventHeartIcon: {
     position: "absolute",
-    bottom: 220,
+    bottom: 250,
     right: 20,
     backgroundColor: "white",
     height: 30,

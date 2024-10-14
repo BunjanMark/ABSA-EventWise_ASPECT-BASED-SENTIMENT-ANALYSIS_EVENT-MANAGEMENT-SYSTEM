@@ -24,6 +24,7 @@ import SettingsAdmin from "../screens/settings/SettingsAdmin";
 import GroupAdmin from "../screens/group/GroupAdmin";
 
 import GuestListAdmin from "../screens/group/GuestListAdmin";
+import EventDetails from "../screens/event/EventDetails";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -71,6 +72,7 @@ const ProfileStackNavigator = () => {
         name="AddAccountScreenAdmin"
         component={AddAccountScreenAdmin}
       />
+      <Stack.Screen name="EventDetails" component={EventDetails} />
     </Stack.Navigator>
   );
 };
@@ -79,6 +81,7 @@ const EventStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="EventAdmin" component={EventAdmin} />
+      <Stack.Screen name="EventDetails" component={EventDetails} />
     </Stack.Navigator>
   );
 };
