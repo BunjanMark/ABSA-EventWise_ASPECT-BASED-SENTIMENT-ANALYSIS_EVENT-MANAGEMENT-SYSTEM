@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   View,
+  Alert,
 } from "react-native";
 import {
   Button,
@@ -59,38 +60,58 @@ const Login = ({ navigation }) => {
       showToast("An error occurred during navigation.");
     }
   };
+
   const handleLogin = async () => {
     try {
-      setLoading(!loading);
+        setLoading(true);
+        
+        if (username === "" || password === "") {
+            showToast("Please input required data");
+            setIsError(true);
+            return false;
+        }
 
-      if (username === "" || password === "") {
-        showToast("Please input required data");
-        setIsError(true);
-        return false;
-      }
+        console.log("Attempting to login with:", { username, password });
 
-      const result = await signIn(username, password);
-      // showToast(result?.message);
-      showToast(result?.message);
+        const response = await fetch('https://khaki-feet-hug.loca.lt/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
 
-      const user = await getUser();
-      console.log(user);
+        console.log("Response status:", response.status);
 
-      // Navigate vased on user's role
-      navigateBasedOnRole(user.role_id);
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            console.log("Error response:", errorResponse);
+            showToast(`Error: ${errorResponse.error}`);
+            return;
+        }
 
-      if (result.message != null) {
-        showToast(result?.message);
-      } else {
-        navigator.navigate("Tabs");
-      }
+        const result = await response.json();
+        console.log("Login result:", result);
+        showToast(result.message);
+
+        if (result.message === "Login successful") {
+            Alert.alert("Login Successful", "You have logged in successfully!", [
+                { text: "OK" },
+            ]);
+            navigateBasedOnRole(result.role_id); // Add role navigation
+        }
+
     } catch (e) {
-      console.error("Login error:", error);
-      showToast("An error occurred during login.");
+        console.error("Login error:", e);
+        showToast("An error occurred during login.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+
+
+  
 
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);

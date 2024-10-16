@@ -5,6 +5,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PendingUserController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Hash;
 
 
 Route::get('/events', [EventController::class, 'index']);
@@ -24,4 +25,6 @@ Route::post('/pending', [PendingUserController::class, 'register']);
 
 Route::post('/accept-pending-user/{id}', [UserController::class, 'acceptPendingUser']);
 Route::delete('/decline-pending-user/{id}', [UserController::class, 'declinePendingUser']);
+
+Route::post('/login', [UserController::class, 'login']);
 

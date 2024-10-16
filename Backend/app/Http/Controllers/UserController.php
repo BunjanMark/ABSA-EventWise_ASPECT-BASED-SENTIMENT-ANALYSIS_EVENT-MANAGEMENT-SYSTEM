@@ -9,6 +9,47 @@ use Illuminate\Support\Facades\Hash; // Import the Hash facade
 
 class UserController extends Controller
 {
+
+    public function login(Request $request)
+{
+    $request->validate([
+        'username' => 'required|string',
+        'password' => 'required|string',
+    ]);
+
+    \Log::info('Login attempt', ['username' => $request->username]);
+
+    // Trim the password input
+    $trimmedPassword = trim($request->password);
+
+    $user = User::where('username', $request->username)->first();
+    
+    if (!$user) {
+        \Log::warning('User not found', ['username' => $request->username]);
+        return response()->json(['error' => 'Invalid credentials'], 401);
+    }
+
+    \Log::info('Checking password for user', [
+        'username' => $request->username,
+        'input_password' => $trimmedPassword,
+        'hashed_password' => $user->password
+    ]);
+
+    // Check the trimmed password against the hashed password
+    if (!Hash::check($trimmedPassword, $user->password)) {
+        \Log::warning('Password check failed', ['username' => $request->username]);
+        return response()->json(['error' => 'Invalid credentials'], 401);
+    }
+
+    // Return success response
+    return response()->json(['message' => 'Login successful', 'user' => $user], 200);
+}
+
+    
+    
+    
+
+
     // Accept a pending user and transfer them to the user table
     public function acceptPendingUser($id)
 {
@@ -24,12 +65,13 @@ class UserController extends Controller
             'lastname' => $pendingUser->lastname,
             'username' => $pendingUser->username,
             'email' => $pendingUser->email,
-            'password' => $pendingUser->password, // Use as is if already hashed
+            'password' => $pendingUser->password, // Keep the hashed password
             'phone_number' => $pendingUser->phone_number,
             'date_of_birth' => $pendingUser->date_of_birth,
             'gender' => $pendingUser->gender,
             'role' => $pendingUser->role,
         ]);
+        
         
 
         $pendingUser->delete();

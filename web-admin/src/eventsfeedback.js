@@ -85,7 +85,7 @@ function EventsFeedback() {
               if (button === 'Delete') {
                 handleDelete(item.id);
               } else if (button === 'Feedback') {
-                navigate('/feedback-events');
+                navigate('/feedback/feedback-events');
               }
             }}
           >

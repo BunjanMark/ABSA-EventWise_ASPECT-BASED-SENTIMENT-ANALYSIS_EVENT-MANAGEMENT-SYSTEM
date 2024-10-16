@@ -23,13 +23,7 @@ class PendingUser extends Model
         'role',
     ];
 
-    // Automatically hash password when setting it
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = Hash::make($value);
-    }
-
-    // Define relationship with Role (assuming a Role model exists)
+    // Relationship with Role
     public function role()
     {
         return $this->belongsTo(Role::class, 'role');
