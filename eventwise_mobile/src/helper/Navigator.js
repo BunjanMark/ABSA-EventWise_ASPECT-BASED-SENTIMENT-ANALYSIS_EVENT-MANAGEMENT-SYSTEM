@@ -30,6 +30,7 @@ import CreateAnotherAccount from "../screens/customerScreens/otherScreens/Create
 import ProfileOrganizer from "../screens/customerScreens/otherScreens/ProfileOrganizer";
 import Package from "../screens/customerScreens/otherScreens/Package";
 import CustomizePackage from "../screens/customerScreens/otherScreens/CustomizePackage";
+import HomeSP from "../screens/serviceProvidersScreen/screens/HomeSP";
 
 import EventFeedbackDetails from "../screens/adminMain/screens/feedback/EventFeedbackDetails";
 // import Feedback from "../screens/customerScreens/otherScreens/Feedback";
@@ -56,6 +57,8 @@ const AuthenticationStack = () => {
     return <ActivityIndicator />; // A screen or component to show while loading
   }
   return (
+
+    
     <Stack.Navigator
       initialRouteName={
         user
@@ -65,6 +68,7 @@ const AuthenticationStack = () => {
           : "Landing"
       }
     >
+    
       <Stack.Screen
         name="Landing"
         component={Landing}
@@ -131,6 +135,7 @@ function AdminStack() {
       />
     </Stack.Navigator>
   );
+    
 }
 
 // ServiceProvider StacK
@@ -139,11 +144,12 @@ function ServiceProviderStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="ServiceProviderIndex"
+        name="HomeSP"
         component={ServiceProviderIndex}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
+
   );
 }
 

@@ -41,73 +41,68 @@ const Login = ({ navigation }) => {
     Toast.show(message, 3000);
   };
 
-  const navigateBasedOnRole = (role_id) => {
-    try {
-      if (role_id === 2) {
-        console.log("Navigating to CustomCustomerStack...");
-        navigation.navigate("CustomCustomerStack");
-      } else if (role_id === 1) {
-        console.log("Navigating to AdminStack...");
-        navigation.navigate("AdminStack");
-      } else if (role_id === 3) {
-        console.log("Navigating to GuestStack...");
-        navigation.navigate();
-      } else {
-        showToast("Role not recognized");
-      }
-    } catch (error) {
-      console.error("Navigation error:", error);
-      showToast("An error occurred during navigation.");
-    }
-  };
-
-  const handleLogin = async () => {
-    try {
-        setLoading(true);
-        
-        if (username === "" || password === "") {
-            showToast("Please input required data");
-            setIsError(true);
-            return false;
-        }
-
-        console.log("Attempting to login with:", { username, password });
-
-        const response = await fetch('https://khaki-feet-hug.loca.lt/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
-
-        console.log("Response status:", response.status);
-
-        if (!response.ok) {
-            const errorResponse = await response.json();
-            console.log("Error response:", errorResponse);
-            showToast(`Error: ${errorResponse.error}`);
-            return;
-        }
-
-        const result = await response.json();
-        console.log("Login result:", result);
-        showToast(result.message);
-
-        if (result.message === "Login successful") {
-            Alert.alert("Login Successful", "You have logged in successfully!", [
-                { text: "OK" },
-            ]);
-            navigateBasedOnRole(result.role_id); // Add role navigation
-        }
-
-    } catch (e) {
-        console.error("Login error:", e);
-        showToast("An error occurred during login.");
-    } finally {
-        setLoading(false);
+  const navigateBasedOnRole = (role) => {
+    if (role === "service provider") {
+        navigation.navigate('ServiceProviderStack');
+    } else if (role === "admin") {
+        // navigate to the admin page
+    } else if (role === "client") {
+        // navigate to the client page
+    } else {
+        // handle unknown role or default case
+        showToast("Unknown role");
     }
 };
+
+
+const handleLogin = async () => {
+  try {
+      setLoading(true);
+      
+      if (username === "" || password === "") {
+          showToast("Please input required data");
+          setIsError(true);
+          return false;
+      }
+
+      console.log("Attempting to login with:", { username, password });
+
+      const response = await fetch('https://loose-views-read.loca.lt/api/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+      });
+
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+          const errorResponse = await response.json();
+          console.log("Error response:", errorResponse);
+          showToast(`Error: ${errorResponse.error}`);
+          return;
+      }
+
+      const result = await response.json();
+      console.log("Login result:", result);
+      showToast(result.message);
+
+      if (result.message === "Login successful") {
+          Alert.alert("Login Successful", "You have logged in successfully!", [
+              { text: "OK" },
+          ]);
+          navigateBasedOnRole(result.user.role); // Pass the role to determine navigation
+      }
+
+  } catch (e) {
+      console.error("Login error:", e);
+      showToast("An error occurred during login.");
+  } finally {
+      setLoading(false);
+  }
+};
+
 
 
 
