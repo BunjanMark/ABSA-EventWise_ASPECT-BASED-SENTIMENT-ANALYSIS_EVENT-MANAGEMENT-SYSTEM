@@ -2508,6 +2508,70 @@ background-color: transparent;
   color: black; /* Changed to black */
 }
 
+.status-dropdown-equipment {
+  position: relative;
+  display: inline-block;
+}
+
+.status-dropdown-button {
+  background-color: white;
+  color: black;
+  padding: 10px 10px;
+  border: 1px solid #eeba2b;
+  cursor: pointer;
+  position: relative;
+  margin-bottom: 3px;
+}
+
+.status-dropdown-button.complete {
+  color: green;
+  font-weight: bold;
+}
+
+.status-dropdown-button.missing {
+  color: #eeba2b;
+  font-weight: bold;
+}
+
+.status-dropdown-button.broken {
+  font-weight: bold;
+  color: red;
+}
+
+.status-options {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  z-index: 10;
+  width: 8;
+  right: -1rem;
+  
+}
+
+.status-option {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.status-dropdown-button:hover {
+  background-color: #e0dfdf;
+}
+
+
+.status-complete {
+  color: green;
+}
+
+.status-missing {
+  color: #eeba2b;
+}
+
+.status-broken {
+  color: red;
+}
+
+
+
 
 
 
