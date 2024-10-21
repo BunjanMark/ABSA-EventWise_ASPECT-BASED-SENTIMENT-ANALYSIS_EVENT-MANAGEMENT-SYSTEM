@@ -54,7 +54,10 @@ const Equipment = () => {
         });
         fetchInventory();
         resetNewItemInputs();
-      } catch (error) {
+        
+      }
+      
+      catch (error) {
         console.error("Error adding the item:", error.response?.data || error.message);
       }
     } else {

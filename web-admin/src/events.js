@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faMapMarker, faHeart, faSearch, faChevronDown, faEllipsisV, faUser, faClipboardCheck, faBox, faCommentDots, faUserFriends } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faMapMarker, faHeart, faSearch, faChevronDown, faEllipsisV, faUser, faBox, faCommentDots, faUserFriends } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 function Events() {
   const [search, setSearch] = useState('');
   const [events, setEvents] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
   const [likedEvents, setLikedEvents] = useState({});
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState('All');
@@ -20,10 +19,9 @@ function Events() {
       try {
         const response = await axios.get('http://localhost:8000/api/events');
         setEvents(response.data);
-        setFilteredEvents(response.data);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching events data:', error);
+      } finally {
         setLoading(false);
       }
     };
@@ -33,60 +31,47 @@ function Events() {
 
   const filterEventsByDate = (option) => {
     setSortOption(option);
-
-    if (option === 'This Week') {
-      const filtered = events.filter((event) => {
-        const eventDate = new Date(event.date);
-        const today = new Date();
-        const weekEnd = new Date();
-        weekEnd.setDate(today.getDate() + 7);
-        return eventDate >= today && eventDate <= weekEnd;
-      });
-      setFilteredEvents(filtered);
-    } else if (option === 'Next Week') {
-      const filtered = events.filter((event) => {
-        const eventDate = new Date(event.date);
-        const today = new Date();
-        const nextWeekStart = new Date();
-        nextWeekStart.setDate(today.getDate() + 7);
-        const nextWeekEnd = new Date();
-        nextWeekEnd.setDate(today.getDate() + 14);
-        return eventDate >= nextWeekStart && eventDate <= nextWeekEnd;
-      });
-      setFilteredEvents(filtered);
-    } else {
-      setFilteredEvents(events);
-    }
   };
+
+  const filteredEvents = useMemo(() => {
+    return events.filter(event => {
+      // Filter by search term
+      const isMatchingSearch = event.name.toUpperCase().includes(search.toUpperCase());
+      
+      // Filter by date
+      const eventDate = new Date(event.date);
+      const today = new Date();
+      
+      if (sortOption === 'This Week') {
+        const weekEnd = new Date(today);
+        weekEnd.setDate(today.getDate() + 7);
+        return isMatchingSearch && eventDate >= today && eventDate <= weekEnd;
+      } 
+      else if (sortOption === 'Next Week') {
+        const nextWeekStart = new Date(today);
+        nextWeekStart.setDate(today.getDate() + 7);
+        const nextWeekEnd = new Date(today);
+        nextWeekEnd.setDate(today.getDate() + 14);
+        return isMatchingSearch && eventDate >= nextWeekStart && eventDate <= nextWeekEnd;
+      }
+      return isMatchingSearch; // No date filtering for 'All'
+    });
+  }, [events, search, sortOption]);
 
   const handleEquipmentClick = (eventId) => {
     navigate('/equipment', { state: { eventId } });
   };
-  const handleSearch = (text) => {
-    setSearch(text);
-    if (text) {
-      const newData = events.filter((item) => {
-        const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-      setFilteredEvents(newData);
-    } else {
-      setFilteredEvents(events);
-    }
-  };
+  
+  const handleInventoryClick = (eventId) => {
+    navigate('/inventory', { state: { eventId } });
+};
+
 
   const toggleLike = (eventId) => {
     setLikedEvents((prevState) => ({
       ...prevState,
       [eventId]: !prevState[eventId],
     }));
-  };
-
-  const isFutureEvent = (eventDate) => {
-    const today = new Date();
-    const eventDateObj = new Date(eventDate);
-    return eventDateObj > today;
   };
 
   const toggleMenu = (eventId) => {
@@ -129,7 +114,7 @@ function Events() {
             <div className="menu-item-events" onClick={() => navigate('/attendees')}>
               <FontAwesomeIcon icon={faUser} /> Attendee
             </div>
-            <div className="menu-item-events" onClick={() => navigate('/inventory')}>
+            <div className="menu-item-events" onClick={() => handleInventoryClick(item.id)}>
               <FontAwesomeIcon icon={faBox} /> Inventory
             </div>
             <div className="menu-item-events" onClick={() => handleEquipmentClick(item.id)}>
@@ -160,7 +145,7 @@ function Events() {
             type="text"
             className="search-box-events"
             placeholder="Search Event"
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             value={search}
           />
           <div className="dropdown-container-events">

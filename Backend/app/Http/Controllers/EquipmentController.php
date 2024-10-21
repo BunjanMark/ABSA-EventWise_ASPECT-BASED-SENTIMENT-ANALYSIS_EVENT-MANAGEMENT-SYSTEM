@@ -10,14 +10,18 @@ class EquipmentController extends Controller
     // Fetch all equipment or filter by event_id
     public function index(Request $request)
     {
-        $eventId = $request->query('event_id'); // Get event_id from query parameters
-        
-        $equipment = $eventId 
-            ? Equipment::where('event_id', $eventId)->get() 
-            : Equipment::all(); // Return all equipment if no event_id is provided
-
+        $eventId = $request->query('event_id');
+    
+        if ($eventId) {
+            $equipment = Equipment::where('event_id', $eventId)->get();
+        } else {
+            $equipment = Equipment::all(); // Get all equipment if no event_id is provided
+        }
+    
         return response()->json($equipment);
     }
+    
+
 
     // Store a new equipment entry
     public function store(Request $request)
