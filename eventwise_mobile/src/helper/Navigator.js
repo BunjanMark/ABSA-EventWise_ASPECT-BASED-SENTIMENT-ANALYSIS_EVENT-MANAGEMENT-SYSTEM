@@ -11,6 +11,7 @@ import Register from "../screens/authentication/Register";
 import Login from "../screens/authentication/Login";
 import AccountRecovery from "../screens/authentication/AccountRecovery";
 import Landing from "../screens/authentication/Landing";
+import Register2 from "../screens/authentication/Register2";
 
 import GuestLanding from "../screens/authentication/GuestLanding";
 
@@ -29,6 +30,7 @@ import CreateAnotherAccount from "../screens/customerScreens/otherScreens/Create
 import ProfileOrganizer from "../screens/customerScreens/otherScreens/ProfileOrganizer";
 import Package from "../screens/customerScreens/otherScreens/Package";
 import CustomizePackage from "../screens/customerScreens/otherScreens/CustomizePackage";
+import HomeSP from "../screens/serviceProvidersScreen/screens/HomeSP";
 
 import EventFeedbackDetails from "../screens/adminMain/screens/feedback/EventFeedbackDetails";
 // import Feedback from "../screens/customerScreens/otherScreens/Feedback";
@@ -55,6 +57,8 @@ const AuthenticationStack = () => {
     return <ActivityIndicator />; // A screen or component to show while loading
   }
   return (
+
+    
     <Stack.Navigator
       initialRouteName={
         user
@@ -64,6 +68,7 @@ const AuthenticationStack = () => {
           : "Landing"
       }
     >
+    
       <Stack.Screen
         name="Landing"
         component={Landing}
@@ -77,6 +82,12 @@ const AuthenticationStack = () => {
       <Stack.Screen
         name="Register"
         component={Register}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="Register2"
+        component={Register2}
         options={{ headerShown: false }}
       />
       <Stack.Screen
@@ -124,6 +135,7 @@ function AdminStack() {
       />
     </Stack.Navigator>
   );
+    
 }
 
 // ServiceProvider StacK
@@ -132,11 +144,12 @@ function ServiceProviderStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="ServiceProviderIndex"
+        name="HomeSP"
         component={ServiceProviderIndex}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
+
   );
 }
 

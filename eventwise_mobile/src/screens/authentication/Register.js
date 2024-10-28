@@ -8,14 +8,12 @@ import {
   ScrollView,
   View,
   TouchableOpacity,
-  Image,
 } from "react-native";
 import {
   Text,
   Button,
   TextInput,
   Menu,
-  Divider,
   Provider as PaperProvider,
   Checkbox,
 } from "react-native-paper";
@@ -27,16 +25,14 @@ import {
 } from "react-native-responsive-screen";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import * as ImagePicker from "expo-image-picker";
-import { signup } from "../../services/authServices";
-
+import axios from "axios";
 const Register = () => {
   const navigator = useNavigation();
+  const [name, setName] = useState("");
+  const [lastname, setLastname] = useState("");
   const [username, setUsername] = useState("");
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [repassword, setRepassword] = useState("");
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,9 +43,7 @@ const Register = () => {
   const [date, setDate] = useState(new Date());
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [gender, setGender] = useState("");
-  const [validID, setvalidID] = useState(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [image, setImage] = React.useState(null);
 
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);
@@ -68,183 +62,78 @@ const Register = () => {
     Toast.show(message, { duration: Toast.durations.LONG });
   };
 
-  // const handleRegistration = async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     if (
-  //       username === "" ||
-  //       email === "" ||
-  //       password === "" ||
-  //       phoneNumber === "" ||
-  //       role === "" ||
-  //       !termsAccepted
-  //     ) {
-  //       showToast("Please input required data and accept terms and conditions");
-  //       setIsError(true);
-  //       return;
-  //     }
-
-  //     if (password !== repassword) {
-  //       showToast("Passwords do not match");
-  //       setIsError(true);
-  //       return;
-  //     }
-
-  //     const data = {
-  //       username,
-  //       email,
-  //       password,
-  //       role,
-  //       phoneNumber,
-  //       validID,
-  //     };
-
-  //     const result = await fetch("apiurl", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(data),
-  //     });
-
-  //     const resultJson = await result.json();
-  //     if (resultJson.message != null) {
-  //       showToast(resultJson?.message);
-  //     } else {
-  //       navigator.navigate("Login");
-  //     }
-  //   } catch (e) {
-  //     console.error(e.toString());
-  //     showToast("An error occurred");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleRegistration = async () => {
-    // Reset error state before starting validation
+    setLoading(true);
     setIsError(false);
 
-    // Form validation
-    if (
-      username.trim() === "" ||
-      email.trim() === "" ||
-      password.trim() === "" ||
-      repassword.trim() === "" ||
-      phoneNumber.trim() === "" ||
-      !selectedRole ||
-      !termsAccepted
-    ) {
-      showToast(
-        "Please fill in all required fields and accept the terms and conditions"
-      );
-      setIsError(true);
-      setLoading(false);
-      return;
+    // Check if passwords match
+    if (password !== repassword) {
+        showToast("Passwords do not match.");
+        setLoading(false);
+        return; // Exit the function early
     }
 
-    if (password !== repassword) {
-      showToast("Passwords do not match");
-      setIsError(true);
-      setLoading(false);
-      return;
+    // Check if role is selected
+    if (!selectedRole) {
+        showToast("Please select a user role.");
+        setLoading(false);
+        return; // Exit the function early
     }
 
     try {
-      // setLoading(true);
+        const roleMapping = {
+            "SERVICE PROVIDER": "3",
+            CUSTOMER: "2",
+        };
 
-      // const data = {
-      //   name: username,
-      //   email,
-      //   password,
-      //   role_id: selectedRole,
-      //   phoneNumber,
-      //   dateOfBirth: date,
-      //   gender,
-      //   validID,
-      // };
+        const data = {
+            name,
+            lastname,
+            username,
+            email,
+            phone_number: phoneNumber,
+            password,
+            password_confirmation: repassword,
+            date_of_birth: date.toISOString().split("T")[0],
+            gender,
+            role: roleMapping[selectedRole],
+            terms_accepted: termsAccepted,
+        };
 
-      // const response = await fetch("apiurl", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(data),
-      // });
+        console.log("Registration Data:", data); // Check the data being sent
 
-      // const resultJson = await response.json();
-      const roleMapping = {
-        "SERVICE PROVIDER": "3",
-        CUSTOMER: "2",
-      };
-      const data = {
-        name: username,
-        email,
-        password,
-        role_id: roleMapping[selectedRole],
-        phoneNumber,
-        dateOfBirth: date,
-        gender,
-        validID,
-      };
-      const result = await signup(data);
+        const response = await axios.post('https://loose-views-read.loca.lt/api/pending', data);
 
-      console.log("result", result);
-      showToast(result?.message);
-
-      if (result?.message != null) {
-        showToast(result?.message);
-      } else {
-        showToast(result?.error);
-      }
-
-      // if (result.message != null) {
-      //   showToast(result?.message);
-      // } else {
-      //   navigator.navigate("Login");
-      // }
-
-      // if (response.ok) {
-      //   // Handle success response
-      //   showToast(resultJson?.message || "Registration successful!");
-      //   navigator.navigate("Login");
-      // } else {
-      //   // Handle failure response
-      //   showToast(
-      //     resultJson?.message || "Registration failed. Please try again."
-      //   );
-      //   setIsError(true);
-      // }
+        if (response.status === 201) {
+            showToast(response.data.message || "Registration successful!");
+            // Optionally navigate to another screen or reset the form
+        }
     } catch (error) {
-      console.error("Registration Error:", error);
-
-      // showToast("Email already exists. Please try again.");
-
-      setIsError(true);
-      console.log("data:" + JSON.stringify(data));
+        if (error.response) {
+            console.error("Registration Error:", error.response.data);
+            showToast(`Error: ${error.response.data.message || "An unexpected error occurred."}`);
+        } else if (error.request) {
+            console.error("No response received:", error.request);
+            showToast("No response from the server. Please try again later.");
+        } else {
+            console.error("Error setting up the request:", error.message);
+            showToast("An unexpected error occurred. Please try again.");
+        }
+        setIsError(true);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+
+
+
+  
+  
 
   const handleDateConfirm = (date) => {
     setDate(date);
     setDatePickerVisibility(false);
-  };
-
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.cancelled) {
-      setImage(result.uri);
-    }
   };
 
   return (
@@ -366,6 +255,53 @@ const Register = () => {
                   },
                 ]}
               >
+              <TextInput
+                  style={styles.inputStyle}
+                  mode="contained-tonal"
+                  label="First Name"
+                  placeholder="Enter your firstname"
+                  error={isError}
+                  value={name}
+                  onChangeText={(text) => setName(text)}
+                  theme={{
+                    colors: {
+                      primary: "#000",
+                      text: "#000",
+                      placeholder: "#000",
+                      background: "#000",
+                    },
+                  }}
+                  left={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Icon name="rename-box" size={24} color="#000" />
+                      )}
+                    />
+                  }
+                /><TextInput
+                  style={styles.inputStyle}
+                  mode="contained-tonal"
+                  label="Last Name"
+                  placeholder="Enter your Last Name"
+                  error={isError}
+                  value={lastname}
+                  onChangeText={(text) => setLastname(text)}
+                  theme={{
+                    colors: {
+                      primary: "#000",
+                      text: "#000",
+                      placeholder: "#000",
+                      background: "#000",
+                    },
+                  }}
+                  left={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Icon name="rename-box" size={24} color="#000" />
+                      )}
+                    />
+                  }
+                />
                 <TextInput
                   style={styles.inputStyle}
                   mode="contained-tonal"
@@ -494,17 +430,126 @@ const Register = () => {
                     />
                   }
                 />
-               
+
+                <View
+                style={[
+                  styles.inputContainer,
+                  {
+                    alignItems: "center",
+                  },
+                ]}
+              >
+                <View style={styles.genderContainer}>
+                  <Text style={styles.Gender}>Gender </Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.genderButton,
+                      gender === "Male" && styles.selectedGender,
+                    ]}
+                    onPress={() => setGender("Male")}
+                  >
+                    <Text style={styles.genderText}>Male</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.genderButton,
+                      gender === "Female" && styles.selectedGender,
+                    ]}
+                    onPress={() => setGender("Female")}
+                  >
+                    <Text style={styles.genderText}>Female</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.dateContainer}>
+                  <Text style={styles.Date}>Date of Birth </Text>
+                  <TouchableOpacity
+                    style={styles.datePickerButton}
+                    onPress={() => setDatePickerVisibility(true)}
+                  >
+                    <Text style={styles.datePickerText}>
+                      {date.toLocaleDateString()}
+                    </Text>
+                  </TouchableOpacity>
+                  <DateTimePickerModal
+                    isVisible={isDatePickerVisible}
+                    mode="date"
+                    onConfirm={handleDateConfirm}
+                    onCancel={() => setDatePickerVisibility(false)}
+                    maximumDate={new Date()}
+                    textColor="#000"
+                    theme={{
+                      colors: {
+                        primary: "#FFC42B",
+                        text: "#000",
+                        placeholder: "#FFC42B",
+                        background: "#fff",
+                      },
+                    }}
+                  />
+                </View>
+
+                <View style={styles.checkboxContainer}>
+                  <View style={styles.checkboxWrapper}>
+                    <View
+                      style={{
+                        transform: [{ scale: 0.8 }],
+                        marginTop: -5,
+                        marginBottom: -5,
+                      }}
+                    >
+                      <Checkbox
+                        status={termsAccepted ? "checked" : "unchecked"}
+                        onPress={() => setTermsAccepted(!termsAccepted)}
+                        color="black"
+                      />
+                    </View>
+                  </View>
+                  <Text style={styles.checkboxText}>
+                    Agree with terms & conditions
+                  </Text>
+                </View>
+
                 <Button
                   loading={loading}
                   disabled={loading}
                   style={styles.buttonStyle}
                   mode="contained"
-                  onPress={() => navigator.navigate("Register2")}
-                  labelStyle={{ color: "#fff", fontWeight: "bold" }}
+                  onPress={handleRegistration}
+                  labelStyle={{ color: "white", fontWeight: "bold" }}
                 >
-                  Next
+                  Register Account
                 </Button>
+                <SafeAreaView
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "black" }}>
+                    Already have an account?
+                  </Text>
+                  <Button
+                    labelStyle={{ color: "#A97E00" }}
+                    loading={loading}
+                    disabled={loading}
+                    onPress={() => navigator.navigate("Login")}
+                  >
+                    Login Now
+                  </Button>
+                </SafeAreaView>
+                <View>
+                <Button
+                  style={{ ...styles.goback }}
+                  labelStyle={{ color: "#000" }}
+                  onPress={() => {
+                    navigator.goBack();
+                  }}
+                >
+                  Go Back
+                </Button>
+              </View>
+              </View>
                
               </View>
             </PaperProvider>
@@ -683,6 +728,123 @@ const styles = StyleSheet.create({
   buttonStyle: {
     width: widthPercentageToDP("30%"),
     height: heightPercentageToDP("5%"),
+    marginBottom: heightPercentageToDP("2%"),
+    backgroundColor: "#EEBA2B",
+  },
+  menuStyle: {
+    width: widthPercentageToDP("50%"),
+  },
+
+  inputStyle: {
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 2,
+    borderColor: "#C2B067",
+  },
+  menuContent: {
+    backgroundColor: "black",
+    alignItems: "center",
+    borderRadius: 10,
+    width: 250,
+    marginLeft: -50,
+  },
+  menuItemContainer: {
+    alignItems: "center",
+    paddingVertical: 5,
+  },
+  genderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  dateContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  Gender: {
+    padding: 10,
+    borderRadius: 30,
+    width: "23%",
+    alignItems: "center",
+    color: "#000",
+  },
+  Date: {
+    padding: 10,
+    borderRadius: 30,
+    width: "30%",
+    alignItems: "center",
+    color: "#000",
+  },
+  genderButton: {
+    padding: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    width: "30%",
+    alignItems: "center",
+  },
+  selectedGender: {
+    backgroundColor: "#A97E00",
+  },
+  genderText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+  datePickerButton: {
+    width: widthPercentageToDP("55%"),
+    padding: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  datePickerText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+  uploadButton: {
+    padding: 15,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    width: "60%",
+    alignItems: "center",
+    alignContent: "center",
+    marginBottom: 10,
+  },
+  uploadText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginTop: 20,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: heightPercentageToDP("3%"),
+  },
+  checkboxWrapper: {
+    backgroundColor: "rgba(220, 220, 220, 0.80)",
+    borderRadius: 12,
+    marginRight: 10,
+    height: 23,
+  },
+  checkboxText: {
+    color: "#000",
+    fontSize: 16,
+  },
+  buttonStyle: {
+    width: widthPercentageToDP("50%"),
+    height: heightPercentageToDP("6%"),
     marginBottom: heightPercentageToDP("2%"),
     backgroundColor: "#EEBA2B",
   },

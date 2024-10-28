@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   View,
+  Alert,
 } from "react-native";
 import {
   Button,
@@ -40,57 +41,72 @@ const Login = ({ navigation }) => {
     Toast.show(message, 3000);
   };
 
-  const navigateBasedOnRole = (role_id) => {
-    try {
-      if (role_id === 2) {
-        console.log("Navigating to CustomCustomerStack...");
-        navigation.navigate("CustomCustomerStack");
-      } else if (role_id === 1) {
-        console.log("Navigating to AdminStack...");
-        navigation.navigate("AdminStack");
-      } else if (role_id === 3) {
-        console.log("Navigating to GuestStack...");
-        navigation.navigate();
-      } else {
-        showToast("Role not recognized");
-      }
-    } catch (error) {
-      console.error("Navigation error:", error);
-      showToast("An error occurred during navigation.");
+  const navigateBasedOnRole = (role) => {
+    if (role === "service provider") {
+        navigation.navigate('ServiceProviderStack');
+    } else if (role === "admin") {
+        // navigate to the admin page
+    } else if (role === "client") {
+        // navigate to the client page
+    } else {
+        // handle unknown role or default case
+        showToast("Unknown role");
     }
-  };
-  const handleLogin = async () => {
-    try {
-      setLoading(!loading);
+};
 
+
+const handleLogin = async () => {
+  try {
+      setLoading(true);
+      
       if (username === "" || password === "") {
-        showToast("Please input required data");
-        setIsError(true);
-        return false;
+          showToast("Please input required data");
+          setIsError(true);
+          return false;
       }
 
-      const result = await signIn(username, password);
-      // showToast(result?.message);
-      showToast(result?.message);
+      console.log("Attempting to login with:", { username, password });
 
-      const user = await getUser();
-      console.log(user);
+      const response = await fetch('https://loose-views-read.loca.lt/api/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+      });
 
-      // Navigate vased on user's role
-      navigateBasedOnRole(user.role_id);
+      console.log("Response status:", response.status);
 
-      if (result.message != null) {
-        showToast(result?.message);
-      } else {
-        navigator.navigate("Tabs");
+      if (!response.ok) {
+          const errorResponse = await response.json();
+          console.log("Error response:", errorResponse);
+          showToast(`Error: ${errorResponse.error}`);
+          return;
       }
-    } catch (e) {
-      console.error("Login error:", error);
+
+      const result = await response.json();
+      console.log("Login result:", result);
+      showToast(result.message);
+
+      if (result.message === "Login successful") {
+          Alert.alert("Login Successful", "You have logged in successfully!", [
+              { text: "OK" },
+          ]);
+          navigateBasedOnRole(result.user.role); // Pass the role to determine navigation
+      }
+
+  } catch (e) {
+      console.error("Login error:", e);
       showToast("An error occurred during login.");
-    } finally {
+  } finally {
       setLoading(false);
-    }
-  };
+  }
+};
+
+
+
+
+  
 
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);

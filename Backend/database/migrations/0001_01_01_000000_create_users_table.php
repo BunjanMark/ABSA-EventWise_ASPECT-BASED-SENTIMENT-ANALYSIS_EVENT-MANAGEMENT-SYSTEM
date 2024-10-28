@@ -18,21 +18,18 @@ return new class extends Migration
             $table->timestamps();
         });
         
-        Schema::create("users", function (Blueprint $table) {
-            $table->bigIncrements("id");
-            $table->unsignedBigInteger("role_id");
-            $table->string("name");
-            $table->string("email")->unique();
-            $table->timestamp("email_verified_at")->nullable();
-            $table->string("password");
-            $table->string("phone_number")->nullable();
-            $table->string("gender")->nullable();
-            $table->date("date_of_birth")->nullable();
-            $table->string("valid_ID_number")->nullable();
-            $table->rememberToken();
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('lastname');
+            $table->string('username')->unique();
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('phone_number');
+            $table->date('date_of_birth');
+            $table->enum('gender', ['Male', 'Female', 'Other']);
+            $table->string('role');
             $table->timestamps();
-
-            $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('cascade');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

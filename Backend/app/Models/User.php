@@ -10,6 +10,8 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Role;
 use App\Models\AccountRole;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Hash;
+
 
 class User extends Authenticatable
 {
@@ -21,17 +23,17 @@ class User extends Authenticatable
      * @var array<int, string>
      */
 
-    protected $fillable = [
-        'name',
-        'role_id',
-        'phone_number',
-        'email',
-        'gender',
-        'date_of_birth',
-        'valid_ID_number',
-        'password',
+     protected $fillable = [
+        'name', 
+        'lastname', 
+        'username', 
+        'email', 
+        'password', 
+        'phone_number', 
+        'date_of_birth', 
+        'gender', 
+        'role',
     ];
-
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -69,6 +71,10 @@ class User extends Authenticatable
      public function accountroles(): HasMany
      {
          return $this->hasMany(AccountRole::class);
+     }
+     public function setPasswordAttribute($value)
+     {
+         $this->attributes['password'] = Hash::make($value);
      }
 
 
