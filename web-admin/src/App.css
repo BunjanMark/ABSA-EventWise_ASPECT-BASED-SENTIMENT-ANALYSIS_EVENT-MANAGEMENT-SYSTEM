@@ -2587,6 +2587,7 @@ background-color: transparent;
   align-items: center;
 }
 
+
 /* Profile Section Styles */
 .profile-section-profile {
   border: 2px solid #C2B067;
@@ -2720,40 +2721,18 @@ background-color: transparent;
   width: 100%;
   padding: 20px;
   background: #ffffff; /* Changed to white for consistency */
-  position: relative; /* To position arrows inside */
+}
+.packages-header-profile {
+  text-align: center; /* Center the header */
+  font-size: 24px; /* Adjust font size as needed */
+  margin-bottom: 20px; /* Space below the header */
+}
+.packages-list-profile {
+  display: grid; /* Use grid for layout */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive grid */
+  gap: 40px; /* Space between grid items */
 }
 
-/* Arrows Container */
-.scroll-buttons-container {
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-/* Scroll Button Styles */
-.scroll-button {
-  background-color: #FFC42B;
-  border: none;
-  border-radius: 50%;
-  color: black;
-  font-size: 24px;
-  padding: 10px;
-  cursor: pointer;
-  z-index: 1;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* Left Arrow */
-.scroll-button.left {
-  left: 0;
-}
-
-/* Right Arrow */
-.scroll-button.right {
-  right: 0;
-}
 
 /* Packages List Container */
 .packages-list-container-profile {
@@ -2767,6 +2746,9 @@ background-color: transparent;
 
 /* Hide Scrollbars */
 .packages-list-container-profile::-webkit-scrollbar {
+  display: none;
+}
+.gradient-container-profile::-webkit-scrollbar {
   display: none;
 }
 
@@ -2790,7 +2772,7 @@ background-color: transparent;
 .add-package-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .broken-box-profile {
@@ -2801,7 +2783,7 @@ background-color: transparent;
   border: 2px dashed #C2B067;
   border-radius: 12px; /* Adjusted border radius */
   padding: 20px;
-  width: 100%;
+  width: 85%;
   max-width: 400px;
   text-align: center;
 }
@@ -2880,12 +2862,19 @@ background-color: transparent;
   overflow-x: auto;
   padding: 20px 0;
 }
+.events-list-container-overlay-profile {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid layout */
+  gap: 5px; /* Space between grid items */
+  max-height: 400px; /* Set height for scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
 
 .events-list-container-profile::-webkit-scrollbar {
   display: none;
 }
 
-.events-list-container-profile {
+.events-list-container-overlay-profile {
   scrollbar-width: none;
 }
 
