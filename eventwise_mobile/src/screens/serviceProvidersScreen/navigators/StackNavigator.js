@@ -34,7 +34,6 @@ const screenOptionStyle = {
   headerBackTitle: "Back",
 };
 
-
 const MainStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -51,7 +50,7 @@ const MainStackNavigator = () => {
       <Stack.Screen name="SettingSP" component={SettingSP} />
       <Stack.Screen name="ServicePortfolioSP" component={ServicePortfolioSP} />
       <Stack.Screen name="FeedbackSP" component={FeedbackSP} />
-      <Stack.Screen name="CustomHeader" component={CustomHeader}/>
+      <Stack.Screen name="CustomHeader" component={CustomHeader} />
       <Stack.Screen name="EventsSP" component={EventsSP} />
       <Stack.Screen name="SetSchedSP" component={SetSchedSP} />
     </Stack.Navigator>
@@ -72,7 +71,6 @@ const ProfileStackNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ProfileEditSP" component={ProfileEditSP} />
       <Stack.Screen name="ProfileSwitchSP" component={ProfileSwitchSP} />
-      
     </Stack.Navigator>
   );
 };
@@ -102,13 +100,11 @@ const ServiceStackNavigator = () => {
   );
 };
 
-
-
 export {
   MainStackNavigator,
   ScheduleStackNavigator,
   EventStackNavigator,
   ProfileStackNavigator,
   SettingStackNavigator,
-  ServiceStackNavigator
+  ServiceStackNavigator,
 };

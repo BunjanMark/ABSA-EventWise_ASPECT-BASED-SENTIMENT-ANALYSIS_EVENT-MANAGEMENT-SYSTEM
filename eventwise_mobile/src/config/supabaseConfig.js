@@ -1,10 +1,9 @@
 // src/config/supabaseConfig.js
 import { createClient } from "@supabase/supabase-js";
+import Config from "react-native-config"; // Import from react-native-config
 
-const supabaseUrl = "https://ktmddejbdwjeremvbzbl.supabase.co";
-const supabaseAnonKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0bWRkZWpiZHdqZXJlbXZiemJsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyODgzNTU3MSwiZXhwIjoyMDQ0NDExNTcxfQ.jXOW4DixYvrYp-2ctv2hUhILI-E_wAtDTuepyDNtuOE";
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Use environment variables for Supabase URL and key
+export const supabase = createClient(Config.SUPABASE_URL, Config.SUPABASE_KEY, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,

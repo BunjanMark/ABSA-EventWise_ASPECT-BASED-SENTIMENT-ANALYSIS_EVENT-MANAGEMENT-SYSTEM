@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, Text, Dimensions, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Image,
+  Text,
+  Dimensions,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { Divider } from "react-native-paper";
 import Header from "../elements/Header";
 import { useNavigation } from "@react-navigation/native";
@@ -50,7 +58,11 @@ const Home = () => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.eventList}>
+        <ScrollView
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          style={styles.eventList}
+        >
           {[
             {
               title: "Mr. & Mrs. Malik Wedding",
@@ -95,7 +107,9 @@ const Home = () => {
         <View style={styles.calendarContainer}>
           <View style={styles.dateRow}>
             <Text style={styles.dateTodayText}>Date Today</Text>
-            <Text style={styles.dateToday}>{selectedDate.format("ddd MMM DD, YYYY")}</Text>
+            <Text style={styles.dateToday}>
+              {selectedDate.format("ddd MMM DD, YYYY")}
+            </Text>
           </View>
 
           <View style={styles.calendarBox}>
@@ -113,10 +127,22 @@ const Home = () => {
                   ]}
                   onPress={() => handleDateSelect(date)}
                 >
-                  <Text style={[styles.dateText, selectedDate.isSame(date, "day") && styles.selectedDateText]}>
+                  <Text
+                    style={[
+                      styles.dateText,
+                      selectedDate.isSame(date, "day") &&
+                        styles.selectedDateText,
+                    ]}
+                  >
                     {date.format("ddd")}
                   </Text>
-                  <Text style={[styles.dateNumber, selectedDate.isSame(date, "day") && styles.selectedDateNumber]}>
+                  <Text
+                    style={[
+                      styles.dateNumber,
+                      selectedDate.isSame(date, "day") &&
+                        styles.selectedDateNumber,
+                    ]}
+                  >
                     {date.format("DD")}
                   </Text>
                 </TouchableOpacity>
@@ -126,14 +152,21 @@ const Home = () => {
         </View>
 
         <Text style={styles.pckgTitle}>Event Packages</Text>
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.packageList}>
+        <ScrollView
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          style={styles.packageList}
+        >
           <TouchableOpacity
             style={styles.pckg}
             onPress={() => {
               navigator.navigate("EventPackage");
             }}
           >
-            <Image source={require("../pictures/pckg1.png")} style={styles.packageImage} />
+            <Image
+              source={require("../pictures/pckg1.png")}
+              style={styles.packageImage}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.pckg}
@@ -141,7 +174,10 @@ const Home = () => {
               navigator.navigate("EventPackage");
             }}
           >
-            <Image source={require("../pictures/pckg2.png")} style={styles.packageImage} />
+            <Image
+              source={require("../pictures/pckg2.png")}
+              style={styles.packageImage}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.pckg}
@@ -149,14 +185,26 @@ const Home = () => {
               navigator.navigate("EventPackage");
             }}
           >
-            <Image source={require("../pictures/pckg3.png")} style={styles.packageImage} />
+            <Image
+              source={require("../pictures/pckg3.png")}
+              style={styles.packageImage}
+            />
           </TouchableOpacity>
         </ScrollView>
 
         <Text style={styles.venueTitle}>Venue</Text>
-        <Image source={require("../pictures/venue.png")} style={styles.venueImage} />
-        <Image source={require("../pictures/venue.png")} style={styles.venueImage} />
-        <Image source={require("../pictures/venue.png")} style={styles.venueImage} />
+        <Image
+          source={require("../pictures/venue.png")}
+          style={styles.venueImage}
+        />
+        <Image
+          source={require("../pictures/venue.png")}
+          style={styles.venueImage}
+        />
+        <Image
+          source={require("../pictures/venue.png")}
+          style={styles.venueImage}
+        />
       </ScrollView>
     </View>
   );

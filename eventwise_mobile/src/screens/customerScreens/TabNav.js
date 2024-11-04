@@ -7,7 +7,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import Home from "./screens/Home";
 import Event from "./screens/Event";
 import Schedule from "./sidebarScreens/Schedule";
-import BookStackScreen from "./BookStackScreen"; 
+import BookStackScreen from "./BookStackScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +17,7 @@ const TabNav = () => {
   const getIconName = (routeName) => {
     switch (routeName) {
       case "Home":
-        return "home-outline";  
+        return "home-outline";
       case "Schedule":
         return "calendar-clock-outline";
       case "Event":
@@ -109,7 +109,7 @@ const TabNav = () => {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Schedule" component={Schedule} />
       <Tab.Screen name="Event" component={Event} />
-      <Tab.Screen name="Book" component={BookStackScreen} /> 
+      <Tab.Screen name="Book" component={BookStackScreen} />
     </Tab.Navigator>
   );
 };
