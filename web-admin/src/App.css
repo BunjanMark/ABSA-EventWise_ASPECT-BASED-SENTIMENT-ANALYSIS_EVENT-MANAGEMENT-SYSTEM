@@ -284,11 +284,45 @@ body, html, #root {
   cursor: pointer; /* Pointer cursor on hover */
 }
 
+.events-list-container-dashboard-left {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+  width: 100%;
+}
+
+.event-card-dashboard {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #d0d0d0; /* Border around the card */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  overflow: hidden; /* Prevent overflow from the image */
+  text-align: center; /* Center text in the card */
+  transition: transform 0.2s; /* Add transition for hover effect */
+}
+
+.event-card-dashboard:hover {
+  transform: scale(1.02); /* Slightly enlarge on hover */
+}
+
+.event-cover-dashboard {
+  width: 95%; /* Full width for the cover photo */
+  margin-top: 5px;
+  height: 150px; /* Fixed height for consistency */
+  object-fit: cover; /* Cover the space without distortion */
+}
+
+.event-info-dashboard {
+  padding: 10px; /* Padding inside the card */
+}
+
 
 .package-item-dashboard {
   background: rgba(255, 255, 255, 0.56);
   border-radius: 10px;
-  border: #C2B067 1px solid;
+  border: #d0d0d0 2px solid;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   padding: 10px;
   margin: 0; /* No margin for grid items */
   text-align: center; /* Center text */
@@ -348,40 +382,22 @@ body, html, #root {
   overflow-y: auto;
 }
 
-.event-details-dashboard, .schedule-section-dashboard {
-  padding: 20px;
-  background-color: #f8f8f8;
-  border-radius: 10px;
-  overflow-y: auto;
+.event-detail-dashboard {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
 }
+
+
+.event-icon-dashboard { 
+  color: #eeba2b; /* Use your primary color */
+  margin-right: 8px; /* Space between icon and text */
+  font-size: 1.1rem;
+}
+
 
 .event-details-dashboard {
   flex: 1;
-}
-
-.schedule-section-dashboard {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.schedule-content-dashboard {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr; /* Initially single column */
-  gap: 10px;
-}
-
-.schedule-item-dashboard {
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.timeline-dashboard {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
 }
 
 button {
@@ -535,6 +551,7 @@ button:hover {
   font-size: 1.25rem; /* Moderate size for event name */
   font-weight: bold;
   text-transform: capitalize; /* First letter capitalized */
+  color: #eeba2b;
 }
 
 .event-date-dashboard, .event-venue-dashboard {
@@ -546,6 +563,8 @@ button:hover {
   background-color: #eeba2b; /* Yellow background */
   border-radius: 5rem; /* Keep the same border radius */
 }
+
+
 
 
 
@@ -1566,6 +1585,63 @@ button:hover {
   margin-right: 5px;
   color: #eeba2b;
 }
+
+.invalid-date {
+  border: 2px solid red; /* Red border to indicate error */
+  background-color: #ffe6e6; /* Light red background for better visibility */
+}
+
+/* Cover Photo Box Styles */
+.cover-photo-container-createevent {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+}
+
+.cover-photo-box-createevent {
+  width: 100%; /* Full width of the container */
+  max-width: 400px; /* Set a maximum width for the box */
+  height: 200px; /* Set a fixed height to maintain the box size */
+  border: 2px dashed #eeba2b; /* Dashed border */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Hide overflow to prevent cut-off */
+  position: relative; /* Position context for absolutely positioned children */
+  margin: 10px auto; /* Center the box horizontally */
+  background-color: white; /* Light background color */
+}
+
+
+.cover-photo-image-createevent {
+  max-width: 100%; /* Ensure the image can scale down to fit the box */
+  max-height: 100%; /* Ensure the image does not exceed the height of the box */
+  object-fit: contain; /* Maintain aspect ratio, show entire image */
+  display: block; /* Ensure the image is treated as a block element */
+}
+
+/* Upload Button Styles */
+.upload-button-createevent {
+  margin-bottom: 10px; /* Add some space below the upload button */
+}
+
+.add-event-cover-button-createevent {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #eeba2b; /* Button background color */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s ease; /* Transition for hover effect */
+}
+
+.add-event-cover-button-createevent:hover {
+  background-color: #eeba2b; /* Darker shade on hover */
+}
+
+
 
 
 
@@ -5108,16 +5184,18 @@ background-color: #eeba2b;
 
 .guest-table-guestpage {
   width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+  border-spacing: 0; /* Removes gaps between cells */
+  border-radius: 10px 10px 0 0; /* Adds rounded corners to the table */
+  overflow: hidden;
 }
 
 .guest-table-guestpage th,
 .guest-table-guestpage td {
-  border: 1px solid #000; /* Visible border lines */
+  border: none; /* No border for clean look */
   padding: 10px;
   text-align: center;
 }
+
 
 .guest-table-guestpage th {
   background-color: #eeba2b;
@@ -5196,23 +5274,6 @@ background-color: #eeba2b;
   color: #eeba2b;
 }
 
-/* Label and Input Styles for the Modal */
-.name-label-guestpage,
-.email-label-guestpage {
-  display: block;
-  margin-top: 10px;
-  font-size: 16px;
-}
-
-.name-input-guestpage,
-.email-input-guestpage {
-  width: 95%;
-  padding: 10px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
 
 /* Confirm Add Button */
 .confirm-add-btn-guestpage {
@@ -5243,7 +5304,6 @@ background-color: #eeba2b;
   position: relative;
 }
 
-
 .close-modal-btn-guestpage {
   position: absolute;
   top: 15px;
@@ -5265,6 +5325,45 @@ background-color: #eeba2b;
   font-size: 18px;
   margin-top: 10px;
 }
+
+/* Text Fields in Overlay - Bottom Line Only */
+.name-input-guestpage,
+.email-input-guestpage,
+.mobile-input-guestpage,
+.role-input-guestpage {
+  width: 95%;
+  padding: 10px;
+  margin-top: 5px;
+  border: none; /* Remove all borders */
+  border-bottom: 2px solid black; /* Only show bottom border */
+  font-size: 16px;
+  outline: none; /* Remove outline on focus */
+  border-radius: 0; /* No rounding on corners */
+  background-color: transparent; /* Optional: transparent background for cleaner look */
+}
+
+/* Change Bottom Border Color on Focus */
+.name-input-guestpage:focus,
+.email-input-guestpage:focus,
+.mobile-input-guestpage:focus,
+.role-input-guestpage:focus {
+  border-bottom-color: #eeba2b; /* Theme color on focus */
+}
+
+/* Label Styles */
+.name-label-guestpage,
+.email-label-guestpage,
+.mobile-label-guestpage,
+.role-label-guestpage {
+  display: block;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+
+
+
+
 
 
 /* ABOUT */
@@ -5536,6 +5635,102 @@ background-color: #eeba2b;
   color: black;
   font-size: 0.9rem;
 }
+
+/* BOOK EVENT REVIEW */
+
+.book-event-review-container-reviewevent {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.event-details-title-reviewevent {
+  text-align: center;
+  color: #eeba2b;
+  margin-bottom: 20px;
+}
+
+.content-reviewevent {
+  display: flex;
+  justify-content: space-between;
+}
+
+.event-details-left-reviewevent {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.field-reviewevent {
+  margin-bottom: 15px;
+}
+
+.label-reviewevent {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.value-reviewevent {
+  display: inline-flex;
+  align-items: center;
+}
+
+.value-reviewevent input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
+  margin-left: 5px;
+}
+
+.edit-icon-reviewevent {
+  color: #888;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.event-details-right-reviewevent {
+  flex: 1;
+  text-align: center;
+}
+
+.package-image-reviewevent {
+  width: 100%;
+  max-width: 200px;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+
+.package-description-reviewevent,
+.package-price-reviewevent {
+  margin-top: 10px;
+}
+
+.save-button-reviewevent {
+  margin-top: 20px;
+  padding: 10px 15px;
+  background-color: #eeba2b;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.save-button-reviewevent:hover {
+  background-color: #d9a52c;
+}
+
+.editable-input-reviewevent {
+    width: 30%;
+    padding: 4px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+
+
+
 
 
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'; // Import useEffect
+import { useNavigate } from 'react-router-dom';
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -13,6 +14,8 @@ const Notification = () => {
   const [selectedTab, setSelectedTab] = useState('All');
   const [selectedEvent, setSelectedEvent] = useState(null); // State for selected event details
   const [serviceProviderRequests, setServiceProviderRequests] = useState([]); // Define state for service provider requests
+  const navigate = useNavigate();
+
 
   const handleAccept = () => {
     setModalVisible(true); // Show the overlay when booking an event
@@ -213,7 +216,7 @@ const Notification = () => {
               <button className="decline-button" onClick={handleDecline}>
                 <FontAwesomeIcon icon={faTimes} /> Decline
               </button>
-              <button className="view-details-button" onClick={() => setSelectedEvent(notification)}>
+              <button className="view-details-button" onClick={() => navigate('/book-event-review')}>
                 View Details
               </button>
             </div>

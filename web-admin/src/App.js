@@ -7,6 +7,7 @@ import Navbar from './navbar'; // Import the Navbar component
 import Notification from './notification';
 import Events from './events';
 import { CreateEvent, ChoosePackage, ChooseServiceProv, GuestPage } from './createevent';
+import BookEventReview from './bookeventreview';
 import Attendees from './attendees';
 import Inventory from './inventory';
 import Equipment from './equipment';
@@ -59,6 +60,7 @@ function App() {
           <Route path="/add-guest" element={<><Navbar /><GuestPage/></>} />
           <Route path="/about" element={<><Navbar /><About/></>} />
           <Route path="/add-schedule" element={<><Navbar /><AddSched/></>} />
+          <Route path="/book-event-review" element={<><Navbar /><BookEventReview/></>} />
           <Route path="/logout" element={<Login />} />
         </Routes>
       </div>

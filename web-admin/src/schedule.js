@@ -24,7 +24,7 @@ const Schedule = () => {
   const navigate = useNavigate();
 
   const schedules = {
-    "2024-10-21": [
+    "2024-11-21": [
       {
         time: "09:00 AM",
         title: "Team Meeting",

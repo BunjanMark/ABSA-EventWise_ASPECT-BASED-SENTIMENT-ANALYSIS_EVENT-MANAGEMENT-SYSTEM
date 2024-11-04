@@ -9,7 +9,8 @@ class Event extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'date', 'pax', 'venue'];
+    protected $fillable = ['name', 'date','pax', 'venue', 'type', 'cover_photo'];
+
 
     // Relationship: An event can have many equipment items
     public function equipment()
@@ -17,4 +18,3 @@ class Event extends Model
         return $this->hasMany(Equipment::class, 'event_id');
     }
 }
-
