@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,7 +27,9 @@ const Profile = () => {
         const storedEmail = await AsyncStorage.getItem("email");
         const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber");
         const storedBirthday = await AsyncStorage.getItem("birthday");
-        const storedProfilePicture = await AsyncStorage.getItem("profilePicture");
+        const storedProfilePicture = await AsyncStorage.getItem(
+          "profilePicture"
+        );
 
         setUsername(storedUsername || "Customer Name");
         setEmail(storedEmail || "My Email");
@@ -38,69 +47,64 @@ const Profile = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Header2 />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Profile</Text>
-        </View>
-
-        <View style={styles.box}>
-          <View style={styles.userProfile}>
-            <Image
-              source={
-                profilePicture
-                  ? { uri: profilePicture }
-                  : require("../pictures/user.png")
-              }
-              style={styles.avatarImage}
-            />
-            <Text style={styles.userName}>{username}</Text>
-            <Text style={styles.userName}>{email}</Text>
-            <Image
-              source={require("../pictures/line.png")}
-              style={styles.line}
-              resizeMode="contain"
-            />
+    <SafeAreaView>
+      <View style={styles.container}>
+        <Header2 />
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>Profile</Text>
           </View>
-
-          <TouchableOpacity onPress={() => navigator.navigate("EditProfile")}>
-            <View style={styles.editButton}>
-              <FontAwesome
-                name="pencil-square"
-                size={16}
-                color={"#fff"}
+          <View style={styles.box}>
+            <View style={styles.userProfile}>
+              <Image
+                source={
+                  profilePicture
+                    ? { uri: profilePicture }
+                    : require("../pictures/user.png")
+                }
+                style={styles.avatarImage}
               />
-              <Text style={styles.editButtonText}>
-                Edit Profile
-              </Text>
+              <Text style={styles.userName}>{username}</Text>
+              <Text style={styles.userName}>{email}</Text>
+              <Image
+                source={require("../pictures/line.png")}
+                style={styles.line}
+                resizeMode="contain"
+              />
             </View>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+
+            <TouchableOpacity onPress={() => navigator.navigate("EditProfile")}>
+              <View style={styles.editButton}>
+                <FontAwesome name="pencil-square" size={16} color={"#fff"} />
+                <Text style={styles.editButtonText}>Edit Profile</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scrollContainer: {
     paddingHorizontal: 20,
     paddingBottom: 50,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
     marginBottom: 65,
   },
   headerText: {
-    color: '#e6b800',
+    color: "#e6b800",
     fontSize: 24,
     fontFamily: "Poppins",
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   userProfile: {
     alignItems: "center",
@@ -133,7 +137,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   editButton: {
-    backgroundColor: '#FFC42B',
+    backgroundColor: "#FFC42B",
     paddingVertical: 10,
     paddingHorizontal: 30,
     alignItems: "center",
@@ -154,7 +158,7 @@ const styles = StyleSheet.create({
   box: {
     borderWidth: 1.5,
     borderColor: "#d9cda0",
-    backgroundColor: '#f2eee1',
+    backgroundColor: "#f2eee1",
     padding: 20,
     borderRadius: 10,
     marginBottom: 20,
@@ -162,7 +166,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontFamily: "Poppins",
-    color: "#000", 
+    color: "#000",
     fontWeight: "bold",
     marginVertical: 20,
   },

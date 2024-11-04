@@ -7,6 +7,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Service;
+
 class Package extends Model
 {
     use HasFactory;
@@ -25,4 +27,12 @@ class Package extends Model
     protected $casts = [
         'services' => 'array',
     ];
+    // public function services()
+    // {
+    //     return $this->belongsToMany(Service::class);
+    // }
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'package_services', 'package_id', 'service_id');
+    }
 }

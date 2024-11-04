@@ -16,8 +16,8 @@ import { useNavigation } from "@react-navigation/native";
 import event2 from "../../../../../assets/event2.png";
 import MyButtonComponent from "../component/MyButtonComponent";
 import { AntDesign } from "@expo/vector-icons";
+import AddEvent from "../component/AddEvent";
 // import AddEventOrPackageModalNew from "../component/AddEventOrPackageModalNew";
-import AddEventOrPackageModalNew from "../component/AddEventOrPackageModalNew";
 const ProfileMyEvents = () => {
   const eventData = useStore((state) => state.eventData); // Fetch event data from useStore
   const [selectedMonthEvents, setSelectedMonthEvents] = useState([]);
@@ -240,7 +240,7 @@ const ProfileMyEvents = () => {
           </Pressable>
         </View>
       </Modal>
-      <AddEventOrPackageModalNew
+      <AddEvent
         visible={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
         type="event"

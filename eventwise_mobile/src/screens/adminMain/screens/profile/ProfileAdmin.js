@@ -9,17 +9,17 @@ import { useNavigation } from "@react-navigation/native";
 import useStore from "../../../../stateManagement/useStore";
 import ProfileMyPackages from "./ProfileMyPackages";
 import MyProfileAdmin from "./MyProfileAdmin";
-const ProfileAdmin = () => {
-  return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { paddingTop: -20, padding: 0, paddingHorizontal: 12 },
-      ]}
-    >
-      <ScrollView>
-        <MyProfileAdmin />
-        {/* <View style={[]}>
+import ProfileSwitcherAdmin from "./ProfileSwitcherAdmin";
+const ProfileAdmin = () => (
+  <SafeAreaView
+    style={[
+      styles.container,
+      { paddingTop: -20, padding: 0, paddingHorizontal: 12 },
+    ]}
+  >
+    <ScrollView>
+      <MyProfileAdmin />
+      {/* <View style={[]}>
         <View
           style={[
             {
@@ -44,11 +44,14 @@ const ProfileAdmin = () => {
           </Text>
         </View>
       </View> */}
-        <ProfileMyEvents />
-        <ProfileMyPackages />
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+      {/* #TODO: - put the profile switch here - apply profile switch between
+      admin and serviceProviderd - serviceprovider: crud services - admin:
+      crud packages, events - customer: crud bookings. */}
+      <ProfileSwitcherAdmin />
+      <ProfileMyEvents />
+      <ProfileMyPackages />
+    </ScrollView>
+  </SafeAreaView>
+);
 
 export default ProfileAdmin;

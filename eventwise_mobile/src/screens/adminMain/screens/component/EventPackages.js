@@ -1,3 +1,5 @@
+// src/components/EventPackages.js
+
 import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -6,25 +8,55 @@ import {
   View,
   Button,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import styles from "../../styles/styles";
 import useStore from "../../../../stateManagement/useStore";
 import EventPackageCard from "./EventPackageCard";
-import AddEventOrPackageModalNew from "./AddEventOrPackageModalNew";
-import AddEventOrPackageModal from "./AddEventOrPackage/AddEventOrPackageModal";
 import AddPackageG from "./AddPackageGcp";
-import TestUploadComponent from "./testUploadComponent";
+import { testSupabaseConnectivity } from "./testSupabaseConnectivity";
+import ManualTestImage from "./ManualTestImage";
+import { TouchableOpacity } from "react-native";
+import EventPackageDetails from "../event/EventPackageDetails";
+import { useNavigation } from "@react-navigation/native";
 const EventPackages = () => {
-  const { likedEvents, toggleLike, initializeLikedEvents, eventPackages } =
-    useStore();
+  const {
+    likedEvents,
+    toggleLike,
+    initializeLikedEvents,
+    eventPackages,
+    fetchEventPackages,
+  } = useStore();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigation = useNavigation();
+  const handleAddPackage = async (newPackage) => {
+    try {
+      await fetchEventPackages(); // Refresh the list after adding a package
+    } catch (error) {
+      console.error("Error fetching event packages:", error);
+    }
+  };
 
   useEffect(() => {
-    initializeLikedEvents(); // Load liked events from storage
+    const initialize = async () => {
+      await initializeLikedEvents();
+      await fetchEventPackages();
+      setIsLoading(false);
+    };
+    initialize();
   }, []);
 
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView style={[styles.container, {}]}>
+    <SafeAreaView style={styles.container}>
       <View>
         <Text style={styles.header}>
           <Text style={styles.title}>My Event Packages</Text>
@@ -40,32 +72,43 @@ const EventPackages = () => {
         style={styles.scrollViewEventPackage}
       >
         {eventPackages.map((packageItem) => (
-          <EventPackageCard
-            key={packageItem.packageId}
-            event={{
-              id: packageItem.packageId,
-              image: require("../../../../../assets/event2.png"),
-              title: packageItem.packageName,
-              date: "", // Add date if applicable
-              location: "", // Add location if applicable
-              price: packageItem.packagePrice,
-              description: packageItem.packageDescription,
-            }}
-            likedEvents={likedEvents}
-            toggleLike={toggleLike}
-          />
+          <TouchableOpacity
+            key={packageItem.id}
+            onPress={() =>
+              navigation.navigate("EventPackageDetails", { packageItem })
+            }
+          >
+            <EventPackageCard
+              event={{
+                id: packageItem.id,
+                image: packageItem.coverPhoto
+                  ? { uri: packageItem.coverPhoto }
+                  : require("../../../../../assets/event2.png"),
+                title: packageItem.packageName,
+                date: packageItem.packageCreatedDate,
+                location: packageItem.location || "Location not specified",
+                price: packageItem.totalPrice,
+                type: packageItem.eventType,
+                description:
+                  packageItem.packageDescription || "No description available.",
+              }}
+              likedEvents={likedEvents}
+              toggleLike={toggleLike}
+            />
+          </TouchableOpacity>
         ))}
       </ScrollView>
-
       {/* Modal for adding new event/package */}
-      {/* <AddEventOrPackageModalNew
+      <Modal
         visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        type="package" // Set type to "package"
-      /> */}
-
-      <AddPackageG onClose={() => setIsModalVisible(false)} />
-      <TestUploadComponent />
+        onRequestClose={() => setIsModalVisible(false)}
+        animationType="slide"
+      >
+        <AddPackageG
+          onClose={() => setIsModalVisible(false)}
+          onAddPackage={handleAddPackage}
+        />
+      </Modal>
     </SafeAreaView>
   );
 };

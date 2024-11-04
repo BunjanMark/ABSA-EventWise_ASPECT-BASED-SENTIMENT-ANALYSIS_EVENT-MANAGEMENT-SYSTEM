@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('eventType');
             $table->json('services');
             $table->decimal('totalPrice', 10, 2);
-            $table->string('coverPhoto')->nullable(); // Ensure this is a string and nullable
+            $table->longText('coverPhoto')->nullable(); // Ensure this is a string and nullable and 2000 characters max
             $table->date('packageCreatedDate');
             $table->timestamps();
         });

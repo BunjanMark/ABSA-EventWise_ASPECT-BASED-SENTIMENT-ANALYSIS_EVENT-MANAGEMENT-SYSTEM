@@ -1,6 +1,4 @@
-// AddEventOrPackageModalNew.js
 import pickerSelectStyles from "./pickerSelectStyles";
-import styles from "./styles";
 import React, { useState, useEffect } from "react";
 import {
   Modal,
@@ -17,31 +15,16 @@ import {
 } from "react-native";
 import useStore from "../../../../stateManagement/useStore";
 import * as ImagePicker from "expo-image-picker";
-import RNPickerSelect from "react-native-picker-select"; // Import Picker
-import DateTimePicker from "@react-native-community/datetimepicker"; // Import DateTimePicker
+import RNPickerSelect from "react-native-picker-select";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { StyleSheet } from "react-native";
+import event2 from "../../../../../assets/event2.png";
+import selectimage from "../../../../../assets/selectimage.png";
 
-import event2 from "../../../../../assets/event2.png"; // Ensure correct path
-import selectimage from "../../../../../assets/selectimage.png"; // Ensure correct path
-
-import { submitPackage } from "../../../../services/organizer/organizerServices";
 const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
   const { addEvent, addEventPackage, eventPackages, servicesList } = useStore();
 
-  const addGuest = () => {
-    setGuests([...guests, { name: "", email: "" }]);
-  };
-  // Update Guest Details
-  const updateGuest = (index, field, value) => {
-    setGuests((prevGuests) =>
-      prevGuests.map((guest, i) =>
-        i === index ? { ...guest, [field]: value } : guest
-      )
-    );
-  };
-  // State variables for multi-step form
   const [currentStep, setCurrentStep] = useState(1);
-
-  // Step 1: Basic Details
   const [title, setTitle] = useState("");
   const [eventType, setEventType] = useState("");
   const [eventDate, setEventDate] = useState(new Date());
@@ -51,22 +34,14 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [coverPhoto, setCoverPhoto] = useState(null);
-
-  // Step 2: Choose Package or Customize
   const [filteredPackages, setFilteredPackages] = useState([]);
   const [selectedPackage, setSelectedPackage] = useState(null);
-
-  // Step 3: Customize Package
-  // Local state variables
   const [packageName, setPackageName] = useState("");
   const [packageEventType, setPackageEventType] = useState("");
   const [selectedServices, setSelectedServices] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
-  //   Step 4: adding guests
-  const [guests, setGuests] = useState([{ name: "", email: "" }]); // Array to store guest objects
+  const [guests, setGuests] = useState([{ name: "", email: "" }]);
 
-  // console.log("eventPackages:", eventPackages);
-  // Effect to filter packages based on event type
   useEffect(() => {
     if (eventType) {
       const packages = eventPackages.filter(
@@ -78,193 +53,53 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
     }
   }, [eventType, eventPackages]);
 
-  // const handleAddPackage = () => {
-  //   if (!selectedPackage) {
-  //     Alert.alert("Error", "Please select a package.");
-  //     return;
-  //   }
-  //   const newPackage = {
-  //     packageId: Date.now().toString(),
-  //     ...selectedPackage,
-  //     packageImage: selectedPackage.coverPhoto
-  //       ? { uri: selectedPackage.coverPhoto }
-  //       : require("../../../../../assets/event2.png"),
-  //     totalPrice: selectedPackage.basePrice + totalPrice, // Add base price to total price
-  //   };
+  const handleAddInclusion = (serviceName) => {
+    // Check if the service is already included
+    const alreadyIncluded = selectedPackage.services.includes(serviceName);
 
-  //   addEventPackage(newPackage);
-  //   setSelectedPackage(null);
-  // };
-  // Handle Add (Final Submission)
-  // const handleAdd = () => {
-  //   // Basic validation
-  //   if (!title || !eventType || !eventDate || !eventTime || !location) {
-  //     Alert.alert("Error", "Please fill in all required fields.");
-  //     return;
-  //   }
+    // Update the selected package's inclusions
+    const updatedServices = alreadyIncluded
+      ? selectedPackage.services.filter((service) => service !== serviceName) // Remove if already included
+      : [...selectedPackage.services, serviceName]; // Add if not included
 
-  //   // If customizing and no services selected, warn the user
-  //   if (!selectedPackage && Object.keys(selectedServices).length === 0) {
-  //     Alert.alert(
-  //       "Error",
-  //       "Please select at least one service or choose a package."
-  //     );
-  //     return;
-  //   }
+    setSelectedPackage((prevState) => ({
+      ...prevState,
+      services: updatedServices,
+    }));
+  };
 
-  //   // Format date and time
-  //   const formattedDate = eventDate.toISOString().split("T")[0]; // YYYY-MM-DD
-  //   const formattedTime = eventTime.toLocaleTimeString([], {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //   }); // e.g., 10:00 AM
+  const PackageDetails = ({ selectedPackage }) => {
+    return (
+      <View style={styles.packageDetailsContainer}>
+        <Text style={styles.packageName}>Package Details:</Text>
+        <Text>
+          Package name:{" "}
+          <Text style={styles.packageName}>{selectedPackage.packageName}</Text>
+        </Text>
 
-  //   // Prepare selected services array
-  //   const servicesPicked = Object.values(selectedServices).flat();
+        <Text style={styles.packageType}>
+          Package type: {selectedPackage.eventType}
+        </Text>
+        <Text style={styles.packageInclusions}>Package Inclusions:</Text>
+        <View style={styles.servicesContainer}>
+          {selectedPackage.services.map((service, index) => (
+            <Text key={index} style={styles.service}>
+              • {service}
+            </Text>
+          ))}
+        </View>
+        <Text>
+          Package Price:{" "}
+          <Text style={styles.packagePrice}>{selectedPackage.totalPrice}</Text>
+        </Text>
 
-  //   const newItem = {
-  //     title,
-  //     eventType,
-  //     eventDate: formattedDate,
-  //     eventTime: formattedTime,
-  //     location,
-  //     description,
-  //     coverPhoto,
-  //     eventPackageSelected: servicesPicked,
-  //     totalPrice: selectedPackage
-  //       ? selectedPackage.basePrice + totalPrice
-  //       : totalPrice,
-  //     guests, // Include guests in the submission
-  //     ...(type === "package" && { price: selectedPackage?.basePrice }),
-  //   };
-
-  //   // Add to store
-  //   if (type === "event") {
-  //     addEvent(newItem);
-  //   } else {
-  //     addEventPackage({
-  //       ...newItem,
-  //       packageType: selectedPackage?.packageName || "Custom",
-  //     });
-  //   }
-
-  //   // Reset all fields after adding
-  //   resetFields();
-  //   onClose();
-  // };
-  // Handle service selection/deselection
-  const handleServiceToggle = (category, serviceName, servicePrice) => {
-    setSelectedServices((prevSelectedServices) => {
-      const categoryServices = prevSelectedServices[category] || [];
-      let updatedCategoryServices;
-      let updatedTotalPrice = totalPrice;
-
-      if (categoryServices.includes(serviceName)) {
-        // Remove service
-        updatedCategoryServices = categoryServices.filter(
-          (name) => name !== serviceName
-        );
-        updatedTotalPrice -= servicePrice;
-      } else {
-        // Add service
-        updatedCategoryServices = [...categoryServices, serviceName];
-        updatedTotalPrice += servicePrice;
-      }
-
-      return {
-        ...prevSelectedServices,
-        [category]: updatedCategoryServices,
-      };
-    });
-
-    setTotalPrice((prevTotal) =>
-      selectedServices[category]?.includes(serviceName)
-        ? prevTotal - servicePrice
-        : prevTotal + servicePrice
+        <Text style={styles.packageDate}>
+          {selectedPackage.packageCreatedDate}
+        </Text>
+      </View>
     );
   };
-
-  // Handle adding the package to the useStore
-  const handleAddPackage = () => {
-    if (!packageName || !packageEventType) {
-      alert("Please fill in both the package name and event type");
-      return;
-    }
-
-    // Create the package object
-    const newPackage = {
-      packageId: Date.now().toString(),
-      packageName,
-      eventType: packageEventType,
-      services: selectedServices,
-      totalPrice,
-    };
-
-    // Add package to useStore
-    addEventPackage(newPackage);
-    submitPackage(packageData);
-    // Reset the local state
-    setPackageName("");
-    setPackageEventType("");
-    setSelectedServices({});
-    setTotalPrice(0);
-
-    alert("Package added successfully!");
-  };
-
-  const handleAdd = () => {
-    if (!title || !eventType || !eventDate || !eventTime || !location) {
-      Alert.alert("Error", "Please fill in all required fields.");
-      return;
-    }
-
-    const newEvent = {
-      eventId: Date.now().toString(), // Automatically generated event ID
-      eventName: title,
-      eventType,
-      eventDate: eventDate.toISOString().split("T")[0],
-      eventTime: eventTime.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      eventLocation: location,
-      eventDescription: description,
-      EventImage: coverPhoto,
-      eventPackageSelected: Object.values(selectedServices).flat(),
-      eventPackageSelectedName: Object.keys(selectedServices).join(","),
-      guests, // Include guests in the submission
-      totalPrice: selectedPackage
-        ? selectedPackage.basePrice + totalPrice
-        : totalPrice,
-    };
-
-    // Add the new event to the store
-    addEvent(newEvent);
-
-    // Reset fields and close modal
-    resetFields();
-    onClose();
-  };
-  // Reset all form fields
-  const resetFields = () => {
-    setCurrentStep(1);
-    setTitle("");
-    setEventType("");
-    setEventDate(new Date());
-    setEventTime(new Date());
-    setLocation("");
-    setDescription("");
-    setCoverPhoto(null);
-    setFilteredPackages([]);
-    setSelectedPackage(null);
-    setSelectedServices({});
-    setTotalPrice(0);
-    setGuests([{ name: "", email: "" }]); // Reset guests to initial state
-  };
-
-  // Handle Cover Photo Selection
   const handleCoverPhotoSelection = async () => {
-    r;
     try {
       // Request permission to access the gallery
       const permissionResult =
@@ -301,135 +136,132 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
       );
     }
   };
+  // const handleServiceToggle = (category, serviceName, servicePrice) => {
+  //   setSelectedServices((prevSelectedServices) => {
+  //     const categoryServices = prevSelectedServices[category] || [];
+  //     let updatedCategoryServices;
+  //     let updatedTotalPrice = totalPrice;
 
-  // Handle Date Picker
-  const onDateChange = (event, selectedDate) => {
-    setShowDatePicker(Platform.OS === "ios");
-    if (selectedDate) {
-      setEventDate(selectedDate);
-    }
-  };
-
-  // Handle Time Picker
-  const onTimeChange = (event, selectedTime) => {
-    setShowTimePicker(Platform.OS === "ios");
-    if (selectedTime) {
-      setEventTime(selectedTime);
-    }
-  };
-
-  // Handle Package Selection
-  // Handle Package Selection
-  const handlePackageSelect = (pkg) => {
-    setSelectedPackage(pkg);
-    setTotalPrice(0); // Reset additional services price
-
-    // Optionally, pre-select the package's services
-    if (pkg.servicesPicked) {
-      const preselectedServices = pkg.servicesPicked.reduce((acc, service) => {
-        const category = servicesList.find(
-          (s) => s.serviceName === service
-        )?.serviceCategory;
-        if (category) {
-          acc[category] = acc[category]
-            ? [...acc[category], service]
-            : [service];
-        }
-        return acc;
-      }, {});
-
-      setSelectedServices(preselectedServices);
-
-      // Calculate total price based on preselected services
-      const servicesTotal = pkg.servicesPicked.reduce((sum, service) => {
-        const serviceObj = servicesList.find((s) => s.serviceName === service);
-        return sum + (serviceObj ? serviceObj.basePrice : 0);
-      }, 0);
-
-      setTotalPrice(servicesTotal);
-    }
-  };
-  // const handlePackageSelect = (pkg) => {
-  //   setSelectedPackage(pkg);
-  //   setTotalPrice(0); // Reset additional services price
-
-  //   // Optionally, pre-select the package's services
-  //   const preselectedServices = pkg.servicesPicked?.reduce((acc, service) => {
-  //     const category = servicesList.find(
-  //       (s) => s.serviceName === service
-  //     )?.serviceCategory;
-  //     if (category) {
-  //       acc[category] = acc[category] ? [...acc[category], service] : [service];
-  //     }
-  //     return acc;
-  //   }, {});
-
-  //   setSelectedServices(preselectedServices);
-
-  //   // Calculate total price based on preselected services
-  //   const servicesTotal = pkg.servicesPicked.reduce((sum, service) => {
-  //     const serviceObj = servicesList.find((s) => s.serviceName === service);
-  //     return sum + (serviceObj ? serviceObj.basePrice : 0);
-  //   }, 0);
-
-  //   setTotalPrice(servicesTotal);
-  // };
-
-  // Handle Service Selection
-  // const handleServiceToggle = (category, service) => {
-  //   setSelectedServices((prev) => {
-  //     const categoryServices = prev[category] || [];
-  //     let updatedServices;
-
-  //     if (categoryServices.includes(service)) {
-  //       // Remove service
-  //       updatedServices = categoryServices.filter((s) => s !== service);
+  //     if (categoryServices.includes(serviceName)) {
+  //       updatedCategoryServices = categoryServices.filter(
+  //         (name) => name !== serviceName
+  //       );
+  //       updatedTotalPrice -= servicePrice;
   //     } else {
-  //       // Add service
-  //       updatedServices = [...categoryServices, service];
+  //       updatedCategoryServices = [...categoryServices, serviceName];
+  //       updatedTotalPrice += servicePrice;
   //     }
-
-  //     // Calculate service price
-  //     const servicePrice =
-  //       servicesList.find((s) => s.serviceName === service)?.basePrice || 0;
-
-  //     // Update total price
-  //     setTotalPrice((prevTotal) =>
-  //       categoryServices.includes(service)
-  //         ? prevTotal - servicePrice
-  //         : prevTotal + servicePrice
-  //     );
 
   //     return {
-  //       ...prev,
-  //       [category]: updatedServices,
+  //       ...prevSelectedServices,
+  //       [category]: updatedCategoryServices,
   //     };
   //   });
-  // };
 
-  // Proceed to Next Step
-  const handleNext = () => {
-    // Validate Step 1 before proceeding
+  //   setTotalPrice((prevTotal) =>
+  //     selectedServices[category]?.includes(serviceName)
+  //       ? prevTotal - servicePrice
+  //       : prevTotal + servicePrice
+  //   );
+  // };
+  const handleServiceToggle = (category, serviceName, servicePrice) => {
+    setSelectedServices((prevSelectedServices) => {
+      const categoryServices = prevSelectedServices[category] || [];
+      let updatedCategoryServices;
+      let updatedTotalPrice = totalPrice;
+
+      if (categoryServices.includes(serviceName)) {
+        updatedCategoryServices = categoryServices.filter(
+          (name) => name !== serviceName
+        );
+        updatedTotalPrice -= servicePrice;
+      } else {
+        updatedCategoryServices = [...categoryServices, serviceName];
+        updatedTotalPrice += servicePrice;
+      }
+
+      // Update totalPrice directly inside the function for immediate UI update
+      setTotalPrice(updatedTotalPrice);
+
+      return {
+        ...prevSelectedServices,
+        [category]: updatedCategoryServices,
+      };
+    });
+  };
+  const handleAddGuest = () => {
+    setGuests([...guests, { name: "", email: "" }]);
+  };
+
+  const updateGuest = (index, field, value) => {
+    setGuests((prevGuests) =>
+      prevGuests.map((guest, i) =>
+        i === index ? { ...guest, [field]: value } : guest
+      )
+    );
+  };
+
+  const handleAdd = () => {
     if (!title || !eventType || !eventDate || !eventTime || !location) {
       Alert.alert("Error", "Please fill in all required fields.");
       return;
     }
 
-    setCurrentStep((currentStep) => (currentStep < 3 ? currentStep + 1 : 3));
+    const newEvent = {
+      eventId: Date.now().toString(),
+      eventName: title,
+      eventType,
+      eventDate: eventDate.toISOString().split("T")[0],
+      eventTime: eventTime.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      eventLocation: location,
+      eventDescription: description,
+      EventImage: coverPhoto,
+      eventPackageSelected: Object.values(selectedServices).flat(),
+      eventPackageSelectedName: Object.keys(selectedServices).join(","),
+      guests,
+      totalPrice: selectedPackage
+        ? selectedPackage.basePrice + totalPrice
+        : totalPrice,
+    };
+
+    addEvent(newEvent);
+    resetFields();
+    onClose();
+    console.log("New event added addEventorPackage:", newEvent);
   };
 
-  // Proceed Back to Previous Step
-  const handleBack = () => {
-    setCurrentStep((prev) => (prev > 1 ? prev - 1 : prev));
+  const resetFields = () => {
+    setCurrentStep(1);
+    setTitle("");
+    setEventType("");
+    setEventDate(new Date());
+    setEventTime(new Date());
+    setLocation("");
+    setDescription("");
+    setCoverPhoto(null);
+    setFilteredPackages([]);
+    setSelectedPackage(null);
+    setSelectedServices({});
+    setTotalPrice(0);
+    setGuests([{ name: "", email: "" }]);
   };
 
-  // Proceed to Customize Package Step
-  const handleProceedToCustomize = () => {
-    if (!selectedPackage) {
-      Alert.alert("Error", "Please select a package to customize.");
+  const handleNext = () => {
+    if (
+      currentStep === 1 &&
+      (!title || !eventType || !eventDate || !location)
+    ) {
+      Alert.alert("Error", "Please fill in all required fields.");
       return;
     }
-    setCurrentStep(3);
+    setCurrentStep((prev) => (prev < 5 ? prev + 1 : prev));
+  };
+
+  const handleBack = () => {
+    setCurrentStep((prev) => (prev > 1 ? prev - 1 : prev));
   };
 
   return (
@@ -439,31 +271,10 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
           <Text style={styles.modalHeader}>
             {type === "event" ? "Create Event" : "Add Event Package"}
           </Text>
-
-          {/* Step Indicator */}
-          <Text style={styles.stepIndicator}>
-            Step {currentStep} of 4: testing only
-          </Text>
+          <Text style={styles.stepIndicator}>Step {currentStep} of 5</Text>
 
           {currentStep === 1 && (
             <>
-              {/* Cover Photo Section */}
-              <TouchableOpacity
-                onPress={handleCoverPhotoSelection}
-                style={styles.coverPhotoContainer}
-              >
-                <Image
-                  source={
-                    coverPhoto
-                      ? { uri: coverPhoto } // Show selected image
-                      : selectimage // Default image
-                  }
-                  style={styles.coverPhoto}
-                />
-                <Text style={styles.addPhotoText}>Add Cover Photo</Text>
-              </TouchableOpacity>
-
-              {/* Event Name */}
               <TextInput
                 placeholder={
                   type === "event" ? "Enter Event Name" : "Enter Package Name"
@@ -472,8 +283,6 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
                 onChangeText={setTitle}
                 style={styles.inputStyle}
               />
-
-              {/* Choose Event Type Dropdown */}
               <RNPickerSelect
                 onValueChange={(value) => setEventType(value)}
                 placeholder={{ label: "Choose Event Type...", value: null }}
@@ -482,14 +291,11 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
                   { label: "Wedding", value: "Wedding" },
                   { label: "Reunion", value: "Reunion" },
                   { label: "Conference", value: "Conference" },
-                  // Add more event types as needed
                 ]}
                 style={pickerSelectStyles}
                 value={eventType}
                 useNativeAndroidPickerStyle={false}
               />
-
-              {/* Date Picker */}
               <TouchableOpacity
                 onPress={() => setShowDatePicker(true)}
                 style={styles.datePicker}
@@ -503,11 +309,14 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
                   value={eventDate}
                   mode="date"
                   display="default"
-                  onChange={onDateChange}
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) {
+                      setEventDate(selectedDate);
+                    }
+                  }}
                 />
               )}
-
-              {/* Time Picker */}
               <TouchableOpacity
                 onPress={() => setShowTimePicker(true)}
                 style={styles.datePicker}
@@ -526,19 +335,20 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
                   value={eventTime}
                   mode="time"
                   display="default"
-                  onChange={onTimeChange}
+                  onChange={(event, selectedTime) => {
+                    setShowTimePicker(false);
+                    if (selectedTime) {
+                      setEventTime(selectedTime);
+                    }
+                  }}
                 />
               )}
-
-              {/* Event Venue */}
               <TextInput
                 placeholder="Enter Event Venue"
                 value={location}
                 onChangeText={setLocation}
                 style={styles.inputStyle}
               />
-
-              {/* Description */}
               <TextInput
                 placeholder="Description"
                 value={description}
@@ -546,8 +356,16 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
                 style={[styles.inputStyle, { height: 80 }]}
                 multiline
               />
-
-              {/* Next Button */}
+              <TouchableOpacity
+                onPress={handleCoverPhotoSelection}
+                style={styles.coverPhotoContainer}
+              >
+                <Image
+                  source={coverPhoto ? { uri: coverPhoto } : selectimage}
+                  style={styles.coverPhoto}
+                />
+                <Text style={styles.addPhotoText}>Add Cover Photo</Text>
+              </TouchableOpacity>
               <View style={styles.buttonContainer}>
                 <Button title="Next" onPress={handleNext} />
                 <Button title="Close" onPress={onClose} color="#FF3B30" />
@@ -571,27 +389,19 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
                         selectedPackage?.packageId === item.packageId &&
                           styles.packageItemSelected,
                       ]}
-                      onPress={() => handlePackageSelect(item)}
+                      onPress={() => setSelectedPackage(item)}
                     >
                       <Image
-                        source={
-                          item.packageImage
-                            ? item.packageImage
-                            : // : require("../../../../../assets/package_placeholder.png") // Placeholder image
-                              { event2 }
-                        }
+                        source={item.packageImage || event2}
                         style={styles.packageImage}
                       />
                       <View style={styles.packageInfo}>
                         <Text style={styles.packageName}>
                           {item.packageName}
                         </Text>
-                        <Text style={styles.packagePrice}>
-                          Base Price: ${item.totalPrice}
-                        </Text>
-                        <Text style={styles.packageDescription}>
-                          {item.packageDescription}
-                        </Text>
+                        {/* <Text style={styles.packagePrice}>
+                Base Price: ${item.basePrice}
+              </Text> */}
                       </View>
                     </TouchableOpacity>
                   )}
@@ -602,168 +412,95 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
                 </Text>
               )}
 
-              {/* Customize Your Own Package Button */}
+              {selectedPackage && (
+                <TouchableOpacity
+                  onPress={() => setCurrentStep(2.5)}
+                  style={styles.customizeButton}
+                >
+                  <Text style={styles.customizeButtonText}>Modify Package</Text>
+                </TouchableOpacity>
+              )}
+
               <TouchableOpacity
-                onPress={() => {
-                  setSelectedPackage(null); // Ensure no package is selected
-                  setCurrentStep(3); // Proceed to customization
-                }}
+                onPress={() => setSelectedPackage(null)}
                 style={styles.customizeButton}
               >
                 <Text style={styles.customizeButtonText}>
-                  Click here to Customize your event package
+                  Customize Your Package
                 </Text>
               </TouchableOpacity>
 
-              {/* Buttons */}
               <View style={styles.buttonContainer}>
                 <Button title="Back" onPress={handleBack} />
                 <Button
                   title="Next"
-                  onPress={() => {
-                    setSelectedPackage(null); // Ensure no package is selected
-                    setCurrentStep(4); // Proceed to customization
-                  }}
+                  onPress={handleNext}
                   disabled={!selectedPackage}
                 />
               </View>
             </>
           )}
-          {currentStep === 3 && (
-            <>
-              {/* Package Details */}
-              <Text style={styles.sectionTitle}>Customize Your Package</Text>
 
-              <TextInput
-                style={styles.inputStyle}
-                placeholder="Enter Package Name"
-                value={packageName}
-                onChangeText={setPackageName}
-              />
+          {currentStep === 2.5 && (
+            <View style={{ height: "60%" }}>
+              <Text style={styles.subTitle}>Modify Package</Text>
+              <Text style={styles.packageName}>
+                {selectedPackage.packageName}
+              </Text>
 
-              <RNPickerSelect
-                onValueChange={(value) => setPackageEventType(value)}
-                placeholder={{
-                  label: "Choose Package Event Type...",
-                  value: null,
-                }}
-                items={[
-                  { label: "Birthday", value: "Birthday" },
-                  { label: "Wedding", value: "Wedding" },
-                  { label: "Reunion", value: "Reunion" },
-                  { label: "Conference", value: "Conference" },
-                  // Add more event types as needed
-                ]}
-                style={pickerSelectStyles}
-                value={packageEventType}
-                useNativeAndroidPickerStyle={false}
-              />
+              <Text style={styles.sectionHeader}>Package Inclusions:</Text>
+              <View style={styles.servicesContainer}>
+                {selectedPackage.services.map((service, index) => (
+                  <Text key={index} style={styles.serviceItem}>
+                    • {service}
+                  </Text>
+                ))}
+              </View>
 
-              {/* Service Categories and Services */}
-              {["Food Catering", "Photography", "Videography"].map(
-                (category) => (
-                  <View key={category} style={styles.categoryContainer}>
-                    <Text style={styles.categoryTitle}>{category}</Text>
-                    {servicesList
-                      .filter((service) => service.serviceCategory === category)
-                      .map((service) => (
-                        <TouchableOpacity
-                          key={service.serviceId}
-                          style={styles.serviceItem}
-                          onPress={() =>
-                            handleServiceToggle(
-                              category,
-                              service.serviceName,
-                              service.basePrice
-                            )
-                          }
-                        >
-                          <View style={styles.checkbox}>
-                            {selectedServices[category]?.includes(
-                              service.serviceName
-                            ) && <Text style={styles.checkboxText}>✔️</Text>}
-                          </View>
-                          <Text style={styles.serviceName}>
-                            {service.serviceName} (${service.basePrice})
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
+              <Text style={styles.sectionHeader}>Available Services:</Text>
+              <View style={{ height: "60%" }}>
+                <ScrollView>
+                  <View style={styles.servicesContainer}>
+                    {servicesList.map((service, index) => (
+                      // console.log(service),
+                      <TouchableOpacity
+                        key={index}
+                        style={styles.serviceOption}
+                        onPress={() => handleAddInclusion(service.serviceName)}
+                      >
+                        <Text style={styles.serviceName}>
+                          {service.serviceName}
+                        </Text>
+                        <Text style={styles.servicePrice}>
+                          ${service.basePrice}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                )
-              )}
-
-              {/* Display Total Price */}
-              <View style={styles.totalPriceContainer}>
-                <Text style={styles.totalPriceText}>
-                  Total Price: ${totalPrice}
-                </Text>
+                </ScrollView>
               </View>
 
-              {/* Buttons */}
+              <Text style={styles.totalPriceText}>
+                Total Price: ${console.log(selectedPackage)}
+              </Text>
+
               <View style={styles.buttonContainer}>
-                <Button title="Back" onPress={handleBack} />
-                <Button title="Add Package" onPress={handleAddPackage} />
+                <Button
+                  title="Back"
+                  onPress={() => setCurrentStep(2)}
+                  color="#808080"
+                />
+                <Button
+                  title="Confirm"
+                  onPress={() => setCurrentStep(3)}
+                  color="#1E90FF"
+                />
               </View>
-            </>
+            </View>
           )}
 
-          {/* {currentStep === 3 && (
+          {currentStep === 3 && (
             <>
-              
-              <Text style={styles.sectionTitle}>Customize Your Package</Text>
-
-              {["Food Catering", "Photography", "Videography"].map(
-                (category) => (
-                  <View key={category} style={styles.categoryContainer}>
-                    <Text style={styles.categoryTitle}>{category}</Text>
-                    {servicesList
-                      .filter(
-                        (service) =>
-                          service.serviceCategory.toLowerCase() ===
-                          category.toLowerCase()
-                      )
-                      .map((service) => (
-                        <TouchableOpacity
-                          key={service.serviceId}
-                          style={styles.serviceItem}
-                          onPress={() =>
-                            handleServiceToggle(category, service.serviceName)
-                          }
-                        >
-                          <View style={styles.checkbox}>
-                            {selectedServices[category] &&
-                            selectedServices[category].includes(
-                              service.serviceName
-                            ) ? (
-                              <Text style={styles.checkboxText}>✔️</Text>
-                            ) : null}
-                          </View>
-                          <Text style={styles.serviceName}>
-                            {service.serviceName} (${service.basePrice})
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                  </View>
-                )
-              )}
-
- 
-              <View style={styles.totalPriceContainer}>
-                <Text style={styles.totalPriceText}>
-                  Total Price: ${selectedPackage ? totalPrice : totalPrice}
-                </Text>
-              </View>
-
-    
-              <View style={styles.buttonContainer}>
-                <Button title="Back" onPress={handleBack} />
-                <Button title="Add" onPress={handleAddPackage} />
-              </View>
-            </>
-          )} */}
-
-          {currentStep === 4 && (
-            <View>
               <Text style={styles.subTitle}>Add Guests</Text>
               <FlatList
                 data={guests}
@@ -785,21 +522,68 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
                   </View>
                 )}
               />
-              <Button title="Add Guest" onPress={addGuest} />
-              <Button
-                title="Back"
-                onPress={() => {
-                  setCurrentStep(2);
-                }}
-              />
-              <Button
-                title="See packages"
-                onPress={() => {
-                  setCurrentStep(3);
-                }}
-              />
+              <Button title="Add Guest" onPress={handleAddGuest} />
+              <View style={styles.buttonContainer}>
+                <Button title="Back" onPress={handleBack} />
+                <Button title="Next" onPress={handleNext} />
+              </View>
+            </>
+          )}
+
+          {currentStep === 4 && (
+            <>
+              <Text style={styles.subTitle}>Review Details</Text>
+              <Text>Event Name: {title}</Text>
+              <Text>Event Type: {eventType}</Text>
+              <Text>Date: {eventDate.toLocaleDateString()}</Text>
+              <Text>
+                Time:{" "}
+                {eventTime.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </Text>
+              <Text>Venue: {location}</Text>
+              <Text>Description: {description}</Text>
+              <Text>Guests:</Text>
+              {guests.map((guest, index) => (
+                <Text key={index}>
+                  {guest.name} - {guest.email}
+                </Text>
+              ))}
+
+              {selectedPackage ? (
+                <>
+                  {/* <Text>Selected Package: {selectedPackage.packageName}</Text> */}
+                  {/* <Text>Base Price: ${selectedPackage.basePrice}</Text> */}
+                  {currentStep === 4 && (
+                    <PackageDetails selectedPackage={selectedPackage} />
+                  )}
+                </>
+              ) : (
+                <>
+                  <Text>Custom Package:</Text>
+                  {Object.keys(selectedServices).map((category) => (
+                    <Text key={category}>
+                      {category}: {selectedServices[category].join(", ")}
+                    </Text>
+                  ))}
+                  <Text>Total Price: ${totalPrice}</Text>
+                </>
+              )}
+              <View style={styles.buttonContainer}>
+                <Button title="Back" onPress={handleBack} />
+                <Button title="Next" onPress={handleNext} />
+              </View>
+            </>
+          )}
+
+          {currentStep === 5 && (
+            <>
+              <Text style={styles.subTitle}>Finalize Booking</Text>
               <Button title="Book Event" onPress={handleAdd} />
-            </View>
+              <Button title="Back" onPress={handleBack} />
+            </>
           )}
         </View>
       </ScrollView>
@@ -808,3 +592,243 @@ const AddEventOrPackageModalNew = ({ visible, onClose, type }) => {
 };
 
 export default AddEventOrPackageModalNew;
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5,
+  },
+  modalHeader: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  stepIndicator: {
+    fontSize: 16,
+    color: "#888",
+    marginBottom: 10,
+  },
+  coverPhotoContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  coverPhoto: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  addPhotoText: {
+    color: "#888",
+    fontSize: 14,
+  },
+  inputStyle: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+  },
+  datePicker: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+  },
+  datePickerText: {
+    fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  packageItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  packageItemSelected: {
+    borderColor: "#FF9800",
+  },
+  packageImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  packageInfo: {
+    flex: 1,
+  },
+  packageName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  packagePrice: {
+    fontSize: 14,
+    color: "#555",
+  },
+  packageDescription: {
+    fontSize: 12,
+    color: "#777",
+  },
+  noPackagesText: {
+    textAlign: "center",
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 10,
+  },
+  customizeButton: {
+    backgroundColor: "#FF9800",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  customizeButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  categoryContainer: {
+    marginBottom: 15,
+  },
+  categoryTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  serviceItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  checkboxText: {
+    fontSize: 14,
+  },
+  serviceName: {
+    fontSize: 14,
+  },
+  totalPriceContainer: {
+    alignItems: "center",
+    marginTop: 10,
+  },
+  totalPriceText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  guestContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    padding: 10,
+    marginHorizontal: 5,
+  },
+  subTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+
+  container: {
+    padding: 20,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+  subTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1E90FF",
+    marginBottom: 10,
+  },
+  packageName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 5,
+  },
+  sectionHeader: {
+    fontSize: 16,
+    color: "#696969",
+    marginTop: 10,
+    marginBottom: 5,
+    fontWeight: "500",
+  },
+  servicesContainer: {
+    backgroundColor: "#FFF",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  serviceItem: {
+    fontSize: 14,
+    color: "#333",
+    marginVertical: 3,
+  },
+  serviceOption: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "#FFF",
+    borderRadius: 6,
+    marginBottom: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  serviceName: {
+    fontSize: 14,
+    color: "#1E90FF",
+  },
+  servicePrice: {
+    fontSize: 14,
+    color: "#696969",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+  },
+});

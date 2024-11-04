@@ -3,7 +3,6 @@
 import axios from "axios";
 import API_URL from "../../constants/constant";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { uploadImageToSupabase } from "./uploadSupabaseService";
 
 // Create an Axios instance
 const api = axios.create({
@@ -23,16 +22,18 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error); // Handle the error
+    return Promise.reject(error);
   }
 );
 
 // Function to submit a new package
 const submitPackage = async (packageData) => {
   try {
-    console.log("Submitting Package:", packageData);
+    // console.log("Submitting Package:", packageData);
 
-    let coverPhotoURL = null;
+    let coverPhotoURL =
+      "https://ktmddejbdwjeremvbzbl.supabase.co/storage/v1/" +
+      packageData.coverPhotoUrl;
     if (packageData.coverPhoto) {
       const fileName = packageData.coverPhoto.split("/").pop();
       coverPhotoURL = await uploadImageToSupabase(
@@ -57,8 +58,8 @@ const submitPackage = async (packageData) => {
       },
     });
 
-    console.log("Package submitted successfully:", response.data);
-    return response.data; // Return the response data on success
+    // console.log("Package submitted successfully:", response.data);
+    return response.data;
   } catch (error) {
     console.error(
       "Error submitting package:",
@@ -68,4 +69,41 @@ const submitPackage = async (packageData) => {
   }
 };
 
-export { submitPackage };
+// Function to fetch all packages
+const fetchPackages = async () => {
+  try {
+    const response = await api.get("/admin/packages");
+    // console.log("Fetched packages:", response.data);
+    return response.data; // Ensure it returns an array of packages
+  } catch (error) {
+    console.error(
+      "Error fetching packages:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
+
+// function to submit a new event
+const submitEvent = async (eventData) => {
+  try {
+    const response = await api.post("/admin/events", eventData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(
+      "Event data submitted successfully Organizerservices:",
+      response.data
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error submitting event data:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
+
+export { submitPackage, fetchPackages };

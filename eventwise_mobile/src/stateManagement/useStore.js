@@ -2,12 +2,10 @@ import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import event2 from "../../assets/event2.png";
 import event3 from "../../assets/event3.png";
+import { fetchPackages } from "../services/organizer/organizerServices";
 const useStore = create((set) => ({
-  user: null,
-  accountProfiles: [],
-  activeProfile: null,
   loading: true,
-  navigation: null, // Store navigation object here
+  // navigation: null, // Store navigation object here
 
   // Theme-related state and methods
   theme: "default", // Initial theme state
@@ -24,38 +22,30 @@ const useStore = create((set) => ({
     }
   },
 
-  // User-related state and methods
-  setUser: (user) => set({ user }),
-  setAccountProfiles: (profiles) => set({ accountProfiles: profiles }),
-  setActiveProfile: (profile) => set({ activeProfile: profile }),
-  setLoading: (loading) => set({ loading }),
-  setNavigation: (navigation) => set({ navigation }),
+  // fetchUserAndProfiles: async () => {
+  //   set({ loading: true });
+  //   try {
+  //     const user = await getUser();
+  //     set({ user });
 
-  // Fetch and set user and account profiles
-  fetchUserAndProfiles: async () => {
-    set({ loading: true });
-    try {
-      const user = await getUser();
-      set({ user });
+  //     const profileResponse = await getAccountProfile();
+  //     const profiles = profileResponse.data.filter(
+  //       (profile) => profile.user_id === user.id
+  //     );
+  //     set({ accountProfiles: profiles });
 
-      const profileResponse = await getAccountProfile();
-      const profiles = profileResponse.data.filter(
-        (profile) => profile.user_id === user.id
-      );
-      set({ accountProfiles: profiles });
-
-      const storedProfile = await AsyncStorage.getItem("activeProfile");
-      if (storedProfile) {
-        set({ activeProfile: JSON.parse(storedProfile) });
-      } else if (profiles.length > 0) {
-        set({ activeProfile: profiles[0] });
-      }
-    } catch (error) {
-      console.error("Error fetching user and profiles:", error);
-    } finally {
-      set({ loading: false });
-    }
-  },
+  //     const storedProfile = await AsyncStorage.getItem("activeProfile");
+  //     if (storedProfile) {
+  //       set({ activeProfile: JSON.parse(storedProfile) });
+  //     } else if (profiles.length > 0) {
+  //       set({ activeProfile: profiles[0] });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching user and profiles:", error);
+  //   } finally {
+  //     set({ loading: false });
+  //   }
+  // },
   // profile infomration
   userName: "Avril Carasco",
   userEmail: "AvrilCarasco@gmail.com",
@@ -82,26 +72,26 @@ const useStore = create((set) => ({
   //   }
   // };
   // switch profile
-  switchProfile: async (profile) => {
-    try {
-      set({ activeProfile: profile });
-      await AsyncStorage.setItem("activeProfile", JSON.stringify(profile));
+  // switchProfile: async (profile) => {
+  //   try {
+  //     set({ activeProfile: profile });
+  //     await AsyncStorage.setItem("activeProfile", JSON.stringify(profile));
 
-      // Handle token update if necessary
-      const token = await AsyncStorage.getItem("authToken");
-      if (token) {
-        await AsyncStorage.setItem(`authToken-${profile.id}`, token);
-      }
+  //     // Handle token update if necessary
+  //     const token = await AsyncStorage.getItem("authToken");
+  //     if (token) {
+  //       await AsyncStorage.setItem(`authToken-${profile.id}`, token);
+  //     }
 
-      // Navigate to the main screen after profile switch
-      const { navigation } = get();
-      if (navigation) {
-        navigation.navigate("CustomerStack", { screen: "TabNav" }); // Adjust the route as needed
-      }
-    } catch (error) {
-      console.error("Error switching profile:", error);
-    }
-  },
+  //     // Navigate to the main screen after profile switch
+  //     const { navigation } = get();
+  //     if (navigation) {
+  //       navigation.navigate("CustomerStack", { screen: "TabNav" }); // Adjust the route as needed
+  //     }
+  //   } catch (error) {
+  //     console.error("Error switching profile:", error);
+  //   }
+  // },
   // adminDrawerContent Drawer Admin
   selectedDrawerScreen: "HomeAdmin",
   setSelectedDrawerScreen: (screenName) =>
@@ -196,348 +186,8 @@ const useStore = create((set) => ({
       ],
     })),
 
-  // Add Event Package
-  // addEventPackage: (newPackage) =>
-  //   set((state) => ({
-  //     eventPackages: [
-  //       ...state.eventPackages,
-  //       { ...newPackage, packageId: Date.now().toString() },
-  //     ], // Add unique packageId
-  //   })),
-  addEventPackage: (newPackage) =>
-    set((state) => ({
-      eventPackages: [
-        ...state.eventPackages,
-        {
-          packageId: Date.now().toString(),
-          ...newPackage,
-          packageImage: newPackage.coverPhoto
-            ? { uri: newPackage.coverPhoto }
-            : //  require("../../../../../assets/event2.png"),
-              null,
-          totalPrice: newPackage.totalPrice || 0,
-        },
-      ],
-    })),
-
   eventData: [],
 
-  // eventData: [
-  //   {
-  //     eventId: "event1",
-  //     eventName: "Mr & Mrs Malik's Event",
-  //     eventType: "Wedding",
-  //     eventDate: "2023-06-01",
-  //     eventTime: "10:00 AM",
-  //     eventPackageSelected: [],
-  //     eventLocation: "123 Main St, Anytown USA",
-  //     eventDescription: "Mao ni ang kuan ba, sample lang",
-  //     eventImage: `${event2}`,
-  //     feedbackData: [
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Service" },
-  //       { sentiment: "positive", aspect: "Service" },
-  //       { sentiment: "positive", aspect: "Service" },
-  //       { sentiment: "negative", aspect: "Service" },
-  //       { sentiment: "negative", aspect: "Service" },
-  //       { sentiment: "negative", aspect: "Service" },
-  //       { sentiment: "positive", aspect: "Venue" },
-  //       { sentiment: "positive", aspect: "Entertainment" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       // ... more feedback data
-  //     ],
-  //     totalGuests: 100,
-  //     guestData: [
-  //       {
-  //         name: "John Doe1",
-  //         email: "p3k9x@example.com",
-  //         phone: "123-456-7890",
-  //         role: "Host",
-  //       },
-  //       {
-  //         name: "Jane Doe2",
-  //         email: "p3k9x@example.com2",
-  //         phone: "123-456-7890",
-  //         role: "Attendee2",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     eventId: "event2",
-  //     eventName: "Mr & Mrs Malik's Event",
-  //     eventDate: "2023-05-01",
-  //     eventTime: "10:00 AM",
-  //     eventLocation: "123 Main St, Anytown USA",
-  //     eventDescription: "Mao ni ang kuan ba, sample lang",
-  //     eventImage: `${event3}`,
-  //     feedbackData: [
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Service" },
-  //       { sentiment: "positive", aspect: "Service" },
-  //       { sentiment: "positive", aspect: "Service" },
-  //       { sentiment: "negative", aspect: "Service" },
-  //       { sentiment: "negative", aspect: "Service" },
-  //       { sentiment: "negative", aspect: "Service" },
-  //       { sentiment: "positive", aspect: "Venue" },
-  //       { sentiment: "positive", aspect: "Entertainment" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       // ... more feedback data
-  //     ],
-  //     totalGuests: 100,
-  //   },
-  //   {
-  //     eventId: "event3",
-  //     eventName: "Mr & Mrs Malik's Event",
-  //     eventDate: "2023-06-01",
-  //     eventTime: "10:00 AM",
-  //     eventLocation: "123 Main St, Anytown USA",
-  //     eventDescription: "Kasal nila ni kuan ba",
-  //     eventImage: `${event2}`,
-  //     feedbackData: [
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "neutral", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "positive", aspect: "Service" },
-  //       { sentiment: "positive", aspect: "Service" },
-  //       { sentiment: "positive", aspect: "Service" },
-  //       { sentiment: "negative", aspect: "Service" },
-  //       { sentiment: "negative", aspect: "Service" },
-  //       { sentiment: "negative", aspect: "Service" },
-  //       { sentiment: "positive", aspect: "Venue" },
-  //       { sentiment: "positive", aspect: "Entertainment" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "negative", aspect: "Decoration" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       // ... more feedback data
-  //     ],
-  //     totalGuests: 200,
-  //   },
-  //   {
-  //     eventId: "event4",
-  //     eventName: "Angela’s 18th Birthday",
-  //     eventDate: "2023-07-01",
-  //     eventTime: "10:00 AM",
-  //     eventLocation: "123 Main St, Anytown USA",
-  //     eventDescription: "This is a description of the event.",
-  //     eventImage: "",
-  //     feedbackData: [
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Organization" },
-  //       { sentiment: "negative", aspect: "Ambiance" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-
-  //       // ... more feedback data
-  //     ],
-  //   },
-  //   {
-  //     eventId: "event5",
-  //     eventName: "Angela’s 18th Birthday",
-  //     eventDate: "2023-07-01",
-  //     eventTime: "10:00 AM",
-  //     eventLocation: "123 Main St, Anytown USA",
-  //     eventDescription: "This is a description of the event.",
-  //     eventImage: `${event2}`,
-  //     feedbackData: [
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Organization" },
-  //       { sentiment: "negative", aspect: "Ambiance" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-
-  //       // ... more feedback data
-  //     ],
-  //     totalGuests: 1230,
-  //   },
-  //   {
-  //     eventId: "event6",
-  //     eventName: "Angela’s 18th Birthday",
-  //     eventDate: "2023-07-01",
-  //     eventTime: "10:00 AM",
-  //     eventLocation: "123 Main St, Anytown USA",
-  //     eventDescription: "This is a description of the event.",
-  //     eventImage: `${event2}`,
-  //     feedbackData: [
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Organization" },
-  //       { sentiment: "negative", aspect: "Ambiance" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-
-  //       // ... more feedback data
-  //     ],
-  //     totalGuests: 320,
-  //   },
-  //   {
-  //     eventId: "event61",
-  //     eventName: "Angela’s 18th Birthday",
-  //     eventDate: "2023-07-01",
-  //     eventTime: "10:00 AM",
-  //     eventLocation: "123 Main St, Anytown USA",
-  //     eventDescription: "This is a description of the event.",
-  //     eventImage: `${event2}`,
-  //     feedbackData: [
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Music" },
-  //       { sentiment: "positive", aspect: "Food" },
-  //       { sentiment: "negative", aspect: "Organization" },
-  //       { sentiment: "negative", aspect: "Ambiance" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "negative", aspect: "Parking" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-  //       { sentiment: "neutral", aspect: "Overall Experience" },
-
-  //       // ... more feedback data
-  //     ],
-  //     totalGuests: 60,
-  //   },
-
-  //   // ... more events
-  // ],
   eventPackages: [
     // {
     //   packageId: "package1",
@@ -552,6 +202,51 @@ const useStore = create((set) => ({
     // Add more packages for other event types (e.g., Wedding, Conference)
   ],
 
+  // Function to add a new package
+  addEventPackage: (newPackage) =>
+    set((state) => ({
+      eventPackages: [
+        ...state.eventPackages,
+        {
+          packageId: newPackage.id || Date.now().toString(), // Use package ID from backend or generate one
+          ...newPackage,
+          packageImage: newPackage.coverPhoto
+            ? { uri: newPackage.coverPhoto }
+            : null,
+          totalPrice: newPackage.totalPrice || 0,
+        },
+      ],
+    })),
+
+  // Function to fetch packages and set them in the store
+  fetchEventPackages: async () => {
+    try {
+      const packages = await fetchPackages();
+      set({ eventPackages: packages });
+    } catch (error) {
+      console.error("Failed to fetch event packages:", error);
+      // Optionally handle error state
+    }
+  },
+
+  // Updated fetchPackages to set directly
+  setEventPackages: (packages) => set({ eventPackages: packages }),
+
+  // addEventPackage: (newPackage) =>
+  //   set((state) => ({
+  //     eventPackages: [
+  //       ...state.eventPackages,
+  //       {
+  //         packageId: Date.now().toString(),
+  //         ...newPackage,
+  //         packageImage: newPackage.coverPhoto
+  //           ? { uri: newPackage.coverPhoto }
+  //           : //  require("../../../../../assets/event2.png"),
+  //             null,
+  //         totalPrice: newPackage.totalPrice || 0,
+  //       },
+  //     ],
+  //   })),
   servicesList: [
     {
       serviceId: "service1",
@@ -561,13 +256,186 @@ const useStore = create((set) => ({
     },
     {
       serviceId: "service2",
+      serviceName: "McDonald's party package",
+      serviceCategory: "Food Catering",
+      basePrice: 1200,
+    },
+    {
+      serviceId: "service3",
+      serviceName: "KFC bucket meal",
+      serviceCategory: "Food Catering",
+      basePrice: 1000,
+    },
+    {
+      serviceId: "service4",
+      serviceName: "Wedding photography package",
+      serviceCategory: "Event Services",
+      basePrice: 8000,
+    },
+    {
+      serviceId: "service5",
+      serviceName: "DJ services for events",
+      serviceCategory: "Event Services",
+      basePrice: 5000,
+    },
+    {
+      serviceId: "service6",
+      serviceName: "Floral arrangement for events",
+      serviceCategory: "Event Services",
+      basePrice: 3000,
+    },
+    {
+      serviceId: "service7",
+      serviceName: "Catering services for corporate events",
+      serviceCategory: "Food Catering",
+      basePrice: 2000,
+    },
+    {
+      serviceId: "service8",
+      serviceName: "Event planning and coordination",
+      serviceCategory: "Event Services",
+      basePrice: 10000,
+    },
+    {
+      serviceId: "service9",
+      serviceName: "Audio-visual equipment rental",
+      serviceCategory: "Event Services",
+      basePrice: 1500,
+    },
+    {
+      serviceId: "service10",
+      serviceName: "Wedding videography package",
+      serviceCategory: "Event Services",
+      basePrice: 6000,
+    },
+    {
+      serviceId: "service11",
+      serviceName: "Food truck services for events",
+      serviceCategory: "Food Catering",
+      basePrice: 2500,
+    },
+    {
+      serviceId: "service12",
+      serviceName: "Event staffing and management",
+      serviceCategory: "Event Services",
+      basePrice: 8000,
+    },
+    {
+      serviceId: "service13",
+      serviceName: "Customized event decorations",
+      serviceCategory: "Event Services",
+      basePrice: 4000,
+    },
+    {
+      serviceId: "service14",
+      serviceName: "Live band performance for events",
+      serviceCategory: "Event Services",
+      basePrice: 10000,
+    },
+    {
+      serviceId: "service15",
+      serviceName: "Event lighting and sound services",
+      serviceCategory: "Event Services",
+      basePrice: 2000,
+    },
+    {
+      serviceId: "service16",
+      serviceName: "Wedding cake design and creation",
+      serviceCategory: "Food Catering",
+      basePrice: 3000,
+    },
+    {
+      serviceId: "service17",
+      serviceName: "Event furniture and equipment rental",
+      serviceCategory: "Event Services",
+      basePrice: 1500,
+    },
+    {
+      serviceId: "service18",
+      serviceName: "Customized event invitations",
+      serviceCategory: "Event Services",
+      basePrice: 1000,
+    },
+    {
+      serviceId: "service19",
+      serviceName: "Event photography package",
+      serviceCategory: "Event Services",
+      basePrice: 5000,
+    },
+    {
+      serviceId: "service20",
+      serviceName: "Full-service event planning and coordination",
+      serviceCategory: "Event Services",
+      basePrice: 15000,
+    },
+    {
+      serviceId: "service02",
       serviceName: "Diwata Beef pares",
       serviceCategory: "Food Catering",
       basePrice: 1600,
     },
-
-    // Add more services as needed
+    {
+      serviceId: "service3",
+      serviceName: "Wedding Photography Package",
+      serviceCategory: "Photography",
+      basePrice: 5000,
+    },
+    {
+      serviceId: "service4",
+      serviceName: "Birthday Photography Package",
+      serviceCategory: "Photography",
+      basePrice: 3000,
+    },
+    {
+      serviceId: "service5",
+      serviceName: "Wedding Videography Package",
+      serviceCategory: "Videography",
+      basePrice: 7000,
+    },
+    {
+      serviceId: "service6",
+      serviceName: "Corporate Videography Package",
+      serviceCategory: "Videography",
+      basePrice: 6000,
+    },
+    {
+      serviceId: "service7",
+      serviceName: "Event Host - Professional MC",
+      serviceCategory: "Host",
+      basePrice: 4000,
+    },
+    {
+      serviceId: "service8",
+      serviceName: "Event Host - Bilingual MC",
+      serviceCategory: "Host",
+      basePrice: 4500,
+    },
+    {
+      serviceId: "service9",
+      serviceName: "Event Host - Comedian",
+      serviceCategory: "Host",
+      basePrice: 5000,
+    },
+    {
+      serviceId: "service10",
+      serviceName: "Event Host - Celebrity MC",
+      serviceCategory: "Host",
+      basePrice: 10000,
+    },
+    {
+      serviceId: "service11",
+      serviceName: "Sound System Rental",
+      serviceCategory: "Others",
+      basePrice: 2500,
+    },
+    {
+      serviceId: "service12",
+      serviceName: "Event Lighting Package",
+      serviceCategory: "Others",
+      basePrice: 3000,
+    },
   ],
+
   //   {
   //     eventId: "event1",
   //     eventName: "Summer Picnic",
@@ -646,6 +514,54 @@ const useStore = create((set) => ({
   setFeedbackSeries: () => {
     const series = calculateFeedbackSeries();
     set({ series });
+  },
+  // Profile management states
+  // Profile-related state and methods
+  accountProfiles: [],
+  activeProfile: null,
+  loading: true,
+
+  setAccountProfiles: (profiles) => set({ accountProfiles: profiles }),
+  setActiveProfile: (profile) => set({ activeProfile: profile }),
+  setLoading: (loading) => set({ loading }),
+  // User-related state and methods
+  setNavigation: (navigation) => set({ navigation }),
+
+  // Fetch and set user and account profiles
+  user: null,
+  // setUser: (user) => set({ user }),
+  setUser: (userData) => set({ user: userData }),
+  fetchUserAndProfiles: async () => {
+    set({ loading: true });
+    try {
+      const user = await getUser();
+      const profileResponse = await getAccountProfile();
+      const profiles = profileResponse.data.filter(
+        (profile) => profile.user_id === user.id
+      );
+      set({ accountProfiles: profiles });
+
+      // Load the active profile from AsyncStorage if it exists
+      const storedProfile = await AsyncStorage.getItem("activeProfile");
+      if (storedProfile) {
+        set({ activeProfile: JSON.parse(storedProfile) });
+      } else if (profiles.length > 0) {
+        set({ activeProfile: profiles[0] }); // Default to the first profile
+      }
+    } catch (error) {
+      console.error("Error fetching user and profiles:", error);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  switchProfile: async (index) => {
+    try {
+      console.log("Profile index:", index);
+      set({ activeProfile: index });
+    } catch (error) {
+      console.error("Error switching profile:", error);
+    }
   },
 }));
 

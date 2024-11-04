@@ -82,7 +82,6 @@ class AuthenticatedSessionController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
             return response(["status" => "error","message" => $th->getMessage()], 500);
-
         }
     }
 

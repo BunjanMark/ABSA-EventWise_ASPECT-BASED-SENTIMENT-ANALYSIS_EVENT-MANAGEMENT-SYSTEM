@@ -63,7 +63,7 @@ const TotalEventFeedback = ({ eventData, sliceColor }) => {
       blurColor: "rgba(251,210,3,0.5)",
     },
   ];
-  const [clickedIndex, setClickedIndex] = useState(null);
+  const [clickedIndex, setClickedIndex] = useState(0);
 
   const handleClick = (index) => {
     setClickedIndex(clickedIndex === index ? null : index);
@@ -182,9 +182,9 @@ const TotalEventFeedback = ({ eventData, sliceColor }) => {
                 },
               ]}
             >
-              <Text style={{ fontSize: 15, fontWeight: "500" }}>
+              {/* <Text style={{ fontSize: 15, fontWeight: "500" }}>
                 Total Events: {totalEvents}
-              </Text>
+              </Text> */}
               <Text style={{ fontSize: 15, fontWeight: "500" }}>
                 Total feedbacks:{" "}
                 {feedbackCount.positive +
@@ -203,7 +203,7 @@ const TotalEventFeedback = ({ eventData, sliceColor }) => {
                     series={[100]}
                     sliceColor={["rgba(9,226,0,1)"]}
                   />
-                  <Text>Positive</Text>
+                  <Text>Number of Positive feedbacks</Text>
                 </Pressable>
                 <Modal
                   animationType="fade"

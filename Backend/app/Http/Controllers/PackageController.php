@@ -12,27 +12,45 @@ use Illuminate\Support\Facades\DB;
 
 class PackageController extends Controller
 {
+    // Add a method to fetch all packages
+    public function index()
+    {
+        try {
+            $packages = Package::all(); // Retrieve all packages
+
+            return response()->json($packages, 200); // Return with 200 status
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function store(Request $request)
     {
         DB::beginTransaction();
-
+    
         try {
             $validatedData = $request->validate([
                 'packageName' => 'required|string|max:255',
                 'eventType' => 'required|string',
-                'services' => 'required|array',
+                'services' => 'required|array', // Array of service IDs to associate
                 'totalPrice' => 'required|numeric|min:1',
                 'coverPhoto' => 'nullable|url', // Ensure it's a valid URL
                 'packageCreatedDate' => 'required|date',
             ]);
-
+    
             // Create the package in the database
             $package = Package::create($validatedData);
-
+    
+            // Attach services to the package
+            $package->services()->attach($validatedData['services']);
+    
             DB::commit();
-
+    
             return response()->json($package, 201); // Return the created package with 201 status
-
+    
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             // Handle validation errors
@@ -50,4 +68,8 @@ class PackageController extends Controller
             ], 500);
         }
     }
+    // app/Http/Controllers/PackageController.php
+
+
+
 }
