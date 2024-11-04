@@ -5644,6 +5644,7 @@ background-color: #eeba2b;
   border-radius: 8px;
   width: 80%;
   margin: 0 auto;
+  transition: filter 0.3s ease;
 }
 
 .event-details-title-reviewevent {
@@ -5725,8 +5726,155 @@ background-color: #eeba2b;
     padding: 4px;
     border: 2px solid #ccc;
     border-radius: 4px;
+    
     margin-top: 5px;
 }
+
+.guest-table-container-reviewevent {
+  margin-top: 20px;
+  border-top-left-radius: 10px; /* Top left corner */
+  border-top-right-radius: 10px; /* Top right corner */
+  overflow: hidden; /* Ensures rounded corners are respected */
+  background-color: white; /* Background color to match the table */
+}
+
+.guest-table-title-reviewevent {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.guest-table-reviewevent {
+  width: 100%;
+  border-collapse: collapse; /* Removes border lines */
+  border-radius: 10px 10px 0 0; /* Apply border radius */
+  overflow: hidden; /* Ensures rounded corners are respected */
+}
+
+
+.guest-table-reviewevent th,
+.guest-table-reviewevent td {
+  padding: 10px;
+  text-align: left;
+}
+.guest-table-reviewevent th {
+  color: white;
+}
+
+.guest-table-reviewevent th {
+  background-color: #eeba2b; /* Light background for header */
+}
+
+.remove-guest-icon-reviewevent {
+  color: red; /* Color for the delete icon */
+  cursor: pointer;
+}
+
+.package-image-reviewevent.blurry {
+  filter: blur(5px);
+  width: 100%;
+  max-width: 200px;
+  margin-top: 10px;
+  border-radius: 8px; /* Adjust as needed */
+}
+
+.next-button-reviewevent {
+  margin: 20px auto; /* Center the button horizontally */
+  padding: 10px 15px;
+  background-color: #eeba2b;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  display: block; /* Makes the button a block element for centering */
+  text-align: center; /* Center text inside the button */
+}
+
+.next-button-reviewevent:hover {
+  background-color: #d9a52c;
+}
+
+.next-button-reviewevent:disabled {
+  background-color: #ccc; /* Light grey when disabled */
+  cursor: not-allowed; /* Change cursor to indicate non-clickable */
+}
+
+.package-image-reviewevent.blurry {
+  filter: blur(5px); /* Apply blur effect */
+}
+
+.overlay-reviewevent {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Dark background for overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay-content-reviewevent {
+  background: linear-gradient(to bottom, #eeba2b, white); /* Gradient background */
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px; /* Wider for horizontal cards */
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Arrange children in a column */
+  align-items: center; /* Center align items */
+  position: relative; /* Allow positioning of child elements */
+}
+
+.overlay-title-reviewevent {
+  margin-bottom: 20px; /* Space below the title */
+}
+
+.packages-container-reviewevent {
+  display: flex; /* Flexbox for card layout */
+  flex-wrap: wrap; /* Wrap cards to the next line if necessary */
+  justify-content: center; /* Center align cards */
+}
+
+.package-card-reviewevent {
+  margin: 10px; /* Space between cards */
+  padding: 10px;
+  border-radius: 5px;
+  background-color: white; /* White background for cards */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3); /* Box shadow */
+  text-align: center;
+  flex: 1 1 200px; /* Flexible card size */
+  max-width: 200px; /* Limit max width for cards */
+}
+
+.overlay-image-reviewevent {
+  width: 100%;
+  max-width: 150px; /* Adjusted for a better layout */
+}
+
+.choose-button-reviewevent {
+  background-color: #eeba2b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.close-button-reviewevent {
+  position: absolute; /* Position relative to the overlay content */
+  top: 10px; /* Distance from the top */
+  right: 20px; /* Distance from the right */
+  background: none; /* Remove background */
+  border: none; /* Remove border */
+  font-size: 24px; /* Font size for the close button */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: color 0.3s; /* Smooth color transition */
+}
+
+
 
 
 
