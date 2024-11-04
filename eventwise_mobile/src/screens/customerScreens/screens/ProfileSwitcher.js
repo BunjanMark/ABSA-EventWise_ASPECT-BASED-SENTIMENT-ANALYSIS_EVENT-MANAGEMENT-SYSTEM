@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { View, Text, Button, ActivityIndicator } from "react-native";
-import { ProfileContext } from "../../../services/profileContextcp";
+import { ProfileContext } from "../../../services/profileContext";
 import useStore from "../../../stateManagement/store";
 import { useFocusEffect } from "@react-navigation/native";
 import { getUser, getAccountProfile } from "../../../services/authServices";

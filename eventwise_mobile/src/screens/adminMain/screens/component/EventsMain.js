@@ -12,12 +12,10 @@ import styles from "../../styles/styles";
 import useStore from "../../../../stateManagement/useStore";
 import EventMainCard from "./EventMainCard";
 import event2 from "../../../../../assets/event2.png"; // Ensure you have the right path for the image
-
+import AddEventOrPackageModalNew from "./AddEventOrPackageModalNew";
 import { useState } from "react";
 
 import { useNavigation } from "@react-navigation/native";
-import AddEventModal from "./AddEventModal";
-import AddEvent from "./AddEvent";
 
 const EventsMain = () => {
   const navigation = useNavigation();
@@ -71,11 +69,7 @@ const EventsMain = () => {
         ))}
       </ScrollView>
 
-      {/* <AddEventModal
-        isVisible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-      /> */}
-      <AddEvent
+      <AddEventOrPackageModalNew
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         type="event" // Set type to "package"

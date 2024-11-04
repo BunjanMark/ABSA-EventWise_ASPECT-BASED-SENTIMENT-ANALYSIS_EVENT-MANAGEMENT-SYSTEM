@@ -25,7 +25,6 @@ import GroupAdmin from "../screens/group/GroupAdmin";
 
 import GuestListAdmin from "../screens/group/GuestListAdmin";
 import EventDetails from "../screens/event/EventDetails";
-import EventPackageDetails from "../screens/event/EventPackageDetails";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -83,10 +82,6 @@ const EventStackNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="EventAdmin" component={EventAdmin} />
       <Stack.Screen name="EventDetails" component={EventDetails} />
-      <Stack.Screen
-        name="EventPackageDetails"
-        component={EventPackageDetails}
-      />
     </Stack.Navigator>
   );
 };

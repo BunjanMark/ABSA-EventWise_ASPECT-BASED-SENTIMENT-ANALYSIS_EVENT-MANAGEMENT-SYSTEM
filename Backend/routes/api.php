@@ -12,11 +12,6 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\AccountManagementController;
 use App\Http\Controllers\PackageController;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\ServiceController;
-use App\Http\Controller\GuestsController;
-use App\Http\Controller\AccountRoleController;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -30,6 +25,7 @@ Route::prefix('auth')->group(function () {
     // Route::post('/signup', [AuthenticatedSessionController::class, 'signupAccount']);
     Route::patch('update', [AuthenticatedSessionController::class, 'accountUpdate'])->middleware(['auth:sanctum']);
     Route::get('/me', [AuthenticatedSessionController::class, 'show'])->middleware(['auth:sanctum']);
+
     Route::post('switch-account', [AuthenticatedSessionController::class, 'switchAccount'])->middleware(['auth:sanctum']);
 });
 
@@ -39,8 +35,8 @@ Route::get('/admin/account-management', [AccountManagementController::class, 'ge
 Route::get('/admin/account-management/{user}', [AccountManagementController::class, 'edit']);
 Route::patch('/admin/account-management/{user}', [AccountManagementController::class, 'update']);
 Route::delete('/admin/account-management/{user}', [AccountManagementController::class, 'destroy']);
-Route::get('/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);
 
+Route::get('/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);
 
 
 
@@ -55,32 +51,6 @@ return response()->json(['status' => 200, 'message' => 'Hello World!']);
 
 // Admin Package Management
 Route::post('/admin/packages', [PackageController::class, 'store']);
-Route::get('/admin/packages', [PackageController::class, 'index']);
-
-// Admin Event Management
-// Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class, 'store']);
-Route::post('/admin/events', [EventController::class, 'store']);
-Route::get('/admin/events', [EventController::class, 'index']);
-Route::get('/admin/events/{id}', [EventController::class, 'showEventById']);
-Route::patch('/admin/events/{event}', [EventController::class, 'updateEvent']);
-Route::get('/events/active', [EventController::class, 'getActiveEvents']);
-Route::get('/events/archived', [EventController::class, 'getArchivedEvents']);
-Route::post('/events/{id}/archive', [EventController::class, 'archiveEvent']);
-
-// Guest management 
-Route::get('/guests', [GuestsController::class, 'index']);
-Route::get('/guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
-
-// service management
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/services', [ServiceController::class, 'index']);         // Get all services for the authenticated user
-    Route::post('/services', [ServiceController::class, 'store']);       // Create a new service
-    Route::get('/services/{id}', [ServiceController::class, 'show']);    // Get a specific service
-    Route::put('/services/{id}', [ServiceController::class, 'update']);   // Update a specific service
-    Route::delete('/services/{id}', [ServiceController::class, 'destroy']); // Delete a specific service
-});
-
-
 
 // Protected Routes for admin
 // sample

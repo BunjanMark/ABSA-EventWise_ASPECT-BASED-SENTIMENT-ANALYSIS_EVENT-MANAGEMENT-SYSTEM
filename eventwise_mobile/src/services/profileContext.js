@@ -1,40 +1,31 @@
-import React, { createContext, useEffect } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import useStore from "../stateManagement/useStore";
 import { getAccountProfile, getUser } from "./authServices";
-
+import { switchProfile } from "./profileServices";
 export const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {
-  // Pull Zustand store states and actions for profiles and activeProfile
-  const profiles = useStore((state) => state.profiles);
-  const activeProfile = useStore((state) => state.activeProfile);
-  const loading = useStore((state) => state.loading);
-  const setProfiles = useStore((state) => state.setProfiles);
-  const setActiveProfile = useStore((state) => state.setActiveProfile);
-  const setLoading = useStore((state) => state.setLoading);
+  const [profiles, setProfiles] = useState([]);
+  const [activeProfile, setActiveProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (activeProfile) return;
-
     const loadProfiles = async () => {
       try {
-        setLoading(true);
         const user = await getUser();
         const response = await getAccountProfile();
         const userProfiles = response.data.filter(
           (profile) => profile.user_id === user.id
         );
-        // setProfiles(userProfiles);
-        // console.log(" Profile Contexts:", userProfiles);
+        setProfiles(userProfiles);
 
+        // Load the active profile from AsyncStorage if it exists
         const storedProfile = await AsyncStorage.getItem("activeProfile");
         if (storedProfile) {
           setActiveProfile(JSON.parse(storedProfile));
         } else {
-          setActiveProfile(userProfiles[0]); // Default to the first profile
+          setActiveProfile(userProfiles[0]); // Set the first profile as active by default
         }
-        console.log("Active profile pcontext:", activeProfile);
       } catch (error) {
         console.error("Error loading profiles:", error);
       } finally {
@@ -43,29 +34,13 @@ export const ProfileProvider = ({ children }) => {
     };
 
     loadProfiles();
-  }, [activeProfile, setActiveProfile, setLoading, setProfiles]);
+  }, []);
 
-  // const switchProfile = async (index) => {
-  //   try {
-  //     const profile = profiles[index];
-  //     if (profile) {
-  //       setActiveProfile(profile);
-  //       await AsyncStorage.setItem("activeProfile", JSON.stringify(profile));
-  //       console.log("Switched to profile:", profile);
-  //       const user = await getUser();
-  //       console.log("Profile Contexts:", profile, user);
-  //       console.log("activeProfile context:", activeProfile);
-  //     } else {
-  //       console.error("Invalid profile index");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error switching profile:", error);
-  //   }
-  // };
-  const switchProfile = async (index) => {
+  const switchProfile = async (profiles) => {
     try {
-      console.log("Profile index:", index);
-      set({ activeProfile: index });
+      setProfiles(profiles);
+      await AsyncStorage.setItem("activeProfile", JSON.stringify(profiles));
+      console.log("current contextc profile: ", profiles);
     } catch (error) {
       console.error("Error switching profile:", error);
     }

@@ -1,24 +1,12 @@
-// src/components/EventPackageCard.js
-
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import styles from "../../styles/styles";
-
+import event2 from "../../../../../assets/event2.png";
 const EventPackageCard = ({ event, likedEvents, toggleLike }) => {
-  // console.log(event);
   return (
     <View key={event.id} style={styles.eventCard}>
-      <Image source={event.image} style={styles.image} />
-      {/* <Image
-        source={
-          event.image
-            ? event.image
-            : require("../../../../../assets/event2.png")
-        }
-        style={styles.eventImage}
-      /> */}
-
+      <Image source={event2} style={styles.eventImage} />
       <TouchableOpacity
         onPress={() => toggleLike(event.id)}
         style={[
@@ -35,11 +23,12 @@ const EventPackageCard = ({ event, likedEvents, toggleLike }) => {
       <Text style={styles.eventTitle}>{event.title}</Text>
       <View style={styles.eventPackageDetailRow}>
         <View style={styles.eventDetailContainer}>
-          <Text style={styles.eventDetailText}>Date: {event.date}</Text>
+          <Text style={styles.eventDetailText}>{event.date}</Text>
+        </View>
+        <View style={styles.eventDetailContainer}>
+          <Text style={styles.eventDetailText}>{event.location}</Text>
         </View>
       </View>
-      <Text style={styles.priceText}>Price: ${event.price}</Text>
-      <Text style={styles.descriptionText}>{event.type}</Text>
     </View>
   );
 };

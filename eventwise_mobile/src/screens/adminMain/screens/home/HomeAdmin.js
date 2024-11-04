@@ -12,9 +12,6 @@ import { useNavigation } from "@react-navigation/native";
 import TotalEventFeedback from "../component/TotalEventFeedback";
 import useStore from "../../../../stateManagement/useStore";
 import TestUploadComponent from "../component/testUploadComponent";
-import EventPackagesHome from "../event/EventPackagesHome";
-import EventBookings from "../event/EventBookings";
-import UpcomingEvents from "../event/UpcomingEvents";
 
 const HomeAdmin = () => {
   const { eventData, sliceColor } = useStore(); // Using your state store
@@ -49,12 +46,12 @@ const HomeAdmin = () => {
   return (
     <SafeAreaView>
       <ScrollView>
-        <EventBookings />
-        <UpcomingEvents />
-        <EventCalendar />
-
-        <EventPackagesHome />
+        {/* <EventFeedbackSentimentHome /> */}
+        {/* <EventFeedbackSentiment /> */}
         <TotalEventFeedback eventData={eventData} sliceColor={sliceColor} />
+        <EventCalendar />
+        {/* <Text>All events</Text> */}
+        <EventPackages />
         <View style={{ height: 1000 }} />
       </ScrollView>
     </SafeAreaView>

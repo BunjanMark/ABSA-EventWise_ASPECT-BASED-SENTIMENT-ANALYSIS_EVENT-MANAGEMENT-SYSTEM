@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getAccountProfile, getUser } from "../services/authServices";
+
 const useStore = create((set) => ({
   user: null,
   accountProfiles: [],

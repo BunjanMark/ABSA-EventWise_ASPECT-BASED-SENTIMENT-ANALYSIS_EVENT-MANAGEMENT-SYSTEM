@@ -243,8 +243,8 @@ const AdminDrawerContent = (props) => {
             label="Profile"
             onPress={() => {
               setDropdownVisible(false);
-              navigation.navigate("ProfileAdmin");
-              // console.log("Profile");
+              navigation.navigate("Profile");
+              console.log("Profile");
             }}
           />
           <DropdownItem

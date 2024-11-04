@@ -23,10 +23,6 @@ import { useState } from "react";
 import Toast from "react-native-root-toast";
 import { AuthContext } from "../../services/authContext";
 import { getUser } from "../../services/authServices";
-import { getAccountProfile } from "../../services/authServices";
-import useStore from "../../stateManagement/useStore";
-import { useEffect } from "react";
-// forb test
 
 const Login = ({ navigation }) => {
   const navigator = useNavigation();
@@ -36,12 +32,6 @@ const Login = ({ navigation }) => {
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn } = useContext(AuthContext);
-  const profiles = useStore((state) => state.profiles);
-  const activeProfile = useStore((state) => state.activeProfile);
-
-  const setProfiles = useStore((state) => state.setProfiles);
-  const setActiveProfile = useStore((state) => state.setActiveProfile);
-
   const CustomIcon = ({ name, size, color }) => {
     return <Icon name={name} size={size} color={color} />;
   };
@@ -52,18 +42,15 @@ const Login = ({ navigation }) => {
 
   const navigateBasedOnRole = (role_id) => {
     try {
-      if (role_id === 1) {
-        console.log("Navigating to CustomAdminStack...");
-        navigation.navigate("CustomAdminStack");
-      } else if (role_id === 2) {
+      if (role_id === 2) {
         console.log("Navigating to CustomCustomerStack...");
         navigation.navigate("CustomCustomerStack");
+      } else if (role_id === 1) {
+        console.log("Navigating to AdminStack...");
+        navigation.navigate("AdminStack");
       } else if (role_id === 3) {
-        console.log("Navigating to ServiceProvider...");
-        navigation.navigate("ServiceProviderStack");
-      } else if (role_id === 4) {
         console.log("Navigating to GuestStack...");
-        navigation.navigate("GuestStack");
+        navigation.navigate();
       } else {
         showToast("Role not recognized");
       }
@@ -72,84 +59,39 @@ const Login = ({ navigation }) => {
       showToast("An error occurred during navigation.");
     }
   };
-  // React.useEffect(() => {
-  //   if (activeProfile) {
-  //     navigateBasedOnRole(activeProfile);
-  //   }
-  // }, [activeProfile]);
   const handleLogin = async () => {
     try {
-      setLoading(true);
+      setLoading(!loading);
 
-      if (!username || !password) {
+      if (username === "" || password === "") {
         showToast("Please input required data");
         setIsError(true);
-        return;
+        return false;
       }
 
       const result = await signIn(username, password);
+      // showToast(result?.message);
       showToast(result?.message);
 
       const user = await getUser();
-      const response = await getAccountProfile();
-      const userProfiles = response.data.filter(
-        (profile) => profile.user_id === user.id
-      );
+      console.log(user);
 
-      // Set profiles and active profile
+      // Navigate vased on user's role
+      navigateBasedOnRole(user.role_id);
 
-      setActiveProfile(userProfiles[0].role_id);
-
-      // Navigate based on the role directly
-      navigateBasedOnRole(userProfiles[0].role_id);
-    } catch (error) {
+      if (result.message != null) {
+        showToast(result?.message);
+      } else {
+        navigator.navigate("Tabs");
+      }
+    } catch (e) {
       console.error("Login error:", error);
       showToast("An error occurred during login.");
     } finally {
       setLoading(false);
     }
   };
-  // const handleLogin = async () => {
-  //   try {
-  //     setLoading(!loading);
 
-  //     if (username === "" || password === "") {
-  //       showToast("Please input required data");
-  //       setIsError(true);
-  //       return false;
-  //     }
-
-  //     const result = await signIn(username, password);
-  //     showToast(result?.message);
-
-  //     const user = await getUser();
-  //     const response = await getAccountProfile();
-  //     const userProfiles = response.data.filter(
-  //       (profile) => profile.user_id === user.id
-  //     );
-  //     const mainUser = user.role_id === userProfiles[0].role_id;
-  //     console.log("login as:", mainUser);
-
-  //     // Set active profile after logging in
-  //     setProfiles(userProfiles);
-  //     setActiveProfile(userProfiles[0]);
-  //     console.log("Active profile after login:", activeProfile);
-
-  //     // Navigate based on user's role
-  //     navigateBasedOnRole(userProfiles[0].role_id);
-
-  //     if (result.message != null) {
-  //       showToast(result?.message);
-  //     } else {
-  //       navigator.navigate("Tabs");
-  //     }
-  //   } catch (e) {
-  //     console.error("Login error:", error);
-  //     showToast("An error occurred during login.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);
   };
@@ -301,8 +243,7 @@ const Login = ({ navigation }) => {
                   style={{ ...styles.goback }}
                   labelStyle={{ color: "#000" }}
                   onPress={() => {
-                    // navigator.navigate("AdminStack");
-                    navigator.goback();
+                    navigator.goBack();
                   }}
                 >
                   Go Back

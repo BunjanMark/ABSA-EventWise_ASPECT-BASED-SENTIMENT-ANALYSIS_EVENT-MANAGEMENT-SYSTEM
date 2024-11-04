@@ -249,7 +249,7 @@ const Register = () => {
 
   return (
     <ImageBackground
-      source={require("../customerScreens/pictures/signupbg.png")}
+      source={require("../customerScreens/pictures/authbg.png")}
       style={styles.backgroundImage}
     >
       <SafeAreaView style={styles.container}>
@@ -261,13 +261,15 @@ const Register = () => {
           }
         >
           <ScrollView contentContainerStyle={styles.formContainer}>
-            <Text style={styles.headerText}>Registration Form</Text>
+            <Text style={styles.headerText}>Registration</Text>
+            <Text style={styles.headerTe}>Form</Text>
+
             <PaperProvider>
               <View
                 style={[
                   styles.inputContainer,
                   {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: "rgba(255, 255, 255, 0.5)",
                     borderWidth: 2,
                     borderColor: "#C2B067",
                     borderRadius: 5,
@@ -314,7 +316,7 @@ const Register = () => {
                       <Icon
                         name="arrow-down-bold-circle"
                         size={40}
-                        color="white"
+                        color="#000"
                         style={{ marginLeft: 10 }}
                         onPress={openMenu}
                       />
@@ -374,16 +376,16 @@ const Register = () => {
                   onChangeText={(text) => setUsername(text)}
                   theme={{
                     colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
+                      primary: "#000",
+                      text: "#000",
+                      placeholder: "#000",
+                      background: "#000",
                     },
                   }}
                   left={
                     <TextInput.Icon
                       icon={() => (
-                        <Icon name="account" size={24} color="#fff" />
+                        <Icon name="account" size={24} color="#000" />
                       )}
                     />
                   }
@@ -400,15 +402,15 @@ const Register = () => {
                   onChangeText={(text) => setEmail(text)}
                   theme={{
                     colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
+                      primary: "#000",
+                      text: "#000",
+                      placeholder: "#000",
+                      background: "#000",
                     },
                   }}
                   left={
                     <TextInput.Icon
-                      icon={() => <Icon name="email" size={24} color="#fff" />}
+                      icon={() => <Icon name="email" size={24} color="#000" />}
                     />
                   }
                 />
@@ -422,15 +424,15 @@ const Register = () => {
                   onChangeText={(text) => setPhoneNumber(text)}
                   theme={{
                     colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
+                      primary: "#000",
+                      text: "#000",
+                      placeholder: "#000",
+                      background: "#000",
                     },
                   }}
                   left={
                     <TextInput.Icon
-                      icon={() => <Icon name="phone" size={24} color="#fff" />}
+                      icon={() => <Icon name="phone" size={24} color="#000" />}
                     />
                   }
                 />
@@ -451,15 +453,15 @@ const Register = () => {
                   }
                   theme={{
                     colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
+                      primary: "#000",
+                      text: "#000",
+                      placeholder: "#000",
+                      background: "#000",
                     },
                   }}
                   left={
                     <TextInput.Icon
-                      icon={() => <Icon name="lock" size={24} color="#fff" />}
+                      icon={() => <Icon name="lock" size={24} color="#000" />}
                     />
                   }
                 />
@@ -480,151 +482,30 @@ const Register = () => {
                   }
                   theme={{
                     colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
+                      primary: "#000",
+                      text: "#000",
+                      placeholder: "#000",
+                      background: "#000",
                     },
                   }}
                   left={
                     <TextInput.Icon
-                      icon={() => <Icon name="lock" size={24} color="#fff" />}
+                      icon={() => <Icon name="lock" size={24} color="#000" />}
                     />
                   }
                 />
-                <View style={styles.genderContainer}>
-                  <Text style={styles.Gender}>Gender </Text>
-                  <TouchableOpacity
-                    style={[
-                      styles.genderButton,
-                      gender === "Male" && styles.selectedGender,
-                    ]}
-                    onPress={() => setGender("Male")}
-                  >
-                    <Text style={styles.genderText}>Male</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.genderButton,
-                      gender === "Female" && styles.selectedGender,
-                    ]}
-                    onPress={() => setGender("Female")}
-                  >
-                    <Text style={styles.genderText}>Female</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.dateContainer}>
-                  <Text style={styles.Date}>Date of Birth </Text>
-                  <TouchableOpacity
-                    style={styles.datePickerButton}
-                    onPress={() => setDatePickerVisibility(true)}
-                  >
-                    <Text style={styles.datePickerText}>
-                      {date.toLocaleDateString()}
-                    </Text>
-                  </TouchableOpacity>
-                  <DateTimePickerModal
-                    isVisible={isDatePickerVisible}
-                    mode="date"
-                    onConfirm={handleDateConfirm}
-                    onCancel={() => setDatePickerVisibility(false)}
-                    maximumDate={new Date()}
-                    textColor="#000"
-                    theme={{
-                      colors: {
-                        primary: "#FFC42B",
-                        text: "#000",
-                        placeholder: "#FFC42B",
-                        background: "#fff",
-                      },
-                    }}
-                  />
-                </View>
-
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="contained-tonal"
-                  label="Enter Valid ID No."
-                  placeholder="Enter valid ID number"
-                  error={isError}
-                  value={validID}
-                  onChangeText={(text) => setvalidID(text)}
-                  theme={{
-                    colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
-                    },
-                  }}
-                />
-
-                <View>
-                  <TouchableOpacity
-                    style={[styles.uploadButton]}
-                    title="Pick an image from camera roll"
-                    onPress={pickImage}
-                  >
-                    {image && (
-                      <Image
-                        source={{ uri: image }}
-                        style={{ width: 200, height: 200 }}
-                      />
-                    )}
-                    <Text style={styles.uploadText}>Upload Valid ID Photo</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.checkboxContainer}>
-                  <View style={styles.checkboxWrapper}>
-                    <View
-                      style={{
-                        transform: [{ scale: 0.8 }],
-                        marginTop: -5,
-                        marginBottom: -5,
-                      }}
-                    >
-                      <Checkbox
-                        status={termsAccepted ? "checked" : "unchecked"}
-                        onPress={() => setTermsAccepted(!termsAccepted)}
-                        color="black"
-                      />
-                    </View>
-                  </View>
-                  <Text style={styles.checkboxText}>
-                    Agree with terms & conditions
-                  </Text>
-                </View>
-
+               
                 <Button
                   loading={loading}
                   disabled={loading}
                   style={styles.buttonStyle}
                   mode="contained"
-                  onPress={handleRegistration}
-                  labelStyle={{ color: "white", fontWeight: "bold" }}
+                  onPress={() => navigator.navigate("Register2")}
+                  labelStyle={{ color: "#fff", fontWeight: "bold" }}
                 >
-                  Register Account
+                  Next
                 </Button>
-                <SafeAreaView
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ color: "white" }}>
-                    Already have an account?
-                  </Text>
-                  <Button
-                    labelStyle={{ color: "#A97E00" }}
-                    loading={loading}
-                    disabled={loading}
-                    onPress={() => navigator.navigate("Login")}
-                  >
-                    Login Now
-                  </Button>
-                </SafeAreaView>
+               
               </View>
             </PaperProvider>
           </ScrollView>
@@ -648,8 +529,15 @@ const styles = StyleSheet.create({
     paddingVertical: heightPercentageToDP("5%"),
   },
   headerText: {
-    marginTop: heightPercentageToDP("-2%"),
-    color: "#A97E00",
+    marginTop: heightPercentageToDP("4%"),
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: widthPercentageToDP("10%"),
+  },
+  headerTe: {
+    marginTop: heightPercentageToDP("1%"),
+    marginBottom: heightPercentageToDP("5%"),
+    color: "#fff",
     fontWeight: "bold",
     fontSize: widthPercentageToDP("10%"),
   },
@@ -793,10 +681,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   buttonStyle: {
-    width: widthPercentageToDP("50%"),
-    height: heightPercentageToDP("6%"),
+    width: widthPercentageToDP("30%"),
+    height: heightPercentageToDP("5%"),
     marginBottom: heightPercentageToDP("2%"),
-    backgroundColor: "#CEB64C",
+    backgroundColor: "#EEBA2B",
   },
   menuStyle: {
     width: widthPercentageToDP("50%"),
