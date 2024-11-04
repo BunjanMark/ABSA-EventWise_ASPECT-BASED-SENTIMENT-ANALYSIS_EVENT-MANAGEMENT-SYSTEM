@@ -168,55 +168,6 @@ body, html, #root {
   box-sizing: border-box;
 }
 
-.summary-dashboard h3 {
-  font-size: 1.5rem;
-  color: black;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.dashboard-summary-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.dashboard-summary-box {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  flex: 1;
-  margin: 5px;
-  border: 2px solid white;
-  width: calc(50% - 10px);
-}
-
-.dashboard-summary-box p:first-child {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.dashboard-summary-box p:last-child {
-  font-size: 20px;
-}
-
-.positive-box-dash {
-  background-color: rgba(0, 255, 0, 0.1);
-  border: 2px solid green;
-}
-
-.neutral-box-dash {
-  background-color: rgba(255, 255, 0, 0.1);
-  border: 2px solid yellow;
-}
-
-.negative-box-dash {
-  background-color: rgba(255, 0, 0, 0.1);
-  border: 2px solid red;
-}
-
 .calendar {
   background-color: transparent;
   padding: 20px;
@@ -243,10 +194,15 @@ body, html, #root {
 }
 
 .calendar-day {
-  width: 14%;
+  width: 45%;
   text-align: center;
   margin-bottom: 20px;
   position: relative;
+  cursor: pointer;
+}
+.calendar-day:hover {
+  background-color: #eeba2b; /* Change background on hover (optional) */
+  border-radius: 5rem;
 }
 
 .calendar-day span {
@@ -319,12 +275,13 @@ body, html, #root {
 }
 
 .events-list-container-dashboard {
-  display: flex;
-  overflow-x: auto;
-  padding-bottom: 20px;
-  position: relative;
-  width: 98%;
-  cursor: pointer;
+  display: grid; /* Use grid layout */
+  grid-template-columns: repeat(6, 1fr); /* 6 equal columns */
+  gap: 20px; /* Space between items */
+  padding: 20px;
+  width: 100%; /* Full width */
+  box-sizing: border-box; /* Include padding in width */
+  cursor: pointer; /* Pointer cursor on hover */
 }
 
 
@@ -333,10 +290,9 @@ body, html, #root {
   border-radius: 10px;
   border: #C2B067 1px solid;
   padding: 10px;
-  margin: 0 10px;
-  text-align: left;
-  width: 200px;
-  flex-shrink: 0;
+  margin: 0; /* No margin for grid items */
+  text-align: center; /* Center text */
+  margin-right: 10px;
 }
 
 .image-dashboard {
@@ -515,23 +471,6 @@ button {
   margin-bottom: 20px;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .event-details {
   flex: 1;
   padding-right: 20px;
@@ -569,6 +508,45 @@ button:hover {
   background: rgba(0, 0, 0, 0.5);
   z-index: 1005;
 }
+
+.event-list-dashboard {
+  text-align: center;
+  margin: 20px 0; /* Keep margin for separation */
+}
+
+.event-list-title {
+  font-size: 1.75rem; /* Slightly smaller title */
+  margin-bottom: 15px; /* Reduced space between title and events */
+}
+
+.event-item-dashboard {
+  border: 1px solid #eeba2b; /* Subtle border */
+  border-radius: 8px; /* Slightly smaller border radius */
+  padding: 10px; /* Reduced padding */
+  margin: 10px 0; /* Space between events */
+  transition: transform 0.2s; /* Add transition for hover effect */
+}
+
+.event-item-dashboard:hover {
+  transform: scale(1.02); /* Slightly enlarge on hover */
+}
+
+.event-name-dashboard {
+  font-size: 1.25rem; /* Moderate size for event name */
+  font-weight: bold;
+  text-transform: capitalize; /* First letter capitalized */
+}
+
+.event-date-dashboard, .event-venue-dashboard {
+  margin: 3px 0; /* Adjusted space between details */
+  font-size: 0.9rem; /* Smaller size for details */
+}
+
+.calendar-day.selected {
+  background-color: #eeba2b; /* Yellow background */
+  border-radius: 5rem; /* Keep the same border radius */
+}
+
 
 
 
@@ -2609,6 +2587,7 @@ background-color: transparent;
   align-items: center;
 }
 
+
 /* Profile Section Styles */
 .profile-section-profile {
   border: 2px solid #C2B067;
@@ -2742,40 +2721,18 @@ background-color: transparent;
   width: 100%;
   padding: 20px;
   background: #ffffff; /* Changed to white for consistency */
-  position: relative; /* To position arrows inside */
+}
+.packages-header-profile {
+  text-align: center; /* Center the header */
+  font-size: 24px; /* Adjust font size as needed */
+  margin-bottom: 20px; /* Space below the header */
+}
+.packages-list-profile {
+  display: grid; /* Use grid for layout */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive grid */
+  gap: 40px; /* Space between grid items */
 }
 
-/* Arrows Container */
-.scroll-buttons-container {
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-/* Scroll Button Styles */
-.scroll-button {
-  background-color: #FFC42B;
-  border: none;
-  border-radius: 50%;
-  color: black;
-  font-size: 24px;
-  padding: 10px;
-  cursor: pointer;
-  z-index: 1;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* Left Arrow */
-.scroll-button.left {
-  left: 0;
-}
-
-/* Right Arrow */
-.scroll-button.right {
-  right: 0;
-}
 
 /* Packages List Container */
 .packages-list-container-profile {
@@ -2789,6 +2746,9 @@ background-color: transparent;
 
 /* Hide Scrollbars */
 .packages-list-container-profile::-webkit-scrollbar {
+  display: none;
+}
+.gradient-container-profile::-webkit-scrollbar {
   display: none;
 }
 
@@ -2812,7 +2772,7 @@ background-color: transparent;
 .add-package-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .broken-box-profile {
@@ -2823,7 +2783,7 @@ background-color: transparent;
   border: 2px dashed #C2B067;
   border-radius: 12px; /* Adjusted border radius */
   padding: 20px;
-  width: 100%;
+  width: 85%;
   max-width: 400px;
   text-align: center;
 }
@@ -2902,12 +2862,19 @@ background-color: transparent;
   overflow-x: auto;
   padding: 20px 0;
 }
+.events-list-container-overlay-profile {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid layout */
+  gap: 5px; /* Space between grid items */
+  max-height: 400px; /* Set height for scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
 
 .events-list-container-profile::-webkit-scrollbar {
   display: none;
 }
 
-.events-list-container-profile {
+.events-list-container-overlay-profile {
   scrollbar-width: none;
 }
 

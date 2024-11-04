@@ -3,40 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 
-// Feedback (Dashboard Summary) component
-const DashboardSummary = () => {
-  const feedbackData = {
-    total: 100,
-    positive: 50,
-    neutral: 30,
-    negative: 20,
-  };
-
-  return (
-    <div className="summary-dashboard">
-      <h3>Summary</h3>
-      <div className="dashboard-summary-container">
-        <div className="dashboard-summary-box positive-box-dash">
-          <p>Total Feedback</p>
-          <p>{feedbackData.total}</p>
-        </div>
-        <div className="dashboard-summary-box positive-box-dash">
-          <p>Positive</p>
-          <p>{feedbackData.positive}</p>
-        </div>
-        <div className="dashboard-summary-box neutral-box-dash">
-          <p>Neutral</p>
-          <p>{feedbackData.neutral}</p>
-        </div>
-        <div className="dashboard-summary-box negative-box-dash">
-          <p>Negative</p>
-          <p>{feedbackData.negative}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+// Packages data
 const packagesData = [
   { id: '1', packagename: 'Package A', image: require('./images/event1.png'), price: '100,000', pax: '300 pax' },
   { id: '2', packagename: 'Package B', image: require('./images/event2.png'), price: '100,000', pax: '250 pax' },
@@ -68,17 +35,17 @@ const renderPackageItem = (item, handlePackageClick) => (
 function Dashboard() {
   const [monthlyBookings, setMonthlyBookings] = useState([]);
   const [currentMonth, setCurrentMonth] = useState('');
-  const [hoveredDay, setHoveredDay] = useState(null);
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showDetailsOverlay, setShowDetailsOverlay] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showPackageOverlay, setShowPackageOverlay] = useState(false);
+  const [selectedDayEvents, setSelectedDayEvents] = useState([]);
+  const [selectedDay, setSelectedDay] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8000/api/events')
+    axios.get('http://localhost:8000/api/events')
       .then((response) => {
         const today = new Date();
         const currentMonthIndex = today.getMonth();
@@ -96,28 +63,23 @@ function Dashboard() {
 
   const fetchEventsForDay = (day) => {
     const date = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    axios
-      .get('http://localhost:8000/api/events', {
-        params: { date: date },
-      })
+    axios.get('http://localhost:8000/api/events', { params: { date: date } })
       .then((response) => {
         const filteredEvents = response.data.filter((event) => new Date(event.date).getDate() === day);
         setEvents(filteredEvents);
+        setSelectedDayEvents(filteredEvents.length > 0 ? filteredEvents : [{ name: 'No events on this day', venue: '' }]);
+        setSelectedDay(day);
       })
       .catch((error) => {
         console.error('Error fetching events for day:', error);
         setEvents([]);
+        setSelectedDayEvents([{ name: 'No events on this day', venue: '' }]);
       });
   };
 
-  const handleMouseEnter = (day) => {
-    setHoveredDay(day);
+  const handleDayClick = (day) => {
     fetchEventsForDay(day);
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredDay(null);
-    setEvents([]);
+    setSelectedDay(day)
   };
 
   const handleEventClick = (event) => {
@@ -147,7 +109,20 @@ function Dashboard() {
     <div className="dashboard-container">
       <div className="dashboard-content">
         <div className="left-side">
-          <DashboardSummary />
+          {selectedDay ? (
+            <div className="event-list-dashboard">
+              <h3 className="event-list-title">Event List for {`${currentMonth}`}</h3>
+              {selectedDayEvents.map((event, index) => (
+                <div className="event-item-dashboard" key={index}>
+                  <p className="event-name-dashboard">{event.name.charAt(0).toUpperCase() + event.name.slice(1)}</p>
+                  <p className="event-date-dashboard">{new Date(event.date).toLocaleDateString('default', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  <p className="event-venue-dashboard">{event.venue}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>No events selected</p>
+          )}
         </div>
         <div className="right-side">
           <div className="calendar">
@@ -161,32 +136,17 @@ function Dashboard() {
                 </div>
               ))}
               {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => (
-                <div
-                  key={day}
-                  className={`calendar-day ${monthlyBookings.includes(day) ? 'has-booking' : ''}`}
-                  onMouseEnter={() => handleMouseEnter(day)}
-                  onMouseLeave={handleMouseLeave}
-                  style={{ position: 'relative' }}
-                >
-                  <span>{day}</span>
-                  {monthlyBookings.includes(day) && <div className="calendar-booking-dot"></div>}
-                  {hoveredDay === day && (
-                    <div className="event-overlay">
-                      <ul>
-                        {events.length > 0 ? (
-                          events.map((event) => (
-                            <li key={event.id} onClick={() => handleEventClick(event)}>
-                              {event.name}
-                            </li>
-                          ))
-                        ) : (
-                          <li>No events</li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ))}
+  <div
+    key={day}
+    className={`calendar-day ${monthlyBookings.includes(day) ? 'has-booking' : ''} ${selectedDay === day ? 'selected' : ''}`}
+    onClick={() => handleDayClick(day)}
+    style={{ position: 'relative' }}
+  >
+    <span>{day}</span>
+    {monthlyBookings.includes(day) && <div className="calendar-booking-dot"></div>}
+  </div>
+))}
+
             </div>
           </div>
           <button className="create-event-button" onClick={() => navigate('/create-event')}>
@@ -198,11 +158,12 @@ function Dashboard() {
         </div>
       </div>
       <div className="packages-section-dashboard">
-        <h2>Packages</h2>
-        <div className="events-list-container-dashboard">
-          {packagesData.map((item) => renderPackageItem(item, handlePackageClick))}
-        </div>
-      </div>
+  <h2>Packages</h2>
+  <div className="events-list-container-dashboard">
+    {packagesData.map((item) => renderPackageItem(item, handlePackageClick))}
+  </div>
+</div>
+
 
       {/* Event Details Overlay */}
       {showDetailsOverlay && selectedEvent && (

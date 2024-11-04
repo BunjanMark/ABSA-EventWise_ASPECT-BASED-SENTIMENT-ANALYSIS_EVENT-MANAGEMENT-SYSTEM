@@ -102,7 +102,7 @@ const Register = () => {
 
         console.log("Registration Data:", data); // Check the data being sent
 
-        const response = await axios.post('https://loose-views-read.loca.lt/api/pending', data);
+        const response = await axios.post('https://fc50-103-62-152-155.ngrok-free.app/api/pending', data);
 
         if (response.status === 201) {
             showToast(response.data.message || "Registration successful!");

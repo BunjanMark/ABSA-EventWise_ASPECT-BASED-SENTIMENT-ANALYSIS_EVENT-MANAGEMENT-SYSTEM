@@ -63,17 +63,6 @@ const Profile = () => {
   const [selectedMonth, setSelectedMonth] = useState(null);
   const navigate = useNavigate();
 
-  // Scroll handlers
-  const scrollLeft = () => {
-    const container = document.querySelector('.packages-list-container-profile');
-    container.scrollBy({ left: -200, behavior: 'smooth' });
-  };
-
-  const scrollRight = () => {
-    const container = document.querySelector('.packages-list-container-profile');
-    container.scrollBy({ left: 200, behavior: 'smooth' });
-  };
-
 
   const renderEventItem = (item) => (
     <div className="event-item-profile" key={item.id}>
@@ -112,13 +101,13 @@ const Profile = () => {
         <button className="close-button-profile" onClick={() => setSelectedMonth(null)}>
           <IoMdClose size={24} color="black" />
         </button>
-          <div className="events-list-container-profile">
-            {groupedEvents[month].map(renderEventItem)}
-          </div>
-
+        <div className="events-list-container-overlay-profile">
+          {groupedEvents[month].map(renderEventItem)}
+        </div>
       </div>
     </div>
   );
+  
 
   return (
     <div className="gradient-container-profile">
@@ -155,21 +144,21 @@ const Profile = () => {
         </div>
 
         <div className="packages-section-profile">
-          <h2>Packages</h2>
-          <div className="scroll-buttons-container">
-            <button className="scroll-button left" onClick={scrollLeft}>←</button>
-            <div className="packages-list-container-profile">
-              <div className="add-package-container">
-                <div className="broken-box-profile">
-                  <p className="broken-box-text">Add New Package</p>
-                  <button className="add-package-button-profile" onClick={() => navigate('/create-event-portfolio')}>Add Package</button>
-                </div>
-              </div>
-              {packagesData.map(renderPackageItem)}
+          <h2 className="packages-header-profile">Packages</h2>
+          <div className="add-package-container">
+          </div>
+          <div className="packages-list-profile"> {/* New wrapper for package items */}
+          <div className="broken-box-profile">
+              <p className="broken-box-text">Add New Package</p>
+              <button className="add-package-button-profile" onClick={() => navigate('/create-event-portfolio')}>
+                Add Package
+              </button>
             </div>
-            <button className="scroll-button right" onClick={scrollRight}>→</button>
+            {packagesData.map(renderPackageItem)} {/* Render package items */}
           </div>
         </div>
+
+
       </div>
 
       {selectedMonth && renderEventsForMonth(selectedMonth)}
