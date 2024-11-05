@@ -11,7 +11,7 @@ const packagesData = [
 
 const BookEventReview = () => {
     const [eventDetails, setEventDetails] = useState({
-        eventName: 'Birthday Celebration',
+        eventName: 'Birthday Celebrationnn',
         eventType: 'Private Party',
         date: 'November 4, 2024',
         pax: 100,
