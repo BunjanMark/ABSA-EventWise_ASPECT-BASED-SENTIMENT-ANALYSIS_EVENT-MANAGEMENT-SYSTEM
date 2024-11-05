@@ -78,6 +78,7 @@ const BookEventReview = () => {
     };
 
     return (
+        <div className="book-event-review-bg">
         <div className={`book-event-review-container-reviewevent ${showOverlay ? 'blurred' : ''}`}>
             {!showPackageReview ? (
                 <>
@@ -182,6 +183,7 @@ const BookEventReview = () => {
                     </div>
                 </div>
             )}
+        </div>
         </div>
     );
 };

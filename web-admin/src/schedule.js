@@ -122,6 +122,7 @@ const Schedule = () => {
   };
 
   return (
+    <div className="sched-bg">
     <div className="schedule-container">
               <div className="schedule-header-container">
           <h2 className="schedule-header">Schedule 
@@ -357,6 +358,7 @@ const Schedule = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

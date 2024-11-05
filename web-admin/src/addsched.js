@@ -52,6 +52,7 @@ const AddSched = () => {
   };
 
   return (
+    <div className="sched-bg">
     <div className="addschedule-container">
       <button onClick={() => navigate('/schedule')} className="back-button-addschedule">
         <IoArrowBack size={32} color="#FFC42B" />
@@ -128,6 +129,7 @@ const AddSched = () => {
       </div>
 
       <button className="save-button-addschedule" onClick={handleSave}>Save</button>
+    </div>
     </div>
   );
 };
