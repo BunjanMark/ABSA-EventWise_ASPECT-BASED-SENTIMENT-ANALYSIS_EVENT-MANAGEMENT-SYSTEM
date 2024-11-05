@@ -12,10 +12,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../../styles/styles";
 import useStore from "../../../../stateManagement/useStore";
 import { useNavigation } from "@react-navigation/native";
-import AddEventOrPackageModal from "../component/AddEventOrPackageModal";
+
 import event2 from "../../../../../assets/event2.png";
 import MyButtonComponent from "../component/MyButtonComponent";
 import { AntDesign } from "@expo/vector-icons";
+import AddEvent from "../component/AddEvent";
+// import AddEventOrPackageModalNew from "../component/AddEventOrPackageModalNew";
 const ProfileMyEvents = () => {
   const eventData = useStore((state) => state.eventData); // Fetch event data from useStore
   const [selectedMonthEvents, setSelectedMonthEvents] = useState([]);
@@ -238,10 +240,10 @@ const ProfileMyEvents = () => {
           </Pressable>
         </View>
       </Modal>
-      <AddEventOrPackageModal
+      <AddEvent
         visible={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
-        type="event" // Set type to "package"
+        type="event"
       />
     </SafeAreaView>
   );

@@ -20,12 +20,18 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.10.0",
     "@react-navigation/stack": "^6.4.0",
+    "@supabase/realtime-js": "^2.10.7",
+    "@supabase/supabase-js": "^2.45.4",
     "@types/react-native-snap-carousel": "^3.8.11",
     "axios": "^1.7.2",
+    "buffer": "^6.0.3",
+    "dotenv": "^16.4.5",
     "expo": "~51.0.28",
+    "expo-image-manipulator": "^12.0.5",
     "expo-image-picker": "^15.0.7",
     "expo-linear-gradient": "^13.0.2",
     "expo-status-bar": "~1.12.1",
+    "formik": "^2.4.6",
     "radio-buttons-react-native": "^1.0.4",
     "react": "^18.2.0",
     "react-icons": "^5.3.0",
@@ -33,6 +39,7 @@
     "react-native-calendar-strip": "^2.2.6",
     "react-native-calendars": "^1.1306.0",
     "react-native-chart-kit": "^6.12.0",
+    "react-native-config": "^1.5.3",
     "react-native-element-dropdown": "^2.12.2",
     "react-native-expo-pie-chart": "^1.0.0",
     "react-native-gesture-handler": "^2.16.2",
@@ -57,13 +64,17 @@
     "react-native-table-component": "^1.2.2",
     "react-native-timeline-flatlist": "^0.8.0",
     "react-native-toast-message": "^2.2.0",
+    "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.1.0",
     "react-redux": "^9.1.2",
     "redux": "^5.0.1",
+    "victory-native": "^37.1.2",
+    "yup": "^1.4.0",
     "zustand": "^4.5.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "react-native-dotenv": "^3.4.11"
   },
   "private": true
 }

@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image, Modal, Linking } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Modal,
+  Linking,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -9,7 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const SidebarMenu = ({ visible, onClose }) => {
   const navigation = useNavigation();
   const [hoveredOption, setHoveredOption] = useState(null);
-  const [activeOption, setActiveOption] = useState(null); 
+  const [activeOption, setActiveOption] = useState(null);
   const [profilePicture, setProfilePicture] = useState("");
   const [username, setUsername] = useState("");
 
@@ -17,7 +25,9 @@ const SidebarMenu = ({ visible, onClose }) => {
     const fetchData = async () => {
       try {
         const storedUsername = await AsyncStorage.getItem("username");
-        const storedProfilePicture = await AsyncStorage.getItem("profilePicture");
+        const storedProfilePicture = await AsyncStorage.getItem(
+          "profilePicture"
+        );
 
         setUsername(storedUsername || "Customer Name");
         if (storedProfilePicture) {
@@ -35,7 +45,7 @@ const SidebarMenu = ({ visible, onClose }) => {
     setActiveOption(item);
     onClose();
     if (item === "Logout") {
-      navigation.navigate("Login");  
+      navigation.navigate("Landing");
     } else {
       navigation.navigate(screen);
     }
@@ -79,29 +89,44 @@ const SidebarMenu = ({ visible, onClose }) => {
             </View>
           </View>
 
-          {["Home", "Profile", "Settings", "About", "Logout"].map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.option,
-                hoveredOption === item && styles.optionHovered,  
-                activeOption === item && styles.optionActive  
-              ]}              
-              onPress={() => handlePress(item === "Logout" ? "Login" : item, item)}  
-              onPressIn={() => setHoveredOption(item)}  
-              onPressOut={() => setHoveredOption(null)}  
-            >
-              <Ionicons
-                name={getIconName(item)}
-                size={24}
-                color={(activeOption === item || hoveredOption === item) ? "#FFF" : "#000"}  
-                style={styles.icon}
-              />
-              <Text style={[styles.text, (activeOption === item || hoveredOption === item) && { color: "#FFF" }]}>
-                {item}
-              </Text>            
-            </TouchableOpacity>
-          ))}
+          {["Home", "Profile", "Settings", "About", "Logout"].map(
+            (item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.option,
+                  hoveredOption === item && styles.optionHovered,
+                  activeOption === item && styles.optionActive,
+                ]}
+                onPress={() =>
+                  handlePress(item === "Logout" ? "Login" : item, item)
+                }
+                onPressIn={() => setHoveredOption(item)}
+                onPressOut={() => setHoveredOption(null)}
+              >
+                <Ionicons
+                  name={getIconName(item)}
+                  size={24}
+                  color={
+                    activeOption === item || hoveredOption === item
+                      ? "#FFF"
+                      : "#000"
+                  }
+                  style={styles.icon}
+                />
+                <Text
+                  style={[
+                    styles.text,
+                    (activeOption === item || hoveredOption === item) && {
+                      color: "#FFF",
+                    },
+                  ]}
+                >
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            )
+          )}
 
           <View style={styles.divider} />
 
@@ -113,8 +138,8 @@ const SidebarMenu = ({ visible, onClose }) => {
                 onPress={() => Linking.openURL("http://google.com")}
               >
                 EventWise
-              </Text>
-              {" "}© 2024
+              </Text>{" "}
+              © 2024
             </Text>
             <Text style={styles.footerText}>
               Powered by{" "}
@@ -153,7 +178,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   sidebar: {
     flex: 1,
@@ -188,29 +213,29 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 24,
-    color: '#000',
-    fontWeight: 'bold',
+    color: "#000",
+    fontWeight: "bold",
     fontFamily: "Poppins",
   },
   userRole: {
     fontSize: 16,
-    color: '#8d8d8d',
+    color: "#8d8d8d",
     fontFamily: "Poppins",
   },
   option: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 15,
-    paddingHorizontal: 10, 
+    paddingHorizontal: 10,
   },
   optionHovered: {
-    backgroundColor: '#eeba2b', 
-    borderColor: "#eeba2b", 
+    backgroundColor: "#eeba2b",
+    borderColor: "#eeba2b",
     borderWidth: 1,
     width: 700,
   },
-  optionActive: {  
-    backgroundColor: '#eeba2b',
+  optionActive: {
+    backgroundColor: "#eeba2b",
   },
   icon: {
     marginRight: 15,
@@ -228,12 +253,12 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   footer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 10,
   },
   footerText: {
     fontSize: 16,
-    color: '#8d8d8d',
+    color: "#8d8d8d",
     fontFamily: "Poppins",
   },
 });

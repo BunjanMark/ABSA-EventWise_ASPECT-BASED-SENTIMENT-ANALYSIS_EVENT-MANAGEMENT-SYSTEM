@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, KeyboardAvoidingView, SafeAreaView, TextInput, ActivityIndicator, Alert, Modal } from 'react-native';
-import { Ionicons, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+  KeyboardAvoidingView,
+  SafeAreaView,
+  TextInput,
+  ActivityIndicator,
+  Alert,
+  Modal,
+} from "react-native";
+import {
+  Ionicons,
+  FontAwesome,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Button } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -25,12 +43,14 @@ const EditProfile = () => {
         const storedUsername = await AsyncStorage.getItem("username");
         const storedEmail = await AsyncStorage.getItem("email");
         const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber");
-        const storedProfilePicture = await AsyncStorage.getItem("profilePicture");
-        
+        const storedProfilePicture = await AsyncStorage.getItem(
+          "profilePicture"
+        );
+
         setEditableUsername(storedUsername || "");
         setEditableEmail(storedEmail || "");
         setEditablePhoneNumber(storedPhoneNumber || "");
-        
+
         if (storedProfilePicture) {
           setProfilePicture(storedProfilePicture);
         }
@@ -64,15 +84,18 @@ const EditProfile = () => {
           name: "profilePicture.jpg",
         });
 
-        const response = await fetch("http://192.168.254.110:8000/uploadProfilePicture", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: "Bearer YOUR_ACCESS_TOKEN",
-            "Custom-Header": "Custom-Value",
-          },
-        });
+        const response = await fetch(
+          "http://192.168.254.110:8000/uploadProfilePicture",
+          {
+            method: "POST",
+            body: formData,
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: "Bearer YOUR_ACCESS_TOKEN",
+              "Custom-Header": "Custom-Value",
+            },
+          }
+        );
 
         const data = await response.json();
         console.log("Image uploaded successfully:", data);
@@ -98,11 +121,13 @@ const EditProfile = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}> 
-        <Header2 />
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <Header2 />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
         <ScrollView contentContainerStyle={styles.container}>
-             
           <View style={styles.userProfile}>
             <View style={styles.userAvatar}>
               <Image
@@ -156,7 +181,7 @@ const EditProfile = () => {
               secureTextEntry
             />
           </View>
-          
+
           <Button
             style={{ ...styles.buttonStyle, backgroundColor: "#FFC42B" }}
             mode="contained-tonal"
@@ -173,33 +198,34 @@ const EditProfile = () => {
               setModalVisible(!modalVisible);
             }}
           >
-             <View style={styles.centeredView}>
+            <View style={styles.centeredView}>
               <View style={styles.modalView}>
-              <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              style={styles.closeIcon}
-            >
-              <Ionicons name="close" size={30} color="#6B6B6B" />
-            </TouchableOpacity>
-                <Image source={require("../pictures/success.png")} style={styles.modalImage} />
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={styles.closeIcon}
+                >
+                  <Ionicons name="close" size={30} color="#6B6B6B" />
+                </TouchableOpacity>
+                <Image
+                  source={require("../pictures/success.png")}
+                  style={styles.modalImage}
+                />
               </View>
             </View>
           </Modal>
 
-          <TouchableOpacity onPress={() => navigator.navigate("CreateAnotherAccount")}>
-          <View style={styles.createButton}>
-            <FontAwesome
-              name="user-plus"
-              size={24}
-              color={"black"}
-            />
-            <Text style={styles.createButtonText}>
-              Create Another Account
-            </Text>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigator.navigate("CreateAnotherAccount")}
+          >
+            <View style={styles.createButton}>
+              <FontAwesome name="user-plus" size={24} color={"black"} />
+              <Text style={styles.createButtonText}>
+                Create Another Account
+              </Text>
+            </View>
+          </TouchableOpacity>
         </ScrollView>
-        </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
     </View>
   );
 };
@@ -209,23 +235,23 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
     marginTop: 8,
   },
   headerText: {
-    color: '#e6b800',
+    color: "#e6b800",
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   accDet: {
-    color: '#000',
+    color: "#000",
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 20,
   },
   inputText: {
-    color: '#000',
+    color: "#000",
     fontSize: 14,
   },
   userProfile: {
@@ -261,7 +287,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   input: {
-    backgroundColor: '#C2B067',
+    backgroundColor: "#C2B067",
     padding: 15,
     borderRadius: 15,
     marginVertical: 5,
@@ -301,7 +327,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   createButton: {
-    backgroundColor: '#FFC42B',
+    backgroundColor: "#FFC42B",
     paddingVertical: 10,
     paddingHorizontal: 30,
     alignItems: "center",

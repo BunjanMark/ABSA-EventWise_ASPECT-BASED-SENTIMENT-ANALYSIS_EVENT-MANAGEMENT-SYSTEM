@@ -69,54 +69,106 @@ const Register2 = () => {
   };
 
   // const handleRegistration = async () => {
+  //   // Reset error state before starting validation
+  //   setIsError(false);
+
+  //   // Form validation
+  //   if (
+  //     username.trim() === "" ||
+  //     email.trim() === "" ||
+  //     password.trim() === "" ||
+  //     repassword.trim() === "" ||
+  //     phoneNumber.trim() === "" ||
+  //     !selectedRole ||
+  //     !termsAccepted
+  //   ) {
+  //     showToast(
+  //       "Please fill in all required fields and accept the terms and conditions"
+  //     );
+  //     setIsError(true);
+  //     setLoading(false);
+  //     return;
+  //   }
+
+  //   if (password !== repassword) {
+  //     showToast("Passwords do not match");
+  //     setIsError(true);
+  //     setLoading(false);
+  //     return;
+  //   }
+
   //   try {
-  //     setLoading(true);
+  //     // setLoading(true);
 
-  //     if (
-  //       username === "" ||
-  //       email === "" ||
-  //       password === "" ||
-  //       phoneNumber === "" ||
-  //       role === "" ||
-  //       !termsAccepted
-  //     ) {
-  //       showToast("Please input required data and accept terms and conditions");
-  //       setIsError(true);
-  //       return;
-  //     }
+  //     // const data = {
+  //     //   name: username,
+  //     //   email,
+  //     //   password,
+  //     //   role_id: selectedRole,
+  //     //   phoneNumber,
+  //     //   dateOfBirth: date,
+  //     //   gender,
+  //     //   validID,
+  //     // };
 
-  //     if (password !== repassword) {
-  //       showToast("Passwords do not match");
-  //       setIsError(true);
-  //       return;
-  //     }
+  //     // const response = await fetch("apiurl", {
+  //     //   method: "POST",
+  //     //   headers: {
+  //     //     "Content-Type": "application/json",
+  //     //   },
+  //     //   body: JSON.stringify(data),
+  //     // });
 
+  //     // const resultJson = await response.json();
+  //     const roleMapping = {
+  //       "SERVICE PROVIDER": "3",
+  //       CUSTOMER: "2",
+  //     };
   //     const data = {
-  //       username,
+  //       name: username,
   //       email,
   //       password,
-  //       role,
+  //       role_id: roleMapping[selectedRole],
   //       phoneNumber,
+  //       dateOfBirth: date,
+  //       gender,
   //       validID,
   //     };
+  //     const result = await signup(data);
 
-  //     const result = await fetch("apiurl", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(data),
-  //     });
+  //     console.log("result", result);
+  //     showToast(result?.message);
 
-  //     const resultJson = await result.json();
-  //     if (resultJson.message != null) {
-  //       showToast(resultJson?.message);
+  //     if (result?.message != null) {
+  //       showToast(result?.message);
   //     } else {
-  //       navigator.navigate("Login");
+  //       showToast(result?.error);
   //     }
-  //   } catch (e) {
-  //     console.error(e.toString());
-  //     showToast("An error occurred");
+
+  //     // if (result.message != null) {
+  //     //   showToast(result?.message);
+  //     // } else {
+  //     //   navigator.navigate("Login");
+  //     // }
+
+  //     // if (response.ok) {
+  //     //   // Handle success response
+  //     //   showToast(resultJson?.message || "Registration successful!");
+  //     //   navigator.navigate("Login");
+  //     // } else {
+  //     //   // Handle failure response
+  //     //   showToast(
+  //     //     resultJson?.message || "Registration failed. Please try again."
+  //     //   );
+  //     //   setIsError(true);
+  //     // }
+  //   } catch (error) {
+  //     console.error("Registration Error:", error);
+
+  //     // showToast("Email already exists. Please try again.");
+
+  //     setIsError(true);
+  //     console.log("data:" + JSON.stringify(data));
   //   } finally {
   //     setLoading(false);
   //   }
@@ -265,7 +317,7 @@ const Register2 = () => {
             <Text style={styles.headerTe}>Form</Text>
 
             <PaperProvider>
-            <View
+              <View
                 style={[
                   styles.inputContainer,
                   {
@@ -407,16 +459,16 @@ const Register2 = () => {
                   </Button>
                 </SafeAreaView>
                 <View>
-                <Button
-                  style={{ ...styles.goback }}
-                  labelStyle={{ color: "#000" }}
-                  onPress={() => {
-                    navigator.goBack();
-                  }}
-                >
-                  Go Back
-                </Button>
-              </View>
+                  <Button
+                    style={{ ...styles.goback }}
+                    labelStyle={{ color: "#000" }}
+                    onPress={() => {
+                      navigator.goBack();
+                    }}
+                  >
+                    Go Back
+                  </Button>
+                </View>
               </View>
             </PaperProvider>
           </ScrollView>
@@ -426,6 +478,7 @@ const Register2 = () => {
   );
 };
 
+export default Register2;
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
@@ -569,5 +622,3 @@ const styles = StyleSheet.create({
     width: widthPercentageToDP("50%"),
   },
 });
-
-export default Register2;

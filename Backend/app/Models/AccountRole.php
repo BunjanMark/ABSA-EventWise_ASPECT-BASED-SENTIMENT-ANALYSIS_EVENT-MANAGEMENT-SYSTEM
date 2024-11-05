@@ -16,7 +16,8 @@ class AccountRole extends Model
         'description',
     ];
 
+
     public function users(){
-        return $this->hasMany(User::class);}
+        return $this->belongsTo(User::class);}
 }
 
