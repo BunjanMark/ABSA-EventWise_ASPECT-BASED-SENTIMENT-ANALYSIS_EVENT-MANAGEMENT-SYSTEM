@@ -68,68 +68,69 @@ const Register = () => {
 
     // Check if passwords match
     if (password !== repassword) {
-        showToast("Passwords do not match.");
-        setLoading(false);
-        return; // Exit the function early
+      showToast("Passwords do not match.");
+      setLoading(false);
+      return; // Exit the function early
     }
 
     // Check if role is selected
     if (!selectedRole) {
-        showToast("Please select a user role.");
-        setLoading(false);
-        return; // Exit the function early
+      showToast("Please select a user role.");
+      setLoading(false);
+      return; // Exit the function early
     }
 
     try {
-        const roleMapping = {
-            "SERVICE PROVIDER": "3",
-            CUSTOMER: "2",
-        };
+      const roleMapping = {
+        "SERVICE PROVIDER": "3",
+        CUSTOMER: "2",
+      };
 
-        const data = {
-            name,
-            lastname,
-            username,
-            email,
-            phone_number: phoneNumber,
-            password,
-            password_confirmation: repassword,
-            date_of_birth: date.toISOString().split("T")[0],
-            gender,
-            role: roleMapping[selectedRole],
-            terms_accepted: termsAccepted,
-        };
+      const data = {
+        name,
+        lastname,
+        username,
+        email,
+        phone_number: phoneNumber,
+        password,
+        password_confirmation: repassword,
+        date_of_birth: date.toISOString().split("T")[0],
+        gender,
+        role: roleMapping[selectedRole],
+        terms_accepted: termsAccepted,
+      };
 
-        console.log("Registration Data:", data); // Check the data being sent
+      console.log("Registration Data:", data); // Check the data being sent
 
-        const response = await axios.post('https://fc50-103-62-152-155.ngrok-free.app/api/pending', data);
+      const response = await axios.post(
+        "https://fc50-103-62-152-155.ngrok-free.app/api/pending",
+        data
+      );
 
-        if (response.status === 201) {
-            showToast(response.data.message || "Registration successful!");
-            // Optionally navigate to another screen or reset the form
-        }
+      if (response.status === 201) {
+        showToast(response.data.message || "Registration successful!");
+        // Optionally navigate to another screen or reset the form
+      }
     } catch (error) {
-        if (error.response) {
-            console.error("Registration Error:", error.response.data);
-            showToast(`Error: ${error.response.data.message || "An unexpected error occurred."}`);
-        } else if (error.request) {
-            console.error("No response received:", error.request);
-            showToast("No response from the server. Please try again later.");
-        } else {
-            console.error("Error setting up the request:", error.message);
-            showToast("An unexpected error occurred. Please try again.");
-        }
-        setIsError(true);
+      if (error.response) {
+        console.error("Registration Error:", error.response.data);
+        showToast(
+          `Error: ${
+            error.response.data.message || "An unexpected error occurred."
+          }`
+        );
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        showToast("No response from the server. Please try again later.");
+      } else {
+        console.error("Error setting up the request:", error.message);
+        showToast("An unexpected error occurred. Please try again.");
+      }
+      setIsError(true);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
-
-
-
-
-  
-  
+  };
 
   const handleDateConfirm = (date) => {
     setDate(date);
@@ -255,7 +256,7 @@ const Register = () => {
                   },
                 ]}
               >
-              <TextInput
+                <TextInput
                   style={styles.inputStyle}
                   mode="contained-tonal"
                   label="First Name"
@@ -278,7 +279,8 @@ const Register = () => {
                       )}
                     />
                   }
-                /><TextInput
+                />
+                <TextInput
                   style={styles.inputStyle}
                   mode="contained-tonal"
                   label="Last Name"
@@ -432,125 +434,124 @@ const Register = () => {
                 />
 
                 <View
-                style={[
-                  styles.inputContainer,
-                  {
-                    alignItems: "center",
-                  },
-                ]}
-              >
-                <View style={styles.genderContainer}>
-                  <Text style={styles.Gender}>Gender </Text>
-                  <TouchableOpacity
-                    style={[
-                      styles.genderButton,
-                      gender === "Male" && styles.selectedGender,
-                    ]}
-                    onPress={() => setGender("Male")}
-                  >
-                    <Text style={styles.genderText}>Male</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.genderButton,
-                      gender === "Female" && styles.selectedGender,
-                    ]}
-                    onPress={() => setGender("Female")}
-                  >
-                    <Text style={styles.genderText}>Female</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.dateContainer}>
-                  <Text style={styles.Date}>Date of Birth </Text>
-                  <TouchableOpacity
-                    style={styles.datePickerButton}
-                    onPress={() => setDatePickerVisibility(true)}
-                  >
-                    <Text style={styles.datePickerText}>
-                      {date.toLocaleDateString()}
-                    </Text>
-                  </TouchableOpacity>
-                  <DateTimePickerModal
-                    isVisible={isDatePickerVisible}
-                    mode="date"
-                    onConfirm={handleDateConfirm}
-                    onCancel={() => setDatePickerVisibility(false)}
-                    maximumDate={new Date()}
-                    textColor="#000"
-                    theme={{
-                      colors: {
-                        primary: "#FFC42B",
-                        text: "#000",
-                        placeholder: "#FFC42B",
-                        background: "#fff",
-                      },
-                    }}
-                  />
-                </View>
-
-                <View style={styles.checkboxContainer}>
-                  <View style={styles.checkboxWrapper}>
-                    <View
-                      style={{
-                        transform: [{ scale: 0.8 }],
-                        marginTop: -5,
-                        marginBottom: -5,
-                      }}
+                  style={[
+                    styles.inputContainer,
+                    {
+                      alignItems: "center",
+                    },
+                  ]}
+                >
+                  <View style={styles.genderContainer}>
+                    <Text style={styles.Gender}>Gender </Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.genderButton,
+                        gender === "Male" && styles.selectedGender,
+                      ]}
+                      onPress={() => setGender("Male")}
                     >
-                      <Checkbox
-                        status={termsAccepted ? "checked" : "unchecked"}
-                        onPress={() => setTermsAccepted(!termsAccepted)}
-                        color="black"
-                      />
-                    </View>
+                      <Text style={styles.genderText}>Male</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.genderButton,
+                        gender === "Female" && styles.selectedGender,
+                      ]}
+                      onPress={() => setGender("Female")}
+                    >
+                      <Text style={styles.genderText}>Female</Text>
+                    </TouchableOpacity>
                   </View>
-                  <Text style={styles.checkboxText}>
-                    Agree with terms & conditions
-                  </Text>
-                </View>
+                  <View style={styles.dateContainer}>
+                    <Text style={styles.Date}>Date of Birth </Text>
+                    <TouchableOpacity
+                      style={styles.datePickerButton}
+                      onPress={() => setDatePickerVisibility(true)}
+                    >
+                      <Text style={styles.datePickerText}>
+                        {date.toLocaleDateString()}
+                      </Text>
+                    </TouchableOpacity>
+                    <DateTimePickerModal
+                      isVisible={isDatePickerVisible}
+                      mode="date"
+                      onConfirm={handleDateConfirm}
+                      onCancel={() => setDatePickerVisibility(false)}
+                      maximumDate={new Date()}
+                      textColor="#000"
+                      theme={{
+                        colors: {
+                          primary: "#FFC42B",
+                          text: "#000",
+                          placeholder: "#FFC42B",
+                          background: "#fff",
+                        },
+                      }}
+                    />
+                  </View>
 
-                <Button
-                  loading={loading}
-                  disabled={loading}
-                  style={styles.buttonStyle}
-                  mode="contained"
-                  onPress={handleRegistration}
-                  labelStyle={{ color: "white", fontWeight: "bold" }}
-                >
-                  Register Account
-                </Button>
-                <SafeAreaView
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ color: "black" }}>
-                    Already have an account?
-                  </Text>
+                  <View style={styles.checkboxContainer}>
+                    <View style={styles.checkboxWrapper}>
+                      <View
+                        style={{
+                          transform: [{ scale: 0.8 }],
+                          marginTop: -5,
+                          marginBottom: -5,
+                        }}
+                      >
+                        <Checkbox
+                          status={termsAccepted ? "checked" : "unchecked"}
+                          onPress={() => setTermsAccepted(!termsAccepted)}
+                          color="black"
+                        />
+                      </View>
+                    </View>
+                    <Text style={styles.checkboxText}>
+                      Agree with terms & conditions
+                    </Text>
+                  </View>
+
                   <Button
-                    labelStyle={{ color: "#A97E00" }}
                     loading={loading}
                     disabled={loading}
-                    onPress={() => navigator.navigate("Login")}
+                    style={styles.buttonStyle}
+                    mode="contained"
+                    onPress={handleRegistration}
+                    labelStyle={{ color: "white", fontWeight: "bold" }}
                   >
-                    Login Now
+                    Register Account
                   </Button>
-                </SafeAreaView>
-                <View>
-                <Button
-                  style={{ ...styles.goback }}
-                  labelStyle={{ color: "#000" }}
-                  onPress={() => {
-                    navigator.goBack();
-                  }}
-                >
-                  Go Back
-                </Button>
-              </View>
-              </View>
-               
+                  <SafeAreaView
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ color: "black" }}>
+                      Already have an account?
+                    </Text>
+                    <Button
+                      labelStyle={{ color: "#A97E00" }}
+                      loading={loading}
+                      disabled={loading}
+                      onPress={() => navigator.navigate("Login")}
+                    >
+                      Login Now
+                    </Button>
+                  </SafeAreaView>
+                  <View>
+                    <Button
+                      style={{ ...styles.goback }}
+                      labelStyle={{ color: "#000" }}
+                      onPress={() => {
+                        navigator.goBack();
+                      }}
+                    >
+                      Go Back
+                    </Button>
+                  </View>
+                </View>
               </View>
             </PaperProvider>
           </ScrollView>

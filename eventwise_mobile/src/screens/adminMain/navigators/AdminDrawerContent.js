@@ -243,8 +243,8 @@ const AdminDrawerContent = (props) => {
             label="Profile"
             onPress={() => {
               setDropdownVisible(false);
-              navigation.navigate("Profile");
-              console.log("Profile");
+              navigation.navigate("ProfileAdmin");
+              // console.log("Profile");
             }}
           />
           <DropdownItem
@@ -262,6 +262,7 @@ const AdminDrawerContent = (props) => {
             onPress={() => {
               setDropdownVisible(false);
               // Handle logout functionality here
+              navigation.goBack();
             }}
           />
         </View>

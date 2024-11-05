@@ -66,7 +66,7 @@ const DrawerNavigator = () => {
         }}
       />
       <AppDrawer.Screen
-        name="Profile"
+        name="ProfileAdmin"
         component={ProfileStackNavigator}
         options={{
           headerShown: true,

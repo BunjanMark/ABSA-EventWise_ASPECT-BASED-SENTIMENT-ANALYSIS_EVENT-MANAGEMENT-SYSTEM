@@ -1,31 +1,28 @@
 import React, { useState } from "react";
 import { View, Text, SafeAreaView, Pressable, Modal } from "react-native";
-import PieChart from "react-native-pie-chart";
+import { VictoryPie, VictoryLabel } from "victory-native";
 import styles from "../../styles/styles"; // Ensure path is correct
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-
+import PieChart from "react-native-pie-chart";
 const EventFeedbackSentiment = ({
   eventId,
   title,
   eventName,
   feedbackData,
-
   sliceColor,
 }) => {
   const navigation = useNavigation();
+  const [clickedIndex, setClickedIndex] = useState(null);
   const handleGoToButtonPress = () => {
     navigation.push("FeedbackEventDetails", { eventId });
-    // FeedbackEventDetails
   };
 
-  const widthAndHeight = 160;
   const [modalVisiblePositive, setModalVisiblePositive] = useState(false);
   const [modalVisibleNegative, setModalVisibleNegative] = useState(false);
   const [modalVisibleNeutral, setModalVisibleNeutral] = useState(false);
   // Extract positive, negative, and neutral counts from feedbackData
-
   const classifiedFeedbackData = {
     positive: feedbackData.filter(
       (feedback) => feedback.sentiment === "positive"
@@ -40,7 +37,35 @@ const EventFeedbackSentiment = ({
   const positiveCount = classifiedFeedbackData.positive.length;
   const negativeCount = classifiedFeedbackData.negative.length;
   const neutralCount = classifiedFeedbackData.neutral.length;
-  const series = [negativeCount, positiveCount, neutralCount];
+  const totalFeedbackCount =
+    classifiedFeedbackData.positive.length +
+    classifiedFeedbackData.negative.length +
+    classifiedFeedbackData.neutral.length;
+
+  const data = [
+    {
+      x: "Positive",
+      y: (classifiedFeedbackData.positive.length / totalFeedbackCount) * 100,
+      color: "rgba(9,226,0,1)",
+      blurColor: "rgba(9,226,0,0.5)",
+    },
+    {
+      x: "Negative",
+      y: (classifiedFeedbackData.negative.length / totalFeedbackCount) * 100,
+      color: "#ff3c00",
+      blurColor: "rgba(255,60,0,0.5)",
+    },
+    {
+      x: "Neutral",
+      y: (classifiedFeedbackData.neutral.length / totalFeedbackCount) * 100,
+      color: "#fbd203",
+      blurColor: "rgba(251,210,3,0.5)",
+    },
+  ];
+
+  const handleClick = (index) => {
+    setClickedIndex(clickedIndex === index ? null : index);
+  };
 
   return (
     <SafeAreaView>
@@ -53,9 +78,7 @@ const EventFeedbackSentiment = ({
               flexDirection: "row",
               justifyContent: "center",
               alignItems: "center",
-              alignContent: "center",
               alignSelf: "center",
-              // backgroundColor: "red",
               padding: 10,
               paddingHorizontal: 40,
             },
@@ -63,15 +86,12 @@ const EventFeedbackSentiment = ({
         >
           <Text
             style={[
-              // styles.title,
               {
                 textAlign: "center",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                // backgroundColor: "red",
                 width: "100%",
-
                 marginBottom: -5,
               },
             ]}
@@ -85,13 +105,45 @@ const EventFeedbackSentiment = ({
             <AntDesign name="swapright" size={24} color="black" />
           </TouchableOpacity>
         </View>
+
         <View style={styles.feedbackSubContainer}>
           <View style={styles.sentimentBlock}>
-            <PieChart
-              widthAndHeight={widthAndHeight}
-              series={series}
-              sliceColor={sliceColor}
-              coverRadius={0.6}
+            <VictoryPie
+              height={260}
+              labelPosition={"centroid"}
+              labelRadius={43}
+              data={data}
+              labels={
+                ({ datum }) =>
+                  datum.y === data[clickedIndex]?.y
+                    ? `${Math.round(datum.y)}%` // Show percentage on click
+                    : datum.x // Show label name
+              }
+              padAngle={2.4}
+              innerRadius={1}
+              style={{
+                data: {
+                  fill: ({ index }) =>
+                    index === clickedIndex
+                      ? data[index].blurColor // Blurred color on click
+                      : data[index].color, // Original color
+                },
+                labels: { fill: "black", fontSize: 14 },
+              }}
+              colorScale={data.map((item) => item.color)}
+              events={[
+                {
+                  target: "data",
+                  eventHandlers: {
+                    onPressIn: (event, props) => {
+                      handleClick(props.index); // Handle click on pie slice
+                    },
+                  },
+                },
+              ]}
+              labelComponent={
+                <VictoryLabel textAnchor="middle" style={{ fill: "black" }} />
+              } // Customize label appearance
             />
           </View>
           <View style={styles.sentimentBlock}>
@@ -102,11 +154,10 @@ const EventFeedbackSentiment = ({
               <Text style={{ fontSize: 20, fontWeight: "bold" }}>
                 {/* {series.reduce((a, b) => a + b, 0)}
                  */}
-                {feedbackData.length}
+                {/* {feedbackData.length} */}
+                {totalFeedbackCount}
               </Text>
             </View>
-
-            {/* Modal Trigger Buttons */}
             <View>
               <View style={styles.sentimentList}>
                 <Pressable
