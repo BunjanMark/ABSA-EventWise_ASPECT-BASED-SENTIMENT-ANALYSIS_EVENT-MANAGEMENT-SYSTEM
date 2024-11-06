@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Deletes services if the user is deleted
             $table->string('serviceName'); // Service name
             $table->string('serviceCategory'); // Service category
+            $table->string('serviceFeatures');//package inclusions/features/ contains
             $table->decimal('basePrice', 10, 2); // Base price with precision
             $table->integer('pax'); // Number of persons (PAX)
             $table->text('requirements')->nullable(); // Requirements, nullable

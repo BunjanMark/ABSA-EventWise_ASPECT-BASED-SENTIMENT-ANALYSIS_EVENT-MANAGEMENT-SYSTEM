@@ -17,6 +17,7 @@ class Service extends Model
         'account_roles_id',
         'serviceName',
         'serviceCategory',
+        'serviceFeatures',
         'basePrice',
         'pax',
         'requirements',

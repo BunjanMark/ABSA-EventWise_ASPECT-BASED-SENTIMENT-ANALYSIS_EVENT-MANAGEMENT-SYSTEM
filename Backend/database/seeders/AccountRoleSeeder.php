@@ -27,5 +27,11 @@ class AccountRoleSeeder extends Seeder
             "service_provider_name" => "Allrounded Service Provider",
             "description" => "Admin's Service provider account description",
         ]);
+        DB::table("account_roles")->insert([
+            "user_id" => 3,
+            "role_id" => 3,
+            "service_provider_name" => "Diwata pares services",
+            "description" => "Service provider account description is diwata??",
+        ]);
     }
 }

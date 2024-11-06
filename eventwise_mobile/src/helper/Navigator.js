@@ -92,8 +92,8 @@ const AuthenticationStack = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="Register"
-        component={Register}
+        name="Registerold"
+        component={Registerold}
         options={{ headerShown: false }}
       />
       <Stack.Screen

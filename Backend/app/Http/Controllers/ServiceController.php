@@ -30,7 +30,7 @@ class ServiceController extends Controller
     private function getUserIdAndRole()
     {
         $user = Auth::user();
-        $accountRole = $user->accountRoles()->whereIn('role_id', [1, 3])->first(); // Assuming role_id 1 is admin, 3 is sp
+        $accountRole = $user->accountRoles()->whereIn('role_id', [1, 3])->first();  
 
         if ($accountRole) {
             return [
@@ -44,70 +44,73 @@ class ServiceController extends Controller
     }
 
  
-public function store(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            
-            if ($user->role_id != 3) {
-                return response()->json(['message' => 'Unauthorized. Only service providers can create services.'], 403);
-            }
+// public function store (Request $request)
+//     {
+//         try {
+//             $user = Auth::user();
+//             $account = $user->accountRoles()->first();
 
-            $validatedData = $request->validate([
-                'serviceName' => 'required|string|max:255',
-                'serviceCategory' => 'required|string|max:255',
-                'basePrice' => 'required|numeric|min:0',
-                'pax' => 'required|integer|min:1',
-                'requirements' => 'nullable|string',
-                'availability_status' => 'boolean',
-            ]);
+//             if (!$account || $account->role_id != 3) {
+//                 return response()->json(['message' => 'Unauthorized. Only service providers can create services.'], 403);
+//             }
 
-            $validatedData['user_id'] = $user->id;
-            $validatedData['role_id'] = $user->role_id;
-            $validatedData['submitted_by'] = $user->name;
-            $validatedData['submitted_at'] = now();
 
-            $service = Service::create($validatedData);
+//             $validatedData = $request->validate([
+//                 'serviceName' => 'required|string|max:255',
+//                 'serviceCategory' => 'required|string|max:255',
+//                 'basePrice' => 'required|numeric|min:0',
+//                 'pax' => 'required|integer|min:1',
+//                 'requirements' => 'nullable|string',
+//                 'availability_status' => 'boolean',
+//             ]);
 
-            return response()->json($service, 201);
-        } catch (ValidationException $e) {
-            return response()->json(['status' => 'error', 'errors' => $e->errors()], 422);
-        } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 500);
-        }
-    }
-//     public function store(Request $request)
-// {
-//     try {
-//         // Check if the user has a permitted role
-//         $userRole = $this->getUserIdAndRole();
-//         if (!$userRole) {
-//             return response()->json(['message' => 'Unauthorized'], 403);
+//             $validatedData['user_id'] = $user->id;
+//             $validatedData['role_id'] = $user->role_id;
+//             $validatedData['submitted_by'] = $user->name;
+//             $validatedData['submitted_at'] = now();
+
+//             $service = Service::create($validatedData);
+
+//             return response()->json($service, 201);
+//         } catch (ValidationException $e) {
+//             return response()->json(['status' => 'error', 'errors' => $e->errors()], 422);
+//         } catch (\Throwable $th) {
+//             return response()->json(['message' => $th->getMessage()], 500);
 //         }
-
-//         // Proceed with validation and service creation
-//         $validatedData = $request->validate([
-//             'serviceName' => 'required|string|max:255',
-//             'serviceCategory' => 'required|string|max:255',
-//             'basePrice' => 'required|numeric|min:0',
-//             'pax' => 'required|integer|min:1',
-//             'requirements' => 'nullable|string',
-//             'availability_status' => 'boolean',
-//         ]);
-
-//         // Attach the authenticated user's ID and role ID if needed
-//         $validatedData['user_id'] = $userRole['user_id'];
-//         $validatedData['role_id'] = $userRole['role_id']; // Only if you want to store role_id
-
-//         $service = Service::create($validatedData);
-
-//         return response()->json($service, 201); // Created successfully
-//     } catch (\Illuminate\Validation\ValidationException $e) {
-//         return response()->json(['status' => 'error', 'errors' => $e->errors()], 422);
-//     } catch (\Throwable $th) {
-//         return response()->json(['message' => $th->getMessage()], 500);
 //     }
-// }
+    public function store(Request $request)
+{
+    try {
+        // Check if the user has a permitted role
+        $userRole = $this->getUserIdAndRole();
+        if (!$userRole) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Proceed with validation and service creation
+        $validatedData = $request->validate([
+            'serviceName' => 'required|string|max:255',
+            'serviceCategory' => 'required|string|max:255',
+            'serviceFeatures' => 'required|string|max:255',
+            'basePrice' => 'required|numeric|min:0',
+            'pax' => 'required|integer|min:1',
+            'requirements' => 'nullable|string',
+            'availability_status' => 'boolean',
+        ]);
+
+        // Attach the authenticated user's ID and role ID if needed
+        $validatedData['user_id'] = $userRole['user_id'];
+        $validatedData['role_id'] = $userRole['role_id']; // Only if you want to store role_id
+
+        $service = Service::create($validatedData);
+
+        return response()->json($service, 201); // Created successfully
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json(['status' => 'error', 'errors' => $e->errors()], 422);
+    } catch (\Throwable $th) {
+        return response()->json(['message' => $th->getMessage()], 500);
+    }
+}
 
 
 
@@ -140,6 +143,7 @@ public function store(Request $request)
             $validatedData = $request->validate([
                 'serviceName' => 'sometimes|required|string|max:255',
                 'serviceCategory' => 'sometimes|required|string|max:255',
+                'serviceFeatures' => 'sometimes|required|string|max:255',
                 'basePrice' => 'sometimes|required|numeric|min:0',
                 'pax' => 'sometimes|required|integer|min:1',
                 'requirements' => 'nullable|string',

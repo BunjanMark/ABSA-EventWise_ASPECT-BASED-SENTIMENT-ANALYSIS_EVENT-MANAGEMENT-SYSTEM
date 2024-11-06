@@ -97,6 +97,7 @@ const ServiceSP = () => {
 
   return (
     <View style={styles.container}>
+
       {/* <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <Text style={styles.title}>Services</Text>
         <FlatList
@@ -106,7 +107,7 @@ const ServiceSP = () => {
         />
       </ScrollView> */}
       {/* Modal for service details */}
-      {/* <Modal
+      <Modal
         transparent={true}
         visible={modalVisible}
         animationType="slide"
@@ -135,9 +136,7 @@ const ServiceSP = () => {
             )}
           </View>
         </View>
-      </Modal> */}
-
-      <ServiceManager />
+      </Modal>
     </View>
   );
 };

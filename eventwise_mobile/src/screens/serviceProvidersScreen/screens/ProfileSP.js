@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ProfileSwitchSP from "./Drawer/ProfileSwitchSP";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const eventsData = [
   {
@@ -133,7 +134,9 @@ const ProfileSP = () => {
           </TouchableOpacity>
         </View>
       </View>
-
+      <SafeAreaView style={styles.headerContainer}>
+        <ProfileSwitchSP />
+      </SafeAreaView>
       <Text style={styles.popularEventText}>Popular Events</Text>
 
       <FlatList
@@ -178,7 +181,6 @@ const ProfileSP = () => {
           </View>
         </Modal>
       )}
-      <ProfileSwitchSP />
     </ScrollView>
   );
 };
