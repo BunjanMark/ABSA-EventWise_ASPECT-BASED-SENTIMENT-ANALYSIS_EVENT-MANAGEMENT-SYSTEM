@@ -103,13 +103,15 @@ const ProfileSwitchSP = () => {
     <SafeAreaView>
       <View>
         <Text>
-          Current Profiles: {user ? user.name : "No User Data"} -
-          {activeProfile
-            ? activeProfile.service_provider_name
-            : "No Profile Selected"}
+          {/* Current Account: {user ? user.name : "No User Data"}
+           */}
+          Current User: {user ? user.name : "No User Data"}
+        </Text>
+        <Text>
+          current profile:{" "}
+          {activeProfile && activeProfile === 1 ? "Admin" : "Service Provider"}
         </Text>
 
-        <Text>Available Profiles:</Text>
         {accountProfiles.map((profile) => (
           <Text key={profile.id}>{profile.service_provider_name}</Text>
         ))}
@@ -119,16 +121,6 @@ const ProfileSwitchSP = () => {
             title={`Switch to ${profile.service_provider_name}`}
             onPress={() => handleSwitchProfile(profile)}
             // disabled={profile.id === 5} // Assuming service provider profile ID is 5
-          />
-        ))}
-        {accountProfiles.map((profile) => (
-          <Button
-            key={profile.id}
-            title={`Delete ${profile.service_provider_name}`}
-            onPress={() => {
-              // TODO: Implement delete profile functionality
-              console.log("Deleting profile:", profile.id);
-            }}
           />
         ))}
       </View>

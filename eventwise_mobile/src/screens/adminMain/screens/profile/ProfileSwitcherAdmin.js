@@ -80,7 +80,7 @@ const ProfileSwitcherAdmin = () => {
 
           const profileResponse = await getAccountProfile();
           const profiles = profileResponse.data;
-          console.log("prswtcherAdminCurrent user: ", user);
+          // console.log("prswtcherAdminCurrent user: ", user);
 
           const filteredProfiles = profiles.filter(
             (profile) => profile.user_id === user.id
@@ -122,16 +122,14 @@ const ProfileSwitcherAdmin = () => {
     <SafeAreaView>
       <View>
         <Text>
-          Current Profiles: {user ? user.name : "No User Data"} -
-          {activeProfile
-            ? activeProfile.service_provider_name
-            : "No Profile Selected"}
+          {/* Current Account: {user ? user.name : "No User Data"}
+           */}
+          Current User: {user ? user.name : "No User Data"}
         </Text>
-
-        <Text>Available Profiles:</Text>
-        {accountProfiles.map((profile) => (
-          <Text key={profile.id}>{profile.service_provider_name}</Text>
-        ))}
+        <Text>
+          current profile:{" "}
+          {activeProfile && activeProfile === 1 ? "Admin" : "Service Provider"}
+        </Text>
         {accountProfiles.map((profile) => (
           <Button
             key={profile.role_id}
@@ -140,16 +138,16 @@ const ProfileSwitcherAdmin = () => {
             // disabled={profile.id === 5} // Assuming service provider profile ID is 5
           />
         ))}
-        {accountProfiles.map((profile) => (
-          <Button
-            key={profile.id}
-            title={`Delete ${profile.service_provider_name}`}
-            onPress={() => {
-              // TODO: Implement delete profile functionality
-              console.log("Deleting profile:", profile.id);
-            }}
-          />
-        ))}
+        {/* {accountProfiles.map((profile) => (
+            <Button
+              key={profile.id}
+              title={`Delete ${profile.service_provider_name}`}
+              onPress={() => {
+                // TODO: Implement delete profile functionality
+                console.log("Deleting profile:", profile.id);
+              }}
+            />
+          ))} */}
       </View>
     </SafeAreaView>
   );

@@ -93,7 +93,7 @@ const Login = ({ navigation }) => {
   const handleLogin = async () => {
     try {
       setLoading(true);
-      console.error("Login r:", { username, password });
+
       if (!username || !password) {
         showToast("Please input required data");
         setIsError(true);
@@ -309,7 +309,7 @@ const Login = ({ navigation }) => {
                   mode="text"
                   labelStyle={{ color: "#EEBA2B" }}
                   onPress={() => {
-                    navigator.navigate("Register");
+                    navigator.navigate("Registerold");
                   }}
                   loading={loading}
                   disabled={loading}
@@ -323,7 +323,7 @@ const Login = ({ navigation }) => {
                   labelStyle={{ color: "#000" }}
                   onPress={() => {
                     // navigator.navigate("AdminStack");
-                    navigator.goback();
+                    navigator.navigate("Landing");
                   }}
                 >
                   Go Back
