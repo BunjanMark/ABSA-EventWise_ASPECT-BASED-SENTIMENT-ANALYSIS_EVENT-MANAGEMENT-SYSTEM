@@ -439,24 +439,38 @@ const Register = () => {
               ) : (
                 // Verification Form
                 <View style={styles.verificationContainer}>
-                  <TextInput
-                    label="Enter Verification Code"
-                    value={verificationCode}
-                    onChangeText={setVerificationCode}
-                    style={styles.verificationInput}
-                  />
-                  
-                  <Button
-                    loading={loading}
-                    disabled={loading}
-                    style={styles.verificationButton}
-                    mode="contained"
-                    onPress={handleRegistration}
-                    labelStyle={styles.buttonLabel} // Apply the custom text color
-                  >
-                    Register Account
-                  </Button>
-                </View>
+  {/* Text above the TextInput */}
+                    <Text style={styles.verificationInstruction}>We sent a verification code to your email</Text>
+
+                    {/* TextInput */}
+                    <TextInput
+                      label="Enter Verification Code"
+                      value={verificationCode}
+                      onChangeText={setVerificationCode}
+                      style={styles.verificationInput}
+                    />
+
+                        <TouchableOpacity>
+                      <Text style={styles.verifyText}>
+                        Verify
+                      </Text>
+                    </TouchableOpacity>
+                    
+                    {/* Button */}
+                    <Button
+                      loading={loading}
+                      disabled={loading}
+                      style={styles.verificationButton}
+                      mode="contained"
+                      onPress={handleRegistration}
+                      labelStyle={styles.buttonLabel} // Apply the custom text color
+                    >
+                      Register Account
+                    </Button>
+                    
+                    {/* Clickable "Verify" text below the TextInput */}
+                    
+                  </View>
 
 
               )}
@@ -471,9 +485,17 @@ const Register = () => {
 
 const styles = StyleSheet.create({
   verificationContainer: {
-    marginTop: 20, // Add some space above the container
+    marginTop: 20, // Add space above the container
     paddingHorizontal: 20, // Padding for left and right spacing
-    alignItems: 'center', // Center items horizontally
+    alignItems: 'center', // Center content horizontally
+  },
+  
+  // Instruction text above the TextInput
+  verificationInstruction: {
+    fontSize: 16, // Set text size
+    color: '#000', // Set text color (black)
+    marginBottom: 10, // Space between text and TextInput
+    textAlign: 'center', // Center the instruction text
   },
 
   // Verification Input Styles
@@ -483,22 +505,31 @@ const styles = StyleSheet.create({
     height: 50, // Fixed height for the text input
   },
 
-  // Verification Button Styles (With Shadow for Android)
+  // Verification Button Styles
   verificationButton: {
     width: widthPercentageToDP("50%"), // Same width as text input
     marginTop: 15, // Space between button and input
     borderRadius: 30, // Rounded corners for button
-    backgroundColor: "white", // Button background color
-    borderWidth: 1.5, // Add a border around the button
-    borderColor: "#eeba2b", // Set the border color to black
-    paddingVertical: 12, // Vertical padding for button
-    paddingHorizontal: 20, // Horizontal padding for button
+    backgroundColor: "#eeba2b", // Button background color
+    elevation: 5, // Adds shadow for Android
+    shadowColor: 'black', // Black shadow color
+    shadowOffset: { width: 0, height: 4 }, // Shadow direction (vertical)
+    shadowOpacity: 0.25, // Shadow opacity (how strong the shadow is)
+    shadowRadius: 6, // Shadow blur radius (how spread out the shadow is)
   },
 
-  // Custom button text styles
+  // Button text styles
   buttonLabel: {
-    color: "#eeba2b", // White text color
+    color: "white", // White text color
     fontWeight: "bold", // Bold text
+  },
+
+  // Style for the "Verify" clickable text
+  verifyText: {
+    fontSize: 16, // Set text size
+    color: '#000', // Set text color
+    textDecorationLine: 'underline', // Underline the text
+    marginTop: 10, // Space between the button and the clickable text
   },
   backgroundImage: {
     flex: 1,
