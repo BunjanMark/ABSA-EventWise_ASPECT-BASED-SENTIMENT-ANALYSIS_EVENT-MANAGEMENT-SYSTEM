@@ -6,12 +6,14 @@ import { AuthContext } from "../services/authContext";
 // stacks
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useStore from "../stateManagement/useStore";
 
+import Registerold from "../screens/authentication/Registerold";
 import Register from "../screens/authentication/Register";
+import Register2 from "../screens/authentication/Register2";
 import Login from "../screens/authentication/Login";
 import AccountRecovery from "../screens/authentication/AccountRecovery";
 import Landing from "../screens/authentication/Landing";
-import Register2 from "../screens/authentication/Register2";
 
 import GuestLanding from "../screens/authentication/GuestLanding";
 
@@ -30,9 +32,22 @@ import CreateAnotherAccount from "../screens/customerScreens/otherScreens/Create
 import ProfileOrganizer from "../screens/customerScreens/otherScreens/ProfileOrganizer";
 import Package from "../screens/customerScreens/otherScreens/Package";
 import CustomizePackage from "../screens/customerScreens/otherScreens/CustomizePackage";
+import EventPackageCustomer from "../screens/customerScreens/otherScreens/EventPackageCustomer";
 import HomeSP from "../screens/serviceProvidersScreen/screens/HomeSP";
 
 import EventFeedbackDetails from "../screens/adminMain/screens/feedback/EventFeedbackDetails";
+import EditProfile from "../screens/customerScreens/otherScreens/EditProfile";
+import Profile from "../screens/customerScreens/screens/Profile";
+import InventoryTracker from "../screens/customerScreens/sidebarScreens/InventoryTracker";
+import Schedule from "../screens/customerScreens/sidebarScreens/Schedule";
+import Settings from "../screens/customerScreens/sidebarScreens/Settings";
+import NotifView from "../screens/customerScreens/notification/NotifView";
+import About from "../screens/customerScreens/sidebarScreens/About";
+import BookingContinuation2 from "../screens/customerScreens/otherScreens/BookingContinuation2";
+import BookingContinuation3 from "../screens/customerScreens/otherScreens/BookingContinuation3";
+import BookingContinuation4 from "../screens/customerScreens/otherScreens/BookingContinuation4";
+import Attendee from "../screens/customerScreens/otherScreens/Attendee";
+import Feedback from "../screens/customerScreens/otherScreens/Feedback";
 // import Feedback from "../screens/customerScreens/otherScreens/Feedback";
 
 // Service Provider Stack here
@@ -41,7 +56,7 @@ import ServiceProviderIndex from "../screens/serviceProvidersScreen/ServiceProvi
 // Guest Stack here
 
 // Profile switcher screen
-import { ProfileContext } from "../services/profileContext";
+import { ProfileContext } from "../services/profileContextcp";
 import Venue from "../screens/customerScreens/otherScreens/Venue";
 import GuestIndex from "../screens/guestScreens/GuestIndex";
 const Stack = createNativeStackNavigator();
@@ -57,8 +72,6 @@ const AuthenticationStack = () => {
     return <ActivityIndicator />; // A screen or component to show while loading
   }
   return (
-
-    
     <Stack.Navigator
       initialRouteName={
         user
@@ -68,7 +81,6 @@ const AuthenticationStack = () => {
           : "Landing"
       }
     >
-    
       <Stack.Screen
         name="Landing"
         component={Landing}
@@ -80,11 +92,10 @@ const AuthenticationStack = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="Register"
-        component={Register}
+        name="Registerold"
+        component={Registerold}
         options={{ headerShown: false }}
       />
-
       <Stack.Screen
         name="Register2"
         component={Register2}
@@ -95,22 +106,32 @@ const AuthenticationStack = () => {
         component={AccountRecovery}
         options={{ headerShown: false }}
       />
+      {/* <Stack.Screen
+        name="CustomCustomerStack"
+        component={CustomCustomerStack}
+        options={{ headerShown: false }}
+      /> */}
       <Stack.Screen
         name="CustomCustomerStack"
         component={CustomCustomerStack}
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="CustomAdminStack"
+        component={CustomAdminStack}
+        options={{ headerShown: false }}
+      />
+      {/* <Stack.Screen
         name="AdminStack"
         component={AdminStack}
         options={{ headerShown: false }}
-      />
+      /> */}
       <Stack.Screen
         name="GuestStack"
         component={GuestIndex}
         options={{ headerShown: false }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="ServiceProviderStack"
         component={ServiceProviderStack}
         options={{ headerShown: false }}
@@ -135,9 +156,179 @@ function AdminStack() {
       />
     </Stack.Navigator>
   );
-    
 }
 
+// Previous state 1:12 nov 3
+// const CustomAdminStack = () => {
+//   LogBox.ignoreAllLogs();
+//   const { profiles, loading, activeProfile } = useContext(ProfileContext);
+//   const navigation = useNavigation();
+
+//   useEffect(() => {
+//     // console.log("Loading:", loading, "Role ID:", profiles.id);
+//     // #TODO: this results to registering the first profile in account role
+//     console.log("active profile nav: ", activeProfile["role_id"]);
+//     console.log("profile: nav", profiles[0].role_id);
+//     if (!loading) {
+//       if ((activeProfile["role_id"] = 1 === 1)) {
+//         console.log("Navigating to AdminStack");
+//         navigation.navigate("AdminStack");
+//         navigation.reset({
+//           index: 0,
+//           routes: [{ name: "AdminStack" }],
+//         });
+//       } else {
+//         console.log("Navigating to ServiceProviderStack");
+//         navigation.navigate("ServiceProviderStack");
+//         navigation.reset({
+//           index: 0,
+//           routes: [{ name: "ServiceProviderStack" }],
+//         });
+//       }
+//     }
+//   }, [profiles.id, loading, navigation]);
+
+//   if (loading) {
+//     return <ActivityIndicator />;
+//   }
+
+//   return (
+//     <Stack.Navigator
+//       initialRouteName={
+//         profiles.id === 1 ? "AdminStack" : "ServiceProviderStack"
+//       }
+//     >
+//       <Stack.Screen
+//         name="AdminStack"
+//         component={AdminStack}
+//         options={{ headerShown: false }}
+//       />
+//       <Stack.Screen
+//         name="ServiceProviderStack"
+//         component={ServiceProviderStack}
+//         options={{ headerShown: false }}
+//       />
+//     </Stack.Navigator>
+//   );
+// };
+
+const CustomAdminStack = () => {
+  LogBox.ignoreAllLogs();
+  // const { profiles, loading, activeProfile } = useContext(ProfileContext);
+  const profiles = useStore((state) => state.profiles);
+  const activeProfile = useStore((state) => state.activeProfile);
+  const loading = useStore((state) => state.loading);
+  const setProfiles = useStore((state) => state.setProfiles);
+  const setActiveProfile = useStore((state) => state.setActiveProfile);
+  const setLoading = useStore((state) => state.setLoading);
+  const navigation = useNavigation();
+
+  console.log("navigation active: ", activeProfile.role_id, activeProfile);
+  useEffect(() => {
+    // console.log("Loading:", loading, "Role ID:", profiles.id);
+    // #TODO: this results to registering the first profile in account role
+    // console.log("active profile nav: ", activeProfile.role_id);
+    // console.log("profile: nav", profiles[0].role_id);
+    if (!loading) {
+      if (activeProfile === 1) {
+        console.log("Navigating to AdminStack");
+        navigation.navigate("AdminStack");
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "AdminStack" }],
+        });
+      } else {
+        console.log("Navigating to ServiceProviderStack");
+        navigation.navigate("ServiceProviderStack");
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "ServiceProviderStack" }],
+        });
+      }
+    }
+  }, [activeProfile, loading, navigation]);
+
+  if (loading) {
+    return <ActivityIndicator />;
+  }
+
+  return (
+    <Stack.Navigator
+      initialRouteName={
+        activeProfile.role_id === 1 ? "AdminStack" : "ServiceProviderStack"
+      }
+    >
+      <Stack.Screen
+        name="AdminStack"
+        component={AdminStack}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ServiceProviderStack"
+        component={ServiceProviderStack}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+const CustomCustomerStack = () => {
+  LogBox.ignoreAllLogs();
+
+  // const { profiles, loading, activeProfile } = useContext(ProfileContext);
+  const profiles = useStore((state) => state.profiles);
+  const activeProfile = useStore((state) => state.activeProfile);
+  const loading = useStore((state) => state.loading);
+  const setProfiles = useStore((state) => state.setProfiles);
+  const setActiveProfile = useStore((state) => state.setActiveProfile);
+  const setLoading = useStore((state) => state.setLoading);
+  const navigation = useNavigation();
+  useEffect(() => {
+    // console.log("Loading:", loading, "Role ID:", profiles.id);
+    // #TODO: this results to registering the first profile in account role
+    // console.log("active profile nav: ", activeProfile.role_id);
+    // console.log("profile: nav", profiles[0].role_id);
+    if (!loading) {
+      if (activeProfile === 2) {
+        console.log("Navigating to CustomerStack");
+        navigation.navigate("CustomerStack");
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "CustomerStack" }],
+        });
+      } else {
+        console.log("Navigating to ServiceProviderStack");
+        navigation.navigate("ServiceProviderStack");
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "ServiceProviderStack" }],
+        });
+      }
+    }
+  }, [activeProfile, loading, navigation]);
+
+  if (loading) {
+    return <ActivityIndicator />;
+  }
+
+  return (
+    <Stack.Navigator
+      initialRouteName={
+        activeProfile === 3 ? "ServiceProviderStack" : "CustomerStack"
+      }
+    >
+      <Stack.Screen
+        name="ServiceProviderStack"
+        component={ServiceProviderStack}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CustomerStack"
+        component={CustomerStack}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
 // ServiceProvider StacK
 
 function ServiceProviderStack() {
@@ -149,7 +340,6 @@ function ServiceProviderStack() {
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
-
   );
 }
 
@@ -157,14 +347,63 @@ function ServiceProviderStack() {
 function CustomerStack() {
   return (
     <Stack.Navigator>
+      {/* <Stack.Screen
+        name="Landing"
+        component={Landing}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="GuestLanding"
+        component={GuestLanding}
+        options={{ headerShown: false }}
+      /> */}
+      {/* <Stack.Screen
+        name="Login"
+        component={Login}
+        options={{ headerShown: false }}
+      /> */}
+      {/* 
+      <Stack.Screen
+        name="AccountRecovery"
+        component={AccountRecovery}
+        options={{ headerShown: false }}
+      /> */}
+
       <Stack.Screen
         name="TabNav"
         component={TabNav}
         options={{ headerShown: false }}
       />
-
-      {/* Profile Switcher */}
-
+      <Stack.Screen
+        name="Guest"
+        component={GuestIndex}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="InventoryTracker"
+        component={InventoryTracker}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Schedule"
+        component={Schedule}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={Settings}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="InboxView"
         component={InboxView}
@@ -176,8 +415,8 @@ function CustomerStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="ProfileSwitcher"
-        component={ProfileSwitcher}
+        name="NotifView"
+        component={NotifView}
         options={{ headerShown: false }}
       />
       <Stack.Screen
@@ -185,7 +424,6 @@ function CustomerStack() {
         component={SelectContactView}
         options={{ headerShown: false }}
       />
-
       <Stack.Screen
         name="Notification"
         component={Notification}
@@ -207,6 +445,11 @@ function CustomerStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="About"
+        component={About}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="Package"
         component={Package}
         options={{ headerShown: false }}
@@ -221,11 +464,36 @@ function CustomerStack() {
         component={Venue}
         options={{ headerShown: false }}
       />
-      {/* <Stack.Screen
-          name="Feedback"
-          component={Feedback}
-          options={{ headerShown: false }}
-        /> */}
+      <Stack.Screen
+        name="BookingContinuation2"
+        component={BookingContinuation2}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="BookingContinuation3"
+        component={BookingContinuation3}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="BookingContinuation4"
+        component={BookingContinuation4}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Feedback"
+        component={Feedback}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Attendee"
+        component={Attendee}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EventPackageCustomer"
+        component={EventPackageCustomer}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
@@ -256,52 +524,6 @@ function CustomerStack() {
 //     </Stack.Navigator>
 //   );
 // }
-const CustomCustomerStack = () => {
-  LogBox.ignoreAllLogs();
-  const { profiles, loading } = useContext(ProfileContext);
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    if (!loading) {
-      if (profiles.id !== 3) {
-        navigation.navigate("ServiceProviderStack");
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "ServiceProviderStack" }],
-        });
-      } else {
-        navigation.navigate("CustomerStack");
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "CustomerStack" }],
-        });
-      }
-    }
-  }, [profiles.id, loading, navigation]);
-
-  if (loading) {
-    return <ActivityIndicator />;
-  }
-
-  return (
-    <Stack.Navigator
-      initialRouteName={
-        profiles.id === 5 ? "ServiceProviderStack" : "CustomerStack"
-      }
-    >
-      <Stack.Screen
-        name="ServiceProviderStack"
-        component={ServiceProviderStack}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="CustomerStack"
-        component={CustomerStack}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
-};
 export default function Navigator() {
   return <AuthenticationStack />;
 }

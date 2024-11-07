@@ -56,10 +56,24 @@ const EventMainCard = ({ event, likedEvents, toggleLike }) => {
       <View style={styles.eventPackageDetailRow}>
         <View style={styles.eventDetailRow}>
           <View style={styles.eventDetailContainer}>
-            <Text style={styles.eventDetailText}>{event.date}</Text>
+            <Text style={styles.eventDetailText}>
+              <MaterialCommunityIcons
+                name="calendar"
+                size={16}
+                color="#2A93D5"
+              />
+              {event.date}
+            </Text>
           </View>
           <View style={styles.eventDetailContainer}>
-            <Text style={styles.eventDetailText}>{event.location}ss</Text>
+            <Text style={styles.eventDetailText}>
+              <MaterialCommunityIcons
+                name="map-marker"
+                size={16}
+                color="#2A93D5"
+              />
+              {event.location}
+            </Text>
           </View>
         </View>
         <TouchableOpacity onPress={toggleMore} style={[]}>
@@ -120,8 +134,6 @@ const EventMainCard = ({ event, likedEvents, toggleLike }) => {
               label="Inventory"
               onPress={() => {
                 setShowMoreVisible(false);
-                // navigation.navigate("Account");
-                // console.log("attendee nav pressed");
                 navigation.navigate("Inventory Tracker");
               }}
             />

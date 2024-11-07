@@ -8,7 +8,7 @@
 //   Image,
 //   FlatList, // Add this import
 // } from 'react-native';
-// import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; 
+// import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 // import { useNavigation } from '@react-navigation/native';
 // import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient from expo-linear-gradient
 
@@ -22,7 +22,6 @@
 //   { id: '7', title: 'Music Festival', image: require('../assets/service1.png'), date: '2024-06-22', address: 'CDO', buttons: ['Feedback'] },
 //   { id: '8', title: 'Art Exhibition', image: require('../assets/service1.png'), date: '2024-07-05', address: 'CDO', buttons: ['Feedback'] },
 // ];
-
 
 // const ProfileSP = () => {
 //   const navigation = useNavigation();

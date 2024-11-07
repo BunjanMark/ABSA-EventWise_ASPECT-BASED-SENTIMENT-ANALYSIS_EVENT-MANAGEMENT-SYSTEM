@@ -1,15 +1,46 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, FlatList, Modal, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  FlatList,
+  Modal,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 const screenWidth = Dimensions.get("window").width;
 
 const eventsData = [
-  { id: '1', title: 'Mr. & Mrs. Malik Wedding', image: require('../assets/event1.png'), date: '2024-07-01', address: 'CDO', buttons: ['Edit', 'Equipment'] },
-  { id: '2', title: 'Elizabeth Birthday', image: require('../assets/event2.png'), date: '2024-08-12', address: 'CDO', buttons: ['Attendee', 'Feedback', 'Inventory'] },
-  { id: '3', title: 'Class of 1979 Reunion', image: require('../assets/event3.png'), date: '2024-09-25', address: 'CDO', buttons: ['Edit', 'Equipment'] },
+  {
+    id: "1",
+    title: "Mr. & Mrs. Malik Wedding",
+    image: require("../assets/event1.png"),
+    date: "2024-07-01",
+    address: "CDO",
+    buttons: ["Edit", "Equipment"],
+  },
+  {
+    id: "2",
+    title: "Elizabeth Birthday",
+    image: require("../assets/event2.png"),
+    date: "2024-08-12",
+    address: "CDO",
+    buttons: ["Attendee", "Feedback", "Inventory"],
+  },
+  {
+    id: "3",
+    title: "Class of 1979 Reunion",
+    image: require("../assets/event3.png"),
+    date: "2024-09-25",
+    address: "CDO",
+    buttons: ["Edit", "Equipment"],
+  },
   // Additional events...
 ];
 
@@ -18,7 +49,10 @@ const HomeSP = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const renderEventItem = ({ item }) => (
-    <TouchableOpacity onPress={() => openEventModal(item)} style={styles.eventItem}>
+    <TouchableOpacity
+      onPress={() => openEventModal(item)}
+      style={styles.eventItem}
+    >
       <Image source={item.image} style={styles.image} />
       <Text style={styles.title}>{item.title}</Text>
       <View style={styles.detailContainer}>
@@ -50,7 +84,10 @@ const HomeSP = () => {
         {/* Gray Rectangle */}
         <View style={styles.rectangle}>
           <View style={styles.row}>
-            <Image source={require("../assets/pro_pic.png")} style={styles.profileImage} />
+            <Image
+              source={require("../assets/pro_pic.png")}
+              style={styles.profileImage}
+            />
             <View style={styles.textContainer}>
               <Text style={styles.welcomeText}>Welcome</Text>
               <Text style={styles.nameText}>Service Provider</Text>
@@ -60,12 +97,19 @@ const HomeSP = () => {
               <Text style={styles.locationText}>Cagayan de Oro City</Text>
             </View>
           </View>
-          <Image source={require("../assets/home.png")} style={styles.homeImage} />
+          <Image
+            source={require("../assets/home.png")}
+            style={styles.homeImage}
+          />
         </View>
 
         {/* Fading Line */}
         <LinearGradient
-          colors={['rgba(255,196,43,0)', 'rgba(255,196,43,1)', 'rgba(255,196,43,0)']}
+          colors={[
+            "rgba(255,196,43,0)",
+            "rgba(255,196,43,1)",
+            "rgba(255,196,43,0)",
+          ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.fadingLine}
@@ -83,7 +127,6 @@ const HomeSP = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.eventsListContainer}
         />
-
       </ScrollView>
 
       {/* Modal for event details */}
@@ -95,7 +138,10 @@ const HomeSP = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.closeButton} onPress={closeEventModal}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={closeEventModal}
+            >
               <MaterialIcons name="close" size={24} color="#000" />
             </TouchableOpacity>
 
@@ -105,12 +151,24 @@ const HomeSP = () => {
                 <Image source={selectedEvent.image} style={styles.modalImage} />
                 <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
                 <View style={styles.modalDetailRow}>
-                  <MaterialCommunityIcons name="calendar" size={16} color="#2A93D5" />
-                  <Text style={styles.modalDetailText}>{selectedEvent.date}</Text>
+                  <MaterialCommunityIcons
+                    name="calendar"
+                    size={16}
+                    color="#2A93D5"
+                  />
+                  <Text style={styles.modalDetailText}>
+                    {selectedEvent.date}
+                  </Text>
                 </View>
                 <View style={styles.modalDetailRow}>
-                  <MaterialCommunityIcons name="map-marker" size={16} color="#2A93D5" />
-                  <Text style={styles.modalDetailText}>{selectedEvent.address}</Text>
+                  <MaterialCommunityIcons
+                    name="map-marker"
+                    size={16}
+                    color="#2A93D5"
+                  />
+                  <Text style={styles.modalDetailText}>
+                    {selectedEvent.address}
+                  </Text>
                 </View>
               </>
             )}
@@ -182,43 +240,43 @@ const styles = StyleSheet.create({
   },
   popularEventText: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 10,
   },
   eventItem: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
     padding: 10,
     marginRight: 10,
     width: 200,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3,
   },
   image: {
-    width: '100%',
+    width: "100%",
     height: 100,
     borderRadius: 10,
   },
   title: {
     fontSize: 16,
-    color: 'black',
-    fontWeight: 'bold',
+    color: "black",
+    fontWeight: "bold",
     marginTop: 10,
   },
   detailContainer: {
     marginTop: 5,
   },
   detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 5,
   },
   detailText: {
-    color: '#2A93D5',
+    color: "#2A93D5",
     marginLeft: 5,
   },
   eventsListContainer: {
@@ -226,22 +284,22 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
     marginHorizontal: 20,
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 10,
     right: 10,
   },
   modalImage: {
-    width: '100%',
+    width: "100%",
     height: 150,
     borderRadius: 10,
     marginBottom: 20,
@@ -249,16 +307,16 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   modalDetailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   modalDetailText: {
-    color: '#2A93D5',
+    color: "#2A93D5",
     marginLeft: 5,
   },
 });

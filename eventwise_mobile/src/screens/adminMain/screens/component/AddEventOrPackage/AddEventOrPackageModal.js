@@ -12,10 +12,10 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import useStore from "../../../../stateManagement/useStore";
 import * as ImagePicker from "expo-image-picker";
-import event2 from "../../../../../assets/event2.png"; // Ensure correct path
-import selectimage from "../../../../../assets/selectimage.png";
+import useStore from "../../../../../stateManagement/useStore";
+import event2 from "../../../../../../assets/event2.png"; // Ensure correct path
+import selectimage from "../../../../../../assets/selectimage.png";
 
 const AddEventOrPackageModal = ({ visible, onClose, type }) => {
   const { addEvent, addEventPackage } = useStore();
