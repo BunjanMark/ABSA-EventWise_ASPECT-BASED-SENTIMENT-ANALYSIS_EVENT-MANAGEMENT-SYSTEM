@@ -67,7 +67,7 @@ const handleLogin = async () => {
 
       console.log("Attempting to login with:", { username, password });
 
-      const response = await fetch('https://fc50-103-62-152-155.ngrok-free.app/api/login', {
+      const response = await fetch('https://bc73-64-226-56-54.ngrok-free.app/api/login', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
