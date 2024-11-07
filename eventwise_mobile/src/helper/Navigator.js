@@ -91,8 +91,13 @@ const AuthenticationStack = () => {
         component={Login}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Registerold"
+        component={Registerold}
+        options={{ headerShown: false }}
+      /> */}
+      <Stack.Screen
+        name="Register"
         component={Registerold}
         options={{ headerShown: false }}
       />

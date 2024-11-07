@@ -309,7 +309,7 @@ const Login = ({ navigation }) => {
                   mode="text"
                   labelStyle={{ color: "#EEBA2B" }}
                   onPress={() => {
-                    navigator.navigate("Registerold");
+                    navigator.navigate("Register");
                   }}
                   loading={loading}
                   disabled={loading}
