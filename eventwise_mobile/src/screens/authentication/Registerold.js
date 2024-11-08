@@ -33,6 +33,7 @@ import * as ImagePicker from "expo-image-picker";
 import { signup } from "../../services/authServices";
 
 import { useNavigation } from "@react-navigation/native";
+import EmailVerificationForm from "./EmailVerificationForm";
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required("Full Name is required"),
   gender: Yup.string().required("Gender is required"),
@@ -256,17 +257,24 @@ const Register = () => {
                           </Text>
                         )}
 
-                        <TextInput
+                        <EmailVerificationForm />
+                        {/* #email */}
+                        {/* <TextInput
                           label="Email Address"
                           value={values.email}
                           onChangeText={handleChange("email")}
                           onBlur={handleBlur("email")}
                           style={styles.input}
                           mode="outlined"
+                          right={
+                            <TouchableOpacity>
+                              <Text>Verify email</Text>
+                            </TouchableOpacity>
+                          }
                         />
                         {touched.email && errors.email && (
                           <Text style={styles.errorText}>{errors.email}</Text>
-                        )}
+                        )} */}
 
                         <TextInput
                           label="Phone Number"

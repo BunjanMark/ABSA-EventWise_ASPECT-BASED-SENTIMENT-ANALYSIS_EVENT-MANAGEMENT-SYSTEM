@@ -15,6 +15,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\GuestsController;
 use App\Http\Controllers\AccountRoleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -30,7 +31,13 @@ Route::prefix('auth')->group(function () {
     Route::get('/me', [AuthenticatedSessionController::class, 'show'])->middleware(['auth:sanctum']);
     Route::post('switch-account', [AuthenticatedSessionController::class, 'switchAccount'])->middleware(['auth:sanctum']);
 });
-
+// for email verification
+Route::post('/verify-email', [AuthenticatedSessionController::class, 'sendVerificationEmail']);
+Route::post('/verify-email-code', [AuthenticatedSessionController::class, 'verifyCode']);
+// test email view
+// Route::get('/test-email-view', function () {
+//     return view('emails.verification', ['verificationCode' => '123456']);
+// });
 //for switch account profile admin
 Route::post('/admin/account-management', [AccountManagementController::class, 'addProfile'])->middleware(['auth:sanctum']);
 Route::get('/admin/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);

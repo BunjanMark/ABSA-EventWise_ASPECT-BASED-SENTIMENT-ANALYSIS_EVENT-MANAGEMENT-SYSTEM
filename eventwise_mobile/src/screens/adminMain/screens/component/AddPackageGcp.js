@@ -25,6 +25,8 @@ import RNPickerSelect from "react-native-picker-select";
 import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect } from "react";
+import { fetchServices } from "../../../../services/serviceProvider/serviceProviderServices";
+import { useServiceStore } from "../../../../stateManagement/serviceProvider/useServiceStore";
 // Yup Validation Schema
 const AddPackageSchema = Yup.object().shape({
   packageName: Yup.string().required("Package Name is required"),
@@ -35,11 +37,26 @@ const AddPackageSchema = Yup.object().shape({
 
 const AddPackageG = ({ onClose }) => {
   const { servicesList } = useStore();
+  const [refresh, setRefresh] = useState(false);
+  const { services, setServices } = useServiceStore();
   const [isLoading, setIsLoading] = useState(false);
   const [imageUri, setImageUri] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  // console.log("Local storage>>>>>:", servicesList);
+  console.log("fetch services info", services);
 
+  useEffect(() => {
+    const fetchServicesData = async () => {
+      try {
+        const data = await fetchServices();
+        setServices(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchServicesData();
+  }, [refresh, setServices]);
   const pickImage = async () => {
     try {
       const permissionResult =

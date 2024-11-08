@@ -17,23 +17,10 @@ api.interceptors.request.use(async (config) => {
   }
   return config;
 });
-
-export const login = async (email, password) => {
-  try {
-    const response = await api.post("/auth/login", { email, password });
-    const { token } = response.data;
-    console.log(response.data);
-    await AsyncStorage.setItem("authToken", token);
-    return response.data;
-  } catch (error) {
-    console.error("Login errors:", error);
-    throw error;
-  }
-};
-
 export const signup = async (userData) => {
   try {
     const response = await api.post("/auth/signup", userData);
+    console.log("this is the response:", response.data);
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -43,6 +30,32 @@ export const signup = async (userData) => {
     } else {
       console.error("Signup error message:", error.message);
     }
+    throw error;
+  }
+};
+export const sendVerificationEmail = async (email) => {
+  try {
+    const response = await api.post("/verify-email", { email });
+    console.log("Verification email response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error("Email verification error:", error.response.data);
+    } else {
+      console.error("Email verification error:", error.message);
+    }
+    throw error;
+  }
+};
+export const login = async (email, password) => {
+  try {
+    const response = await api.post("/auth/login", { email, password });
+    const { token } = response.data;
+    console.log(response.data);
+    await AsyncStorage.setItem("authToken", token);
+    return response.data;
+  } catch (error) {
+    console.error("Login errors:", error);
     throw error;
   }
 };
