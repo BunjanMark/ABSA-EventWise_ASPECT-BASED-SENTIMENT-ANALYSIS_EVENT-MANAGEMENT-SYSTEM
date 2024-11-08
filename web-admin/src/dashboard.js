@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
+import { IoLocationSharp } from "react-icons/io5";
+import { FaCalendar } from "react-icons/fa";
 
 // Packages data
 const packagesData = [
@@ -62,10 +64,25 @@ function Dashboard() {
   }, []);
 
   const fetchEventsForDay = (day) => {
-    const date = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    axios.get('http://localhost:8000/api/events', { params: { date: date } })
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth(); // Month is zero-indexed, so November is 10
+  
+    // Format the date for the selected day in the current month and year
+    const selectedDate = new Date(currentYear, currentMonth, day);
+  
+    axios.get('http://localhost:8000/api/events', { params: { date: selectedDate.toISOString().split('T')[0] } })
       .then((response) => {
-        const filteredEvents = response.data.filter((event) => new Date(event.date).getDate() === day);
+        // Filter events that match the exact date, not just the day of the month
+        const filteredEvents = response.data.filter((event) => {
+          const eventDate = new Date(event.date);
+          return (
+            eventDate.getFullYear() === currentYear &&
+            eventDate.getMonth() === currentMonth &&
+            eventDate.getDate() === day
+          );
+        });
+  
         setEvents(filteredEvents);
         setSelectedDayEvents(filteredEvents.length > 0 ? filteredEvents : [{ name: 'No events on this day', venue: '' }]);
         setSelectedDay(day);
@@ -76,6 +93,7 @@ function Dashboard() {
         setSelectedDayEvents([{ name: 'No events on this day', venue: '' }]);
       });
   };
+  
 
   const handleDayClick = (day) => {
     fetchEventsForDay(day);
@@ -107,23 +125,37 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-content">
-        <div className="left-side">
-          {selectedDay ? (
-            <div className="event-list-dashboard">
-              <h3 className="event-list-title">Event List for {`${currentMonth}`}</h3>
-              {selectedDayEvents.map((event, index) => (
-                <div className="event-item-dashboard" key={index}>
-                  <p className="event-name-dashboard">{event.name.charAt(0).toUpperCase() + event.name.slice(1)}</p>
-                  <p className="event-date-dashboard">{new Date(event.date).toLocaleDateString('default', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                  <p className="event-venue-dashboard">{event.venue}</p>
-                </div>
-              ))}
+      <div className="dashboard-content"> 
+      <div className="left-side">
+  {selectedDay ? (
+    <div className="event-list-dashboard">
+      <h3 className="event-list-title">Event List for {`${currentMonth}`}</h3>
+      <div className="events-list-container-dashboard-left">
+        {selectedDayEvents.map((event, index) => (
+          <div className="event-card-dashboard" key={index}>
+            <img src={event.cover_photo} alt="Event Cover" className="event-cover-dashboard" />
+            <div className="event-info-dashboard">
+              <p className="event-name-dashboard">{event.name.charAt(0).toUpperCase() + event.name.slice(1)}</p>
+              <div className="event-detail-dashboard">
+                <FaCalendar className="event-icon-dashboard" />
+                <p className="event-date-dashboard">
+                  {new Date(event.date).toLocaleDateString('default', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+              </div>
+              <div className="event-detail-dashboard">
+                <IoLocationSharp className="event-icon-dashboard" />
+                <p className="event-venue-dashboard">{event.venue}</p>
+              </div>
             </div>
-          ) : (
-            <p>No events selected</p>
-          )}
-        </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <p>No events selected</p>
+  )}
+</div>
+
         <div className="right-side">
           <div className="calendar">
             <div className="calendar-header">

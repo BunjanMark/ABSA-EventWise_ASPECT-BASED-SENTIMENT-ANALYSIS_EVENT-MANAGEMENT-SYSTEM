@@ -24,7 +24,7 @@ const Schedule = () => {
   const navigate = useNavigate();
 
   const schedules = {
-    "2024-10-21": [
+    "2024-11-21": [
       {
         time: "09:00 AM",
         title: "Team Meeting",
@@ -122,6 +122,7 @@ const Schedule = () => {
   };
 
   return (
+    <div className="sched-bg">
     <div className="schedule-container">
               <div className="schedule-header-container">
           <h2 className="schedule-header">Schedule 
@@ -357,6 +358,7 @@ const Schedule = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

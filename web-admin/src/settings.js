@@ -45,6 +45,7 @@ const Settings = () => {
   };
 
   return (
+    <div className="settings-bg">
     <div className="settings-container">
       {/* Single Back Button at Upper Left Corner */}
       <button onClick={() => navigate('/dashboard')} className="back-button-addschedule">
@@ -103,6 +104,7 @@ const Settings = () => {
         </div>
       </div>
 
+    </div>
     </div>
   );
 };

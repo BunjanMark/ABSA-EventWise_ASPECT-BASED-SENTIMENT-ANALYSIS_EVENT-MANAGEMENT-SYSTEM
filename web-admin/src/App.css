@@ -144,7 +144,8 @@ body, html, #root {
 /* DASHBOARD */
 
 .dashboard-container {
-  background: white;
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -284,11 +285,45 @@ body, html, #root {
   cursor: pointer; /* Pointer cursor on hover */
 }
 
+.events-list-container-dashboard-left {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+  width: 100%;
+}
+
+.event-card-dashboard {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #d0d0d0; /* Border around the card */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  overflow: hidden; /* Prevent overflow from the image */
+  text-align: center; /* Center text in the card */
+  transition: transform 0.2s; /* Add transition for hover effect */
+}
+
+.event-card-dashboard:hover {
+  transform: scale(1.02); /* Slightly enlarge on hover */
+}
+
+.event-cover-dashboard {
+  width: 95%; /* Full width for the cover photo */
+  margin-top: 5px;
+  height: 150px; /* Fixed height for consistency */
+  object-fit: cover; /* Cover the space without distortion */
+}
+
+.event-info-dashboard {
+  padding: 10px; /* Padding inside the card */
+}
+
 
 .package-item-dashboard {
   background: rgba(255, 255, 255, 0.56);
   border-radius: 10px;
-  border: #C2B067 1px solid;
+  border: #d0d0d0 2px solid;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   padding: 10px;
   margin: 0; /* No margin for grid items */
   text-align: center; /* Center text */
@@ -348,40 +383,22 @@ body, html, #root {
   overflow-y: auto;
 }
 
-.event-details-dashboard, .schedule-section-dashboard {
-  padding: 20px;
-  background-color: #f8f8f8;
-  border-radius: 10px;
-  overflow-y: auto;
+.event-detail-dashboard {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
 }
+
+
+.event-icon-dashboard { 
+  color: #eeba2b; /* Use your primary color */
+  margin-right: 8px; /* Space between icon and text */
+  font-size: 1.1rem;
+}
+
 
 .event-details-dashboard {
   flex: 1;
-}
-
-.schedule-section-dashboard {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.schedule-content-dashboard {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr; /* Initially single column */
-  gap: 10px;
-}
-
-.schedule-item-dashboard {
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.timeline-dashboard {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
 }
 
 button {
@@ -535,6 +552,7 @@ button:hover {
   font-size: 1.25rem; /* Moderate size for event name */
   font-weight: bold;
   text-transform: capitalize; /* First letter capitalized */
+  color: #eeba2b;
 }
 
 .event-date-dashboard, .event-venue-dashboard {
@@ -546,6 +564,8 @@ button:hover {
   background-color: #eeba2b; /* Yellow background */
   border-radius: 5rem; /* Keep the same border radius */
 }
+
+
 
 
 
@@ -744,7 +764,8 @@ button:hover {
 /* NOTIFICATION */
 .notification-container {
   font-family: Arial, sans-serif;
-  background: #FFFFFF; /* White background */
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;  
   padding: 20px;
   min-height: 100vh; /* Ensure the container covers the entire viewport height */
   display: flex;
@@ -939,7 +960,8 @@ button:hover {
 
 
 .gradient-container-events {
-  background: white;
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
   padding: 20px;
   min-height: 100vh;
   display: flex;
@@ -1178,7 +1200,8 @@ button:hover {
 /* CREATE EVENT */
 
 .gradient-container-createevent {
-  background: white;
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -1567,6 +1590,63 @@ button:hover {
   color: #eeba2b;
 }
 
+.invalid-date {
+  border: 2px solid red; /* Red border to indicate error */
+  background-color: #ffe6e6; /* Light red background for better visibility */
+}
+
+/* Cover Photo Box Styles */
+.cover-photo-container-createevent {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+}
+
+.cover-photo-box-createevent {
+  width: 100%; /* Full width of the container */
+  max-width: 400px; /* Set a maximum width for the box */
+  height: 200px; /* Set a fixed height to maintain the box size */
+  border: 2px dashed #eeba2b; /* Dashed border */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Hide overflow to prevent cut-off */
+  position: relative; /* Position context for absolutely positioned children */
+  margin: 10px auto; /* Center the box horizontally */
+  background-color: white; /* Light background color */
+}
+
+
+.cover-photo-image-createevent {
+  max-width: 100%; /* Ensure the image can scale down to fit the box */
+  max-height: 100%; /* Ensure the image does not exceed the height of the box */
+  object-fit: contain; /* Maintain aspect ratio, show entire image */
+  display: block; /* Ensure the image is treated as a block element */
+}
+
+/* Upload Button Styles */
+.upload-button-createevent {
+  margin-bottom: 10px; /* Add some space below the upload button */
+}
+
+.add-event-cover-button-createevent {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #eeba2b; /* Button background color */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s ease; /* Transition for hover effect */
+}
+
+.add-event-cover-button-createevent:hover {
+  background-color: #eeba2b; /* Darker shade on hover */
+}
+
+
+
 
 
 
@@ -1592,7 +1672,8 @@ button:hover {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: white; /* Ensure the main container has a white background */
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
 }
 
 .header-section-sp {
@@ -2571,8 +2652,8 @@ background-color: transparent;
 .gradient-container-profile {
   display: flex;
   flex-direction: column;
-  background: #ffffff; /* Changed to a subtle white background */
-  height: 100vh;
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;  height: 100vh;
   width: 100%;
   color: #000; /* Changed text color to black for better contrast */
   overflow: auto;
@@ -2933,8 +3014,8 @@ background-color: transparent;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: white; /* Changed to white */
-  color: black; /* Changed to black */
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;  color: black; /* Changed to black */
   justify-content: center;
   overflow: hidden; /* Hide scrollbar */
 }
@@ -3116,8 +3197,8 @@ background-color: transparent;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: white; /* Changed to white */
-  color: black; /* Changed to black */
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;  color: black; /* Changed to black */
   justify-content: center;
   overflow: hidden; /* Hide scrollbar */
 }
@@ -3248,107 +3329,19 @@ textarea.text-input-addrole {
   align-items: center;
 }
 
-/* PORTFOLIO */
-
-/* Updated CSS with new class names */
-
-.logo-gradient-container-portfolioadmin {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  color: #fff;
-  padding: 20px;
-  background: linear-gradient(to bottom, #fff 50%, #FFC42B 100%); /* Gradient background */
-  overflow: hidden; /* Hide scrollbar */
-}
-
-.logo-portfolio-text-portfolioadmin {
-  font-size: 24px;
-  font-weight: bold;
-  color: #FFC42B;
-  margin: 20px 0;
-  text-align: center;
-}
-
-/* Month Title Styles */
-.logo-month-title-portfolioadmin {
-  font-size: 20px;
-  font-weight: bold;
-  color: black;
-  margin: 20px 0;
-  text-align: center;
-}
-
-/* Grid Layout for Events */
-.logo-events-list-container-portfolioadmin {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust grid columns */
-  gap: 20px; /* Gap between items */
-  padding-bottom: 20px;
-  overflow-y: auto; /* Enable vertical scrolling */
-  -ms-overflow-style: none; /* Hide scrollbar for Internet Explorer and Edge */
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-}
-
-.logo-events-list-container-portfolioadmin::-webkit-scrollbar {
-  display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
-}
-
-.logo-event-item-portfolioadmin {
-  background: rgba(255, 255, 255, 0.56);
-  border:#C2B067 1px solid;
-  border-radius: 10px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.logo-image-portfolioadmin {
-  width: 100%;
-  height: 120px; /* Adjust height */
-  border-radius: 10px;
-  object-fit: cover; /* Ensure image covers the area without distortion */
-}
-
-.logo-title-portfolioadmin {
-  font-size: 16px;
-  color: #FFC42B;
-  font-weight: bold;
-  margin-top: 10px;
-  text-align: center;
-}
-
-.logo-detail-container-portfolioadmin {
-  margin-top: 10px;
-}
-
-.logo-detail-row-portfolioadmin {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.logo-detail-text-portfolioadmin {
-  color: black;
-  margin-left: 5px;
-}
 
 
-
-
-
-
-
-/* SETTINGS */
 /* SETTINGS */
 .settings-container {
   padding: 20px;
-  background: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   max-width: 600px;
   margin: auto;
+}
+.settings-bg {
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
 }
 
 .settings-header {
@@ -3440,7 +3433,8 @@ textarea.text-input-addrole {
 
 /* EVENT PORFOLIO */
 .gradient-container-portfolio {
-  background: white;
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
   padding: 20px;
   height: 100vh;
 }
@@ -3590,7 +3584,8 @@ textarea.text-input-addrole {
 
 .gradient-container {
   display: flex;
-  background: #FFFFFF; /* Background color set to white */
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
   flex-direction: column;
   min-height: 100vh;
   color: #000000; /* Text color set to black */
@@ -3764,7 +3759,8 @@ textarea.text-input-addrole {
 
 
 .gradient-container-eventfeedback {
-  background: white;
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
   padding: 20px;
   min-height: 100vh;
   display: flex;
@@ -3945,7 +3941,8 @@ textarea.text-input-addrole {
   display: flex;
   flex-direction: column; /* Adjusted for title and fading line */
   height: 100%;
-  background: white; /* Changed background to white */
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
   padding: 20px;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Added box shadow */
@@ -4076,8 +4073,8 @@ textarea.text-input-addrole {
   flex-direction: column;
   height: 100vh;
   padding: 20px;
-  background: #FFFFFF; /* Changed background to white */
-}
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;}
 
 .headerText-groupattendee {
   font-size: 24px;
@@ -4231,7 +4228,8 @@ button:disabled {
 .gradientContainer-messages {
   display: flex;
   flex-direction: column;
-  background-color: #FFFFFF; 
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;  
   height: 100vh;
   padding: 20px;
   color: #000000;
@@ -4468,6 +4466,12 @@ button:disabled {
 .schedule-container {
   padding: 20px;
 }
+.sched-bg {
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
+  height: 100vh;
+}
+
 
 .schedule-header {
   display: flex;
@@ -4910,6 +4914,8 @@ button:disabled {
 
 /* Container for the page */
 .container-choosepackage {
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
   text-align: center;
   padding: 20px;
   font-family: Arial, sans-serif;
@@ -5076,6 +5082,8 @@ background-color: #eeba2b;
 
 /* Container for the Guest Page */
 .guest-page-container-guestpage {
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -5108,16 +5116,18 @@ background-color: #eeba2b;
 
 .guest-table-guestpage {
   width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+  border-spacing: 0; /* Removes gaps between cells */
+  border-radius: 10px 10px 0 0; /* Adds rounded corners to the table */
+  overflow: hidden;
 }
 
 .guest-table-guestpage th,
 .guest-table-guestpage td {
-  border: 1px solid #000; /* Visible border lines */
+  border: none; /* No border for clean look */
   padding: 10px;
   text-align: center;
 }
+
 
 .guest-table-guestpage th {
   background-color: #eeba2b;
@@ -5196,23 +5206,6 @@ background-color: #eeba2b;
   color: #eeba2b;
 }
 
-/* Label and Input Styles for the Modal */
-.name-label-guestpage,
-.email-label-guestpage {
-  display: block;
-  margin-top: 10px;
-  font-size: 16px;
-}
-
-.name-input-guestpage,
-.email-input-guestpage {
-  width: 95%;
-  padding: 10px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
 
 /* Confirm Add Button */
 .confirm-add-btn-guestpage {
@@ -5243,7 +5236,6 @@ background-color: #eeba2b;
   position: relative;
 }
 
-
 .close-modal-btn-guestpage {
   position: absolute;
   top: 15px;
@@ -5266,6 +5258,45 @@ background-color: #eeba2b;
   margin-top: 10px;
 }
 
+/* Text Fields in Overlay - Bottom Line Only */
+.name-input-guestpage,
+.email-input-guestpage,
+.mobile-input-guestpage,
+.role-input-guestpage {
+  width: 95%;
+  padding: 10px;
+  margin-top: 5px;
+  border: none; /* Remove all borders */
+  border-bottom: 2px solid black; /* Only show bottom border */
+  font-size: 16px;
+  outline: none; /* Remove outline on focus */
+  border-radius: 0; /* No rounding on corners */
+  background-color: transparent; /* Optional: transparent background for cleaner look */
+}
+
+/* Change Bottom Border Color on Focus */
+.name-input-guestpage:focus,
+.email-input-guestpage:focus,
+.mobile-input-guestpage:focus,
+.role-input-guestpage:focus {
+  border-bottom-color: #eeba2b; /* Theme color on focus */
+}
+
+/* Label Styles */
+.name-label-guestpage,
+.email-label-guestpage,
+.mobile-label-guestpage,
+.role-label-guestpage {
+  display: block;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+
+
+
+
+
 
 /* ABOUT */
 
@@ -5275,8 +5306,8 @@ background-color: #eeba2b;
   align-items: center;
   padding: 20px;
   height: 100vh;
-  background-color: white;
-}
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;}
 
 .about-header-about {
   font-size: 2.5rem;
@@ -5372,6 +5403,7 @@ background-color: #eeba2b;
   flex-direction: column; /* Stack elements vertically */
   align-items: center; /* Center items horizontally */
 }
+
 
 .addschedule-container h2 {
   text-align: center;
@@ -5537,59 +5569,245 @@ background-color: #eeba2b;
   font-size: 0.9rem;
 }
 
+/* BOOK EVENT REVIEW */
+
+.book-event-review-container-reviewevent {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  margin: 0 auto;
+  transition: filter 0.3s ease;
+}
+.book-event-review-bg {
+  background: url('./images/blob.png') no-repeat center center; /* Set background image */
+  background-size: cover;
+}
 
 
+.event-details-title-reviewevent {
+  text-align: center;
+  color: #eeba2b;
+  margin-bottom: 20px;
+}
+
+.content-reviewevent {
+  display: flex;
+  justify-content: space-between;
+}
+
+.event-details-left-reviewevent {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.field-reviewevent {
+  margin-bottom: 15px;
+}
+
+.label-reviewevent {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.value-reviewevent {
+  display: inline-flex;
+  align-items: center;
+}
+
+.value-reviewevent input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
+  margin-left: 5px;
+}
+
+.edit-icon-reviewevent {
+  color: #888;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.event-details-right-reviewevent {
+  flex: 1;
+  text-align: center;
+}
+
+.package-image-reviewevent {
+  width: 100%;
+  max-width: 200px;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+
+.package-description-reviewevent,
+.package-price-reviewevent {
+  margin-top: 10px;
+}
+
+.save-button-reviewevent {
+  margin-top: 20px;
+  padding: 10px 15px;
+  background-color: #eeba2b;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.save-button-reviewevent:hover {
+  background-color: #d9a52c;
+}
+
+.editable-input-reviewevent {
+    width: 30%;
+    padding: 4px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    
+    margin-top: 5px;
+}
+
+.guest-table-container-reviewevent {
+  margin-top: 20px;
+  border-top-left-radius: 10px; /* Top left corner */
+  border-top-right-radius: 10px; /* Top right corner */
+  overflow: hidden; /* Ensures rounded corners are respected */
+  background-color: white; /* Background color to match the table */
+}
+
+.guest-table-title-reviewevent {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.guest-table-reviewevent {
+  width: 100%;
+  border-collapse: collapse; /* Removes border lines */
+  border-radius: 10px 10px 0 0; /* Apply border radius */
+  overflow: hidden; /* Ensures rounded corners are respected */
+}
 
 
+.guest-table-reviewevent th,
+.guest-table-reviewevent td {
+  padding: 10px;
+  text-align: left;
+}
+.guest-table-reviewevent th {
+  color: white;
+}
 
+.guest-table-reviewevent th {
+  background-color: #eeba2b; /* Light background for header */
+}
 
+.remove-guest-icon-reviewevent {
+  color: red; /* Color for the delete icon */
+  cursor: pointer;
+}
 
+.package-image-reviewevent.blurry {
+  filter: blur(5px);
+  width: 100%;
+  max-width: 200px;
+  margin-top: 10px;
+  border-radius: 8px; /* Adjust as needed */
+}
 
+.next-button-reviewevent {
+  margin: 20px auto; /* Center the button horizontally */
+  padding: 10px 15px;
+  background-color: #eeba2b;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  display: block; /* Makes the button a block element for centering */
+  text-align: center; /* Center text inside the button */
+}
 
+.next-button-reviewevent:hover {
+  background-color: #d9a52c;
+}
 
+.next-button-reviewevent:disabled {
+  background-color: #ccc; /* Light grey when disabled */
+  cursor: not-allowed; /* Change cursor to indicate non-clickable */
+}
 
+.package-image-reviewevent.blurry {
+  filter: blur(5px); /* Apply blur effect */
+}
 
+.overlay-reviewevent {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Dark background for overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
+.overlay-content-reviewevent {
+  background: linear-gradient(to bottom, #eeba2b, white); /* Gradient background */
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px; /* Wider for horizontal cards */
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Arrange children in a column */
+  align-items: center; /* Center align items */
+  position: relative; /* Allow positioning of child elements */
+}
 
+.overlay-title-reviewevent {
+  margin-bottom: 20px; /* Space below the title */
+}
 
+.packages-container-reviewevent {
+  display: flex; /* Flexbox for card layout */
+  flex-wrap: wrap; /* Wrap cards to the next line if necessary */
+  justify-content: center; /* Center align cards */
+}
 
+.package-card-reviewevent {
+  margin: 10px; /* Space between cards */
+  padding: 10px;
+  border-radius: 5px;
+  background-color: white; /* White background for cards */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3); /* Box shadow */
+  text-align: center;
+  flex: 1 1 200px; /* Flexible card size */
+  max-width: 200px; /* Limit max width for cards */
+}
 
+.overlay-image-reviewevent {
+  width: 100%;
+  max-width: 150px; /* Adjusted for a better layout */
+}
 
+.choose-button-reviewevent {
+  background-color: #eeba2b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.close-button-reviewevent {
+  position: absolute; /* Position relative to the overlay content */
+  top: 10px; /* Distance from the top */
+  right: 20px; /* Distance from the right */
+  background: none; /* Remove background */
+  border: none; /* Remove border */
+  font-size: 24px; /* Font size for the close button */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: color 0.3s; /* Smooth color transition */
+}
