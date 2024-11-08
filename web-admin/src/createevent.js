@@ -379,7 +379,11 @@ const ChoosePackage = () => {
     setSelectedPackage(pkg);
     setIsOverlayOpen(true);
     localStorage.setItem('selectedPackage', JSON.stringify(pkg));
+  
+    // Clear the addedEvents if a package is selected to avoid mixing package & service providers
+    localStorage.removeItem('addedEvents');
   };
+  
 
   const closeOverlay = () => {
     setIsOverlayOpen(false);
@@ -518,7 +522,10 @@ const ChooseServiceProv = () => {
   const handleFinish = async () => {
     const eventData = JSON.parse(localStorage.getItem('eventData')) || {};
     const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
-
+  
+    // Clear selectedPackage from localStorage if not selecting a package
+    localStorage.removeItem('selectedPackage');
+  
     try {
       const response = await fetch('/api/events', {
         method: 'POST',
@@ -530,11 +537,11 @@ const ChooseServiceProv = () => {
           providers: addedEvents,
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Network response was not ok.');
       }
-
+  
       const data = await response.json();
       localStorage.removeItem('eventData');
       localStorage.removeItem('addedEvents');
@@ -543,6 +550,10 @@ const ChooseServiceProv = () => {
       console.error('Error saving event:', error);
     }
   };
+  
+  
+  
+  
 
   const filteredEventsData = selectedType
     ? services.filter(event => event.type === selectedType)
@@ -659,131 +670,131 @@ const ChooseServiceProv = () => {
 
 const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests }) => {
   const eventData = JSON.parse(localStorage.getItem('eventData'));
-  let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'));
+  const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')) || null; 
+  const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];  // Default to an empty array if no service providers are added
   
-  // Ensure that the package is only shown if it exists
-  const packageIsSelected = selectedPackage && selectedPackage.packageName;
-
-  const addedEvents = JSON.parse(localStorage.getItem('addedEvents'));
-  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [modalVisible, setModalVisible] = useState(false); 
 
   const handleBookEvent = async () => {
-      const eventData = JSON.parse(localStorage.getItem('eventData'));
-      console.log('Updated Event Data:', eventData);
+    const eventData = JSON.parse(localStorage.getItem('eventData'));
 
-      const formData = new FormData();
-      formData.append('name', eventData.name);
-      formData.append('date', eventData.date);
-      formData.append('pax', eventData.pax);
-      formData.append('venue', eventData.venue);
-      formData.append('type', eventData.type);
+    console.log('Updated Event Data:', eventData);
 
-      if (eventData.coverPhoto) {
-          try {
-              const response = await fetch(eventData.coverPhoto);
-              const blob = await response.blob();
-              formData.append('cover_photo', blob, 'cover_photo.jpg');
-          } catch (fetchError) {
-              console.error('Error fetching the cover photo:', fetchError);
-          }
-      }
+    const formData = new FormData();
+    formData.append('name', eventData.name);
+    formData.append('date', eventData.date);
+    formData.append('pax', eventData.pax);
+    formData.append('venue', eventData.venue);
+    formData.append('type', eventData.type);
 
+    if (eventData.coverPhoto) {
       try {
-          const response = await axios.post('http://localhost:8000/api/events', formData, {
-              headers: {
-                  'Content-Type': 'multipart/form-data',
-              },
-          });
-
-          if (response.status === 201) {
-              setModalVisible(true);
-          } else {
-              console.error('Failed to create event:', response.statusText);
-          }
-      } catch (error) {
-          console.error('An error occurred:', error.response ? error.response.data : error.message);
+        const response = await fetch(eventData.coverPhoto);
+        const blob = await response.blob();
+        formData.append('cover_photo', blob, 'cover_photo.jpg');
+      } catch (fetchError) {
+        console.error('Error fetching the cover photo:', fetchError);
       }
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/events', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 201) {
+        setModalVisible(true);
+      } else {
+        console.error('Failed to create event:', response.statusText);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error.response ? error.response.data : error.message);
+    }
   };
 
   const handleCloseModal = () => {
-      setModalVisible(false); // Close the overlay
+    setModalVisible(false); 
   };
 
-  // If no package was selected, reset the selectedPackage
-  if (!packageIsSelected) {
-      selectedPackage = null;
-  }
-
   return (
-      <Modal
-          open={isOpen}
-          onClose={onClose}
-          aria-labelledby="modal-title"
-          aria-describedby="modal-description"
-      >
-          <Box>
-              <div className="overlay-content-reviewoverlay">
-                  <div className="overlay-left">
-                      <div className="overlay-header-reviewoverlay">
-                          <h2 className="modal-title">Review Details</h2>
-                          <button onClick={onClose} className="close-button-reviewoverlay">X</button>
-                      </div>
-                      <h3>Event Details</h3>
-                      <p>Event Name: {eventData.name}</p>
-                      <p>Date: {eventData.date}</p>
-                      <p>Pax: {eventData.pax}</p>
-                      <p>Location: {eventData.venue}</p>
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
+    >
+      <Box>
+        <div className="overlay-content-reviewoverlay">
+          <div className="overlay-left">
+            <div className="overlay-header-reviewoverlay">
+              <h2 className="modal-title">Review Details</h2>
+              <button onClick={onClose} className="close-button-reviewoverlay">X</button>
+            </div>
+            <h3>Event Details</h3>
+            <p>Event Name: {eventData.name}</p>
+            <p>Date: {eventData.date}</p>
+            <p>Pax: {eventData.pax}</p>
+            <p>Location: {eventData.venue}</p>
 
-                      <h3>Package Details</h3>
-                      {selectedPackage ? (
-                          <>
-                              <p>Package Name: {selectedPackage.packageName}</p>
-                              <p>Price: ₱{selectedPackage.totalPrice}</p>
-                          </>
-                      ) : (
-                          <p>No package selected.</p>
-                      )}
-                  </div>
-                  <div className="overlay-right">
-                      <h3>Service Providers</h3>
-                      {Array.isArray(addedEvents) && addedEvents.length > 0 ? (
-                          addedEvents.map((serviceProvider, index) => (
-                              <p key={index}>{serviceProvider.title} - {serviceProvider.type}</p>
-                          ))
-                      ) : (
-                          <p>No service providers added.</p>
-                      )}
+            <h3>Package Details</h3>
+            {selectedPackage ? (
+              <>
+                <p>Package Name: {selectedPackage.packageName}</p>
+                <p>Price: ₱{selectedPackage.totalPrice}</p>
+              </>
+            ) : (
+              <p>No package selected.</p>
+            )}
+          </div>
+          <div className="overlay-right">
+            <h3>Service Providers</h3>
+            {addedEvents.length > 0 ? (
+              addedEvents.map((serviceProvider, index) => (
+                <p key={index}>{serviceProvider.title} - {serviceProvider.type}</p>
+              ))
+            ) : (
+              <p>No service providers added.</p>
+            )}
 
-                      <h3>Guests</h3>
-                      {Array.isArray(guests) && guests.length > 0 ? (
-                          guests.slice(0, 5).map((guest, index) => (
-                              <p key={index}>{guest.name} - {guest.email}</p>
-                          ))
-                      ) : (
-                          <p>No guests added.</p>
-                      )}
-                      <button className="book-event-btn-guestpage" onClick={handleBookEvent}>
-                          Book Event
-                      </button>
-                      <Modal
-                          open={modalVisible}
-                          onClose={handleCloseModal}
-                          className="modal-overlay-guestpage"
-                      >
-                          <div className="modal-content-guestpage">
-                              <button className="close-modal-btn-guestpage" onClick={handleCloseModal}>
-                                  &times; {/* X Button */}
-                              </button>
-                              <img src={require('./images/popup.png')} alt="Popup" className="popup-image-guestpage" />
-                              <p className="modal-text-guestpage">Your event has been booked!</p>
-                          </div>
-                      </Modal>
-                  </div>
+            <h3>Guests</h3>
+            {Array.isArray(guests) && guests.length > 0 ? (
+              guests.slice(0, 5).map((guest, index) => (
+                <p key={index}>{guest.name} - {guest.email}</p>
+              ))
+            ) : (
+              <p>No guests added.</p>
+            )}
+            <button className="book-event-btn-guestpage" onClick={handleBookEvent}>
+              Book Event
+            </button>
+            <Modal
+              open={modalVisible}
+              onClose={handleCloseModal}
+              className="modal-overlay-guestpage"
+            >
+              <div className="modal-content-guestpage">
+                <button className="close-modal-btn-guestpage" onClick={handleCloseModal}>
+                  &times; {/* X Button */}
+                </button>
+                <img src={require('./images/popup.png')} alt="Popup" className="popup-image-guestpage" />
+                <p className="modal-text-guestpage">Your event has been booked!</p>
               </div>
-          </Box>
-      </Modal>
+            </Modal>
+          </div>
+        </div>
+      </Box>
+    </Modal>
   );
 };
+
+
+
+
+
+
+
 
 
 
