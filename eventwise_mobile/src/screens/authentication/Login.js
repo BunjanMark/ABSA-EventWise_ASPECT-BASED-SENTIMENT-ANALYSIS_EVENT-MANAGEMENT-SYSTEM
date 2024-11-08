@@ -24,10 +24,6 @@ import { useState } from "react";
 import Toast from "react-native-root-toast";
 import { AuthContext } from "../../services/authContext";
 import { getUser } from "../../services/authServices";
-import { getAccountProfile } from "../../services/authServices";
-import useStore from "../../stateManagement/useStore";
-import { useEffect } from "react";
-// forb test
 
 const Login = ({ navigation }) => {
   const navigator = useNavigation();
@@ -37,12 +33,6 @@ const Login = ({ navigation }) => {
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn } = useContext(AuthContext);
-  const profiles = useStore((state) => state.profiles);
-  const activeProfile = useStore((state) => state.activeProfile);
-
-  const setProfiles = useStore((state) => state.setProfiles);
-  const setActiveProfile = useStore((state) => state.setActiveProfile);
-
   const CustomIcon = ({ name, size, color }) => {
     return <Icon name={name} size={size} color={color} />;
   };
@@ -51,125 +41,72 @@ const Login = ({ navigation }) => {
     Toast.show(message, 3000);
   };
 
-  // symon
-  // const navigateBasedOnRole = (role) => {
-  //   if (role === "service provider") {
-  //       navigation.navigate('ServiceProviderStack');
-  //   } else if (role === "admin") {
-  //       // navigate to the admin page
-  //   } else if (role === "client") {
-  //       // navigate to the client page
-  //   } else {
-  //       // handle unknown role or default case
-  //       showToast("Unknown role");
-  //   }
-  const navigateBasedOnRole = (role_id) => {
-    try {
-      if (role_id === 1) {
-        console.log("Navigating to CustomAdminStack...");
-        navigation.navigate("CustomAdminStack");
-      } else if (role_id === 2) {
-        console.log("Navigating to CustomCustomerStack...");
-        navigation.navigate("CustomCustomerStack");
-      } else if (role_id === 3) {
-        console.log("Navigating to ServiceProvider...");
-        navigation.navigate("ServiceProviderStack");
-      } else if (role_id === 4) {
-        console.log("Navigating to GuestStack...");
-        navigation.navigate("GuestStack");
-      } else {
-        showToast("Role not recognized");
-      }
-    } catch (error) {
-      console.error("Navigation error:", error);
-      showToast("An error occurred during navigation.");
+  const navigateBasedOnRole = (role) => {
+    if (role === "service provider") {
+        navigation.navigate('ServiceProviderStack');
+    } else if (role === "admin") {
+        // navigate to the admin page
+    } else if (role === "client") {
+        // navigate to the client page
+    } else {
+        // handle unknown role or default case
+        showToast("Unknown role");
     }
-  };
-  // React.useEffect(() => {
-  //   if (activeProfile) {
-  //     navigateBasedOnRole(activeProfile);
-  //   }
-  // }, [activeProfile]);
-  const handleLogin = async () => {
-    try {
+};
+
+
+const handleLogin = async () => {
+  try {
       setLoading(true);
-
-      if (!username || !password) {
-        showToast("Please input required data");
-        setIsError(true);
-        return;
+      
+      if (username === "" || password === "") {
+          showToast("Please input required data");
+          setIsError(true);
+          return false;
       }
 
-      const result = await signIn(username, password);
-      showToast(result?.message);
+      console.log("Attempting to login with:", { username, password });
 
-      const user = await getUser();
-      const response = await getAccountProfile();
-      const userProfiles = response.data.filter(
-        (profile) => profile.user_id === user.id
-      );
+      const response = await fetch('https://50bc-103-62-152-155.ngrok-free.app/api/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+      });
 
-      // Set profiles and active profile
+      console.log("Response status:", response.status);
 
-      setActiveProfile(userProfiles[0].role_id);
+      if (!response.ok) {
+          const errorResponse = await response.json();
+          console.log("Error response:", errorResponse);
+          showToast(`Error: ${errorResponse.error}`);
+          return;
+      }
 
-      // Navigate based on the role directly
-      navigateBasedOnRole(userProfiles[0].role_id);
-    } catch (error) {
-      console.error("Login error:", error);
+      const result = await response.json();
+      console.log("Login result:", result);
+      showToast(result.message);
+
+      if (result.message === "Login successful") {
+          Alert.alert("Login Successful", "You have logged in successfully!", [
+              { text: "OK" },
+          ]);
+          navigateBasedOnRole(result.user.role); // Pass the role to determine navigation
+      }
+
+  } catch (e) {
+      console.error("Login error:", e);
       showToast("An error occurred during login.");
-    } finally {
+  } finally {
       setLoading(false);
-    }
-  };
-  // symon
-  // const handleLogin = async () => {
-  //   try {
-  //       setLoading(true);
+  }
+};
 
-  //       if (username === "" || password === "") {
-  //           showToast("Please input required data");
-  //           setIsError(true);
-  //           return false;
-  //       }
 
-  //       console.log("Attempting to login with:", { username, password });
 
-  //       const response = await fetch('https://fc50-103-62-152-155.ngrok-free.app/api/login', {
-  //           method: 'POST',
-  //           headers: {
-  //               'Content-Type': 'application/json',
-  //           },
-  //           body: JSON.stringify({ username, password }),
-  //       });
 
-  //       console.log("Response status:", response.status);
-
-  //       if (!response.ok) {
-  //           const errorResponse = await response.json();
-  //           console.log("Error response:", errorResponse);
-  //           showToast(`Error: ${errorResponse.error}`);
-  //           return;
-  //       }
-
-  //       const result = await response.json();
-  //       console.log("Login result:", result);
-  //       showToast(result.message);
-
-  //       if (result.message === "Login successful") {
-  //           Alert.alert("Login Successful", "You have logged in successfully!", [
-  //               { text: "OK" },
-  //           ]);
-  //           navigateBasedOnRole(result.user.role); // Pass the role to determine navigation
-  //       }
-
-  //   } catch (e) {
-  //       console.error("Login error:", e);
-  //       showToast("An error occurred during login.");
-  //   } finally {
-  //       setLoading(false);
-  //   }
-  // };
+  
 
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);
@@ -322,8 +259,7 @@ const Login = ({ navigation }) => {
                   style={{ ...styles.goback }}
                   labelStyle={{ color: "#000" }}
                   onPress={() => {
-                    // navigator.navigate("AdminStack");
-                    navigator.navigate("Landing");
+                    navigator.goBack();
                   }}
                 >
                   Go Back

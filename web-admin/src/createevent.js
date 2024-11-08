@@ -5,13 +5,11 @@ import { faHeart, faHeartBroken, faPlusCircle, faCashRegister, faTrash } from '@
 import { FaChevronDown, FaTimes, FaMapMarkerAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
 import { FaArrowRight} from 'react-icons/fa';
 import './App.css';
 
 
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 
 // CREATE EVENT
 const eventTypes = ["Wedding", "Birthday", "Reunion", "Debut", "Others"];
@@ -56,46 +54,42 @@ const allEventsData = [
   
 
 
-const CreateEvent = () => {
+  
+  const CreateEvent = () => {
     const navigate = useNavigate();
     const [selectedType, setSelectedType] = useState('');
     const [customEventType, setCustomEventType] = useState('');
     const [eventName, setEventName] = useState('');
     const [eventDate, setEventDate] = useState('');
+    const [eventTime, setEventTime] = useState(''); // New state for event time
     const [pax, setPax] = useState('');
     const [venue, setVenue] = useState('');
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [venueOverlayOpen, setVenueOverlayOpen] = useState(false);
     const [venueDetailsOverlay, setVenueDetailsOverlay] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isDateValid, setIsDateValid] = useState(true);
+    const [coverPhoto, setCoverPhoto] = useState(null);
 
     const handleCancel = () => {
         navigate(-1);
     };
 
-    const handleNext = async () => {
-        const eventType = selectedType === 'Others' ? customEventType : selectedType;
-
-        const eventData = {
-            type: eventType,
-            name: eventName,
-            date: eventDate,
-            pax: parseInt(pax, 10),
-            venue: venue,
-        };
-        localStorage.setItem('eventData', JSON.stringify(eventData));
-
-        try {
-            const response = await axios.post('http://localhost:8000/api/events', eventData);
-            if (response.status === 201) {
-                navigate('/choose-package', { state: { eventData } }); // Navigate to the blank page
-            } else {
-                console.error('Failed to create event:', response.statusText);
-            }
-        } catch (error) {
-            console.error('An error occurred:', error);
-        }
-    };
+    const handleNext = () => {
+      const eventType = selectedType === 'Others' ? customEventType : selectedType;
+      const eventData = {
+          type: eventType,
+          name: eventName,
+          date: eventDate,
+          time: eventTime, // Include time in event data
+          pax: parseInt(pax, 10),
+          venue: venue,
+          coverPhoto: coverPhoto // Ensure this is in the right format (e.g., URL or File)
+      };
+      localStorage.setItem('eventData', JSON.stringify(eventData));
+      navigate('/choose-package', { state: { eventData } });
+  };
+  
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
@@ -137,12 +131,67 @@ const CreateEvent = () => {
         venue.address.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleDateChange = (e) => {
+        const selectedDate = e.target.value;
+        setEventDate(selectedDate);
+
+        const today = new Date().toISOString().split('T')[0];
+        setIsDateValid(selectedDate >= today);
+    };
+
+    const handleTimeChange = (e) => { // New function to handle time change
+      setEventTime(e.target.value);
+  };
+
+
+
+    const handleCoverPhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setCoverPhoto(URL.createObjectURL(file)); // Create a URL for the selected photo
+        }
+    };
+
+    const isFormValid = () => {
+        return (
+            eventName.trim() !== '' &&
+            eventDate !== '' &&
+            isDateValid &&
+            pax.trim() !== '' &&
+            venue.trim() !== ''
+        );
+    };
+
     return (
         <div className="gradient-container-createevent">
             <div className="container-createevent">
                 <div className="content-createevent">
                     <h1 className="header-text-createevent">Create Event</h1>
                     <div className="line-createevent"></div>
+                    {/* Cover Photo Section */}
+                    <div className="cover-photo-container-createevent">
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={handleCoverPhotoChange} 
+                                className="upload-button-createevent" 
+                                id="file-input" // Add an ID to the file input
+                                style={{ display: 'none' }} // Keep it hidden
+                            />
+                            <div className={`cover-photo-box-createevent ${coverPhoto ? 'has-cover' : ''}`}>
+                                {coverPhoto ? (
+                                    <img src={coverPhoto} alt="Event Cover" className="cover-photo-image-createevent" />
+                                ) : (
+                                    <span>No cover photo selected</span>
+                                )}
+                            </div>
+                            <button 
+                                className="add-event-cover-button-createevent" 
+                                onClick={() => document.getElementById('file-input').click()} // Programmatically click the input
+                            >
+                                {coverPhoto ? "Re-pick Cover Photo" : "Add Event Cover"}
+                            </button>
+                        </div>
                     <h2 className="event-types-text-createevent">Choose Event Type</h2>
                     <div className="dropdown-container-createevent">
                         <div className="dropdown-button-createevent" onClick={toggleDropdown}>
@@ -180,10 +229,19 @@ const CreateEvent = () => {
                     <div className="input-container-createevent date-input-createevent">
                         <input
                             type="date"
-                            className="text-input-createevent"
+                            className={`text-input-createevent ${!isDateValid ? 'invalid-date' : ''}`}
                             placeholder="Choose Event Date"
                             value={eventDate}
-                            onChange={(e) => setEventDate(e.target.value)}
+                            onChange={handleDateChange}
+                        />
+                    </div>
+                    <div className="input-container-createevent time-input-createevent"> {/* Time input container */}
+                        <input
+                            type="time"
+                            className="text-input-createevent"
+                            placeholder="Choose Event Time"
+                            value={eventTime}
+                            onChange={handleTimeChange} // Call the new handleTimeChange function
                         />
                     </div>
                     <div className="input-container-createevent">
@@ -204,6 +262,10 @@ const CreateEvent = () => {
                             onChange={(e) => setVenue(e.target.value)}
                         />
                     </div>
+                    
+                    
+
+
                     <div className="button-container-createevent">
                         <button className="cancel-button-createevent" onClick={handleCancel}>
                             Cancel
@@ -211,7 +273,11 @@ const CreateEvent = () => {
                         <button className="choose-venue-button-createevent" onClick={openVenueOverlay}>
                             Choose Venue
                         </button>
-                        <button className="next-button-createevent" onClick={handleNext}>
+                        <button
+                            className="next-button-createevent"
+                            onClick={handleNext}
+                            disabled={!isFormValid()}
+                        >
                             Next
                         </button>
                     </div>
@@ -258,9 +324,8 @@ const CreateEvent = () => {
                         <img src={venueDetailsOverlay.image} alt={venueDetailsOverlay.venuename} className="venue-details-image-createevent" />
                         <h2 className="venue-name-createevent">{venueDetailsOverlay.venuename}</h2>
                         <p className="venue-address-createevent">{venueDetailsOverlay.address}</p>
-                        <p className="venue-description-createevent">{venueDetailsOverlay.description}</p>
-                        <button className="venue-select-button-createevent" onClick={confirmVenueSelection}>
-                            Select Venue
+                        <button className="confirm-button-createevent" onClick={confirmVenueSelection}>
+                            Confirm Selection
                         </button>
                     </div>
                 </div>
@@ -268,6 +333,8 @@ const CreateEvent = () => {
         </div>
     );
 };
+  
+  
 
 // Blank Page Component
 const ChoosePackage = () => {
@@ -541,101 +608,133 @@ const ChooseServiceProv = () => {
     );
   };
 
-//   const style = {
-//     position: 'absolute',
-//     top: '50%',
-//     left: '50%',
-//     transform: 'translate(-50%, -50%)',
-//     p: 4,
-// };
 
-const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests }) => {
-  
-  const eventData = JSON.parse(localStorage.getItem('eventData'));
-  const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')); // Retrieve selectedPackage
-  const addedEvents = JSON.parse(localStorage.getItem('addedEvents')); 
-  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests }) => {
+    const eventData = JSON.parse(localStorage.getItem('eventData'));
+    const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'));
+    const addedEvents = JSON.parse(localStorage.getItem('addedEvents'));
+    const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
-  const handleBookEvent = () => {
-    setModalVisible(true); // Show the overlay when booking an event
-  };
-  const handleCloseModal = () => {
-    setModalVisible(false); // Close the overlay
-  };
-
-  console.log('Selected Package:', selectedPackage); // Debugging log
-
-  return (
-    <Modal
-    open={isOpen}
-    onClose={onClose}
-    aria-labelledby="modal-title"
-    aria-describedby="modal-description"
->
-  <Box>
-    <div className="overlay-content-reviewoverlay">
-      <div className="overlay-left">
-        <div className="overlay-header-reviewoverlay">
-          <h2 className="modal-title">Review Details</h2>
-          <button onClick={onClose} className="close-button-reviewoverlay">X</button>
-        </div>
-        <h3>Event Details</h3>
-        <p>Event Name: {(eventData.name)}</p>
-        <p>Date: {(eventData.date)}</p>
-        <p>Pax: {(eventData.pax)}</p>
-        <p>Location: {(eventData.venue)}</p>
-
-        <h3>Package Details</h3>
-        {selectedPackage ? (
-          <>
-            <p>Package Name: {(selectedPackage.packagename)}</p>
-            <p>Price: {(selectedPackage.price)}</p>
-          </>
-        ) : (
-          <p>No package selected.</p>
-        )}
-      </div>
-      <div className="overlay-right">
-        <h3>Service Providers</h3>
-        {Array.isArray(addedEvents) && addedEvents.length > 0 ? (
-          addedEvents.map((serviceProvider, index) => (
-            <p key={index}>{serviceProvider.title} - {(serviceProvider.type)}</p>
-          ))
-        ) : (
-          <p>No service providers added.</p>
-        )}
-
-        <h3>Guests</h3>
-        {Array.isArray(guests) && guests.length > 0 ? (
-          guests.slice(0, 5).map((guest, index) => (
-            <p key={index}>{(guest.name)} - {(guest.email)}</p>
-          ))
-        ) : (
-          <p>No guests added.</p>
-        )}
-        <button className="book-event-btn-guestpage" onClick={handleBookEvent}>
-        Book Event
-      </button>
-      <Modal
-        open={modalVisible}
-        onClose={handleCloseModal}
-        className="modal-overlay-guestpage"
-      >
-        <div className="modal-content-guestpage">
-          <button className="close-modal-btn-guestpage" onClick={handleCloseModal}>
-            &times; {/* X Button */}
-          </button>
-          <img src={require('./images/popup.png')} alt="Popup" className="popup-image-guestpage" />
-          <p className="modal-text-guestpage">Your event has been booked!</p>
-        </div>
-      </Modal>
-      </div>
-     
-    </div>
     
-  </Box>
-</Modal>
-  );
+    // New handleBookEvent function
+    const handleBookEvent = async () => {
+      const eventData = JSON.parse(localStorage.getItem('eventData'));
+  
+      console.log('Updated Event Data:', eventData);
+  
+      const formData = new FormData();
+      formData.append('name', eventData.name);
+      formData.append('date', eventData.date);
+      formData.append('pax', eventData.pax);
+      formData.append('venue', eventData.venue);
+      formData.append('type', eventData.type);
+  
+      // Handle the cover photo if it exists
+      if (eventData.coverPhoto) {
+          try {
+              const response = await fetch(eventData.coverPhoto);
+              const blob = await response.blob();
+              formData.append('cover_photo', blob, 'cover_photo.jpg');
+          } catch (fetchError) {
+              console.error('Error fetching the cover photo:', fetchError);
+          }
+      }
+  
+      try {
+          const response = await axios.post('http://localhost:8000/api/events', formData, {
+              headers: {
+                  'Content-Type': 'multipart/form-data',
+              },
+          });
+  
+          if (response.status === 201) {
+              setModalVisible(true);
+          } else {
+              console.error('Failed to create event:', response.statusText);
+          }
+      } catch (error) {
+          console.error('An error occurred:', error.response ? error.response.data : error.message);
+      }
+  };
+  
+  
+  
+  
+    const handleCloseModal = () => {
+        setModalVisible(false); // Close the overlay
+    };
+
+    console.log('Selected Package:', selectedPackage); // Debugging log
+
+    return (
+        <Modal
+            open={isOpen}
+            onClose={onClose}
+            aria-labelledby="modal-title"
+            aria-describedby="modal-description"
+        >
+            <Box>
+                <div className="overlay-content-reviewoverlay">
+                    <div className="overlay-left">
+                        <div className="overlay-header-reviewoverlay">
+                            <h2 className="modal-title">Review Details</h2>
+                            <button onClick={onClose} className="close-button-reviewoverlay">X</button>
+                        </div>
+                        <h3>Event Details</h3>
+                        <p>Event Name: {eventData.name}</p>
+                        <p>Date: {eventData.date}</p>
+                        <p>Pax: {eventData.pax}</p>
+                        <p>Location: {eventData.venue}</p>
+
+                        <h3>Package Details</h3>
+                        {selectedPackage ? (
+                            <>
+                                <p>Package Name: {selectedPackage.packagename}</p>
+                                <p>Price: {selectedPackage.price}</p>
+                            </>
+                        ) : (
+                            <p>No package selected.</p>
+                        )}
+                    </div>
+                    <div className="overlay-right">
+                        <h3>Service Providers</h3>
+                        {Array.isArray(addedEvents) && addedEvents.length > 0 ? (
+                            addedEvents.map((serviceProvider, index) => (
+                                <p key={index}>{serviceProvider.title} - {serviceProvider.type}</p>
+                            ))
+                        ) : (
+                            <p>No service providers added.</p>
+                        )}
+
+                        <h3>Guests</h3>
+                        {Array.isArray(guests) && guests.length > 0 ? (
+                            guests.slice(0, 5).map((guest, index) => (
+                                <p key={index}>{guest.name} - {guest.email}</p>
+                            ))
+                        ) : (
+                            <p>No guests added.</p>
+                        )}
+                        <button className="book-event-btn-guestpage" onClick={handleBookEvent}>
+                            Book Event
+                        </button>
+                        <Modal
+                            open={modalVisible}
+                            onClose={handleCloseModal}
+                            className="modal-overlay-guestpage"
+                        >
+                            <div className="modal-content-guestpage">
+                                <button className="close-modal-btn-guestpage" onClick={handleCloseModal}>
+                                    &times; {/* X Button */}
+                                </button>
+                                <img src={require('./images/popup.png')} alt="Popup" className="popup-image-guestpage" />
+                                <p className="modal-text-guestpage">Your event has been booked!</p>
+                            </div>
+                        </Modal>
+                    </div>
+                </div>
+            </Box>
+        </Modal>
+    );
 };
 
 
@@ -647,127 +746,155 @@ const GuestPage = ({ packagesData, allEventsData, selectedEvent }) => {
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [mobileNumber, setMobileNumber] = useState(''); // New field
+  const [role, setRole] = useState(''); // New field
 
   // Handling guest addition
   const handleAddGuest = () => {
-      if (!name.trim() || !email.trim()) {
-          alert("Please fill in both name and email.");
-          return;
-      }
-      if (!/\S+@\S+\.\S+/.test(email)) {
-          alert("Please enter a valid email address.");
-          return;
-      }
-      setGuests([...guests, { name, email }]);
-      setName('');
-      setEmail('');
+    if (!name.trim() || !email.trim() || !mobileNumber.trim() || !role.trim()) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    setGuests([...guests, { name, email, mobileNumber, role }]);
+    setName('');
+    setEmail('');
+    setMobileNumber('');
+    setRole('');
   };
 
   // Handling guest removal
   const handleRemoveGuest = (index) => {
-      const newGuests = guests.filter((_, i) => i !== index);
-      setGuests(newGuests);
+    const newGuests = guests.filter((_, i) => i !== index);
+    setGuests(newGuests);
   };
 
   const handleBookEvent = () => {
-      setModalVisible(true); // Show the review overlay
+    setModalVisible(true); // Show the review overlay
   };
 
   const handleCloseModal = () => {
-      setModalVisible(false); // Close the overlay
+    setModalVisible(false); // Close the overlay
   };
 
   const openOverlay = () => {
-      setOverlayVisible(true);
+    setOverlayVisible(true);
   };
 
   const closeOverlay = () => {
-      setOverlayVisible(false);
+    setOverlayVisible(false);
   };
 
   return (
-      <div className="guest-page-container-guestpage">
-          <h1 className="header-guestpage">Add Guest</h1>
-          <div className="guest-container-guestpage">
-              <div className="right-section-guestpage">
-                  <table className="guest-table-guestpage">
-                      <thead>
-                          <tr>
-                              <th>Name</th>
-                              <th>Email</th>
-                              <th>Action</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {guests.map((guest, index) => (
-                              <tr key={index}>
-                                  <td>{guest.name}</td>
-                                  <td>{guest.email}</td>
-                                  <td>
-                                      <button
-                                          className="remove-btn-guestpage"
-                                          onClick={() => handleRemoveGuest(index)}
-                                      >
-                                          Remove
-                                      </button>
-                                  </td>
-                              </tr>
-                          ))}
-                      </tbody>
-                  </table>
-              </div>
-          </div>
-
-          <button className="add-guest-btn-guestpage" onClick={openOverlay}>
-              Add Guest
-          </button>
-
-          <button className="book-event-btn-guestpage" onClick={handleBookEvent}>
-              Book Event
-          </button>
-
-          {overlayVisible && (
-              <div className="overlay-guestpage">
-                  <div className="overlay-content-guestpage">
-                      <button className="close-btn-guestpage" onClick={closeOverlay}>
-                          X
-                      </button>
-                      <h2 className="overlay-header-guestpage">Add Guest</h2>
-                      <label className="name-label-guestpage">Name</label>
-                      <input
-                          type="text"
-                          placeholder="Enter name"
-                          value={name}
-                          className="name-input-guestpage"
-                          onChange={(e) => setName(e.target.value)}
-                      />
-                      <label className="email-label-guestpage">Email</label>
-                      <input
-                          type="email"
-                          placeholder="Enter email"
-                          value={email}
-                          className="email-input-guestpage"
-                          onChange={(e) => setEmail(e.target.value)}
-                      />
-                      <button className="confirm-add-btn-guestpage" onClick={handleAddGuest}>
-                          Add
-                      </button>
-                  </div>
-              </div>
-          )}
-
-          <ReviewOverlay
-              isOpen={modalVisible}
-              onClose={handleCloseModal}
-              selectedEvent={selectedEvent}
-              packagesData={packagesData}
-              allEventsData={allEventsData}
-              guests={guests}
-          />
+    <div className="guest-page-container-guestpage">
+      <h1 className="header-guestpage">Add Guest</h1>
+      <div className="guest-container-guestpage">
+        <div className="right-section-guestpage">
+          <table className="guest-table-guestpage">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Mobile Number</th> {/* New column */}
+                <th>Role</th> {/* New column */}
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {guests.map((guest, index) => (
+                <tr key={index}>
+                  <td>{guest.name}</td>
+                  <td>{guest.email}</td>
+                  <td>{guest.mobileNumber}</td> {/* Display mobile number */}
+                  <td>{guest.role}</td> {/* Display role */}
+                  <td>
+                    <button
+                      className="remove-btn-guestpage"
+                      onClick={() => handleRemoveGuest(index)}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      <button className="add-guest-btn-guestpage" onClick={openOverlay}>
+        Add Guest
+      </button>
+
+      <button className="book-event-btn-guestpage" onClick={handleBookEvent}>
+        Next
+      </button>
+
+      {overlayVisible && (
+        <div className="overlay-guestpage">
+          <div className="overlay-content-guestpage">
+            <button className="close-btn-guestpage" onClick={closeOverlay}>
+              X
+            </button>
+            <h2 className="overlay-header-guestpage">Add Guest</h2>
+            
+            <label className="name-label-guestpage">Name</label>
+            <input
+              type="text"
+              placeholder="Enter name"
+              value={name}
+              className="name-input-guestpage"
+              onChange={(e) => setName(e.target.value)}
+            />
+            
+            <label className="email-label-guestpage">Email</label>
+            <input
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              className="email-input-guestpage"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            
+            <label className="mobile-label-guestpage">Mobile Number</label>
+            <input
+              type="text"
+              placeholder="Enter mobile number"
+              value={mobileNumber}
+              className="mobile-input-guestpage"
+              onChange={(e) => setMobileNumber(e.target.value)}
+            />
+            
+            <label className="role-label-guestpage">Role</label>
+            <input
+              type="text"
+              placeholder="Enter role"
+              value={role}
+              className="role-input-guestpage"
+              onChange={(e) => setRole(e.target.value)}
+            />
+            
+            <button className="confirm-add-btn-guestpage" onClick={handleAddGuest}>
+              Add
+            </button>
+          </div>
+        </div>
+      )}
+
+      <ReviewOverlay
+        isOpen={modalVisible}
+        onClose={handleCloseModal}
+        selectedEvent={selectedEvent}
+        packagesData={packagesData}
+        allEventsData={allEventsData}
+        guests={guests}
+      />
+    </div>
   );
 };
-
 
 export { CreateEvent, ChoosePackage, ChooseServiceProv, GuestPage };
  

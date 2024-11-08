@@ -12,6 +12,10 @@ class Event extends Model
 {
     use HasFactory;
 
+<<<<<<< HEAD
+    protected $fillable = ['name', 'date','pax', 'venue', 'type', 'cover_photo'];
+
+=======
     protected $fillable = [
         'name', 
         'type', 
@@ -26,6 +30,7 @@ class Event extends Model
         'user_id',
         'archived', 
     ];
+>>>>>>> main
 
     // Relationship to guests
     public function guests()
