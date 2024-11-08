@@ -122,54 +122,6 @@ const Login = ({ navigation }) => {
       setLoading(false);
     }
   };
-  // symon
-  // const handleLogin = async () => {
-  //   try {
-  //       setLoading(true);
-
-  //       if (username === "" || password === "") {
-  //           showToast("Please input required data");
-  //           setIsError(true);
-  //           return false;
-  //       }
-
-  //       console.log("Attempting to login with:", { username, password });
-
-  //       const response = await fetch('https://fc50-103-62-152-155.ngrok-free.app/api/login', {
-  //           method: 'POST',
-  //           headers: {
-  //               'Content-Type': 'application/json',
-  //           },
-  //           body: JSON.stringify({ username, password }),
-  //       });
-
-  //       console.log("Response status:", response.status);
-
-  //       if (!response.ok) {
-  //           const errorResponse = await response.json();
-  //           console.log("Error response:", errorResponse);
-  //           showToast(`Error: ${errorResponse.error}`);
-  //           return;
-  //       }
-
-  //       const result = await response.json();
-  //       console.log("Login result:", result);
-  //       showToast(result.message);
-
-  //       if (result.message === "Login successful") {
-  //           Alert.alert("Login Successful", "You have logged in successfully!", [
-  //               { text: "OK" },
-  //           ]);
-  //           navigateBasedOnRole(result.user.role); // Pass the role to determine navigation
-  //       }
-
-  //   } catch (e) {
-  //       console.error("Login error:", e);
-  //       showToast("An error occurred during login.");
-  //   } finally {
-  //       setLoading(false);
-  //   }
-  // };
 
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);
