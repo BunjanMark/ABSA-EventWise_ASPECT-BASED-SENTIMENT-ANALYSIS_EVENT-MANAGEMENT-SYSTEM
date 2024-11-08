@@ -19,6 +19,8 @@ import ManualTestImage from "./ManualTestImage";
 import { TouchableOpacity } from "react-native";
 import EventPackageDetails from "../event/EventPackageDetails";
 import { useNavigation } from "@react-navigation/native";
+import ServiceManager from "../../../serviceProvidersScreen/screens/ServiceTab/ServiceManager";
+import ServiceList from "../event/ServiceList";
 const EventPackages = () => {
   const {
     likedEvents,
@@ -109,6 +111,10 @@ const EventPackages = () => {
           onAddPackage={handleAddPackage}
         />
       </Modal>
+
+      <Text>Hello</Text>
+      <ServiceList />
+      {/* <ServiceManager /> */}
     </SafeAreaView>
   );
 };

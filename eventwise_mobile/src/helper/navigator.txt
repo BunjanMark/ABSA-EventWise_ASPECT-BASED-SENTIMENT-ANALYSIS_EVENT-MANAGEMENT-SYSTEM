@@ -1,390 +1,532 @@
-import { View, Text, ActivityIndicator } from "react-native";
-import React, { useContext, useEffect } from "react";
-import { LogBox } from "react-native";
-import { AuthContext } from "../services/authContext";
+import React, { useState } from "react";
+import {
+  SafeAreaView,
+  ImageBackground,
+  StyleSheet,
+  Platform,
+  KeyboardAvoidingView,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import {
+  Text,
+  Button,
+  TextInput,
+  Menu,
+  Divider,
+  Provider as PaperProvider,
+  Checkbox,
+} from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import Toast from "react-native-root-toast";
+import {
+  widthPercentageToDP,
+  heightPercentageToDP,
+} from "react-native-responsive-screen";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import * as ImagePicker from "expo-image-picker";
+import { signup } from "../../services/authServices";
 
-// stacks
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+const Registerold = () => {
+  const [step, setStep] = useState(1); // Step tracking for progressive disclosure
+  const [fullName, setFullName] = useState("");
+  const [gender, setGender] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [roleMenuVisible, setRoleMenuVisible] = useState(false);
 
-import Register from "../screens/authentication/Register";
-import Login from "../screens/authentication/Login";
-import AccountRecovery from "../screens/authentication/AccountRecovery";
-import Landing from "../screens/authentication/Landing";
+  const handleNextStep = () => {
+    setStep(2);
+  };
 
-import GuestLanding from "../screens/authentication/GuestLanding";
+  const handlePreviousStep = () => {
+    setStep(1);
+  };
 
-// Admin Stack here
-import AdminIndex from "../screens/adminMain/AdminIndex";
+  const handleDateConfirm = (date) => {
+    setDateOfBirth(date);
+    setDatePickerVisibility(false);
+  };
 
-// Customer Stack here
-import TabNav from "../screens/customerScreens/TabNav";
-import InboxView from "../screens/customerScreens/message/InboxView";
-import ConvoView from "../screens/customerScreens/message/ConvoView";
-import Notification from "../screens/customerScreens/notification/Notifications";
-import SelectContactView from "../screens/customerScreens/message/SelectContactView";
-import ProfileSwitcher from "../screens/customerScreens/screens/ProfileSwitcher";
-import EventDetails from "../screens/customerScreens/otherScreens/EventDetails";
-import CreateAnotherAccount from "../screens/customerScreens/otherScreens/CreateAnotherAccount";
-import ProfileOrganizer from "../screens/customerScreens/otherScreens/ProfileOrganizer";
-import Package from "../screens/customerScreens/otherScreens/Package";
-import CustomizePackage from "../screens/customerScreens/otherScreens/CustomizePackage";
-import EventPackageCustomer from "../screens/customerScreens/otherScreens/EventPackageCustomer";
-import EventFeedbackDetails from "../screens/adminMain/screens/feedback/EventFeedbackDetails";
-import EditProfile from "../screens/customerScreens/otherScreens/EditProfile";
-import Profile from "../screens/customerScreens/screens/Profile";
-import InventoryTracker from "../screens/customerScreens/sidebarScreens/InventoryTracker";
-import Schedule from "../screens/customerScreens/sidebarScreens/Schedule";
-import Settings from "../screens/customerScreens/sidebarScreens/Settings";
-import NotifView from "../screens/customerScreens/notification/NotifView";
-import About from "../screens/customerScreens/sidebarScreens/About";
-import BookingContinuation2 from "../screens/customerScreens/otherScreens/BookingContinuation2";
-import BookingContinuation3 from "../screens/customerScreens/otherScreens/BookingContinuation3";
-import BookingContinuation4 from "../screens/customerScreens/otherScreens/BookingContinuation4";
-import Attendee from "../screens/customerScreens/otherScreens/Attendee";
-import Feedback from "../screens/customerScreens/otherScreens/Feedback";
-// import Feedback from "../screens/customerScreens/otherScreens/Feedback";
+  const openDatePicker = () => setDatePickerVisibility(true);
 
-// Service Provider Stack here
-import ServiceProviderIndex from "../screens/serviceProvidersScreen/ServiceProviderIndex";
+  const openRoleMenu = () => setRoleMenuVisible(true);
+  const closeRoleMenu = () => setRoleMenuVisible(false);
 
-// Guest Stack here
-
-// Profile switcher screen
-import { ProfileContext } from "../services/profileContext";
-import Venue from "../screens/customerScreens/otherScreens/Venue";
-import GuestIndex from "../screens/guestScreens/GuestIndex";
-const Stack = createNativeStackNavigator();
-
-const AuthenticationStack = () => {
-  LogBox.ignoreAllLogs();
-  const { user, loading } = useContext(AuthContext);
-
-  if (loading) {
-    return <ActivityIndicator />;
-  }
-  if (loading) {
-    return <ActivityIndicator />; // A screen or component to show while loading
-  }
   return (
-    <Stack.Navigator
-      initialRouteName={
-        user
-          ? user.role_id === 2
-            ? "CustomCustomerStack"
-            : "OrganizerStack"
-          : "Landing"
-      }
+    <ImageBackground
+      source={require("../customerScreens/pictures/authbg.png")} // Use your actual path here
+      style={styles.backgroundImage}
     >
-      <Stack.Screen
-        name="Landing"
-        component={Landing}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Login"
-        component={Login}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Register"
-        component={Register}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="AccountRecovery"
-        component={AccountRecovery}
-        options={{ headerShown: false }}
-      />
-      {/* <Stack.Screen
-        name="CustomCustomerStack"
-        component={CustomCustomerStack}
-        options={{ headerShown: false }}
-      /> */}
-      <Stack.Screen
-        name="CustomerStack"
-        component={CustomerStack}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="AdminStack"
-        component={AdminStack}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="GuestStack"
-        component={GuestIndex}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="ServiceProviderStack"
-        component={ServiceProviderStack}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : null}
+          style={styles.container}
+        >
+          <ScrollView contentContainerStyle={styles.formContainer}>
+            <Text style={styles.headerText}>Registration Form</Text>
+            <PaperProvider>
+              {step === 1 ? (
+                // Step 1 UI
+                <View style={styles.stepContainer}>
+                  <TextInput
+                    label="Full Name"
+                    value={fullName}
+                    onChangeText={(text) => setFullName(text)}
+                    style={styles.input}
+                    mode="outlined"
+                  />
+                  <Menu
+                    visible={roleMenuVisible}
+                    onDismiss={closeRoleMenu}
+                    anchor={
+                      <TouchableOpacity onPress={openRoleMenu}>
+                        <TextInput
+                          label="Gender"
+                          value={gender}
+                          editable={false}
+                          style={styles.input}
+                          mode="outlined"
+                        />
+                      </TouchableOpacity>
+                    }
+                  >
+                    <Menu.Item onPress={() => setGender("Male")} title="Male" />
+                    <Menu.Item
+                      onPress={() => setGender("Female")}
+                      title="Female"
+                    />
+                    <Menu.Item
+                      onPress={() => setGender("Other")}
+                      title="Other"
+                    />
+                  </Menu>
+                  <TouchableOpacity onPress={openDatePicker}>
+                    <TextInput
+                      label="Date of Birth"
+                      value={dateOfBirth.toLocaleDateString()}
+                      editable={false}
+                      style={styles.input}
+                      mode="outlined"
+                    />
+                  </TouchableOpacity>
+                  <DateTimePickerModal
+                    isVisible={isDatePickerVisible}
+                    mode="date"
+                    onConfirm={handleDateConfirm}
+                    onCancel={() => setDatePickerVisibility(false)}
+                  />
+                  <TextInput
+                    label="Email Address"
+                    value={email}
+                    onChangeText={(text) => setEmail(text)}
+                    style={styles.input}
+                    mode="outlined"
+                  />
+                  <TextInput
+                    label="Phone Number"
+                    value={phoneNumber}
+                    onChangeText={(text) => setPhoneNumber(text)}
+                    style={styles.input}
+                    mode="outlined"
+                    keyboardType="phone-pad"
+                  />
+                  <Button
+                    mode="contained"
+                    onPress={handleNextStep}
+                    style={styles.button}
+                  >
+                    Next
+                  </Button>
+                </View>
+              ) : (
+                // Step 2 UI
+                <View style={styles.stepContainer}>
+                  <TextInput
+                    label="Username"
+                    value={username}
+                    onChangeText={(text) => setUsername(text)}
+                    style={styles.input}
+                    mode="outlined"
+                  />
+                  <TextInput
+                    label="Password"
+                    value={password}
+                    onChangeText={(text) => setPassword(text)}
+                    style={styles.input}
+                    mode="outlined"
+                    secureTextEntry
+                  />
+                  <TextInput
+                    label="Confirm Password"
+                    value={confirmPassword}
+                    onChangeText={(text) => setConfirmPassword(text)}
+                    style={styles.input}
+                    mode="outlined"
+                    secureTextEntry
+                  />
+                  <Menu
+                    visible={roleMenuVisible}
+                    onDismiss={closeRoleMenu}
+                    anchor={
+                      <TouchableOpacity onPress={openRoleMenu}>
+                        <TextInput
+                          label="User Role"
+                          value={selectedRole}
+                          editable={false}
+                          style={styles.input}
+                          mode="outlined"
+                        />
+                      </TouchableOpacity>
+                    }
+                  >
+                    <Menu.Item
+                      onPress={() => setSelectedRole("Admin")}
+                      title="Admin"
+                    />
+                    <Menu.Item
+                      onPress={() => setSelectedRole("Service Provider")}
+                      title="Service Provider"
+                    />
+                    <Menu.Item
+                      onPress={() => setSelectedRole("Customer")}
+                      title="Customer"
+                    />
+                  </Menu>
+                  <View style={styles.checkboxContainer}>
+                    <Checkbox
+                      status={termsAccepted ? "checked" : "unchecked"}
+                      onPress={() => setTermsAccepted(!termsAccepted)}
+                    />
+                    <Text>I agree to the Terms and Conditions</Text>
+                  </View>
+                  <View style={styles.buttonContainer}>
+                    <Button
+                      mode="outlined"
+                      onPress={handlePreviousStep}
+                      style={styles.button}
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      mode="contained"
+                      onPress={() => {}}
+                      style={styles.button}
+                    >
+                      Submit
+                    </Button>
+                  </View>
+                </View>
+              )}
+            </PaperProvider>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
-// AdminStack
-function AdminStack() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="AdminStackIndex"
-        component={AdminIndex}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="FeedbackEventDetails"
-        component={EventFeedbackDetails}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
-}
+const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+  },
+  container: {
+    flex: 1,
+    alignItems: "center",
+  },
+  formContainer: {
+    alignItems: "center",
+    paddingVertical: heightPercentageToDP("5%"),
+  },
+  headerText: {
+    marginTop: heightPercentageToDP("4%"),
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: widthPercentageToDP("10%"),
+  },
+  headerTe: {
+    marginTop: heightPercentageToDP("1%"),
+    marginBottom: heightPercentageToDP("5%"),
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: widthPercentageToDP("10%"),
+  },
+  inputStyle: {
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 2,
+    borderColor: "#C2B067",
+  },
+  menuContent: {
+    backgroundColor: "black",
+    alignItems: "center",
+    borderRadius: 10,
+    width: 250,
+    marginLeft: -50,
+  },
+  menuItemContainer: {
+    alignItems: "center",
+    paddingVertical: 5,
+  },
+  menuTitle: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 12,
+    textAlign: "center",
+  },
+  menuItemButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#C2B067",
+    marginVertical: 5,
+    width: 200,
+  },
+  selectedMenuItemButton: {
+    backgroundColor: "#C2B067",
+  },
+  menuItemText: {
+    color: "white",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  dropdown: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 10,
+    backgroundColor: "#FFC42B",
+    borderRadius: 30,
+    marginBottom: 10,
+    width: widthPercentageToDP("80%"),
+  },
+  genderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  dateContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  Gender: {
+    padding: 10,
+    borderRadius: 30,
+    width: "23%",
+    alignItems: "center",
+    color: "#fff",
+  },
+  Date: {
+    padding: 10,
+    borderRadius: 30,
+    width: "30%",
+    alignItems: "center",
+    color: "#fff",
+  },
+  genderButton: {
+    padding: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    width: "30%",
+    alignItems: "center",
+  },
+  selectedGender: {
+    backgroundColor: "#A97E00",
+  },
+  genderText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  datePickerButton: {
+    width: widthPercentageToDP("55%"),
+    padding: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  datePickerText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  uploadButton: {
+    padding: 15,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    width: "60%",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  uploadText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginTop: 20,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: heightPercentageToDP("3%"),
+  },
+  checkboxWrapper: {
+    backgroundColor: "rgba(255, 255, 255, 0.50)",
+    borderRadius: 12,
+    marginRight: 10,
+    height: 23,
+  },
+  checkboxText: {
+    color: "white",
+    fontSize: 16,
+  },
+  buttonStyle: {
+    width: widthPercentageToDP("30%"),
+    height: heightPercentageToDP("5%"),
+    marginBottom: heightPercentageToDP("2%"),
+    backgroundColor: "#EEBA2B",
+  },
+  menuStyle: {
+    width: widthPercentageToDP("50%"),
+  },
 
-// ServiceProvider StacK
+  inputStyle: {
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 2,
+    borderColor: "#C2B067",
+  },
+  menuContent: {
+    backgroundColor: "black",
+    alignItems: "center",
+    borderRadius: 10,
+    width: 250,
+    marginLeft: -50,
+  },
+  menuItemContainer: {
+    alignItems: "center",
+    paddingVertical: 5,
+  },
+  genderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  dateContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: widthPercentageToDP("80%"),
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  Gender: {
+    padding: 10,
+    borderRadius: 30,
+    width: "23%",
+    alignItems: "center",
+    color: "#000",
+  },
+  Date: {
+    padding: 10,
+    borderRadius: 30,
+    width: "30%",
+    alignItems: "center",
+    color: "#000",
+  },
+  genderButton: {
+    padding: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    width: "30%",
+    alignItems: "center",
+  },
+  selectedGender: {
+    backgroundColor: "#A97E00",
+  },
+  genderText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+  datePickerButton: {
+    width: widthPercentageToDP("55%"),
+    padding: 10,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: heightPercentageToDP("2%"),
+  },
+  datePickerText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+  uploadButton: {
+    padding: 15,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFC42B",
+    width: "60%",
+    alignItems: "center",
+    alignContent: "center",
+    marginBottom: 10,
+  },
+  uploadText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginTop: 20,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: heightPercentageToDP("3%"),
+  },
+  checkboxWrapper: {
+    backgroundColor: "rgba(220, 220, 220, 0.80)",
+    borderRadius: 12,
+    marginRight: 10,
+    height: 23,
+  },
+  checkboxText: {
+    color: "#000",
+    fontSize: 16,
+  },
+  buttonStyle: {
+    width: widthPercentageToDP("50%"),
+    height: heightPercentageToDP("6%"),
+    marginBottom: heightPercentageToDP("2%"),
+    backgroundColor: "#EEBA2B",
+  },
+  menuStyle: {
+    width: widthPercentageToDP("50%"),
+  },
+});
 
-function ServiceProviderStack() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="ServiceProviderIndex"
-        component={ServiceProviderIndex}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-// CustomerStack
-function CustomerStack() {
-  return (
-    <Stack.Navigator>
-      {/* <Stack.Screen
-        name="Landing"
-        component={Landing}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="GuestLanding"
-        component={GuestLanding}
-        options={{ headerShown: false }}
-      /> */}
-      {/* <Stack.Screen
-        name="Login"
-        component={Login}
-        options={{ headerShown: false }}
-      /> */}
-      {/* 
-      <Stack.Screen
-        name="AccountRecovery"
-        component={AccountRecovery}
-        options={{ headerShown: false }}
-      /> */}
-
-      <Stack.Screen
-        name="TabNav"
-        component={TabNav}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Guest"
-        component={GuestIndex}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="EditProfile"
-        component={EditProfile}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Profile"
-        component={Profile}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="InventoryTracker"
-        component={InventoryTracker}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Schedule"
-        component={Schedule}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Settings"
-        component={Settings}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="InboxView"
-        component={InboxView}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="ConvoView"
-        component={ConvoView}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="NotifView"
-        component={NotifView}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="SelectContactView"
-        component={SelectContactView}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Notification"
-        component={Notification}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="EventDetails"
-        component={EventDetails}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="CreateAnotherAccount"
-        component={CreateAnotherAccount}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="ProfileOrganizer"
-        component={ProfileOrganizer}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="About"
-        component={About}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Package"
-        component={Package}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="CustomizePackage"
-        component={CustomizePackage}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Venue"
-        component={Venue}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="BookingContinuation2"
-        component={BookingContinuation2}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="BookingContinuation3"
-        component={BookingContinuation3}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="BookingContinuation4"
-        component={BookingContinuation4}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Feedback"
-        component={Feedback}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Attendee"
-        component={Attendee}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="EventPackageCustomer"
-        component={EventPackageCustomer}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-// function CustomCustomerStack() {
-//   LogBox.ignoreAllLogs();
-//   const { profiles, activeProfile, switchProfile, loading } =
-//     useContext(ProfileContext);
-
-//   if (loading) {
-//     return <ActivityIndicator />;
-//   }
-//   if (loading) {
-//     return <ActivityIndicator />; // A screen or component to show while loading
-//   }
-//   return (
-//     <Stack.Navigator
-//       initialRouteName={
-//         profiles.id === 5 ? "ServiceProviderStack" : "CustomerStack" //to be change to default ID
-//       }
-//       // screenOptions={{ headerShown: profiles.id === 3 ? false : true }}
-//     >
-//       <Stack.Screen
-//         name="ServiceProviderStack"
-//         component={ServiceProviderStack}
-//       />
-//       <Stack.Screen name="CustomerStack" component={CustomerStack} />
-//     </Stack.Navigator>
-//   );
-// }
-const CustomCustomerStack = () => {
-  LogBox.ignoreAllLogs();
-  const { profiles, loading } = useContext(ProfileContext);
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    if (!loading) {
-      if (profiles.id !== 3) {
-        navigation.navigate("ServiceProviderStack");
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "ServiceProviderStack" }],
-        });
-      } else {
-        navigation.navigate("CustomerStack");
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "CustomerStack" }],
-        });
-      }
-    }
-  }, [profiles.id, loading, navigation]);
-
-  if (loading) {
-    return <ActivityIndicator />;
-  }
-
-  return (
-    <Stack.Navigator
-      initialRouteName={
-        profiles.id === 3 ? "ServiceProviderStack" : "CustomerStack"
-      }
-    >
-      <Stack.Screen
-        name="ServiceProviderStack"
-        component={ServiceProviderStack}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="CustomerStack"
-        component={CustomerStack}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
-};
-export default function Navigator() {
-  return <AuthenticationStack />;
-}
-// export default Navigator;
+export default Registerold;

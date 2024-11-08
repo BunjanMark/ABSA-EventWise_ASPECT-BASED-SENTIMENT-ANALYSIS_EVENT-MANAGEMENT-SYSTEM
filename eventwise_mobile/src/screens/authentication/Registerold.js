@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ActivityIndicator } from "react-native-paper";
+
 import {
   SafeAreaView,
   ImageBackground,
@@ -8,18 +10,18 @@ import {
   ScrollView,
   View,
   TouchableOpacity,
-  Image,
 } from "react-native";
 import {
   Text,
   Button,
   TextInput,
   Menu,
-  Divider,
   Provider as PaperProvider,
   Checkbox,
 } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
+
+import { Formik } from "formik";
+import * as Yup from "yup";
 import Toast from "react-native-root-toast";
 import {
   widthPercentageToDP,
@@ -30,602 +32,465 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import * as ImagePicker from "expo-image-picker";
 import { signup } from "../../services/authServices";
 
-const Registerold = () => {
-  const navigator = useNavigation();
-  const [username, setUsername] = useState("");
+import { useNavigation } from "@react-navigation/native";
+import EmailVerificationForm from "./EmailVerificationForm";
+const validationSchema = Yup.object().shape({
+  fullName: Yup.string().required("Full Name is required"),
+  gender: Yup.string().required("Gender is required"),
+  dateOfBirth: Yup.date().required("Date of Birth is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  phoneNumber: Yup.string().required("Phone number is required"),
+  username: Yup.string().required("Username is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .required("Confirm Password is required"),
+  termsAccepted: Yup.boolean().oneOf([true], "You must accept the terms"),
+});
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [repassword, setRepassword] = useState("");
-  const [isError, setIsError] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [HideEntry, setHideEntry] = useState(true);
-  const [visible, setVisible] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [date, setDate] = useState(new Date());
+const Register = () => {
+  const [step, setStep] = useState(1);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [gender, setGender] = useState("");
-  const [validID, setvalidID] = useState(null);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [image, setImage] = React.useState(null);
-
+  const [roleMenuVisible, setRoleMenuVisible] = useState(false);
+  const navigation = useNavigation();
+  const [HideEntry, setHideEntry] = useState(true);
+  const [HideEntry2, setHideEntry2] = useState(true);
+  const handleNextStep = () => {
+    setStep(2);
+  };
+  const CustomIcon = ({ name, size, color }) => {
+    return <Icon name={name} size={size} color={color} />;
+  };
+  const handlePreviousStep = () => {
+    setStep(1);
+  };
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);
   };
-
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
-
-  const handleRoleChange = (role) => {
-    setSelectedRole(role);
-
-    closeMenu();
+  const toggleSecureEntry2 = () => {
+    setHideEntry2(!HideEntry2);
   };
-
-  const showToast = (message = "Something went wrong") => {
-    Toast.show(message, { duration: Toast.durations.LONG });
-  };
-
-  // const handleRegistration = async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     if (
-  //       username === "" ||
-  //       email === "" ||
-  //       password === "" ||
-  //       phoneNumber === "" ||
-  //       role === "" ||
-  //       !termsAccepted
-  //     ) {
-  //       showToast("Please input required data and accept terms and conditions");
-  //       setIsError(true);
-  //       return;
-  //     }
-
-  //     if (password !== repassword) {
-  //       showToast("Passwords do not match");
-  //       setIsError(true);
-  //       return;
-  //     }
-
-  //     const data = {
-  //       username,
-  //       email,
-  //       password,
-  //       role,
-  //       phoneNumber,
-  //       validID,
-  //     };
-
-  //     const result = await fetch("apiurl", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(data),
-  //     });
-
-  //     const resultJson = await result.json();
-  //     if (resultJson.message != null) {
-  //       showToast(resultJson?.message);
-  //     } else {
-  //       navigator.navigate("Login");
-  //     }
-  //   } catch (e) {
-  //     console.error(e.toString());
-  //     showToast("An error occurred");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  const handleRegistration = async () => {
-    // Reset error state before starting validation
-    setIsError(false);
-
-    // Form validation
-    if (
-      username.trim() === "" ||
-      email.trim() === "" ||
-      password.trim() === "" ||
-      repassword.trim() === "" ||
-      phoneNumber.trim() === "" ||
-      !selectedRole ||
-      !termsAccepted
-    ) {
-      showToast(
-        "Please fill in all required fields and accept the terms and conditions"
-      );
-      setIsError(true);
-      setLoading(false);
-      return;
-    }
-
-    if (password !== repassword) {
-      showToast("Passwords do not match");
-      setIsError(true);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      // setLoading(true);
-
-      // const data = {
-      //   name: username,
-      //   email,
-      //   password,
-      //   role_id: selectedRole,
-      //   phoneNumber,
-      //   dateOfBirth: date,
-      //   gender,
-      //   validID,
-      // };
-
-      // const response = await fetch("apiurl", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(data),
-      // });
-
-      // const resultJson = await response.json();
-      const roleMapping = {
-        "SERVICE PROVIDER": "3",
-        CUSTOMER: "2",
-      };
-      const data = {
-        name: username,
-        email,
-        password,
-        role_id: roleMapping[selectedRole],
-        phoneNumber,
-        dateOfBirth: date,
-        gender,
-        validID,
-      };
-      const result = await signup(data);
-
-      console.log("result", result);
-      showToast(result?.message);
-
-      if (result?.message != null) {
-        showToast(result?.message);
-      } else {
-        showToast(result?.error);
-      }
-
-      // if (result.message != null) {
-      //   showToast(result?.message);
-      // } else {
-      //   navigator.navigate("Login");
-      // }
-
-      // if (response.ok) {
-      //   // Handle success response
-      //   showToast(resultJson?.message || "Registration successful!");
-      //   navigator.navigate("Login");
-      // } else {
-      //   // Handle failure response
-      //   showToast(
-      //     resultJson?.message || "Registration failed. Please try again."
-      //   );
-      //   setIsError(true);
-      // }
-    } catch (error) {
-      console.error("Registration Error:", error);
-
-      // showToast("Email already exists. Please try again.");
-
-      setIsError(true);
-      console.log("data:" + JSON.stringify(data));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDateConfirm = (date) => {
-    setDate(date);
+  const handleDateConfirm = (date, setFieldValue) => {
+    setFieldValue("dateOfBirth", date);
     setDatePickerVisibility(false);
   };
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+  const openDatePicker = () => setDatePickerVisibility(true);
 
-    console.log(result);
+  const openRoleMenu = () => setRoleMenuVisible(true);
+  const closeRoleMenu = () => setRoleMenuVisible(false);
 
-    if (!result.cancelled) {
-      setImage(result.uri);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const handleSubmit = (values) => {
+    try {
+      setIsSubmitting(true);
+      signup(values)
+        .then((response) => {
+          Toast.show("Registration successful", {
+            duration: Toast.durations.LONG,
+          });
+          setIsSubmitting(false);
+        })
+        .catch((error) => {
+          Toast.show("Registration failed", { duration: Toast.durations.LONG });
+          setIsSubmitting(false);
+        });
+    } catch (error) {
+      console.error("Registration Error:", error);
     }
   };
 
   return (
     <ImageBackground
-      source={require("../customerScreens/pictures/signupbg.png")}
+      source={require("../customerScreens/pictures/authbg.png")}
       style={styles.backgroundImage}
     >
       <SafeAreaView style={styles.container}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : null}
           style={styles.container}
-          keyboardVerticalOffset={
-            Platform.OS === "ios" ? 0 : heightPercentageToDP("10%")
-          }
         >
-          <ScrollView contentContainerStyle={styles.formContainer}>
-            <Text style={styles.headerText}>Registration Form</Text>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.formContainer}
+          >
+            <Text
+              variant="headlineMedium"
+              style={{
+                fontSize: widthPercentageToDP("9%"),
+                color: "#fff",
+                marginBottom: heightPercentageToDP("15%"),
+                fontWeight: "bold",
+                fontFamily: "Roboto",
+                textAlign: "center",
+              }}
+            >
+              Registration Form
+            </Text>
             <PaperProvider>
-              <View
-                style={[
-                  styles.inputContainer,
-                  {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    borderWidth: 2,
-                    borderColor: "#C2B067",
-                    borderRadius: 5,
-                    margin: 30,
-                    width: widthPercentageToDP("80%"),
-                    alignItems: "center",
-                    mode: "contained-tonal",
-                  },
-                ]}
+              <Formik
+                initialValues={{
+                  fullName: "",
+                  gender: "",
+                  dateOfBirth: new Date(),
+                  email: "",
+                  phoneNumber: "",
+                  username: "",
+                  password: "",
+                  confirmPassword: "",
+                  selectedRole: null,
+                  termsAccepted: false,
+                }}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
               >
-                <Menu
-                  visible={visible}
-                  onDismiss={closeMenu}
-                  contentStyle={styles.menuContent}
-                  anchor={
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
-                      <View
-                        style={[
-                          styles.menuStyle,
-                          {
-                            backgroundColor: "#C2B067",
-                            padding: 1,
-                            borderRadius: 30,
-                            marginBottom: 5,
-                            marginTop: 5,
-                            margin: 18,
-                            zIndex: 999,
-                          },
-                        ]}
-                      >
-                        <Text
+                {({
+                  values,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  setFieldValue,
+                }) => (
+                  <>
+                    {step === 1 ? (
+                      <View style={styles.stepContainer}>
+                        <TextInput
+                          label="Full Name"
+                          value={values.fullName}
+                          onChangeText={handleChange("fullName")}
+                          onBlur={handleBlur("fullName")}
+                          style={styles.input}
+                          mode="outlined"
+                        />
+                        {touched.fullName && errors.fullName && (
+                          <Text style={styles.errorText}>
+                            {errors.fullName}
+                          </Text>
+                        )}
+
+                        <Menu
+                          visible={roleMenuVisible}
+                          onDismiss={closeRoleMenu}
+                          anchor={
+                            <TouchableOpacity onPress={openRoleMenu}>
+                              <TextInput
+                                label="Gender"
+                                value={values.gender}
+                                editable={false}
+                                style={[styles.input]}
+                                mode="outlined"
+                              />
+                            </TouchableOpacity>
+                          }
+                          contentStyle={{ width: 200, bottom: 220, right: 30 }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "column",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Menu.Item
+                              onPress={() => {
+                                setFieldValue("gender", "Male"),
+                                  setRoleMenuVisible(false);
+                              }}
+                              title="Male"
+                              style={{
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            />
+                            <Menu.Item
+                              onPress={() => {
+                                setFieldValue("gender", "Female"),
+                                  setRoleMenuVisible(false);
+                              }}
+                              title="Female"
+                              style={{
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            />
+                            <Menu.Item
+                              onPress={() => {
+                                setFieldValue("gender", "Other"),
+                                  setRoleMenuVisible(false);
+                              }}
+                              title="Other"
+                              style={{
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            />
+                          </View>
+                        </Menu>
+                        {touched.gender && errors.gender && (
+                          <Text style={styles.errorText}>{errors.gender}</Text>
+                        )}
+
+                        <TouchableOpacity onPress={openDatePicker}>
+                          <TextInput
+                            label="Date of Birth"
+                            value={values.dateOfBirth.toLocaleDateString()}
+                            editable={false}
+                            style={styles.input}
+                            mode="outlined"
+                          />
+                        </TouchableOpacity>
+                        <DateTimePickerModal
+                          isVisible={isDatePickerVisible}
+                          mode="date"
+                          onConfirm={(date) =>
+                            handleDateConfirm(date, setFieldValue)
+                          }
+                          onCancel={() => setDatePickerVisibility(false)}
+                        />
+                        {touched.dateOfBirth && errors.dateOfBirth && (
+                          <Text style={styles.errorText}>
+                            {errors.dateOfBirth}
+                          </Text>
+                        )}
+
+                        <EmailVerificationForm />
+                        {/* #email */}
+                        {/* <TextInput
+                          label="Email Address"
+                          value={values.email}
+                          onChangeText={handleChange("email")}
+                          onBlur={handleBlur("email")}
+                          style={styles.input}
+                          mode="outlined"
+                          right={
+                            <TouchableOpacity>
+                              <Text>Verify email</Text>
+                            </TouchableOpacity>
+                          }
+                        />
+                        {touched.email && errors.email && (
+                          <Text style={styles.errorText}>{errors.email}</Text>
+                        )} */}
+
+                        <TextInput
+                          label="Phone Number"
+                          value={values.phoneNumber}
+                          onChangeText={handleChange("phoneNumber")}
+                          onBlur={handleBlur("phoneNumber")}
+                          style={styles.input}
+                          mode="outlined"
+                          keyboardType="phone-pad"
+                        />
+                        {touched.phoneNumber && errors.phoneNumber && (
+                          <Text style={styles.errorText}>
+                            {errors.phoneNumber}
+                          </Text>
+                        )}
+
+                        <Button
+                          mode="contained"
+                          onPress={handleNextStep}
                           style={{
-                            color: "white",
-                            fontWeight: "bold",
-                            textAlign: "center",
-                            margin: 10,
+                            width: widthPercentageToDP("50%"),
+                            height: heightPercentageToDP("6%"),
+                            marginBottom: heightPercentageToDP("5%"),
+                            marginTop: heightPercentageToDP("2%"),
+                            alignSelf: "center",
+                            backgroundColor: "#EEBA2B",
                           }}
                         >
-                          {selectedRole ?? "User Role: "}
-                        </Text>
+                          Next
+                        </Button>
+                        <Button
+                          mode="contained"
+                          onPress={() => {
+                            navigation.goBack();
+                          }}
+                          style={{
+                            width: widthPercentageToDP("50%"),
+                            height: heightPercentageToDP("6%"),
+                            marginBottom: heightPercentageToDP("5%"),
+                            marginTop: heightPercentageToDP("-3%"),
+                            alignSelf: "center",
+                            backgroundColor: "#ffffff",
+                          }}
+                        >
+                          <Text style={styles.buttonText}>Go back</Text>
+                        </Button>
                       </View>
-                      <Icon
-                        name="arrow-down-bold-circle"
-                        size={40}
-                        color="white"
-                        style={{ marginLeft: 10 }}
-                        onPress={openMenu}
-                      />
-                    </View>
-                  }
-                  style={{
-                    position: "absolute",
-                    zIndex: 999,
-                    top: 85,
-                    left: 90,
-                  }}
-                >
-                  <View style={styles.menuItemContainer}>
-                    <Text style={styles.menuTitle}>PLEASE SELECT</Text>
-                  </View>
-                  <TouchableOpacity
-                    style={[
-                      styles.menuItemButton,
-                      selectedRole === "SERVICE PROVIDER" &&
-                        styles.selectedMenuItemButton,
-                    ]}
-                    onPress={() => handleRoleChange("SERVICE PROVIDER")}
-                  >
-                    <Text style={styles.menuItemText}>SERVICE PROVIDER</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.menuItemButton,
-                      selectedRole === "CUSTOMER" &&
-                        styles.selectedMenuItemButton,
-                    ]}
-                    onPress={() => handleRoleChange("CUSTOMER")}
-                  >
-                    <Text style={styles.menuItemText}>CUSTOMER</Text>
-                  </TouchableOpacity>
-                </Menu>
-              </View>
-              <View
-                style={[
-                  styles.inputStyleContainer,
-                  {
-                    borderRadius: 5,
-                    margin: 30,
-                    width: widthPercentageToDP("80%"),
-                    alignItems: "center",
-                    marginTop: -15,
-                  },
-                ]}
-              >
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="contained-tonal"
-                  label="Username"
-                  placeholder="Enter your username"
-                  error={isError}
-                  value={username}
-                  onChangeText={(text) => setUsername(text)}
-                  theme={{
-                    colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
-                    },
-                  }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Icon name="account" size={24} color="#fff" />
-                      )}
-                    />
-                  }
-                />
+                    ) : (
+                      <View style={styles.stepContainer}>
+                        <TextInput
+                          label="Username"
+                          value={values.username}
+                          onChangeText={handleChange("username")}
+                          onBlur={handleBlur("username")}
+                          style={styles.input}
+                          mode="outlined"
+                        />
+                        {touched.username && errors.username && (
+                          <Text style={styles.errorText}>
+                            {errors.username}
+                          </Text>
+                        )}
 
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="contained-tonal"
-                  label="Email"
-                  placeholder="Enter your email"
-                  inputMode="email"
-                  value={email}
-                  error={isError}
-                  onChangeText={(text) => setEmail(text)}
-                  theme={{
-                    colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
-                    },
-                  }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => <Icon name="email" size={24} color="#fff" />}
-                    />
-                  }
-                />
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="contained-tonal"
-                  label="Phone number"
-                  placeholder="Enter your phone number"
-                  value={phoneNumber}
-                  error={isError}
-                  onChangeText={(text) => setPhoneNumber(text)}
-                  theme={{
-                    colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
-                    },
-                  }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => <Icon name="phone" size={24} color="#fff" />}
-                    />
-                  }
-                />
-                <TextInput
-                  mode="contained-tonal"
-                  style={styles.inputStyle}
-                  label="Password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChangeText={(text) => setPassword(text)}
-                  secureTextEntry={HideEntry}
-                  error={isError}
-                  right={
-                    <TextInput.Icon
-                      onPress={toggleSecureEntry}
-                      icon={!HideEntry ? "eye" : "eye-off"}
-                    />
-                  }
-                  theme={{
-                    colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
-                    },
-                  }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => <Icon name="lock" size={24} color="#fff" />}
-                    />
-                  }
-                />
-                <TextInput
-                  mode="contained-tonal"
-                  style={styles.inputStyle}
-                  label="Confirm Password"
-                  placeholder="Re-enter your password"
-                  value={repassword}
-                  onChangeText={(text) => setRepassword(text)}
-                  secureTextEntry={HideEntry}
-                  error={isError}
-                  right={
-                    <TextInput.Icon
-                      onPress={toggleSecureEntry}
-                      icon={!HideEntry ? "eye" : "eye-off"}
-                    />
-                  }
-                  theme={{
-                    colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
-                    },
-                  }}
-                  left={
-                    <TextInput.Icon
-                      icon={() => <Icon name="lock" size={24} color="#fff" />}
-                    />
-                  }
-                />
-                <View style={styles.genderContainer}>
-                  <Text style={styles.Gender}>Gender </Text>
-                  <TouchableOpacity
-                    style={[
-                      styles.genderButton,
-                      gender === "Male" && styles.selectedGender,
-                    ]}
-                    onPress={() => setGender("Male")}
-                  >
-                    <Text style={styles.genderText}>Male</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.genderButton,
-                      gender === "Female" && styles.selectedGender,
-                    ]}
-                    onPress={() => setGender("Female")}
-                  >
-                    <Text style={styles.genderText}>Female</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.dateContainer}>
-                  <Text style={styles.Date}>Date of Birth </Text>
-                  <TouchableOpacity
-                    style={styles.datePickerButton}
-                    onPress={() => setDatePickerVisibility(true)}
-                  >
-                    <Text style={styles.datePickerText}>
-                      {date.toLocaleDateString()}
-                    </Text>
-                  </TouchableOpacity>
-                  <DateTimePickerModal
-                    isVisible={isDatePickerVisible}
-                    mode="date"
-                    onConfirm={handleDateConfirm}
-                    onCancel={() => setDatePickerVisibility(false)}
-                    maximumDate={new Date()}
-                    textColor="#000"
-                    theme={{
-                      colors: {
-                        primary: "#FFC42B",
-                        text: "#000",
-                        placeholder: "#FFC42B",
-                        background: "#fff",
-                      },
-                    }}
-                  />
-                </View>
+                        <TextInput
+                          label="Password"
+                          value={values.password}
+                          onChangeText={handleChange("password")}
+                          onBlur={handleBlur("password")}
+                          style={styles.input}
+                          mode="outlined"
+                          secureTextEntry={HideEntry2}
+                          right={
+                            <TextInput.Icon
+                              onPress={toggleSecureEntry2}
+                              icon={() => (
+                                <CustomIcon
+                                  name={!HideEntry2 ? "eye" : "eye-off"}
+                                  size={24}
+                                  color="black"
+                                />
+                              )}
+                            />
+                          }
+                        />
+                        {touched.password && errors.password && (
+                          <Text style={styles.errorText}>
+                            {errors.password}
+                          </Text>
+                        )}
 
-                <TextInput
-                  style={styles.inputStyle}
-                  mode="contained-tonal"
-                  label="Enter Valid ID No."
-                  placeholder="Enter valid ID number"
-                  error={isError}
-                  value={validID}
-                  onChangeText={(text) => setvalidID(text)}
-                  theme={{
-                    colors: {
-                      primary: "#fff",
-                      text: "#fff",
-                      placeholder: "#fff",
-                      background: "#fff",
-                    },
-                  }}
-                />
+                        <TextInput
+                          label="Confirm Password"
+                          value={values.confirmPassword}
+                          onChangeText={handleChange("confirmPassword")}
+                          onBlur={handleBlur("confirmPassword")}
+                          style={styles.input}
+                          mode="outlined"
+                          secureTextEntry={HideEntry}
+                          right={
+                            <TextInput.Icon
+                              onPress={toggleSecureEntry}
+                              icon={() => (
+                                <CustomIcon
+                                  name={!HideEntry ? "eye" : "eye-off"}
+                                  size={24}
+                                  color="black"
+                                />
+                              )}
+                            />
+                          }
+                        />
+                        {touched.confirmPassword && errors.confirmPassword && (
+                          <Text style={styles.errorText}>
+                            {errors.confirmPassword}
+                          </Text>
+                        )}
 
-                <View>
-                  <TouchableOpacity
-                    style={[styles.uploadButton]}
-                    title="Pick an image from camera roll"
-                    onPress={pickImage}
-                  >
-                    {image && (
-                      <Image
-                        source={{ uri: image }}
-                        style={{ width: 200, height: 200 }}
-                      />
+                        <Menu
+                          visible={roleMenuVisible}
+                          onDismiss={closeRoleMenu}
+                          anchor={
+                            <TouchableOpacity onPress={openRoleMenu}>
+                              <TextInput
+                                label="User Role"
+                                value={values.selectedRole}
+                                editable={false}
+                                style={styles.input}
+                                mode="outlined"
+                              />
+                            </TouchableOpacity>
+                          }
+                          contentStyle={{ width: 200, bottom: 220, right: 30 }}
+                        >
+                          <Menu.Item
+                            onPress={() => {
+                              setFieldValue("selectedRole", "Service Provider");
+                              setRoleMenuVisible(false); // Close the menu when selecting 'Service Provider'
+                            }}
+                            title="Service Provider"
+                          />
+                          <Menu.Item
+                            onPress={() => {
+                              setFieldValue("selectedRole", "Customer");
+                              setRoleMenuVisible(false); // Close the menu when selecting 'Customer'
+                            }}
+                            title="Customer"
+                          />
+                        </Menu>
+
+                        {touched.selectedRole && errors.selectedRole && (
+                          <Text style={styles.errorText}>
+                            {errors.selectedRole}
+                          </Text>
+                        )}
+
+                        <View style={styles.checkboxContainer}>
+                          <Checkbox
+                            status={
+                              values.termsAccepted ? "checked" : "unchecked"
+                            }
+                            onPress={() =>
+                              setFieldValue(
+                                "termsAccepted",
+                                !values.termsAccepted
+                              )
+                            }
+                          />
+                          <Text>I agree to the Terms and Conditions</Text>
+                        </View>
+                        {touched.termsAccepted && errors.termsAccepted && (
+                          <Text style={styles.errorText}>
+                            {errors.termsAccepted}
+                          </Text>
+                        )}
+
+                        <View
+                          style={[
+                            styles.buttonContainer,
+                            {
+                              alignSelf: "center",
+                              flexDirection: "column",
+                              bottom: 15,
+                              justifyContent: "space-around",
+                              alignItems: "center",
+                            },
+                          ]}
+                        >
+                          <Button
+                            mode="contained"
+                            onPress={handleSubmit}
+                            style={{
+                              width: widthPercentageToDP("50%"),
+                              height: heightPercentageToDP("6%"),
+                              // marginBottom: heightPercentageToDP("5%"),
+                              marginTop: heightPercentageToDP("2%"),
+                              alignSelf: "center",
+                              backgroundColor: "#EEBA2B",
+                            }}
+                            loading={isSubmitting}
+                            disabled={isSubmitting}
+                          >
+                            Submit
+                          </Button>
+                          <Button
+                            mode="outlined"
+                            onPress={handlePreviousStep}
+                            style={[styles.button, { width: "100%" }]}
+                          >
+                            Back
+                          </Button>
+                        </View>
+                      </View>
                     )}
-                    <Text style={styles.uploadText}>Upload Valid ID Photo</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.checkboxContainer}>
-                  <View style={styles.checkboxWrapper}>
-                    <View
-                      style={{
-                        transform: [{ scale: 0.8 }],
-                        marginTop: -5,
-                        marginBottom: -5,
-                      }}
-                    >
-                      <Checkbox
-                        status={termsAccepted ? "checked" : "unchecked"}
-                        onPress={() => setTermsAccepted(!termsAccepted)}
-                        color="black"
-                      />
-                    </View>
-                  </View>
-                  <Text style={styles.checkboxText}>
-                    Agree with terms & conditions
-                  </Text>
-                </View>
-
-                <Button
-                  loading={loading}
-                  disabled={loading}
-                  style={styles.buttonStyle}
-                  mode="contained"
-                  onPress={handleRegistration}
-                  labelStyle={{ color: "white", fontWeight: "bold" }}
-                >
-                  Register Account
-                </Button>
-                <SafeAreaView
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ color: "white" }}>
-                    Already have an account?
-                  </Text>
-                  <Button
-                    labelStyle={{ color: "#A97E00" }}
-                    loading={loading}
-                    disabled={loading}
-                    onPress={() => navigator.navigate("Login")}
-                  >
-                    Login Now
-                  </Button>
-                </SafeAreaView>
-              </View>
+                  </>
+                )}
+              </Formik>
             </PaperProvider>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -635,172 +500,50 @@ const Registerold = () => {
 };
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    resizeMode: "cover",
-  },
   container: {
     flex: 1,
-    alignItems: "center",
+    backgroundColor: "transparent",
   },
   formContainer: {
-    alignItems: "center",
-    paddingVertical: heightPercentageToDP("5%"),
+    flexGrow: 1,
+    justifyContent: "center",
+    padding: 25,
+    paddingTop: 150,
   },
   headerText: {
-    marginTop: heightPercentageToDP("-2%"),
-    color: "#A97E00",
+    fontSize: 24,
     fontWeight: "bold",
-    fontSize: widthPercentageToDP("10%"),
+    textAlign: "center",
+    marginBottom: 16,
   },
-  inputStyle: {
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderWidth: 2,
-    borderColor: "#C2B067",
+  input: {
+    marginBottom: 12,
   },
-  menuContent: {
-    backgroundColor: "black",
-    alignItems: "center",
-    borderRadius: 10,
-    width: 250,
-    marginLeft: -50,
+  button: {
+    marginTop: 16,
   },
-  menuItemContainer: {
-    alignItems: "center",
-    paddingVertical: 5,
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
   },
-  menuTitle: {
-    color: "white",
-    fontWeight: "bold",
+  errorText: {
+    color: "red",
     fontSize: 12,
-    textAlign: "center",
   },
-  menuItemButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#C2B067",
-    marginVertical: 5,
-    width: 200,
+  backgroundImage: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
   },
-  selectedMenuItemButton: {
-    backgroundColor: "#C2B067",
-  },
-  menuItemText: {
-    color: "white",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  dropdown: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 10,
-    backgroundColor: "#FFC42B",
-    borderRadius: 30,
-    marginBottom: 10,
-    width: widthPercentageToDP("80%"),
-  },
-  genderContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-  },
-  dateContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-  },
-  Gender: {
-    padding: 10,
-    borderRadius: 30,
-    width: "23%",
-    alignItems: "center",
-    color: "#fff",
-  },
-  Date: {
-    padding: 10,
-    borderRadius: 30,
-    width: "30%",
-    alignItems: "center",
-    color: "#fff",
-  },
-  genderButton: {
-    padding: 10,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#FFC42B",
-    width: "30%",
-    alignItems: "center",
-  },
-  selectedGender: {
-    backgroundColor: "#A97E00",
-  },
-  genderText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  datePickerButton: {
-    width: widthPercentageToDP("55%"),
-    padding: 10,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#FFC42B",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: heightPercentageToDP("2%"),
-  },
-  datePickerText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  uploadButton: {
-    padding: 15,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#FFC42B",
-    width: "60%",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  uploadText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  image: {
-    width: 200,
-    height: 200,
-    marginTop: 20,
+  stepContainer: {
+    padding: 16,
   },
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: heightPercentageToDP("3%"),
-  },
-  checkboxWrapper: {
-    backgroundColor: "rgba(255, 255, 255, 0.50)",
-    borderRadius: 12,
-    marginRight: 10,
-    height: 23,
-  },
-  checkboxText: {
-    color: "white",
-    fontSize: 16,
-  },
-  buttonStyle: {
-    width: widthPercentageToDP("50%"),
-    height: heightPercentageToDP("6%"),
-    marginBottom: heightPercentageToDP("2%"),
-    backgroundColor: "#CEB64C",
-  },
-  menuStyle: {
-    width: widthPercentageToDP("50%"),
+    marginBottom: 12,
   },
 });
 
-export default Registerold;
+export default Register;

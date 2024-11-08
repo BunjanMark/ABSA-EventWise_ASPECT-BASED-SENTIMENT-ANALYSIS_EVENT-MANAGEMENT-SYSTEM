@@ -45,7 +45,6 @@ const Register = () => {
   const [gender, setGender] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
 
-
   const [verificationCode, setVerificationCode] = useState("");
   const [page, setPage] = useState(1); // 1 for registration, 2 for verification
 
@@ -74,62 +73,69 @@ const Register = () => {
 
     // Check if passwords match
     if (password !== repassword) {
-        showToast("Passwords do not match.");
-        setLoading(false);
-        return; // Exit the function early
+      showToast("Passwords do not match.");
+      setLoading(false);
+      return; // Exit the function early
     }
 
     // Check if role is selected
     if (!selectedRole) {
-        showToast("Please select a user role.");
-        setLoading(false);
-        return; // Exit the function early
+      showToast("Please select a user role.");
+      setLoading(false);
+      return; // Exit the function early
     }
 
     try {
-        const roleMapping = {
-            "SERVICE PROVIDER": "3",
-            CUSTOMER: "2",
-        };
+      const roleMapping = {
+        "SERVICE PROVIDER": "3",
+        CUSTOMER: "2",
+      };
 
-        const data = {
-            name,
-            lastname,
-            username,
-            email,
-            phone_number: phoneNumber,
-            password,
-            password_confirmation: repassword,
-            date_of_birth: date.toISOString().split("T")[0],
-            gender,
-            role: roleMapping[selectedRole],
-            terms_accepted: termsAccepted,
-        };
+      const data = {
+        name,
+        lastname,
+        username,
+        email,
+        phone_number: phoneNumber,
+        password,
+        password_confirmation: repassword,
+        date_of_birth: date.toISOString().split("T")[0],
+        gender,
+        role: roleMapping[selectedRole],
+        terms_accepted: termsAccepted,
+      };
 
-        console.log("Registration Data:", data); // Check the data being sent
+      console.log("Registration Data:", data); // Check the data being sent
 
-        const response = await axios.post('https://50bc-103-62-152-155.ngrok-free.app/api/pending', data);
+      const response = await axios.post(
+        "https://50bc-103-62-152-155.ngrok-free.app/api/pending",
+        data
+      );
 
-        if (response.status === 201) {
-            showToast(response.data.message || "Registration successful!");
-            // Optionally navigate to another screen or reset the form
-        }
+      if (response.status === 201) {
+        showToast(response.data.message || "Registration successful!");
+        // Optionally navigate to another screen or reset the form
+      }
     } catch (error) {
-        if (error.response) {
-            console.error("Registration Error:", error.response.data);
-            showToast(`Error: ${error.response.data.message || "An unexpected error occurred."}`);
-        } else if (error.request) {
-            console.error("No response received:", error.request);
-            showToast("No response from the server. Please try again later.");
-        } else {
-            console.error("Error setting up the request:", error.message);
-            showToast("An unexpected error occurred. Please try again.");
-        }
-        setIsError(true);
+      if (error.response) {
+        console.error("Registration Error:", error.response.data);
+        showToast(
+          `Error: ${
+            error.response.data.message || "An unexpected error occurred."
+          }`
+        );
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        showToast("No response from the server. Please try again later.");
+      } else {
+        console.error("Error setting up the request:", error.message);
+        showToast("An unexpected error occurred. Please try again.");
+      }
+      setIsError(true);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   const handleDateConfirm = (date) => {
     setDate(date);
@@ -169,78 +175,78 @@ const Register = () => {
                 <View style={styles.inputContainer}>
                   {/* Registration Form */}
                   <Menu
-                  visible={visible}
-                  onDismiss={closeMenu}
-                  contentStyle={styles.menuContent}
-                  anchor={
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
+                    visible={visible}
+                    onDismiss={closeMenu}
+                    contentStyle={styles.menuContent}
+                    anchor={
                       <View
-                        style={[
-                          styles.menuStyle,
-                          {
-                            backgroundColor: "#C2B067",
-                            padding: 1,
-                            borderRadius: 30,
-                            marginBottom: 5,
-                            marginTop: 5,
-                            margin: 18,
-                            zIndex: 999,
-                          },
-                        ]}
+                        style={{ flexDirection: "row", alignItems: "center" }}
                       >
-                        <Text
-                          style={{
-                            color: "white",
-                            fontWeight: "bold",
-                            textAlign: "center",
-                            margin: 10,
-                          }}
+                        <View
+                          style={[
+                            styles.menuStyle,
+                            {
+                              backgroundColor: "#C2B067",
+                              padding: 1,
+                              borderRadius: 30,
+                              marginBottom: 5,
+                              marginTop: 5,
+                              margin: 18,
+                              zIndex: 999,
+                            },
+                          ]}
                         >
-                          {selectedRole ?? "User Role: "}
-                        </Text>
+                          <Text
+                            style={{
+                              color: "white",
+                              fontWeight: "bold",
+                              textAlign: "center",
+                              margin: 10,
+                            }}
+                          >
+                            {selectedRole ?? "User Role: "}
+                          </Text>
+                        </View>
+                        <Icon
+                          name="arrow-down-bold-circle"
+                          size={40}
+                          color="#000"
+                          style={{ marginLeft: 10 }}
+                          onPress={openMenu}
+                        />
                       </View>
-                      <Icon
-                        name="arrow-down-bold-circle"
-                        size={40}
-                        color="#000"
-                        style={{ marginLeft: 10 }}
-                        onPress={openMenu}
-                      />
+                    }
+                    style={{
+                      position: "absolute",
+                      zIndex: 999,
+                      top: 85,
+                      left: 90,
+                    }}
+                  >
+                    <View style={styles.menuItemContainer}>
+                      <Text style={styles.menuTitle}>PLEASE SELECT</Text>
                     </View>
-                  }
-                  style={{
-                    position: "absolute",
-                    zIndex: 999,
-                    top: 85,
-                    left: 90,
-                  }}
-                >
-                  <View style={styles.menuItemContainer}>
-                    <Text style={styles.menuTitle}>PLEASE SELECT</Text>
-                  </View>
-                  <TouchableOpacity
-                    style={[
-                      styles.menuItemButton,
-                      selectedRole === "SERVICE PROVIDER" &&
-                        styles.selectedMenuItemButton,
-                    ]}
-                    onPress={() => handleRoleChange("SERVICE PROVIDER")}
-                  >
-                    <Text style={styles.menuItemText}>SERVICE PROVIDER</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.menuItemButton,
-                      selectedRole === "CUSTOMER" &&
-                        styles.selectedMenuItemButton,
-                    ]}
-                    onPress={() => handleRoleChange("CUSTOMER")}
-                  >
-                    <Text style={styles.menuItemText}>CUSTOMER</Text>
-                  </TouchableOpacity>
-                </Menu>
+                    <TouchableOpacity
+                      style={[
+                        styles.menuItemButton,
+                        selectedRole === "SERVICE PROVIDER" &&
+                          styles.selectedMenuItemButton,
+                      ]}
+                      onPress={() => handleRoleChange("SERVICE PROVIDER")}
+                    >
+                      <Text style={styles.menuItemText}>SERVICE PROVIDER</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.menuItemButton,
+                        selectedRole === "CUSTOMER" &&
+                          styles.selectedMenuItemButton,
+                      ]}
+                      onPress={() => handleRoleChange("CUSTOMER")}
+                    >
+                      <Text style={styles.menuItemText}>CUSTOMER</Text>
+                    </TouchableOpacity>
+                  </Menu>
 
                   <TextInput
                     style={styles.inputStyle}
@@ -322,7 +328,9 @@ const Register = () => {
                   />
 
                   {/* Gender Selection */}
-                  <View style={[styles.inputContainer, { alignItems: "center" }]}>
+                  <View
+                    style={[styles.inputContainer, { alignItems: "center" }]}
+                  >
                     <View style={styles.genderContainer}>
                       <Text style={styles.Gender}>Gender</Text>
                       <TouchableOpacity
@@ -388,42 +396,42 @@ const Register = () => {
                   </View>
 
                   {/* Register Button */}
-                <Button
-                loading={loading}
-                disabled={loading}
-                mode="contained"
-                onPress={goToNextPage}
-                labelStyle={{ color: "white", fontWeight: "bold" }}
-                style={{
-                  width: "50%", // Set the width to 50%
-                  alignSelf: "center", // Center the button horizontally
-                  marginTop: 20, // Optional: Add some space above the button
-                  backgroundColor: "#eeba2b", // Button background color (can be customized)
-                  borderRadius: 30, // Rounded corners (optional)
-                }}
-              >
-                Next
-              </Button>
-
-                  <SafeAreaView
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ color: "black" }}>
-                    Already have an account?
-                  </Text>
                   <Button
-                    labelStyle={{ color: "#A97E00" }}
                     loading={loading}
                     disabled={loading}
-                    onPress={() => navigator.navigate("Login")}
+                    mode="contained"
+                    onPress={goToNextPage}
+                    labelStyle={{ color: "white", fontWeight: "bold" }}
+                    style={{
+                      width: "50%", // Set the width to 50%
+                      alignSelf: "center", // Center the button horizontally
+                      marginTop: 20, // Optional: Add some space above the button
+                      backgroundColor: "#eeba2b", // Button background color (can be customized)
+                      borderRadius: 30, // Rounded corners (optional)
+                    }}
                   >
-                    Login Now
+                    Next
                   </Button>
-                </SafeAreaView>
+
+                  <SafeAreaView
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ color: "black" }}>
+                      Already have an account?
+                    </Text>
+                    <Button
+                      labelStyle={{ color: "#A97E00" }}
+                      loading={loading}
+                      disabled={loading}
+                      onPress={() => navigator.navigate("Login")}
+                    >
+                      Login Now
+                    </Button>
+                  </SafeAreaView>
 
                   {/* Go Back Button */}
                   <Button
@@ -439,40 +447,37 @@ const Register = () => {
               ) : (
                 // Verification Form
                 <View style={styles.verificationContainer}>
-  {/* Text above the TextInput */}
-                    <Text style={styles.verificationInstruction}>We sent a verification code to your email</Text>
+                  {/* Text above the TextInput */}
+                  <Text style={styles.verificationInstruction}>
+                    We sent a verification code to your email
+                  </Text>
 
-                    {/* TextInput */}
-                    <TextInput
-                      label="Enter Verification Code"
-                      value={verificationCode}
-                      onChangeText={setVerificationCode}
-                      style={styles.verificationInput}
-                    />
+                  {/* TextInput */}
+                  <TextInput
+                    label="Enter Verification Code"
+                    value={verificationCode}
+                    onChangeText={setVerificationCode}
+                    style={styles.verificationInput}
+                  />
 
-                        <TouchableOpacity>
-                      <Text style={styles.verifyText}>
-                        Verify
-                      </Text>
-                    </TouchableOpacity>
-                    
-                    {/* Button */}
-                    <Button
-                      loading={loading}
-                      disabled={loading}
-                      style={styles.verificationButton}
-                      mode="contained"
-                      onPress={handleRegistration}
-                      labelStyle={styles.buttonLabel} // Apply the custom text color
-                    >
-                      Register Account
-                    </Button>
-                    
-                    {/* Clickable "Verify" text below the TextInput */}
-                    
-                  </View>
+                  <TouchableOpacity>
+                    <Text style={styles.verifyText}>Verify</Text>
+                  </TouchableOpacity>
 
+                  {/* Button */}
+                  <Button
+                    loading={loading}
+                    disabled={loading}
+                    style={styles.verificationButton}
+                    mode="contained"
+                    onPress={handleRegistration}
+                    labelStyle={styles.buttonLabel} // Apply the custom text color
+                  >
+                    Register Account
+                  </Button>
 
+                  {/* Clickable "Verify" text below the TextInput */}
+                </View>
               )}
             </PaperProvider>
           </ScrollView>
@@ -482,20 +487,19 @@ const Register = () => {
   );
 };
 
-
 const styles = StyleSheet.create({
   verificationContainer: {
     marginTop: 20, // Add space above the container
     paddingHorizontal: 20, // Padding for left and right spacing
-    alignItems: 'center', // Center content horizontally
+    alignItems: "center", // Center content horizontally
   },
-  
+
   // Instruction text above the TextInput
   verificationInstruction: {
     fontSize: 16, // Set text size
-    color: '#000', // Set text color (black)
+    color: "#000", // Set text color (black)
     marginBottom: 10, // Space between text and TextInput
-    textAlign: 'center', // Center the instruction text
+    textAlign: "center", // Center the instruction text
   },
 
   // Verification Input Styles
@@ -512,7 +516,7 @@ const styles = StyleSheet.create({
     borderRadius: 30, // Rounded corners for button
     backgroundColor: "#eeba2b", // Button background color
     elevation: 5, // Adds shadow for Android
-    shadowColor: 'black', // Black shadow color
+    shadowColor: "black", // Black shadow color
     shadowOffset: { width: 0, height: 4 }, // Shadow direction (vertical)
     shadowOpacity: 0.25, // Shadow opacity (how strong the shadow is)
     shadowRadius: 6, // Shadow blur radius (how spread out the shadow is)
@@ -527,8 +531,8 @@ const styles = StyleSheet.create({
   // Style for the "Verify" clickable text
   verifyText: {
     fontSize: 16, // Set text size
-    color: '#000', // Set text color
-    textDecorationLine: 'underline', // Underline the text
+    color: "#000", // Set text color
+    textDecorationLine: "underline", // Underline the text
     marginTop: 10, // Space between the button and the clickable text
   },
   backgroundImage: {
