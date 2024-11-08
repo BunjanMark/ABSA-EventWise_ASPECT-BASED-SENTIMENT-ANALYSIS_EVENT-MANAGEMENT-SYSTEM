@@ -19,13 +19,36 @@ class ServiceController extends Controller
     {
         try {
             // Fetch services associated with the authenticated user's account role
-            $userId = $this->getUserIdFromRole();
-            $services = Service::where('user_id', $userId)->get();
+            // $userId = $this->getUserIdFromRole();
+            // $services = Service::where('user_id', $userId)->get();
+
+            // fetch all services regardless of user ID
+            $services = Service::all();  
+
+            
             return response()->json($services, 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
+    // get own's services created
+    public function getOwnServices()
+    {
+        try {
+            // Fetch services associated with the authenticated user's account role
+            // $userId = $this->getUserIdFromRole();
+            // $services = Service::where('user_id', $userId)->get();
+
+            // fetch all services regardless of user ID
+            $services = Service::all();  
+
+            
+            return response()->json($services, 200);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 500);
+        }
+    }
+   
     // Define this function in your ServiceController or a dedicated UserRole service class
     private function getUserIdAndRole()
     {
