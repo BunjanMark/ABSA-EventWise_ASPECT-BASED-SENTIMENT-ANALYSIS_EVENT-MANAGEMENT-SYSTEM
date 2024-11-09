@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import event2 from "../../assets/event2.png";
 import event3 from "../../assets/event3.png";
 import { fetchPackages } from "../services/organizer/organizerServices";
+
 const useStore = create((set) => ({
   loading: true,
   // navigation: null, // Store navigation object here
@@ -55,7 +56,23 @@ const useStore = create((set) => ({
   setUserEmail: (email) => set({ userEmail: email }),
   setUserPhone: (phone) => set({ userPhone: phone }),
   setUserPassword: (password) => set({ userPassword: password }),
+  // registration states and setters
+  name: "",
+  gender: "",
+  dateOfBirth: new Date(),
+  email: "",
+  phoneNumber: "",
+  username: "",
+  password: "",
+  confirmPassword: "",
+  selectedRole: null,
+  role_id: "",
+  termsAccepted: false,
+  verificationCode: "",
 
+  // selectedRole parse
+  // Action to update fields in the store
+  updateField: (field, value) => set((state) => ({ ...state, [field]: value })),
   // handling save for backend API
   // const handleSave = async () => {
   //   try {

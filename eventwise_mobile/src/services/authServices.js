@@ -47,6 +47,19 @@ export const sendVerificationEmail = async (email) => {
     throw error;
   }
 };
+
+export const verifyCode = async (email, code) => {
+  try {
+    const response = await api.post(`/verify-email-code`, {
+      email,
+      code,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Verification error:", error);
+    throw new Error("Verification failed");
+  }
+};
 export const login = async (email, password) => {
   try {
     const response = await api.post("/auth/login", { email, password });

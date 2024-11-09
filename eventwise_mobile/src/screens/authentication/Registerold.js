@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ActivityIndicator } from "react-native-paper";
-
+import { sendVerificationEmail, verifyCode } from "../../services/authServices";
 import {
   SafeAreaView,
   ImageBackground,
@@ -29,16 +29,21 @@ import {
 } from "react-native-responsive-screen";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import * as ImagePicker from "expo-image-picker";
+
 import { signup } from "../../services/authServices";
 
 import { useNavigation } from "@react-navigation/native";
-import EmailVerificationForm from "./EmailVerificationForm";
+
 const validationSchema = Yup.object().shape({
-  fullName: Yup.string().required("Full Name is required"),
+  name: Yup.string().required("Full Name is required"),
   gender: Yup.string().required("Gender is required"),
   dateOfBirth: Yup.date().required("Date of Birth is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  verificationCode: Yup.string()
+    .min(6, "Code must be 6 characters")
+    .required("Verification code is required"),
   phoneNumber: Yup.string().required("Phone number is required"),
   username: Yup.string().required("Username is required"),
   password: Yup.string()
@@ -49,22 +54,88 @@ const validationSchema = Yup.object().shape({
     .required("Confirm Password is required"),
   termsAccepted: Yup.boolean().oneOf([true], "You must accept the terms"),
 });
-
+import useStore from "../../stateManagement/useStore";
 const Register = () => {
+  const {
+    updateField,
+    name,
+    gender,
+    dateOfBirth,
+    email,
+    phoneNumber,
+    username,
+    password,
+    confirmPassword,
+    selectedRole,
+    role_id,
+    termsAccepted,
+  } = useStore();
   const [step, setStep] = useState(1);
+
+  const [emailVerified, setEmailVerified] = useState(false); // Track verification status
+  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  // const [verificationCode, setVerificationCode] = useState("");
+  const [loading, setLoading] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [roleMenuVisible, setRoleMenuVisible] = useState(false);
   const navigation = useNavigation();
   const [HideEntry, setHideEntry] = useState(true);
   const [HideEntry2, setHideEntry2] = useState(true);
-  const handleNextStep = () => {
-    setStep(2);
+
+  const handleSubmitRegister = async (values) => {
+    try {
+      const response = await signup(values);
+      console.log("--------------------------------");
+      console.log("handle submit test: signup response:", response);
+      Toast.show(
+        response.message,
+        {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0,
+        },
+        () => {
+          console.log("Toast hidden");
+        }
+      );
+      console.log("--------------------------------");
+    } catch (error) {
+      console.error(
+        "Error in handleSubmitregister================:",
+        error,
+        values
+      );
+
+      Toast.show(
+        error.response.data.message,
+        {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0,
+        },
+        () => {
+          console.log("Toast hidden");
+        }
+      );
+    }
   };
+
   const CustomIcon = ({ name, size, color }) => {
     return <Icon name={name} size={size} color={color} />;
   };
   const handlePreviousStep = () => {
-    setStep(1);
+    setStep(step - 1);
+  };
+
+  const handleNextStep = () => {
+    setStep(step + 1);
   };
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);
@@ -83,25 +154,61 @@ const Register = () => {
   const closeRoleMenu = () => setRoleMenuVisible(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const handleSubmit = (values) => {
+  const handleRegistration = async (values) => {
+    // ...
+    console.log("handleRegistration called with values:", values);
+
     try {
-      setIsSubmitting(true);
-      signup(values)
-        .then((response) => {
-          Toast.show("Registration successful", {
-            duration: Toast.durations.LONG,
-          });
-          setIsSubmitting(false);
-        })
-        .catch((error) => {
-          Toast.show("Registration failed", { duration: Toast.durations.LONG });
-          setIsSubmitting(false);
-        });
+      const response = await signup(values);
+      console.log("signup response:", response);
     } catch (error) {
-      console.error("Registration Error:", error);
+      console.error("Error in handleRegistration:", error);
+    }
+  };
+  const handleVerifyEmail = async (values) => {
+    try {
+      setLoading(true);
+      const response = await sendVerificationEmail(values.email);
+      if (response.message) {
+        setIsCodeSent(true);
+        alert("Verification code sent to your email.");
+      } else {
+        alert("Error sending verification code.");
+      }
+      console.log("Verification code sent");
+    } catch (error) {
+      console.error("Error during email verification:", error);
+
+      alert("Failed to send verification email.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Triggered when the user submits the verification code
+
+  const handleVerificationCode = async (values) => {
+    try {
+      // handleNextStep();
+      setLoading(true);
+      console.log(values.email, values.verificationCode);
+      updateField("email", values.email);
+      const response = await verifyCode(values.email, values.verificationCode);
+      console.log(response.success);
+      if (response.success) {
+        alert("Email verified successfully!");
+        // onNextStep(); // Call the onNextStep callback function
+        handleNextStep(); //
+      } else {
+        alert("Invalid verification code.");
+      }
+    } catch (error) {
+      console.error("Error verifying codes:", error);
+      alert("Failed to verify code.");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <ImageBackground
       source={require("../customerScreens/pictures/authbg.png")}
@@ -132,19 +239,20 @@ const Register = () => {
             <PaperProvider>
               <Formik
                 initialValues={{
-                  fullName: "",
-                  gender: "",
-                  dateOfBirth: new Date(),
-                  email: "",
-                  phoneNumber: "",
-                  username: "",
-                  password: "",
-                  confirmPassword: "",
-                  selectedRole: null,
-                  termsAccepted: false,
+                  name,
+                  gender,
+                  dateOfBirth,
+                  email,
+                  phoneNumber,
+                  username,
+                  password,
+                  confirmPassword,
+                  selectedRole,
+                  role_id,
+                  termsAccepted,
                 }}
                 validationSchema={validationSchema}
-                onSubmit={handleSubmit}
+                onSubmit={() => handleSubmitRegister(values)}
               >
                 {({
                   values,
@@ -160,16 +268,17 @@ const Register = () => {
                       <View style={styles.stepContainer}>
                         <TextInput
                           label="Full Name"
-                          value={values.fullName}
-                          onChangeText={handleChange("fullName")}
-                          onBlur={handleBlur("fullName")}
+                          value={values.name}
+                          onChangeText={(text) => {
+                            handleChange("name")(text);
+                            updateField("name", text);
+                          }}
+                          onBlur={handleBlur("name")}
                           style={styles.input}
                           mode="outlined"
                         />
-                        {touched.fullName && errors.fullName && (
-                          <Text style={styles.errorText}>
-                            {errors.fullName}
-                          </Text>
+                        {touched.name && errors.fullName && (
+                          <Text style={styles.errorText}>{errors.name}</Text>
                         )}
 
                         <Menu
@@ -186,53 +295,32 @@ const Register = () => {
                               />
                             </TouchableOpacity>
                           }
-                          contentStyle={{ width: 200, bottom: 220, right: 30 }}
                         >
-                          <View
-                            style={{
-                              flexDirection: "column",
-                              alignItems: "center",
-                              justifyContent: "center",
+                          <Menu.Item
+                            onPress={() => {
+                              setFieldValue("gender", "Male");
+                              updateField("gender", "Male");
+                              setRoleMenuVisible(false);
                             }}
-                          >
-                            <Menu.Item
-                              onPress={() => {
-                                setFieldValue("gender", "Male"),
-                                  setRoleMenuVisible(false);
-                              }}
-                              title="Male"
-                              style={{
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
-                            />
-                            <Menu.Item
-                              onPress={() => {
-                                setFieldValue("gender", "Female"),
-                                  setRoleMenuVisible(false);
-                              }}
-                              title="Female"
-                              style={{
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
-                            />
-                            <Menu.Item
-                              onPress={() => {
-                                setFieldValue("gender", "Other"),
-                                  setRoleMenuVisible(false);
-                              }}
-                              title="Other"
-                              style={{
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
-                            />
-                          </View>
+                            title="Male"
+                          />
+                          <Menu.Item
+                            onPress={() => {
+                              setFieldValue("gender", "Female");
+                              updateField("gender", "Female");
+                              setRoleMenuVisible(false);
+                            }}
+                            title="Female"
+                          />
+                          <Menu.Item
+                            onPress={() => {
+                              setFieldValue("gender", "Other");
+                              updateField("gender", "Other");
+                              setRoleMenuVisible(false);
+                            }}
+                            title="Other"
+                          />
                         </Menu>
-                        {touched.gender && errors.gender && (
-                          <Text style={styles.errorText}>{errors.gender}</Text>
-                        )}
 
                         <TouchableOpacity onPress={openDatePicker}>
                           <TextInput
@@ -246,40 +334,21 @@ const Register = () => {
                         <DateTimePickerModal
                           isVisible={isDatePickerVisible}
                           mode="date"
-                          onConfirm={(date) =>
-                            handleDateConfirm(date, setFieldValue)
-                          }
+                          onConfirm={(date) => {
+                            setFieldValue("dateOfBirth", date);
+                            updateField("dateOfBirth", date);
+                            setDatePickerVisibility(false);
+                          }}
                           onCancel={() => setDatePickerVisibility(false)}
                         />
-                        {touched.dateOfBirth && errors.dateOfBirth && (
-                          <Text style={styles.errorText}>
-                            {errors.dateOfBirth}
-                          </Text>
-                        )}
-
-                        <EmailVerificationForm />
-                        {/* #email */}
-                        {/* <TextInput
-                          label="Email Address"
-                          value={values.email}
-                          onChangeText={handleChange("email")}
-                          onBlur={handleBlur("email")}
-                          style={styles.input}
-                          mode="outlined"
-                          right={
-                            <TouchableOpacity>
-                              <Text>Verify email</Text>
-                            </TouchableOpacity>
-                          }
-                        />
-                        {touched.email && errors.email && (
-                          <Text style={styles.errorText}>{errors.email}</Text>
-                        )} */}
 
                         <TextInput
                           label="Phone Number"
                           value={values.phoneNumber}
-                          onChangeText={handleChange("phoneNumber")}
+                          onChangeText={(text) => {
+                            handleChange("phoneNumber")(text);
+                            updateField("phoneNumber", text);
+                          }}
                           onBlur={handleBlur("phoneNumber")}
                           style={styles.input}
                           mode="outlined"
@@ -293,7 +362,9 @@ const Register = () => {
 
                         <Button
                           mode="contained"
-                          onPress={handleNextStep}
+                          onPress={() => {
+                            handleNextStep(values);
+                          }}
                           style={{
                             width: widthPercentageToDP("50%"),
                             height: heightPercentageToDP("6%"),
@@ -322,7 +393,67 @@ const Register = () => {
                           <Text style={styles.buttonText}>Go back</Text>
                         </Button>
                       </View>
-                    ) : (
+                    ) : step === 2 ? (
+                      <View style={styles.stepContainer}>
+                        <Text style={styles.headerText}>
+                          Email Verification
+                        </Text>
+                        <View>
+                          <TextInput
+                            label="Email Address"
+                            value={values.email}
+                            onChangeText={(text) => {
+                              handleChange("email")(text);
+                              updateField("email", text);
+                            }}
+                            onBlur={handleBlur("email")}
+                            style={styles.input}
+                            mode=" "
+                            error={touched.email && errors.email}
+                            helperText={touched.email && errors.email}
+                          />
+                          {touched.email && errors.email && (
+                            <Text style={styles.errorText}>{errors.email}</Text>
+                          )}
+
+                          <Button
+                            mode="contained"
+                            onPress={() => handleVerifyEmail(values)}
+                            style={styles.verificationButton}
+                            loading={loading}
+                            disabled={loading}
+                          >
+                            Verify
+                          </Button>
+
+                          {isCodeSent && (
+                            <>
+                              <View style={styles.verificationContainer}>
+                                <TextInput
+                                  label="Enter Verification Code"
+                                  value={values.verificationCode}
+                                  onChangeText={(text) => {
+                                    handleChange("verificationCode")(text);
+                                    updateField("verificationCode", text);
+                                  }}
+                                  style={styles.verificationInput}
+                                />
+
+                                <Button
+                                  mode="contained"
+                                  onPress={() => handleVerificationCode(values)}
+                                  style={styles.verificationButton}
+                                  loading={loading}
+                                  disabled={loading}
+                                >
+                                  Verify Code
+                                </Button>
+                              </View>
+                            </>
+                          )}
+                        </View>
+                      </View>
+                    ) : step === 3 ? (
                       <View style={styles.stepContainer}>
                         <TextInput
                           label="Username"
@@ -410,7 +541,12 @@ const Register = () => {
                         >
                           <Menu.Item
                             onPress={() => {
-                              setFieldValue("selectedRole", "Service Provider");
+                              setFieldValue(
+                                "selectedRole",
+                                "Service Providerss"
+                              );
+                              setFieldValue("role_id", 3);
+                              updateField("role_id", 3);
                               setRoleMenuVisible(false); // Close the menu when selecting 'Service Provider'
                             }}
                             title="Service Provider"
@@ -418,6 +554,8 @@ const Register = () => {
                           <Menu.Item
                             onPress={() => {
                               setFieldValue("selectedRole", "Customer");
+                              setFieldValue("role_id", 2);
+                              updateField("role_id", 2);
                               setRoleMenuVisible(false); // Close the menu when selecting 'Customer'
                             }}
                             title="Customer"
@@ -464,7 +602,9 @@ const Register = () => {
                         >
                           <Button
                             mode="contained"
-                            onPress={handleSubmit}
+                            onPress={() => {
+                              handleSubmitRegister(values);
+                            }}
                             style={{
                               width: widthPercentageToDP("50%"),
                               height: heightPercentageToDP("6%"),
@@ -487,7 +627,7 @@ const Register = () => {
                           </Button>
                         </View>
                       </View>
-                    )}
+                    ) : null}
                   </>
                 )}
               </Formik>

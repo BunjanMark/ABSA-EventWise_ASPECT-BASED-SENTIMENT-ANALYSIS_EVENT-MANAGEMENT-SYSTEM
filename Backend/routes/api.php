@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\DashboardController;
@@ -32,12 +33,14 @@ Route::prefix('auth')->group(function () {
     Route::post('switch-account', [AuthenticatedSessionController::class, 'switchAccount'])->middleware(['auth:sanctum']);
 });
 // for email verification
-Route::post('/verify-email', [AuthenticatedSessionController::class, 'sendVerificationEmail']);
-Route::post('/verify-email-code', [AuthenticatedSessionController::class, 'verifyCode']);
+// Route::post('/verify-email', [AuthenticatedSessionController::class, 'sendVerificationEmail']);
+// Route::post('/verify-email-code', [AuthenticatedSessionController::class, 'verifyCode']);
 // test email view
-// Route::get('/test-email-view', function () {
-//     return view('emails.verification', ['verificationCode' => '123456']);
-// });
+Route::get('/test-email-view', function () {
+    return view('emails.verification', ['verificationCode' => '123456']);
+});
+Route::post('/verify-email', [EmailVerificationController::class, 'sendVerificationEmail']);
+Route::post('/verify-email-code', [EmailVerificationController::class, 'verifyCode']);
 //for switch account profile admin
 Route::post('/admin/account-management', [AccountManagementController::class, 'addProfile'])->middleware(['auth:sanctum']);
 Route::get('/admin/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);

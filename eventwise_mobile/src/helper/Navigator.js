@@ -59,6 +59,7 @@ import ServiceProviderIndex from "../screens/serviceProvidersScreen/ServiceProvi
 import { ProfileContext } from "../services/profileContextcp";
 import Venue from "../screens/customerScreens/otherScreens/Venue";
 import GuestIndex from "../screens/guestScreens/GuestIndex";
+import { MyReactNativeForm } from "../screens/authentication/MyReactNativeForm";
 const Stack = createNativeStackNavigator();
 
 const AuthenticationStack = () => {
