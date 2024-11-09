@@ -10,6 +10,12 @@ import './App.css';
 import image1 from "./images/event1.png"; // Example images
 import image2 from "./images/event2.png";
 import image3 from "./images/event3.png";
+import package1Image from './images/package1.png';
+import package2Image from './images/package2.png';
+import package3Image from './images/package3.png';
+import package4Image from './images/package4.png';
+
+
 
 
 import Box from '@mui/material/Box';
@@ -31,13 +37,16 @@ const venues = [
 
 
 // CHOOSE PACKAGE
-const packagesData = [
-    { id: '1', packagename: 'Package A', image: require('./images/package1.png'), price: '100,000', description: 'Perfect for intimate gatherings, this package offers a cozy setting with essential amenities for up to 100 guests.' },
-    { id: '2', packagename: 'Package B', image: require('./images/package2.png'), price: '150,000', description: 'Ideal for mid-sized events, Package B includes additional features such as catering and audiovisual support for up to 100 guests.' },
-    { id: '3', packagename: 'Package C', image: require('./images/package3.png'), price: '200,000', description: 'Designed for larger events, this package accommodates up to 150 guests and provides a comprehensive solution with premium decorations.' },
-    { id: '4', packagename: 'Package D', image: require('./images/package4.png'), price: '250,000', description: 'The ultimate choice for grand celebrations, Package D caters to events of up to 250 guests with bespoke services and expert planning.' },
-  ];
-
+// Array of images to pick from randomly
+const image = [package1Image, package2Image, package3Image, package4Image];
+const randomDescriptions = [
+  'Perfect for intimate gatherings, this package offers a cozy setting with essential amenities for up to 100 guests.',
+  'Ideal for mid-sized events, this package includes additional features such as catering and audiovisual support for up to 100 guests.',
+  'Designed for larger events, this package accommodates up to 150 guests and provides a comprehensive solution with premium decorations.',
+  'The ultimate choice for grand celebrations, this package caters to events of up to 250 guests with bespoke services and expert planning.',
+  'An all-inclusive package perfect for corporate events, featuring high-end technology and luxurious amenities for a professional setting.',
+  'The ideal choice for outdoor events, offering a spacious venue with full-service catering and customized decor options.',
+];
 
 
 //   SERVICE PROVIDER
@@ -330,16 +339,52 @@ const images = [image1, image2, image3];
 
 // Blank Page Component
 const ChoosePackage = () => {
+  const [packagesData, setPackagesData] = useState([]);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const navigate = useNavigate();
 
+  const calculateTotalPrice = (services) => {
+    return services.reduce((total, service) => total + service.basePrice, 0);
+  };
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const response = await axios.get('http://192.168.1.48:8000/api/admin/packages');
+        console.log(response.data);  // Verify the structure
+
+        const data = response.data.map((pkg) => {
+          const totalPrice = calculateTotalPrice(pkg.services);
+          const description = randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)];
+
+          return {
+            ...pkg,
+            totalPrice,
+            image: image[Math.floor(Math.random() * image.length)],
+            description,
+          };
+        });
+
+        setPackagesData(data);
+      } catch (error) {
+        console.error('Error fetching packages:', error);
+      }
+    };
+
+    fetchPackages();
+  }, []);
+
   const openOverlay = (pkg) => {
     setSelectedPackage(pkg);
     setIsOverlayOpen(true);
-    localStorage.setItem('selectedPackage', JSON.stringify(pkg)); 
+    localStorage.setItem('selectedPackage', JSON.stringify(pkg));
+  
+    // Clear the addedEvents if a package is selected to avoid mixing package & service providers
+    localStorage.removeItem('addedEvents');
   };
   
+
   const closeOverlay = () => {
     setIsOverlayOpen(false);
     setSelectedPackage(null);
@@ -356,10 +401,10 @@ const ChoosePackage = () => {
       <div className="packages-row-choosepackage">
         {packagesData.map((pkg) => (
           <div key={pkg.id} className="package-choosepackage">
-            <img src={pkg.image} alt={pkg.packagename} className="image-choosepackage" />
-            <h3>{pkg.packagename}</h3>
+            <img src={pkg.image} alt={pkg.packageName} className="image-choosepackage" />  {/* Use packageName */}
+            <h3>{pkg.packageName}</h3>  {/* Use packageName */}
             <p>{pkg.description}</p>
-            <p>Price: {pkg.price}</p>
+            <p>Price: ₱{pkg.totalPrice}</p>
             <button className="choose-btn-choosepackage" onClick={() => openOverlay(pkg)}>
               Choose
             </button>
@@ -367,18 +412,32 @@ const ChoosePackage = () => {
         ))}
       </div>
 
-      <button className="next-btn-choosepackage" onClick={() => navigate('/add-guest')}>Next</button>
+      <button className="next-btn-choosepackage" onClick={() => navigate('/add-guest')}>
+        Next
+      </button>
 
       {isOverlayOpen && selectedPackage && (
         <div className="overlay-choosepackage">
           <div className="overlay-content-choosepackage">
-            <h2 className="overlay-header-choosepackage">Chosen Package: {selectedPackage.packagename}</h2>
+            <h2 className="overlay-header-choosepackage">Chosen Package: {selectedPackage.packageName}</h2>  {/* Use packageName */}
             <button className="close-btn-choosepackage" onClick={closeOverlay}>
               <FaTimes />
             </button>
-            <img src={selectedPackage.image} alt={selectedPackage.packagename} className="overlay-image-choosepackage" />
-            <p>{selectedPackage.description}</p>
-            <p>Price: {selectedPackage.price}</p>
+            <div className="services-list-overlay-choosepackage">
+              <h3>Services Included:</h3>
+              {selectedPackage.services && selectedPackage.services.length > 0 ? (
+                <ul>
+                  {selectedPackage.services.map((service, index) => (
+                    <li key={index}>
+                      <strong>{service.serviceName}</strong> - {service.serviceCategory} - ₱{service.basePrice}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No services available for this package.</p>
+              )}
+            </div>
+            <p>Price: ₱{selectedPackage.totalPrice}</p>
             <button className="confirm-btn-choosepackage" onClick={closeOverlay}>
               Confirm
             </button>
@@ -388,6 +447,7 @@ const ChoosePackage = () => {
     </div>
   );
 };
+
 
 
 const ChooseServiceProv = () => {
@@ -419,6 +479,8 @@ const ChooseServiceProv = () => {
         console.error("Error fetching services:", error);
     });
 }, []);
+
+
 
   const toggleLike = (eventId) => {
     setLikedEvents(prevState => ({
@@ -460,7 +522,10 @@ const ChooseServiceProv = () => {
   const handleFinish = async () => {
     const eventData = JSON.parse(localStorage.getItem('eventData')) || {};
     const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
-
+  
+    // Clear selectedPackage from localStorage if not selecting a package
+    localStorage.removeItem('selectedPackage');
+  
     try {
       const response = await fetch('/api/events', {
         method: 'POST',
@@ -472,11 +537,11 @@ const ChooseServiceProv = () => {
           providers: addedEvents,
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Network response was not ok.');
       }
-
+  
       const data = await response.json();
       localStorage.removeItem('eventData');
       localStorage.removeItem('addedEvents');
@@ -485,6 +550,10 @@ const ChooseServiceProv = () => {
       console.error('Error saving event:', error);
     }
   };
+  
+  
+  
+  
 
   const filteredEventsData = selectedType
     ? services.filter(event => event.type === selectedType)
@@ -599,133 +668,135 @@ const ChooseServiceProv = () => {
   );
 };
 
-  const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests }) => {
+const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests }) => {
+  const eventData = JSON.parse(localStorage.getItem('eventData'));
+  const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')) || null; 
+  const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];  // Default to an empty array if no service providers are added
+  
+  const [modalVisible, setModalVisible] = useState(false); 
+
+  const handleBookEvent = async () => {
     const eventData = JSON.parse(localStorage.getItem('eventData'));
-    const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'));
-    const addedEvents = JSON.parse(localStorage.getItem('addedEvents'));
-    const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
-    
-    // New handleBookEvent function
-    const handleBookEvent = async () => {
-      const eventData = JSON.parse(localStorage.getItem('eventData'));
-  
-      console.log('Updated Event Data:', eventData);
-  
-      const formData = new FormData();
-      formData.append('name', eventData.name);
-      formData.append('date', eventData.date);
-      formData.append('pax', eventData.pax);
-      formData.append('venue', eventData.venue);
-      formData.append('type', eventData.type);
-  
-      // Handle the cover photo if it exists
-      if (eventData.coverPhoto) {
-          try {
-              const response = await fetch(eventData.coverPhoto);
-              const blob = await response.blob();
-              formData.append('cover_photo', blob, 'cover_photo.jpg');
-          } catch (fetchError) {
-              console.error('Error fetching the cover photo:', fetchError);
-          }
-      }
-  
+    console.log('Updated Event Data:', eventData);
+
+    const formData = new FormData();
+    formData.append('name', eventData.name);
+    formData.append('date', eventData.date);
+    formData.append('pax', eventData.pax);
+    formData.append('venue', eventData.venue);
+    formData.append('type', eventData.type);
+
+    if (eventData.coverPhoto) {
       try {
-          const response = await axios.post('http://localhost:8000/api/events', formData, {
-              headers: {
-                  'Content-Type': 'multipart/form-data',
-              },
-          });
-  
-          if (response.status === 201) {
-              setModalVisible(true);
-          } else {
-              console.error('Failed to create event:', response.statusText);
-          }
-      } catch (error) {
-          console.error('An error occurred:', error.response ? error.response.data : error.message);
+        const response = await fetch(eventData.coverPhoto);
+        const blob = await response.blob();
+        formData.append('cover_photo', blob, 'cover_photo.jpg');
+      } catch (fetchError) {
+        console.error('Error fetching the cover photo:', fetchError);
       }
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/events', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 201) {
+        setModalVisible(true);
+      } else {
+        console.error('Failed to create event:', response.statusText);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error.response ? error.response.data : error.message);
+    }
   };
-  
-  
-  
-  
-    const handleCloseModal = () => {
-        setModalVisible(false); // Close the overlay
-    };
 
-    console.log('Selected Package:', selectedPackage); // Debugging log
+  const handleCloseModal = () => {
+    setModalVisible(false); 
+  };
 
-    return (
-        <Modal
-            open={isOpen}
-            onClose={onClose}
-            aria-labelledby="modal-title"
-            aria-describedby="modal-description"
-        >
-            <Box>
-                <div className="overlay-content-reviewoverlay">
-                    <div className="overlay-left">
-                        <div className="overlay-header-reviewoverlay">
-                            <h2 className="modal-title">Review Details</h2>
-                            <button onClick={onClose} className="close-button-reviewoverlay">X</button>
-                        </div>
-                        <h3>Event Details</h3>
-                        <p>Event Name: {eventData.name}</p>
-                        <p>Date: {eventData.date}</p>
-                        <p>Pax: {eventData.pax}</p>
-                        <p>Location: {eventData.venue}</p>
+  return (
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
+    >
+      <Box>
+        <div className="overlay-content-reviewoverlay">
+          <div className="overlay-left">
+            <div className="overlay-header-reviewoverlay">
+              <h2 className="modal-title">Review Details</h2>
+              <button onClick={onClose} className="close-button-reviewoverlay">X</button>
+            </div>
+            <h3>Event Details</h3>
+            <p>Event Name: {eventData.name}</p>
+            <p>Date: {eventData.date}</p>
+            <p>Pax: {eventData.pax}</p>
+            <p>Location: {eventData.venue}</p>
 
-                        <h3>Package Details</h3>
-                        {selectedPackage ? (
-                            <>
-                                <p>Package Name: {selectedPackage.packagename}</p>
-                                <p>Price: {selectedPackage.price}</p>
-                            </>
-                        ) : (
-                            <p>No package selected.</p>
-                        )}
-                    </div>
-                    <div className="overlay-right">
-                        <h3>Service Providers</h3>
-                        {Array.isArray(addedEvents) && addedEvents.length > 0 ? (
-                            addedEvents.map((serviceProvider, index) => (
-                                <p key={index}>{serviceProvider.title} - {serviceProvider.type}</p>
-                            ))
-                        ) : (
-                            <p>No service providers added.</p>
-                        )}
+            <h3>Package Details</h3>
+            {selectedPackage ? (
+              <>
+                <p>Package Name: {selectedPackage.packageName}</p>
+                <p>Price: ₱{selectedPackage.totalPrice}</p>
+              </>
+            ) : (
+              <p>No package selected.</p>
+            )}
+          </div>
+          <div className="overlay-right">
+            <h3>Service Providers</h3>
+            {addedEvents.length > 0 ? (
+              addedEvents.map((serviceProvider, index) => (
+                <p key={index}>{serviceProvider.title} - {serviceProvider.type}</p>
+              ))
+            ) : (
+              <p>No service providers added.</p>
+            )}
 
-                        <h3>Guests</h3>
-                        {Array.isArray(guests) && guests.length > 0 ? (
-                            guests.slice(0, 5).map((guest, index) => (
-                                <p key={index}>{guest.name} - {guest.email}</p>
-                            ))
-                        ) : (
-                            <p>No guests added.</p>
-                        )}
-                        <button className="book-event-btn-guestpage" onClick={handleBookEvent}>
-                            Book Event
-                        </button>
-                        <Modal
-                            open={modalVisible}
-                            onClose={handleCloseModal}
-                            className="modal-overlay-guestpage"
-                        >
-                            <div className="modal-content-guestpage">
-                                <button className="close-modal-btn-guestpage" onClick={handleCloseModal}>
-                                    &times; {/* X Button */}
-                                </button>
-                                <img src={require('./images/popup.png')} alt="Popup" className="popup-image-guestpage" />
-                                <p className="modal-text-guestpage">Your event has been booked!</p>
-                            </div>
-                        </Modal>
-                    </div>
-                </div>
-            </Box>
-        </Modal>
-    );
+            <h3>Guests</h3>
+            {Array.isArray(guests) && guests.length > 0 ? (
+              guests.slice(0, 5).map((guest, index) => (
+                <p key={index}>{guest.name} - {guest.email}</p>
+              ))
+            ) : (
+              <p>No guests added.</p>
+            )}
+            <button className="book-event-btn-guestpage" onClick={handleBookEvent}>
+              Book Event
+            </button>
+            <Modal
+              open={modalVisible}
+              onClose={handleCloseModal}
+              className="modal-overlay-guestpage"
+            >
+              <div className="modal-content-guestpage">
+                <button className="close-modal-btn-guestpage" onClick={handleCloseModal}>
+                  &times; {/* X Button */}
+                </button>
+                <img src={require('./images/popup.png')} alt="Popup" className="popup-image-guestpage" />
+                <p className="modal-text-guestpage">Your event has been booked!</p>
+              </div>
+            </Modal>
+          </div>
+        </div>
+      </Box>
+    </Modal>
+  );
 };
+
+
+
+
+
+
+
+
+
 
 
 

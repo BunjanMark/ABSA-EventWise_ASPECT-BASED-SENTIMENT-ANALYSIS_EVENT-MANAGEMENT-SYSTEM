@@ -6,35 +6,20 @@ import { IoLocationSharp } from "react-icons/io5";
 import { FaCalendar } from "react-icons/fa";
 
 // Packages data
-const packagesData = [
-  { id: '1', packagename: 'Package A', image: require('./images/event1.png'), price: '100,000', pax: '300 pax' },
-  { id: '2', packagename: 'Package B', image: require('./images/event2.png'), price: '100,000', pax: '250 pax' },
-  { id: '3', packagename: 'Package C', image: require('./images/event3.png'), price: '100,000', pax: '150 pax' },
-  { id: '4', packagename: 'Package D', image: require('./images/event1.png'), price: '100,000', pax: '200 pax' },
-  { id: '5', packagename: 'Package E', image: require('./images/event2.png'), price: '100,000', pax: '100 pax' },
-  { id: '6', packagename: 'Package F', image: require('./images/event3.png'), price: '100,000', pax: '50 pax' },
-  { id: '7', packagename: 'Package G', image: require('./images/event1.png'), price: '100,000', pax: '50 pax' },
-  { id: '8', packagename: 'Package H', image: require('./images/event2.png'), price: '100,000', pax: '200 pax' },
-  { id: '9', packagename: 'Package I', image: require('./images/event2.png'), price: '100,000', pax: '500 pax' },
+const packageImages = [
+  require('./images/event1.png'),
+  require('./images/event2.png'),
+  require('./images/event3.png')
 ];
 
-// Render function for package items
-const renderPackageItem = (item, handlePackageClick) => (
-  <div className="package-item-dashboard" key={item.id} onClick={() => handlePackageClick(item)}>
-    <img src={item.image} alt={item.packagename} className="image-dashboard" />
-    <div className="packagename-dashboard">{item.packagename}</div>
-    <div className="detail-container-dashboard">
-      <div className="detail-row-dashboard">
-        <span className="detail-text-dashboard">{item.price}</span>
-      </div>
-      <div className="detail-row-dashboard">
-        <span className="detail-text-dashboard">{item.pax}</span>
-      </div>
-    </div>
-  </div>
-);
+const packageDescriptions = [
+  "This package offers a comprehensive solution for your event needs. With top-notch services and amenities, Package ensures a memorable experience for all your guests.",
+  "Package provides premium services tailored to your event's specific needs. From catering to decoration, we've got you covered.",
+  "A versatile package offering everything from entertainment to venue setup. Perfect for all types of events and gatherings."
+];
 
 function Dashboard() {
+  const [packages, setPackages] = useState([]);
   const [monthlyBookings, setMonthlyBookings] = useState([]);
   const [currentMonth, setCurrentMonth] = useState('');
   const [events, setEvents] = useState([]);
@@ -47,6 +32,21 @@ function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    axios.get('http://192.168.1.48:8000/api/admin/packages')
+      .then((response) => {
+        // Randomly assign images and descriptions to the fetched packages
+        const updatedPackages = response.data.map((pkg) => ({
+          ...pkg,
+          image: packageImages[Math.floor(Math.random() * packageImages.length)],
+          description: packageDescriptions[Math.floor(Math.random() * packageDescriptions.length)],
+        }));
+
+        setPackages(updatedPackages);
+      })
+      .catch((error) => {
+        console.error('Error fetching packages:', error);
+      });
+
     axios.get('http://localhost:8000/api/events')
       .then((response) => {
         const today = new Date();
@@ -93,7 +93,6 @@ function Dashboard() {
         setSelectedDayEvents([{ name: 'No events on this day', venue: '' }]);
       });
   };
-  
 
   const handleDayClick = (day) => {
     fetchEventsForDay(day);
@@ -122,6 +121,22 @@ function Dashboard() {
 
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
   const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  // Move the renderPackageItem function inside the Dashboard component
+  const renderPackageItem = (item) => (
+    <div className="package-item-dashboard" key={item.id} onClick={() => handlePackageClick(item)}>
+      <img src={item.image} alt={item.packageName} className="image-dashboard" />
+      <div className="packagename-dashboard">{item.packageName}</div>
+      <div className="detail-container-dashboard">
+        <div className="detail-row-dashboard">
+          <span className="detail-text-dashboard">{item.totalPrice}</span>
+        </div>
+        <div className="detail-row-dashboard">
+          <span className="detail-text-dashboard">{item.eventType}</span>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="dashboard-container">
@@ -190,11 +205,11 @@ function Dashboard() {
         </div>
       </div>
       <div className="packages-section-dashboard">
-  <h2>Packages</h2>
-  <div className="events-list-container-dashboard">
-    {packagesData.map((item) => renderPackageItem(item, handlePackageClick))}
-  </div>
-</div>
+        <h2>Packages</h2>
+        <div className="events-list-container-dashboard">
+          {packages.map((item) => renderPackageItem(item))}
+        </div>
+      </div>
 
 
       {/* Event Details Overlay */}
@@ -224,20 +239,19 @@ function Dashboard() {
             <button className="close-button-dashboard-overlay" onClick={handleClosePackageOverlay}>
               X
             </button>
-            <img src={selectedPackage.image} alt={selectedPackage.packagename} className="image-dashboard-overlay" />
-            <h3>{selectedPackage.packagename}</h3>
-            <h3>Price: {selectedPackage.price}</h3>
-            <p>
-              Description: This package offers a comprehensive solution for your event needs. With top-notch services and amenities, Package{' '}
-              {selectedPackage.packagename} ensures a memorable experience for all your guests.
-            </p>
+            <img src={selectedPackage.image} alt={selectedPackage.packageName} className="image-dashboard-overlay" />
+            <h3>{selectedPackage.packageName}</h3>
+            <h3>Price: {selectedPackage.totalPrice}</h3>
+            <p>{selectedPackage.description}</p>
             <h4>Inclusions:</h4>
             <ul>
-              <li>Seating arrangement for {selectedPackage.pax}</li>
-              <li>Premium catering services</li>
-              <li>Professional event coordination</li>
-              <li>State-of-the-art sound system</li>
-              <li>Elegant stage and lighting setup</li>
+              {selectedPackage.services && selectedPackage.services.length > 0 ? (
+                selectedPackage.services.map((service, index) => (
+                  <li key={index}>{service.serviceName} - ${service.basePrice}</li>
+                ))
+              ) : (
+                <li>No services available</li>
+              )}
             </ul>
           </div>
         </div>
