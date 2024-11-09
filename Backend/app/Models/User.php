@@ -12,7 +12,9 @@ use App\Models\AccountRole;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+ 
+ 
 
 class User extends Authenticatable
 {
@@ -27,6 +29,7 @@ class User extends Authenticatable
      protected $fillable = [
         'name', 
         'role_id',
+        'username',
         'lastname', 
         'username', 
         'email', 

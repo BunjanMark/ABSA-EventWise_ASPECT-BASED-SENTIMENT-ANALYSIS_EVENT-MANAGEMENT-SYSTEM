@@ -9,9 +9,10 @@ import {
   Provider as PaperProvider,
   Checkbox,
 } from "react-native-paper";
+import useStore from "../../stateManagement/useStore";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { sendVerificationEmail } from "../../services/authServices";
+import { sendVerificationEmail, verifyCode } from "../../services/authServices";
 const emailValidationSchema = Yup.object({
   email: Yup.string()
     .email("Invalid email address")
@@ -21,14 +22,15 @@ const emailValidationSchema = Yup.object({
     .required("Verification code is required"),
 });
 
-export default function EmailVerificationForm() {
+export default function EmailVerificationForm({ onNextStep }) {
+  const { email, verificationCode, updateField } = useStore();
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
-
+  // const [verificationCode, setVerificationCode] = useState("");
+  const [loading, setLoading] = useState(false);
   const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
     useFormik({
-      initialValues: { email: "", verificationCode: "" },
+      initialValues: { email, verificationCode },
       validationSchema: emailValidationSchema,
       onSubmit: async (values) => {
         try {
@@ -55,6 +57,7 @@ export default function EmailVerificationForm() {
   // Triggered when user clicks "Verify email" button
   const handleVerifyEmail = async () => {
     try {
+      setLoading(true);
       const response = await sendVerificationEmail(values.email);
       if (response.message) {
         setIsCodeSent(true);
@@ -65,72 +68,88 @@ export default function EmailVerificationForm() {
     } catch (error) {
       console.error("Error during email verification:", error);
       alert("Failed to send verification email.");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Triggered when the user submits the verification code
-  const verifyCode = async (email, code) => {
+
+  const handleVerificationCode = async () => {
     try {
-      const response = await axios.post(`${API_URL}/verify-email-code`, {
-        email,
-        code,
-      });
-      return response.data;
+      setLoading(true);
+      console.log(values.email, values.verificationCode);
+      updateField("email", values.email);
+      const response = await verifyCode(values.email, values.verificationCode);
+      console.log(response.success);
+      if (response.success) {
+        alert("Email verified successfully!");
+        onNextStep(); // Call the onNextStep callback function
+      } else {
+        alert("Invalid verification code.");
+      }
     } catch (error) {
-      console.error("Verification error:", error);
-      throw new Error("Verification failed");
+      console.error("Error verifying codes:", error);
+      alert("Failed to verify code.");
+    } finally {
+      setLoading(false);
     }
   };
-
   return (
     <View>
       <TextInput
         label="Email Address"
         value={values.email}
-        onChangeText={handleChange("email")}
+        onChangeText={(text) => {
+          handleChange("email")(text);
+          updateField("email", text);
+        }}
         onBlur={handleBlur("email")}
         style={styles.input}
         mode=" "
+        error={touched.email && errors.email}
+        helperText={touched.email && errors.email}
       />
       {touched.email && errors.email && (
         <Text style={styles.errorText}>{errors.email}</Text>
       )}
 
-      <TouchableOpacity
+      <Button
+        mode="contained"
         onPress={handleVerifyEmail}
-        style={[
-          {
-            backgroundColor: "#EEBA2B",
-            position: "absolute",
-            bottom: 30,
-            width: "20%",
-            alignItems: "center",
-            justifyContent: "center",
-            // borderRadius: 10,
-            padding: 10,
-            bottom: 12,
-            left: 248,
-            height: 56,
-          },
-        ]}
+        style={styles.verificationButton}
+        loading={loading}
+        disabled={loading}
       >
-        <Text>Verify email</Text>
-      </TouchableOpacity>
+        Verify
+      </Button>
 
       {isCodeSent && (
         <>
-          <TextInput
-            label="Verification Code"
-            value={values.verificationCode}
-            onChangeText={handleChange("verificationCode")}
-            onBlur={handleBlur("verificationCode")}
-            style={styles.input}
-            mode="outlined"
-          />
-          {touched.verificationCode && errors.verificationCode && (
-            <Text style={styles.errorText}>{errors.verificationCode}</Text>
-          )}
-          <Button title="Submit Code" onPress={handleSubmit} />
+          <View style={styles.verificationContainer}>
+            <TextInput
+              label="Enter Verification Code"
+              value={values.verificationCode}
+              onChangeText={(text) => {
+                handleChange("verificationCode")(text);
+                updateField("verificationCode", text);
+              }}
+              style={styles.verificationInput}
+            />
+
+            <Button
+              mode="contained"
+              // onPress={() => {
+              //   console.log(values.email, values.verificationCode);
+              // }}
+              onPress={handleVerificationCode} //
+              style={styles.verificationButton}
+              loading={loading}
+              disabled={loading}
+            >
+              Verify Code
+            </Button>
+          </View>
         </>
       )}
     </View>

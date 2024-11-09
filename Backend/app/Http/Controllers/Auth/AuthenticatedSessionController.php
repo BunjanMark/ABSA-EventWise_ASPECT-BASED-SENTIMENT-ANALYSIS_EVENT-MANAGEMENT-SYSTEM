@@ -101,7 +101,8 @@ class AuthenticatedSessionController extends Controller
         ]);
     
         // Generate a random 6-digit verification code
-        $verificationCode = Str::random(6);
+        $verificationCode = mt_rand(100000, 999999);
+
     
         // Store the code in the session
         session(['verification_code_' . $request->email => $verificationCode]);
