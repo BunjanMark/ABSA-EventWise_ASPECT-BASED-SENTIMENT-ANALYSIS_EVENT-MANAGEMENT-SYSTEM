@@ -4,33 +4,24 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateEventsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('type');
-            $table->integer('pax');
-            $table->string('status');
             $table->date('date');
-            $table->time('time');
-            $table->string('location');
-            $table->text('description');
-            $table->string('cover_photo');
-            $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');  
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');  
+            $table->integer('pax');
+            $table->string('venue');
+            $table->string('type'); // Add type column
+            $table->binary('cover_photo'); // Use binary for cover photo
             $table->timestamps();
         });
     }
-
 
     public function down()
     {
         Schema::dropIfExists('events');
     }
-};
+}

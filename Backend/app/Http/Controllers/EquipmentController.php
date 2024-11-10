@@ -13,12 +13,12 @@ class EquipmentController extends Controller
         $eventId = $request->query('event_id');
     
         if ($eventId) {
-            $equipment = Equipment::where('event_id', $eventId)->get();
+            $equipments = Equipment::where('event_id', $eventId)->get();
         } else {
-            $equipment = Equipment::all(); // Get all equipment if no event_id is provided
+            $equipments = Equipment::all(); // Get all equipment if no event_id is provided
         }
     
-        return response()->json($equipment);
+        return response()->json($equipments);
     }
     
 
@@ -36,16 +36,16 @@ class EquipmentController extends Controller
         ]);
 
         // Create a new equipment entry
-        $equipment = Equipment::create($validatedData);
+        $equipments = Equipment::create($validatedData);
 
         // Return the newly created item
-        return response()->json($equipment, 201);
+        return response()->json($equipments, 201);
     }
 
     // Update an existing equipment entry
     public function update(Request $request, $id)
     {
-        $equipment = Equipment::findOrFail($id);
+        $equipments = Equipment::findOrFail($id);
 
         // Validate the incoming data
         $validatedData = $request->validate([
@@ -57,17 +57,17 @@ class EquipmentController extends Controller
         ]);
 
         // Update the equipment entry
-        $equipment->update($validatedData);
+        $equipments->update($validatedData);
 
-        return response()->json($equipment, 200);
+        return response()->json($equipments, 200);
     }
 
     // Delete an equipment entry
     public function destroy($id)
     {
         try {
-            $equipment = Equipment::findOrFail($id);
-            $equipment->delete();
+            $equipments = Equipment::findOrFail($id);
+            $equipments->delete();
             return response()->json(['message' => 'Item deleted successfully.']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Item not found.'], 404);

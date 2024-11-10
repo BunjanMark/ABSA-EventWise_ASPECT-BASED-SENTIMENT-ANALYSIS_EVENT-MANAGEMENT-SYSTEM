@@ -11,27 +11,8 @@ use App\Models\Equipment;
 class Event extends Model
 {
     use HasFactory;
-
-<<<<<<< HEAD
-    protected $fillable = ['name', 'date','pax', 'venue', 'type', 'cover_photo'];
-
-=======
-    protected $fillable = [
-        'name', 
-        'type', 
-        'pax',
-        'status',
-        'date', 
-        'time', 
-        'location', 
-        'description', 
-        'cover_photo',
-        'package_id',
-        'user_id',
-        'archived', 
-    ];
->>>>>>> main
-
+    protected $fillable = ['name', 'date', 'pax', 'venue', 'type', 'cover_photo', 'package_id'];
+    
     // Relationship to guests
     public function guests()
     {

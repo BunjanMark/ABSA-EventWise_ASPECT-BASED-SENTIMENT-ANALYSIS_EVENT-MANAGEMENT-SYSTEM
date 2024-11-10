@@ -32,7 +32,7 @@ function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://192.168.1.48:8000/api/admin/packages')
+    axios.get('http://localhost:8000/api/admin/packages')
       .then((response) => {
         // Randomly assign images and descriptions to the fetched packages
         const updatedPackages = response.data.map((pkg) => ({

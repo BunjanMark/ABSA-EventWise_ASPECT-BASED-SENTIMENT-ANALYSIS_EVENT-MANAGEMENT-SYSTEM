@@ -17,7 +17,7 @@ class Kernel extends HttpKernel
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
         \App\Http\Middleware\TrustProxies::class,
-        \Fruitcake\Cors\HandleCors::class, // Add this line for CORS
+        \Fruitcake\Cors\HandleCors::class, // Global CORS middleware
     ];
 
     /**
@@ -36,6 +36,24 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'cors' => \Fruitcake\Cors\HandleCors::class, // This line is for route middleware
+        'cors' => \Fruitcake\Cors\HandleCors::class, // No need here, since it's global
+    ];
+
+    /**
+     * The application's middleware groups.
+     *
+     * @var array
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            // Web middleware group
+        ],
+
+        'api' => [
+            \Fruitcake\Cors\HandleCors::class, // CORS for API routes
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:60,1',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
     ];
 }

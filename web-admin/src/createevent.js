@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getAuthToken } from './apiconfig';
 import { Modal } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faHeartBroken, faPlusCircle, faCashRegister, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -56,7 +57,7 @@ const images = [image1, image2, image3];
 
 
   
-  const CreateEvent = () => {
+const CreateEvent = () => {
     const navigate = useNavigate();
     const [selectedType, setSelectedType] = useState('');
     const [customEventType, setCustomEventType] = useState('');
@@ -344,16 +345,16 @@ const ChoosePackage = () => {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Function to calculate the total price of services
   const calculateTotalPrice = (services) => {
     return services.reduce((total, service) => total + service.basePrice, 0);
   };
 
+  // Fetching packages data from API
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const response = await axios.get('http://192.168.1.48:8000/api/admin/packages');
-        console.log(response.data);  // Verify the structure
-
+        const response = await axios.get('http://localhost:8000/api/admin/packages');
         const data = response.data.map((pkg) => {
           const totalPrice = calculateTotalPrice(pkg.services);
           const description = randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)];
@@ -375,19 +376,40 @@ const ChoosePackage = () => {
     fetchPackages();
   }, []);
 
+  // Open the overlay when a package is chosen
   const openOverlay = (pkg) => {
     setSelectedPackage(pkg);
     setIsOverlayOpen(true);
-    localStorage.setItem('selectedPackage', JSON.stringify(pkg));
-  
-    // Clear the addedEvents if a package is selected to avoid mixing package & service providers
-    localStorage.removeItem('addedEvents');
+    localStorage.setItem('selectedPackage', JSON.stringify(pkg)); // Save selected package to localStorage
   };
-  
 
+  // Close the overlay
   const closeOverlay = () => {
     setIsOverlayOpen(false);
     setSelectedPackage(null);
+  };
+
+  // Handle removal of service
+  const removeService = (serviceId) => {
+    const updatedServices = selectedPackage.services.filter(service => service.id !== serviceId);
+    const updatedPackage = { ...selectedPackage, services: updatedServices, totalPrice: calculateTotalPrice(updatedServices) };
+    setSelectedPackage(updatedPackage);
+    localStorage.setItem('selectedPackage', JSON.stringify(updatedPackage)); // Save updated package to localStorage
+
+    let addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
+    addedEvents = addedEvents.filter(service => service.id !== serviceId);
+    localStorage.setItem('addedEvents', JSON.stringify(addedEvents));
+  };
+
+  // Handle adding a service (navigate to service provider selection page)
+  const addService = () => {
+    navigate('/choose-service-provider');
+  };
+
+  // Handle final confirmation and navigate to the review overlay page
+  const confirmPackage = () => {
+    localStorage.setItem('services', JSON.stringify(selectedPackage.services)); // Save services array to localStorage
+    navigate('/review-overlay'); // Navigate to the review page
   };
 
   return (
@@ -401,8 +423,8 @@ const ChoosePackage = () => {
       <div className="packages-row-choosepackage">
         {packagesData.map((pkg) => (
           <div key={pkg.id} className="package-choosepackage">
-            <img src={pkg.image} alt={pkg.packageName} className="image-choosepackage" />  {/* Use packageName */}
-            <h3>{pkg.packageName}</h3>  {/* Use packageName */}
+            <img src={pkg.image} alt={pkg.packageName} className="image-choosepackage" />
+            <h3>{pkg.packageName}</h3>
             <p>{pkg.description}</p>
             <p>Price: ₱{pkg.totalPrice}</p>
             <button className="choose-btn-choosepackage" onClick={() => openOverlay(pkg)}>
@@ -419,7 +441,7 @@ const ChoosePackage = () => {
       {isOverlayOpen && selectedPackage && (
         <div className="overlay-choosepackage">
           <div className="overlay-content-choosepackage">
-            <h2 className="overlay-header-choosepackage">Chosen Package: {selectedPackage.packageName}</h2>  {/* Use packageName */}
+            <h2 className="overlay-header-choosepackage">Chosen Package: {selectedPackage.packageName}</h2>
             <button className="close-btn-choosepackage" onClick={closeOverlay}>
               <FaTimes />
             </button>
@@ -427,9 +449,12 @@ const ChoosePackage = () => {
               <h3>Services Included:</h3>
               {selectedPackage.services && selectedPackage.services.length > 0 ? (
                 <ul>
-                  {selectedPackage.services.map((service, index) => (
-                    <li key={index}>
+                  {selectedPackage.services.map((service) => (
+                    <li key={service.id}>
                       <strong>{service.serviceName}</strong> - {service.serviceCategory} - ₱{service.basePrice}
+                      <button className="edit-btn-choosepackage" onClick={() => removeService(service.id)}>
+                        Remove
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -438,7 +463,10 @@ const ChoosePackage = () => {
               )}
             </div>
             <p>Price: ₱{selectedPackage.totalPrice}</p>
-            <button className="confirm-btn-choosepackage" onClick={closeOverlay}>
+            <button className="add-service-btn-choosepackage" onClick={addService}>
+              Add Service
+            </button>
+            <button className="confirm-btn-choosepackage" onClick={confirmPackage}>
               Confirm
             </button>
           </div>
@@ -447,6 +475,8 @@ const ChoosePackage = () => {
     </div>
   );
 };
+
+
 
 
 
@@ -460,30 +490,29 @@ const ChooseServiceProv = () => {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    // Fetch services from your backend with Authorization Header
-    axios.get("http://192.168.1.48:8000/api/services", {
-        headers: {
-            Authorization: `Bearer 1|a2EQ8hNRFbDsSXdltvsKl0ULgcAwe2CT4HnOdEWQd1a83b66` // Replace with your actual token
-        }
+    axios.get('http://localhost:8000/api/services', {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
     })
-    .then((response) => {
+      .then((response) => {
         const mappedServices = response.data.map((service) => ({
-            title: service.serviceName,
-            price: service.basePrice,
-            type: service.serviceCategory,
-            image: images[Math.floor(Math.random() * images.length)], // Assign a random image
+          id: service.id,
+          serviceName: service.serviceName,
+          basePrice: service.basePrice,
+          serviceCategory: service.serviceCategory,
+          image: images[Math.floor(Math.random() * images.length)],
         }));
         setServices(mappedServices);
-    })
-    .catch((error) => {
-        console.error("Error fetching services:", error);
-    });
-}, []);
-
-
+      })
+      .catch((error) => {
+        console.error('Error fetching services:', error);
+      });
+  }, []); // Added empty array here
+  
 
   const toggleLike = (eventId) => {
-    setLikedEvents(prevState => ({
+    setLikedEvents((prevState) => ({
       ...prevState,
       [eventId]: !prevState[eventId],
     }));
@@ -503,9 +532,9 @@ const ChooseServiceProv = () => {
     if (selectedEvent) {
       const eventToAdd = {
         id: selectedEvent.id,
-        title: selectedEvent.title,
-        type: selectedEvent.type,
-        price: selectedEvent.price,
+        serviceName: selectedEvent.serviceName,
+        serviceCategory: selectedEvent.serviceCategory,
+        basePrice: selectedEvent.basePrice,
       };
 
       const updatedEvents = [...addedEvents, eventToAdd];
@@ -516,16 +545,15 @@ const ChooseServiceProv = () => {
   };
 
   const handleRemoveEvent = (eventId) => {
-    setAddedEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+    const updatedEvents = addedEvents.filter((event) => event.id !== eventId);
+    setAddedEvents(updatedEvents);
+    localStorage.setItem('addedEvents', JSON.stringify(updatedEvents));
   };
 
   const handleFinish = async () => {
     const eventData = JSON.parse(localStorage.getItem('eventData')) || {};
     const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
-  
-    // Clear selectedPackage from localStorage if not selecting a package
-    localStorage.removeItem('selectedPackage');
-  
+
     try {
       const response = await fetch('/api/events', {
         method: 'POST',
@@ -537,11 +565,11 @@ const ChooseServiceProv = () => {
           providers: addedEvents,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Network response was not ok.');
       }
-  
+
       const data = await response.json();
       localStorage.removeItem('eventData');
       localStorage.removeItem('addedEvents');
@@ -550,27 +578,23 @@ const ChooseServiceProv = () => {
       console.error('Error saving event:', error);
     }
   };
-  
-  
-  
-  
 
   const filteredEventsData = selectedType
-    ? services.filter(event => event.type === selectedType)
+    ? services.filter((service) => service.serviceCategory === selectedType)
     : services;
 
   const renderEventItem = (item) => (
     <div className="event-item-sp" onClick={() => handleEventClick(item)} key={item.id}>
       <img src={item.image} alt={item.title} className="event-image-sp" />
-      <p className="event-title-sp">{item.title}</p>
+      <p className="event-title-sp">{item.serviceName}</p>
       <div className="event-details-sp">
         <div className="event-detail-row-sp">
           <FontAwesomeIcon icon={faPlusCircle} size="sm" color="#2A93D5" />
-          <p className="event-detail-text-sp">{item.type}</p>
+          <p className="event-detail-text-sp">{item.serviceCategory}</p>
         </div>
         <div className="event-detail-row-sp">
           <FontAwesomeIcon icon={faCashRegister} size="sm" color="#2A93D5" />
-          <p className="event-detail-text-sp">${item.price}</p>
+          <p className="event-detail-text-sp">${item.basePrice}</p>
         </div>
       </div>
       <div
@@ -598,32 +622,32 @@ const ChooseServiceProv = () => {
             <div className="separator-line-sp"></div>
             <p className="service-type-label-sp">Add Service Provider</p>
             <div className="horizontal-scroll-sp">
-              {eventServices.map((type, index) => (
+              {eventServices.map((serviceCategory, index) => (
                 <button
                   key={index}
-                  className={`event-type-button-sp ${selectedType === type ? 'selected' : ''}`}
-                  onClick={() => setSelectedType(type)}
+                  className={`event-type-button-sp ${selectedType === serviceCategory ? 'selected' : ''}`}
+                  onClick={() => setSelectedType(serviceCategory)}
                 >
-                  <p className={`event-type-text-sp ${selectedType === type ? 'selected' : ''}`}>
-                    {type}
+                  <p className={`event-type-text-sp ${selectedType === serviceCategory ? 'selected' : ''}`}>
+                    {serviceCategory}
                   </p>
                 </button>
               ))}
             </div>
 
             <div className="event-list-container-sp">
-              {filteredEventsData.map(event => renderEventItem(event))}
+              {filteredEventsData.map(renderEventItem)}
             </div>
 
             {addedEvents.length > 0 && (
               <div className="added-events-section-sp">
                 <p className="added-events-title-sp">Added Events</p>
                 <div className="added-events-scroll-sp">
-                  {addedEvents.map(event => (
+                  {addedEvents.map((event) => (
                     <div key={event.id} className="added-event-item-sp">
-                      <p className="added-event-text-sp">{event.title}</p>
-                      <p className="added-event-text-sp">{event.type}</p>
-                      <p className="added-event-text-sp">${event.price}</p>
+                      <p className="added-event-text-sp">{event.serviceName}</p>
+                      <p className="added-event-text-sp">{event.serviceCategory}</p>
+                      <p className="added-event-text-sp">${event.basePrice}</p>
                       <button
                         className="remove-event-button-sp"
                         onClick={() => handleRemoveEvent(event.id)}
@@ -651,9 +675,9 @@ const ChooseServiceProv = () => {
             <div className="modal-body-sp">
               {selectedEvent && (
                 <>
-                  <p className="modal-title-sp">{selectedEvent.title}</p>
-                  <p className="modal-provider-sp">Provider: {selectedEvent.type}</p>
-                  <p className="modal-price-sp">Price: ${selectedEvent.price}</p>
+                  <p className="modal-title-sp">{selectedEvent.serviceName}</p>
+                  <p className="modal-provider-sp">Provider: {selectedEvent.serviceCategory}</p>
+                  <p className="modal-price-sp">Price: ${selectedEvent.basePrice}</p>
                   <div className="modal-actions-sp">
                     <button className="modal-add-button-sp" onClick={handleNext}>Add</button>
                     <button className="modal-cancel-button-sp" onClick={handleCloseModal}>Cancel</button>
@@ -668,25 +692,70 @@ const ChooseServiceProv = () => {
   );
 };
 
+
 const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests }) => {
-  const eventData = JSON.parse(localStorage.getItem('eventData'));
-  const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')) || null; 
-  const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];  // Default to an empty array if no service providers are added
-  
-  const [modalVisible, setModalVisible] = useState(false); 
+  const eventData = JSON.parse(localStorage.getItem('eventData')) || {};
+  const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')) || null;
+  const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
+  const navigate = useNavigate();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleClose = () => {
+    setModalVisible(false);
+    navigate('/dashboard'); // Navigate to /dashboard when the X button is clicked
+  };
 
   const handleBookEvent = async () => {
-    const eventData = JSON.parse(localStorage.getItem('eventData'));
-
-    console.log('Updated Event Data:', eventData);
-
+    const eventData = JSON.parse(localStorage.getItem('eventData')) || {};
+  const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')) || null;
+  const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
+  const token = getAuthToken();
+  
+    // Ensure the services field is an array
+    if (!Array.isArray(addedEvents)) {
+      console.error("The services field must be an array.");
+      return;
+    }
+  
+    // Combine pre-defined package services with added services
+    let combinedServices = [];
+  if (selectedPackage && Array.isArray(selectedPackage.services)) {
+    combinedServices = [...selectedPackage.services, ...addedEvents];
+  } else {
+    combinedServices = [...addedEvents];
+  }
+  
+    console.log('Combined Services:', combinedServices);
+  
+    // Create FormData for the request
     const formData = new FormData();
     formData.append('name', eventData.name);
     formData.append('date', eventData.date);
     formData.append('pax', eventData.pax);
     formData.append('venue', eventData.venue);
     formData.append('type', eventData.type);
-
+  
+    // Add package data (if selected)
+    if (selectedPackage) {
+      formData.append('package_id', selectedPackage.id);
+      formData.append('packageName', selectedPackage.packageName);
+      formData.append('eventType', selectedPackage.eventType);
+      formData.append('totalPrice', selectedPackage.totalPrice);
+      formData.append('packageCreatedDate', selectedPackage.packageCreatedDate || null);
+  
+      // Handle cover photo (if exists)
+      if (selectedPackage.coverPhoto) {
+        try {
+          const response = await fetch(selectedPackage.coverPhoto);
+          const blob = await response.blob();
+          formData.append('cover_photo', blob, 'cover_photo.jpg');
+        } catch (fetchError) {
+          console.error('Error fetching the cover photo:', fetchError);
+        }
+      }
+    }
+  
+    // Handle cover photo for the event (if exists)
     if (eventData.coverPhoto) {
       try {
         const response = await fetch(eventData.coverPhoto);
@@ -696,35 +765,63 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
         console.error('Error fetching the cover photo:', fetchError);
       }
     }
-
+  
+    // Add guest data
+    guests.forEach((guest, index) => {
+      formData.append(`guests[${index}][name]`, guest.name);
+      formData.append(`guests[${index}][email]`, guest.email);
+      if (guest.phone) formData.append(`guests[${index}][phone]`, guest.phone);
+      if (guest.role) formData.append(`guests[${index}][role]`, guest.role);
+    });
+  
+    // Add combined services to FormData
+    combinedServices.forEach((service, index) => {
+      formData.append(`services[${index}][id]`, service.id);
+      formData.append(`services[${index}][serviceName]`, service.serviceName);
+      formData.append(`services[${index}][serviceCategory]`, service.serviceCategory);
+      formData.append(`services[${index}][basePrice]`, service.basePrice);
+    });
+  
     try {
-      const response = await axios.post('http://localhost:8000/api/events', formData, {
+      // Send package data to the backend
+      if (selectedPackage) {
+        const packageResponse = await axios.post('http://localhost:8000/api/admin/packages', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+  
+        if (packageResponse.status === 201) {
+          console.log('Package created successfully:', packageResponse.data);
+        } else {
+          console.error('Failed to create package:', packageResponse.statusText);
+        }
+      }
+  
+      // Send event data to the backend
+      const eventResponse = await axios.post('http://localhost:8000/api/events', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`,
         },
       });
-
-      if (response.status === 201) {
+  
+      if (eventResponse.status === 201) {
+        console.log('Event created successfully:', eventResponse.data);
         setModalVisible(true);
       } else {
-        console.error('Failed to create event:', response.statusText);
+        console.error('Failed to create event:', eventResponse.statusText);
       }
     } catch (error) {
       console.error('An error occurred:', error.response ? error.response.data : error.message);
     }
   };
-
-  const handleCloseModal = () => {
-    setModalVisible(false); 
-  };
+  
+  
 
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      aria-labelledby="modal-title"
-      aria-describedby="modal-description"
-    >
+    <Modal open={isOpen} onClose={onClose}>
       <Box>
         <div className="overlay-content-reviewoverlay">
           <div className="overlay-left">
@@ -752,31 +849,25 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
             <h3>Service Providers</h3>
             {addedEvents.length > 0 ? (
               addedEvents.map((serviceProvider, index) => (
-                <p key={index}>{serviceProvider.title} - {serviceProvider.type}</p>
+                <p key={index}>{serviceProvider.id} - {serviceProvider.serviceName} - {serviceProvider.serviceCategory} - {serviceProvider.basePrice}</p>
               ))
             ) : (
               <p>No service providers added.</p>
             )}
 
             <h3>Guests</h3>
-            {Array.isArray(guests) && guests.length > 0 ? (
-              guests.slice(0, 5).map((guest, index) => (
-                <p key={index}>{guest.name} - {guest.email}</p>
-              ))
-            ) : (
-              <p>No guests added.</p>
-            )}
+            {guests.slice(0, 5).map((guest, index) => (
+              <p key={index}>{guest.name} - {guest.email}</p>
+            ))}
+            
             <button className="book-event-btn-guestpage" onClick={handleBookEvent}>
               Book Event
             </button>
-            <Modal
-              open={modalVisible}
-              onClose={handleCloseModal}
-              className="modal-overlay-guestpage"
-            >
+
+            <Modal open={modalVisible} onClose={() => setModalVisible(false)} className="modal-overlay-guestpage">
               <div className="modal-content-guestpage">
-                <button className="close-modal-btn-guestpage" onClick={handleCloseModal}>
-                  &times; {/* X Button */}
+                <button className="close-modal-btn-guestpage" onClick={handleClose}>
+                  &times;
                 </button>
                 <img src={require('./images/popup.png')} alt="Popup" className="popup-image-guestpage" />
                 <p className="modal-text-guestpage">Your event has been booked!</p>
@@ -793,13 +884,6 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
 
 
 
-
-
-
-
-
-
-
   
 const GuestPage = ({ packagesData, allEventsData, selectedEvent }) => {
   const [guests, setGuests] = useState([]);
@@ -807,12 +891,12 @@ const GuestPage = ({ packagesData, allEventsData, selectedEvent }) => {
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [mobileNumber, setMobileNumber] = useState(''); // New field
+  const [phone, setPhone] = useState(''); // New field
   const [role, setRole] = useState(''); // New field
 
   // Handling guest addition
   const handleAddGuest = () => {
-    if (!name.trim() || !email.trim() || !mobileNumber.trim() || !role.trim()) {
+    if (!name.trim() || !email.trim() || !phone.trim() || !role.trim()) {
       alert("Please fill in all fields.");
       return;
     }
@@ -820,10 +904,10 @@ const GuestPage = ({ packagesData, allEventsData, selectedEvent }) => {
       alert("Please enter a valid email address.");
       return;
     }
-    setGuests([...guests, { name, email, mobileNumber, role }]);
+    setGuests([...guests, { name, email, phone, role }]);
     setName('');
     setEmail('');
-    setMobileNumber('');
+    setPhone('');
     setRole('');
   };
 
@@ -869,7 +953,7 @@ const GuestPage = ({ packagesData, allEventsData, selectedEvent }) => {
                 <tr key={index}>
                   <td>{guest.name}</td>
                   <td>{guest.email}</td>
-                  <td>{guest.mobileNumber}</td> {/* Display mobile number */}
+                  <td>{guest.phone}</td> {/* Display mobile number */}
                   <td>{guest.role}</td> {/* Display role */}
                   <td>
                     <button
@@ -924,9 +1008,9 @@ const GuestPage = ({ packagesData, allEventsData, selectedEvent }) => {
             <input
               type="text"
               placeholder="Enter mobile number"
-              value={mobileNumber}
+              value={phone}
               className="mobile-input-guestpage"
-              onChange={(e) => setMobileNumber(e.target.value)}
+              onChange={(e) => setPhone(e.target.value)}
             />
             
             <label className="role-label-guestpage">Role</label>

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('guests', function (Blueprint $table) {
             $table->id(); // This will act as GuestID
             $table->foreignId('event_id')->constrained()->onDelete('cascade');
-            $table->string('GuestName');
+            $table->string('name');
             // $table->string('email')->unique();
             $table->string('email');
             $table->string('phone');

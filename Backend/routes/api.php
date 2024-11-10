@@ -74,7 +74,8 @@ Route::post('/events/{id}/archive', [EventController::class, 'archiveEvent']);
 
 // Guest management 
 Route::get('/guests', [GuestsController::class, 'index']);
-Route::get('/guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
+Route::get('guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
+
 
 // service management
 Route::middleware('auth:sanctum')->group(function () {
@@ -101,12 +102,12 @@ Route::middleware('auth:sanctum')->group(function () {
 //   });
 
 Route::get('/events', [EventController::class, 'index']);
-Route::post('/events', [EventController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/events', [EventController::class, 'store']);
 Route::get('/api/events/{date}', [EventController::class, 'eventsForDay']);
-Route::get('equipment', [EquipmentController::class, 'index']);
-Route::post('equipment', [EquipmentController::class, 'store']);
-Route::put('equipment/{id}', [EquipmentController::class, 'update']);
-Route::delete('equipment/{id}', [EquipmentController::class, 'destroy']);
+Route::get('equipments', [EquipmentController::class, 'index']);
+Route::post('equipments', [EquipmentController::class, 'store']);
+Route::put('equipments/{id}', [EquipmentController::class, 'update']);
+Route::delete('equipments/{id}', [EquipmentController::class, 'destroy']);
 
 
 Route::get('pending', [PendingUserController::class, 'index']);

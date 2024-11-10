@@ -25,7 +25,7 @@ const Equipment = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8000/api/equipment?event_id=${eventId}`);
+      const response = await axios.get(`http://localhost:8000/api/equipments?event_id=${eventId}`);
       setInventoryData(response.data);
       
       const initialSortItems = response.data.reduce((acc, item) => {
@@ -45,7 +45,7 @@ const Equipment = () => {
   const handleAddItem = async () => {
     if (newItem.trim() && newItemCount > 0 && eventId) {
       try {
-        await axios.post('http://localhost:8000/api/equipment', {
+        await axios.post('http://localhost:8000/api/equipments', {
           item: newItem.trim(),
           number_of_items: parseInt(newItemCount),
           number_of_sort_items: 0,
@@ -106,7 +106,7 @@ const Equipment = () => {
       // Save sorted item counts
       await Promise.all(
         Object.keys(sortItems).map(async (id) => {
-          await axios.put(`http://localhost:8000/api/equipment/${id}`, {
+          await axios.put(`http://localhost:8000/api/equipments/${id}`, {
             number_of_sort_items: sortItems[id],
             event_id: eventId
           });
@@ -116,7 +116,7 @@ const Equipment = () => {
       // Save updated statuses
       await Promise.all(
         inventoryData.map(async (item) => {
-          await axios.put(`http://localhost:8000/api/equipment/${item.id}`, {
+          await axios.put(`http://localhost:8000/api/equipments/${item.id}`, {
             status: item.status, // Send the updated status for each item
             event_id: eventId
           });
