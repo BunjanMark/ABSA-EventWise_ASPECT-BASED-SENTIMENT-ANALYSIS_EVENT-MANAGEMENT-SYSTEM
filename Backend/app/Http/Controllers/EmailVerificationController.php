@@ -12,26 +12,36 @@ class EmailVerificationController extends Controller
 {
     public function sendVerificationEmail(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
-
-        $verificationCode = mt_rand(100000, 999999);
-        
-        DB::table('email_verifications')->updateOrInsert(
-            ['email' => $request->email],
-            [
-                'verification_code' => $verificationCode,
-                'expires_at' => Carbon::now()->addMinutes(15),
-                'is_verified' => false,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        );
-
-        Mail::to($request->email)->send(new EmailVerification($verificationCode));
-
-        return response()->json(['message' => 'Verification code sent to email.']);
+        try {
+            $request->validate([
+                'email' => 'required|email|unique:users,email', // Add unique:users,email
+            ]);
+    
+            // Check if the email is already in use
+            if (DB::table('email_verifications')->where('email', $request->email)->exists()) {
+                throw new \Exception('Email is already in use');
+            }
+    
+            $verificationCode = mt_rand(100000, 999999);
+                
+            DB::table('email_verifications')->updateOrInsert(
+                ['email' => $request->email],
+                [
+                    'verification_code' => $verificationCode,
+                    'expires_at' => Carbon::now()->addMinutes(15),
+                    'is_verified' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+    
+            Mail::to($request->email)->send(new EmailVerification($verificationCode));
+    
+            return response()->json(['message' => 'Verification code sent to email.']);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
-
     public function verifyCode(Request $request)
     {
         try {

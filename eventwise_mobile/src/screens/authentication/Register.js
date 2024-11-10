@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ActivityIndicator } from "react-native-paper";
+import { sendVerificationEmail, verifyCode } from "../../services/authServices";
 import {
   SafeAreaView,
   ImageBackground,
@@ -17,7 +19,9 @@ import {
   Provider as PaperProvider,
   Checkbox,
 } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
+
+import { Formik } from "formik";
+import * as Yup from "yup";
 import Toast from "react-native-root-toast";
 import {
   widthPercentageToDP,
@@ -25,130 +29,198 @@ import {
 } from "react-native-responsive-screen";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import axios from "axios";
+
+import { signup } from "../../services/authServices";
+
+import { useNavigation } from "@react-navigation/native";
+
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required("Full Name is required"),
+  gender: Yup.string().required("Gender is required"),
+  dateOfBirth: Yup.date().required("Date of Birth is required"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  verificationCode: Yup.string()
+    .min(6, "Code must be 6 characters")
+    .required("Verification code is required"),
+  phoneNumber: Yup.string().required("Phone number is required"),
+  username: Yup.string().required("Username is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .required("Confirm Password is required"),
+  termsAccepted: Yup.boolean().oneOf([true], "You must accept the terms"),
+});
+import useStore from "../../stateManagement/useStore";
 const Register = () => {
-  const navigator = useNavigation();
-  const [name, setName] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repassword, setRepassword] = useState("");
-  const [isError, setIsError] = useState(false);
+  const {
+    updateField,
+    name,
+    gender,
+    dateOfBirth,
+    email,
+    phoneNumber,
+    username,
+    password,
+    confirmPassword,
+    selectedRole,
+    role_id,
+    termsAccepted,
+  } = useStore();
+  const [step, setStep] = useState(1);
+
+  const [emailVerified, setEmailVerified] = useState(false); // Track verification status
+  const [isCodeSent, setIsCodeSent] = useState(false);
+
+  const [canResendCode, setCanResendCode] = useState(false);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  // const [verificationCode, setVerificationCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [HideEntry, setHideEntry] = useState(true);
-  const [visible, setVisible] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [date, setDate] = useState(new Date());
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [gender, setGender] = useState("");
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [roleMenuVisible, setRoleMenuVisible] = useState(false);
+  const navigation = useNavigation();
+  const [HideEntry, setHideEntry] = useState(true);
+  const [HideEntry2, setHideEntry2] = useState(true);
 
-  const [verificationCode, setVerificationCode] = useState("");
-  const [page, setPage] = useState(1); // 1 for registration, 2 for verification
+  const handleSubmitRegister = async (values) => {
+    try {
+      const response = await signup(values);
+      console.log("--------------------------------");
+      console.log("handle submit test: signup response:", response);
+      alert(response.message);
+      Toast.show(
+        response.message,
+        {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0,
+        },
+        () => {
+          console.log("Toast hidden");
+        }
+      );
+      console.log("--------------------------------");
+    } catch (error) {
+      alert(error);
+      console.error(
+        "Error in handleSubmitregister================:",
+        error,
+        values
+      );
 
-  // Navigation between pages
-  const goToNextPage = () => setPage(2);
+      Toast.show(
+        error.response.data.message,
+        {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.BOTTOM,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0,
+        },
+        () => {
+          console.log("Toast hidden");
+        }
+      );
+    }
+  };
+
+  const CustomIcon = ({ name, size, color }) => {
+    return <Icon name={name} size={size} color={color} />;
+  };
+  const handlePreviousStep = () => {
+    setStep(step - 1);
+  };
+
+  const handleNextStep = () => {
+    setStep(step + 1);
+  };
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);
   };
-
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
-
-  const handleRoleChange = (role) => {
-    setSelectedRole(role);
-
-    closeMenu();
+  const toggleSecureEntry2 = () => {
+    setHideEntry2(!HideEntry2);
+  };
+  const handleDateConfirm = (date, setFieldValue) => {
+    setFieldValue("dateOfBirth", date);
+    setDatePickerVisibility(false);
   };
 
-  const showToast = (message = "Something went wrong") => {
-    Toast.show(message, { duration: Toast.durations.LONG });
-  };
+  const openDatePicker = () => setDatePickerVisibility(true);
 
-  const handleRegistration = async () => {
-    setLoading(true);
-    setIsError(false);
+  const openRoleMenu = () => setRoleMenuVisible(true);
+  const closeRoleMenu = () => setRoleMenuVisible(false);
 
-    // Check if passwords match
-    if (password !== repassword) {
-      showToast("Passwords do not match.");
-      setLoading(false);
-      return; // Exit the function early
-    }
-
-    // Check if role is selected
-    if (!selectedRole) {
-      showToast("Please select a user role.");
-      setLoading(false);
-      return; // Exit the function early
-    }
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countdown, setCountdown] = useState(15);
+  const handleRegistration = async (values) => {
+    // ...
+    console.log("handleRegistration called with values:", values);
 
     try {
-      const roleMapping = {
-        "SERVICE PROVIDER": "3",
-        CUSTOMER: "2",
-      };
-
-      const data = {
-        name,
-        lastname,
-        username,
-        email,
-        phone_number: phoneNumber,
-        password,
-        password_confirmation: repassword,
-        date_of_birth: date.toISOString().split("T")[0],
-        gender,
-        role: roleMapping[selectedRole],
-        terms_accepted: termsAccepted,
-      };
-
-      console.log("Registration Data:", data); // Check the data being sent
-
-      const response = await axios.post(
-        "https://50bc-103-62-152-155.ngrok-free.app/api/pending",
-        data
-      );
-
-      if (response.status === 201) {
-        showToast(response.data.message || "Registration successful!");
-        // Optionally navigate to another screen or reset the form
-      }
+      const response = await signup(values);
+      console.log("signup response:", response);
     } catch (error) {
-      if (error.response) {
-        console.error("Registration Error:", error.response.data);
-        showToast(
-          `Error: ${
-            error.response.data.message || "An unexpected error occurred."
-          }`
-        );
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-        showToast("No response from the server. Please try again later.");
+      console.error("Error in handleRegistration:", error);
+    }
+  };
+  const handleVerifyEmail = async (values) => {
+    console.log("handleVerifyEmail called", isCodeSent);
+    try {
+      setLoading(true);
+      const response = await sendVerificationEmail(values.email);
+
+      if (response.message) {
+        setIsCodeSent(true);
+        alert("Verification code sent to your email.");
+        setCountdown(15); // Reset countdown to 15 seconds
+        console.log(isCodeSent);
+        const intervalId = setInterval(() => {
+          if (countdown > 0) {
+            setCountdown((prevCountdown) => prevCountdown - 1);
+          } else {
+            clearInterval(intervalId); // Clear interval when countdown reaches 0
+            setCanResendCode(true);
+          }
+        }, 1000); // 1 second
       } else {
-        console.error("Error setting up the request:", error.message);
-        showToast("An unexpected error occurred. Please try again.");
       }
-      setIsError(true);
+      console.log("Verification code sent");
+    } catch (error) {
+      console.error("Error during email verification:", error);
+      alert("Email is already in use. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  // Triggered when the user submits the verification code
 
-  const handleDateConfirm = (date) => {
-    setDate(date);
-    setDatePickerVisibility(false);
-  };
-
-  const handleVerificationSubmit = () => {
-    // Logic for verification
-    if (verificationCode) {
-      showToast("Verification successful! Proceeding to registration.");
-      // Here, you can call an API or perform the final registration process.
-    } else {
-      showToast("Please enter the verification code.");
+  const handleVerificationCode = async (values) => {
+    try {
+      // handleNextStep();
+      setLoading(true);
+      console.log(values.email, values.verificationCode);
+      updateField("email", values.email);
+      const response = await verifyCode(values.email, values.verificationCode);
+      console.log(response.success);
+      if (response.success) {
+        alert("Email verified successfully!");
+        // onNextStep(); // Call the onNextStep callback function
+        handleNextStep(); //
+      } else {
+        alert("Invalid verification code.");
+      }
+    } catch (error) {
+      console.error("Error verifying codes:", error);
+      alert("Failed to verify code.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -161,324 +233,446 @@ const Register = () => {
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : null}
           style={styles.container}
-          keyboardVerticalOffset={
-            Platform.OS === "ios" ? 0 : heightPercentageToDP("10%")
-          }
         >
-          <ScrollView contentContainerStyle={styles.formContainer}>
-            <Text style={styles.headerText}>
-              {page === 1 ? "Registration" : "Verification"}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.formContainer}
+          >
+            <Text
+              variant="headlineMedium"
+              style={{
+                fontSize: widthPercentageToDP("9%"),
+                color: "#fff",
+                marginBottom: heightPercentageToDP("15%"),
+                fontWeight: "bold",
+                fontFamily: "Roboto",
+                textAlign: "center",
+              }}
+            >
+              Registration Form
             </Text>
-
             <PaperProvider>
-              {page === 1 ? (
-                <View style={styles.inputContainer}>
-                  {/* Registration Form */}
-                  <Menu
-                    visible={visible}
-                    onDismiss={closeMenu}
-                    contentStyle={styles.menuContent}
-                    anchor={
-                      <View
-                        style={{ flexDirection: "row", alignItems: "center" }}
-                      >
+              <Formik
+                initialValues={{
+                  name,
+                  gender,
+                  dateOfBirth,
+                  email,
+                  phoneNumber,
+                  username,
+                  password,
+                  confirmPassword,
+                  selectedRole,
+                  role_id,
+                  termsAccepted,
+                }}
+                validationSchema={validationSchema}
+                onSubmit={() => handleSubmitRegister(values)}
+              >
+                {({
+                  values,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  setFieldValue,
+                }) => (
+                  <>
+                    {step === 1 ? (
+                      <View style={styles.stepContainer}>
+                        <View styles={styles.inputContainer}>
+                          <TextInput
+                            label="Full Name"
+                            value={values.name}
+                            onChangeText={(text) => {
+                              handleChange("name")(text);
+                              updateField("name", text);
+                            }}
+                            onBlur={handleBlur("name")}
+                            style={styles.input}
+                            mode="outlined"
+                          />
+                          {touched.name && errors.fullName && (
+                            <Text style={styles.errorText}>{errors.name}</Text>
+                          )}
+
+                          <Menu
+                            visible={roleMenuVisible}
+                            onDismiss={closeRoleMenu}
+                            anchor={
+                              <TouchableOpacity onPress={openRoleMenu}>
+                                <TextInput
+                                  label="Gender"
+                                  value={values.gender}
+                                  editable={false}
+                                  style={[styles.input]}
+                                  mode="outlined"
+                                />
+                              </TouchableOpacity>
+                            }
+                          >
+                            <Menu.Item
+                              onPress={() => {
+                                setFieldValue("gender", "Male");
+                                updateField("gender", "Male");
+                                setRoleMenuVisible(false);
+                              }}
+                              title="Male"
+                            />
+                            <Menu.Item
+                              onPress={() => {
+                                setFieldValue("gender", "Female");
+                                updateField("gender", "Female");
+                                setRoleMenuVisible(false);
+                              }}
+                              title="Female"
+                            />
+                            <Menu.Item
+                              onPress={() => {
+                                setFieldValue("gender", "Other");
+                                updateField("gender", "Other");
+                                setRoleMenuVisible(false);
+                              }}
+                              title="Other"
+                            />
+                          </Menu>
+
+                          <TouchableOpacity onPress={openDatePicker}>
+                            <TextInput
+                              label="Date of Birth"
+                              value={values.dateOfBirth.toLocaleDateString()}
+                              editable={false}
+                              style={styles.input}
+                              mode="outlined"
+                            />
+                          </TouchableOpacity>
+                          <DateTimePickerModal
+                            isVisible={isDatePickerVisible}
+                            mode="date"
+                            onConfirm={(date) => {
+                              setFieldValue("dateOfBirth", date);
+                              updateField("dateOfBirth", date);
+                              setDatePickerVisibility(false);
+                            }}
+                            onCancel={() => setDatePickerVisibility(false)}
+                          />
+
+                          <TextInput
+                            label="Phone Number"
+                            value={values.phoneNumber}
+                            onChangeText={(text) => {
+                              handleChange("phoneNumber")(text);
+                              updateField("phoneNumber", text);
+                            }}
+                            onBlur={handleBlur("phoneNumber")}
+                            style={styles.input}
+                            mode="outlined"
+                            keyboardType="phone-pad"
+                          />
+                          {touched.phoneNumber && errors.phoneNumber && (
+                            <Text style={styles.errorText}>
+                              {errors.phoneNumber}
+                            </Text>
+                          )}
+
+                          <Button
+                            mode="contained"
+                            onPress={() => {
+                              handleNextStep(values);
+                            }}
+                            style={{
+                              width: widthPercentageToDP("50%"),
+                              height: heightPercentageToDP("6%"),
+                              marginBottom: heightPercentageToDP("5%"),
+                              marginTop: heightPercentageToDP("2%"),
+                              alignSelf: "center",
+                              backgroundColor: "#EEBA2B",
+                            }}
+                          >
+                            Next
+                          </Button>
+                          <Button
+                            mode="contained"
+                            onPress={() => {
+                              navigation.goBack();
+                            }}
+                            style={{
+                              width: widthPercentageToDP("50%"),
+                              height: heightPercentageToDP("6%"),
+                              marginBottom: heightPercentageToDP("5%"),
+                              marginTop: heightPercentageToDP("-3%"),
+                              alignSelf: "center",
+                              backgroundColor: "#ffffff",
+                            }}
+                          >
+                            <Text style={styles.buttonText}>Go back</Text>
+                          </Button>
+                        </View>
+                      </View>
+                    ) : step === 2 ? (
+                      <View style={styles.stepContainer}>
+                        <View>
+                          <Text style={styles.headerText}>
+                            Email Verification
+                          </Text>
+                          {!isCodeSent && (
+                            <>
+                              <View style={styles.verificationContainer}>
+                                <TextInput
+                                  label="Email Address"
+                                  value={values.email}
+                                  onChangeText={(text) => {
+                                    handleChange("email")(text);
+                                    updateField("email", text);
+                                  }}
+                                  onBlur={handleBlur("email")}
+                                  style={styles.input}
+                                  mode=" "
+                                  error={touched.email && errors.email}
+                                  helperText={touched.email && errors.email}
+                                />
+
+                                <Button
+                                  mode="contained"
+                                  onPress={() => handleVerifyEmail(values)}
+                                  style={styles.verificationButton}
+                                  loading={loading}
+                                  disabled={loading}
+                                >
+                                  Verify
+                                </Button>
+                                <Button
+                                  mode="contained"
+                                  onPress={handlePreviousStep}
+                                  style={styles.verificationButtonBack}
+                                >
+                                  <Text style={styles.buttonText}>Go back</Text>
+                                </Button>
+                              </View>
+                            </>
+                          )}
+                          {isCodeSent && (
+                            <View style={styles.verificationContainer}>
+                              <TextInput
+                                label="Enter Verification Code"
+                                value={values.verificationCode}
+                                onChangeText={(text) => {
+                                  handleChange("verificationCode")(text);
+                                  updateField("verificationCode", text);
+                                }}
+                                style={styles.input}
+                              />
+                              <Button
+                                mode="contained"
+                                onPress={() => handleVerificationCode(values)}
+                                style={styles.verificationButton}
+                                loading={loading}
+                                disabled={loading}
+                              >
+                                Verify Code
+                              </Button>
+
+                              <Button
+                                mode="contained"
+                                onPress={() => handleVerifyEmail(values)}
+                                style={styles.verificationButton}
+                                loading={loading}
+                                disabled={countdown > 0 || loading}
+                              >
+                                {countdown > 0
+                                  ? `Resend Code in ${countdown}s`
+                                  : "Resend Code"}
+                              </Button>
+                              <Button
+                                mode="contained"
+                                onPress={handlePreviousStep}
+                                style={styles.verificationButton}
+                              >
+                                <Text style={styles.buttonText}>Go back</Text>
+                              </Button>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    ) : step === 3 ? (
+                      <View style={styles.stepContainer}>
+                        <TextInput
+                          label="Username"
+                          value={values.username}
+                          onChangeText={handleChange("username")}
+                          onBlur={handleBlur("username")}
+                          style={styles.input}
+                          mode="outlined"
+                        />
+                        {touched.username && errors.username && (
+                          <Text style={styles.errorText}>
+                            {errors.username}
+                          </Text>
+                        )}
+
+                        <TextInput
+                          label="Password"
+                          value={values.password}
+                          onChangeText={handleChange("password")}
+                          onBlur={handleBlur("password")}
+                          style={styles.input}
+                          mode="outlined"
+                          secureTextEntry={HideEntry2}
+                          right={
+                            <TextInput.Icon
+                              onPress={toggleSecureEntry2}
+                              icon={() => (
+                                <CustomIcon
+                                  name={!HideEntry2 ? "eye" : "eye-off"}
+                                  size={24}
+                                  color="black"
+                                />
+                              )}
+                            />
+                          }
+                        />
+                        {touched.password && errors.password && (
+                          <Text style={styles.errorText}>
+                            {errors.password}
+                          </Text>
+                        )}
+
+                        <TextInput
+                          label="Confirm Password"
+                          value={values.confirmPassword}
+                          onChangeText={handleChange("confirmPassword")}
+                          onBlur={handleBlur("confirmPassword")}
+                          style={styles.input}
+                          mode="outlined"
+                          secureTextEntry={HideEntry}
+                          right={
+                            <TextInput.Icon
+                              onPress={toggleSecureEntry}
+                              icon={() => (
+                                <CustomIcon
+                                  name={!HideEntry ? "eye" : "eye-off"}
+                                  size={24}
+                                  color="black"
+                                />
+                              )}
+                            />
+                          }
+                        />
+                        {touched.confirmPassword && errors.confirmPassword && (
+                          <Text style={styles.errorText}>
+                            {errors.confirmPassword}
+                          </Text>
+                        )}
+
+                        <Menu
+                          visible={roleMenuVisible}
+                          onDismiss={closeRoleMenu}
+                          anchor={
+                            <TouchableOpacity onPress={openRoleMenu}>
+                              <TextInput
+                                label="User Role"
+                                value={values.selectedRole}
+                                editable={false}
+                                style={styles.input}
+                                mode="outlined"
+                              />
+                            </TouchableOpacity>
+                          }
+                          contentStyle={{ width: 200, bottom: 220, right: 30 }}
+                        >
+                          <Menu.Item
+                            onPress={() => {
+                              setFieldValue(
+                                "selectedRole",
+                                "Service Providerss"
+                              );
+                              setFieldValue("role_id", 3);
+                              updateField("role_id", 3);
+                              setRoleMenuVisible(false); // Close the menu when selecting 'Service Provider'
+                            }}
+                            title="Service Provider"
+                          />
+                          <Menu.Item
+                            onPress={() => {
+                              setFieldValue("selectedRole", "Customer");
+                              setFieldValue("role_id", 2);
+                              updateField("role_id", 2);
+                              setRoleMenuVisible(false); // Close the menu when selecting 'Customer'
+                            }}
+                            title="Customer"
+                          />
+                        </Menu>
+
+                        {touched.selectedRole && errors.selectedRole && (
+                          <Text style={styles.errorText}>
+                            {errors.selectedRole}
+                          </Text>
+                        )}
+
+                        <View style={styles.checkboxContainer}>
+                          <Checkbox
+                            status={
+                              values.termsAccepted ? "checked" : "unchecked"
+                            }
+                            onPress={() =>
+                              setFieldValue(
+                                "termsAccepted",
+                                !values.termsAccepted
+                              )
+                            }
+                          />
+                          <Text>I agree to the Terms and Conditions</Text>
+                        </View>
+                        {touched.termsAccepted && errors.termsAccepted && (
+                          <Text style={styles.errorText}>
+                            {errors.termsAccepted}
+                          </Text>
+                        )}
+
                         <View
                           style={[
-                            styles.menuStyle,
+                            styles.buttonContainer,
                             {
-                              backgroundColor: "#C2B067",
-                              padding: 1,
-                              borderRadius: 30,
-                              marginBottom: 5,
-                              marginTop: 5,
-                              margin: 18,
-                              zIndex: 999,
+                              alignSelf: "center",
+                              flexDirection: "column",
+                              bottom: 15,
+                              justifyContent: "space-around",
+                              alignItems: "center",
                             },
                           ]}
                         >
-                          <Text
-                            style={{
-                              color: "white",
-                              fontWeight: "bold",
-                              textAlign: "center",
-                              margin: 10,
+                          <Button
+                            mode="contained"
+                            onPress={() => {
+                              handleSubmitRegister(values);
                             }}
+                            style={{
+                              width: widthPercentageToDP("50%"),
+                              height: heightPercentageToDP("6%"),
+                              // marginBottom: heightPercentageToDP("5%"),
+                              marginTop: heightPercentageToDP("2%"),
+                              alignSelf: "center",
+                              backgroundColor: "#EEBA2B",
+                            }}
+                            loading={isSubmitting}
+                            disabled={isSubmitting}
                           >
-                            {selectedRole ?? "User Role: "}
-                          </Text>
+                            Submit
+                          </Button>
+                          <Button
+                            mode="outlined"
+                            onPress={handlePreviousStep}
+                            style={[styles.button, { width: "100%" }]}
+                          >
+                            Back
+                          </Button>
                         </View>
-                        <Icon
-                          name="arrow-down-bold-circle"
-                          size={40}
-                          color="#000"
-                          style={{ marginLeft: 10 }}
-                          onPress={openMenu}
-                        />
                       </View>
-                    }
-                    style={{
-                      position: "absolute",
-                      zIndex: 999,
-                      top: 85,
-                      left: 90,
-                    }}
-                  >
-                    <View style={styles.menuItemContainer}>
-                      <Text style={styles.menuTitle}>PLEASE SELECT</Text>
-                    </View>
-                    <TouchableOpacity
-                      style={[
-                        styles.menuItemButton,
-                        selectedRole === "SERVICE PROVIDER" &&
-                          styles.selectedMenuItemButton,
-                      ]}
-                      onPress={() => handleRoleChange("SERVICE PROVIDER")}
-                    >
-                      <Text style={styles.menuItemText}>SERVICE PROVIDER</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.menuItemButton,
-                        selectedRole === "CUSTOMER" &&
-                          styles.selectedMenuItemButton,
-                      ]}
-                      onPress={() => handleRoleChange("CUSTOMER")}
-                    >
-                      <Text style={styles.menuItemText}>CUSTOMER</Text>
-                    </TouchableOpacity>
-                  </Menu>
-
-                  <TextInput
-                    style={styles.inputStyle}
-                    mode="contained-tonal"
-                    label="First Name"
-                    placeholder="Enter your firstname"
-                    value={name}
-                    onChangeText={(text) => setName(text)}
-                    left={<TextInput.Icon icon="rename-box" />}
-                  />
-                  <TextInput
-                    style={styles.inputStyle}
-                    mode="contained-tonal"
-                    label="Last Name"
-                    placeholder="Enter your Last Name"
-                    value={lastname}
-                    onChangeText={(text) => setLastname(text)}
-                    left={<TextInput.Icon icon="rename-box" />}
-                  />
-                  <TextInput
-                    style={styles.inputStyle}
-                    mode="contained-tonal"
-                    label="Username"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChangeText={(text) => setUsername(text)}
-                    left={<TextInput.Icon icon="account" />}
-                  />
-                  <TextInput
-                    style={styles.inputStyle}
-                    mode="contained-tonal"
-                    label="Email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChangeText={(text) => setEmail(text)}
-                    inputMode="email"
-                    left={<TextInput.Icon icon="email" />}
-                  />
-                  <TextInput
-                    style={styles.inputStyle}
-                    mode="contained-tonal"
-                    label="Phone number"
-                    placeholder="Enter your phone number"
-                    value={phoneNumber}
-                    onChangeText={(text) => setPhoneNumber(text)}
-                    left={<TextInput.Icon icon="phone" />}
-                  />
-                  <TextInput
-                    style={styles.inputStyle}
-                    mode="contained-tonal"
-                    label="Password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChangeText={(text) => setPassword(text)}
-                    secureTextEntry={HideEntry}
-                    right={
-                      <TextInput.Icon
-                        onPress={toggleSecureEntry}
-                        icon={!HideEntry ? "eye" : "eye-off"}
-                      />
-                    }
-                    left={<TextInput.Icon icon="lock" />}
-                  />
-                  <TextInput
-                    style={styles.inputStyle}
-                    mode="contained-tonal"
-                    label="Confirm Password"
-                    placeholder="Re-enter your password"
-                    value={repassword}
-                    onChangeText={(text) => setRepassword(text)}
-                    secureTextEntry={HideEntry}
-                    right={
-                      <TextInput.Icon
-                        onPress={toggleSecureEntry}
-                        icon={!HideEntry ? "eye" : "eye-off"}
-                      />
-                    }
-                    left={<TextInput.Icon icon="lock" />}
-                  />
-
-                  {/* Gender Selection */}
-                  <View
-                    style={[styles.inputContainer, { alignItems: "center" }]}
-                  >
-                    <View style={styles.genderContainer}>
-                      <Text style={styles.Gender}>Gender</Text>
-                      <TouchableOpacity
-                        style={[
-                          styles.genderButton,
-                          gender === "Male" && styles.selectedGender,
-                        ]}
-                        onPress={() => setGender("Male")}
-                      >
-                        <Text style={styles.genderText}>Male</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[
-                          styles.genderButton,
-                          gender === "Female" && styles.selectedGender,
-                        ]}
-                        onPress={() => setGender("Female")}
-                      >
-                        <Text style={styles.genderText}>Female</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-
-                  {/* Date of Birth */}
-                  <View style={styles.dateContainer}>
-                    <Text style={styles.Date}>Date of Birth</Text>
-                    <TouchableOpacity
-                      style={styles.datePickerButton}
-                      onPress={() => setDatePickerVisibility(true)}
-                    >
-                      <Text style={styles.datePickerText}>
-                        {date.toLocaleDateString()}
-                      </Text>
-                    </TouchableOpacity>
-                    <DateTimePickerModal
-                      isVisible={isDatePickerVisible}
-                      mode="date"
-                      onConfirm={handleDateConfirm}
-                      onCancel={() => setDatePickerVisibility(false)}
-                      maximumDate={new Date()}
-                      textColor="#000"
-                      theme={{
-                        colors: {
-                          primary: "#FFC42B",
-                          text: "#000",
-                          placeholder: "#FFC42B",
-                          background: "#fff",
-                        },
-                      }}
-                    />
-                  </View>
-
-                  {/* Terms Checkbox */}
-                  <View style={styles.checkboxContainer}>
-                    <Checkbox
-                      status={termsAccepted ? "checked" : "unchecked"}
-                      onPress={() => setTermsAccepted(!termsAccepted)}
-                      color="black"
-                    />
-                    <Text style={styles.checkboxText}>
-                      Agree with terms & conditions
-                    </Text>
-                  </View>
-
-                  {/* Register Button */}
-                  <Button
-                    loading={loading}
-                    disabled={loading}
-                    mode="contained"
-                    onPress={goToNextPage}
-                    labelStyle={{ color: "white", fontWeight: "bold" }}
-                    style={{
-                      width: "50%", // Set the width to 50%
-                      alignSelf: "center", // Center the button horizontally
-                      marginTop: 20, // Optional: Add some space above the button
-                      backgroundColor: "#eeba2b", // Button background color (can be customized)
-                      borderRadius: 30, // Rounded corners (optional)
-                    }}
-                  >
-                    Next
-                  </Button>
-
-                  <SafeAreaView
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={{ color: "black" }}>
-                      Already have an account?
-                    </Text>
-                    <Button
-                      labelStyle={{ color: "#A97E00" }}
-                      loading={loading}
-                      disabled={loading}
-                      onPress={() => navigator.navigate("Login")}
-                    >
-                      Login Now
-                    </Button>
-                  </SafeAreaView>
-
-                  {/* Go Back Button */}
-                  <Button
-                    style={styles.goback}
-                    labelStyle={{ color: "#000" }}
-                    onPress={() => {
-                      navigator.goBack();
-                    }}
-                  >
-                    Go Back
-                  </Button>
-                </View>
-              ) : (
-                // Verification Form
-                <View style={styles.verificationContainer}>
-                  {/* Text above the TextInput */}
-                  <Text style={styles.verificationInstruction}>
-                    We sent a verification code to your email
-                  </Text>
-
-                  {/* TextInput */}
-                  <TextInput
-                    label="Enter Verification Code"
-                    value={verificationCode}
-                    onChangeText={setVerificationCode}
-                    style={styles.verificationInput}
-                  />
-
-                  <TouchableOpacity>
-                    <Text style={styles.verifyText}>Verify</Text>
-                  </TouchableOpacity>
-
-                  {/* Button */}
-                  <Button
-                    loading={loading}
-                    disabled={loading}
-                    style={styles.verificationButton}
-                    mode="contained"
-                    onPress={handleRegistration}
-                    labelStyle={styles.buttonLabel} // Apply the custom text color
-                  >
-                    Register Account
-                  </Button>
-
-                  {/* Clickable "Verify" text below the TextInput */}
-                </View>
-              )}
+                    ) : null}
+                  </>
+                )}
+              </Formik>
             </PaperProvider>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -488,342 +682,90 @@ const Register = () => {
 };
 
 const styles = StyleSheet.create({
-  verificationContainer: {
-    marginTop: 20, // Add space above the container
-    paddingHorizontal: 20, // Padding for left and right spacing
-    alignItems: "center", // Center content horizontally
+  container: {
+    flex: 1,
+    backgroundColor: "transparent",
   },
-
-  // Instruction text above the TextInput
-  verificationInstruction: {
-    fontSize: 16, // Set text size
-    color: "#000", // Set text color (black)
-    marginBottom: 10, // Space between text and TextInput
-    textAlign: "center", // Center the instruction text
+  formContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    padding: 25,
+    paddingTop: 150,
   },
-
-  // Verification Input Styles
-  verificationInput: {
-    width: widthPercentageToDP("80%"), // Fixed width
-    marginBottom: 15, // Space between text input and button
-    height: 50, // Fixed height for the text input
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 16,
   },
-
-  // Verification Button Styles
-  verificationButton: {
-    width: widthPercentageToDP("50%"), // Same width as text input
-    marginTop: 15, // Space between button and input
-    borderRadius: 30, // Rounded corners for button
-    backgroundColor: "#eeba2b", // Button background color
-    elevation: 5, // Adds shadow for Android
-    shadowColor: "black", // Black shadow color
-    shadowOffset: { width: 0, height: 4 }, // Shadow direction (vertical)
-    shadowOpacity: 0.25, // Shadow opacity (how strong the shadow is)
-    shadowRadius: 6, // Shadow blur radius (how spread out the shadow is)
+  input: {
+    marginBottom: 12,
+    width: 320,
   },
-
-  // Button text styles
-  buttonLabel: {
-    color: "white", // White text color
-    fontWeight: "bold", // Bold text
+  verificationCode: {
+    marginTop: 12,
   },
-
-  // Style for the "Verify" clickable text
-  verifyText: {
-    fontSize: 16, // Set text size
-    color: "#000", // Set text color
-    textDecorationLine: "underline", // Underline the text
-    marginTop: 10, // Space between the button and the clickable text
+  button: {
+    marginTop: 16,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
   },
   backgroundImage: {
     flex: 1,
-    resizeMode: "cover",
+    width: "100%",
+    height: "100%",
   },
-  container: {
-    flex: 1,
+  stepContainer: {
+    padding: 16,
+    display: "flex",
     alignItems: "center",
-  },
-  formContainer: {
-    alignItems: "center",
-    paddingVertical: heightPercentageToDP("5%"),
-  },
-  headerText: {
-    marginTop: heightPercentageToDP("4%"),
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: widthPercentageToDP("10%"),
-  },
-  headerTe: {
-    marginTop: heightPercentageToDP("1%"),
-    marginBottom: heightPercentageToDP("5%"),
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: widthPercentageToDP("10%"),
-  },
-  inputStyle: {
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderWidth: 2,
-    borderColor: "#C2B067",
-  },
-  menuContent: {
-    backgroundColor: "black",
-    alignItems: "center",
-    borderRadius: 10,
-    width: 250,
-    marginLeft: -50,
-  },
-  menuItemContainer: {
-    alignItems: "center",
-    paddingVertical: 5,
-  },
-  menuTitle: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 12,
-    textAlign: "center",
-  },
-  menuItemButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#C2B067",
-    marginVertical: 5,
-    width: 200,
-  },
-  selectedMenuItemButton: {
-    backgroundColor: "#C2B067",
-  },
-  menuItemText: {
-    color: "white",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  dropdown: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 10,
-    backgroundColor: "#FFC42B",
-    borderRadius: 30,
-    marginBottom: 10,
-    width: widthPercentageToDP("80%"),
-  },
-  genderContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-  },
-  dateContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-  },
-  Gender: {
-    padding: 10,
-    borderRadius: 30,
-    width: "23%",
-    alignItems: "center",
-    color: "#fff",
-  },
-  Date: {
-    padding: 10,
-    borderRadius: 30,
-    width: "30%",
-    alignItems: "center",
-    color: "#fff",
-  },
-  genderButton: {
-    padding: 10,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#FFC42B",
-    width: "30%",
-    alignItems: "center",
-  },
-  selectedGender: {
-    backgroundColor: "#A97E00",
-  },
-  genderText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  datePickerButton: {
-    width: widthPercentageToDP("55%"),
-    padding: 10,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#FFC42B",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: heightPercentageToDP("2%"),
-  },
-  datePickerText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  uploadButton: {
-    padding: 15,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#FFC42B",
-    width: "60%",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  uploadText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  image: {
-    width: 200,
-    height: 200,
-    marginTop: 20,
+    // backgroundColor: "red",
   },
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: heightPercentageToDP("3%"),
+    marginBottom: 12,
   },
-  checkboxWrapper: {
-    backgroundColor: "rgba(255, 255, 255, 0.50)",
-    borderRadius: 12,
-    marginRight: 10,
-    height: 23,
-  },
-  checkboxText: {
-    color: "white",
-    fontSize: 16,
-  },
-  buttonStyle: {
-    width: widthPercentageToDP("30%"),
-    height: heightPercentageToDP("5%"),
-    marginBottom: heightPercentageToDP("2%"),
-    backgroundColor: "#EEBA2B",
-  },
-  menuStyle: {
-    width: widthPercentageToDP("50%"),
-  },
-
-  inputStyle: {
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderWidth: 2,
-    borderColor: "#C2B067",
-  },
-  menuContent: {
-    backgroundColor: "black",
-    alignItems: "center",
-    borderRadius: 10,
-    width: 250,
-    marginLeft: -50,
-  },
-  menuItemContainer: {
-    alignItems: "center",
-    paddingVertical: 5,
-  },
-  genderContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-  },
-  dateContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: widthPercentageToDP("80%"),
-    marginBottom: heightPercentageToDP("2%"),
-  },
-  Gender: {
-    padding: 10,
-    borderRadius: 30,
-    width: "23%",
-    alignItems: "center",
-    color: "#000",
-  },
-  Date: {
-    padding: 10,
-    borderRadius: 30,
-    width: "30%",
-    alignItems: "center",
-    color: "#000",
-  },
-  genderButton: {
-    padding: 10,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#FFC42B",
-    width: "30%",
-    alignItems: "center",
-  },
-  selectedGender: {
-    backgroundColor: "#A97E00",
-  },
-  genderText: {
-    color: "#000",
-    fontWeight: "bold",
-  },
-  datePickerButton: {
-    width: widthPercentageToDP("55%"),
-    padding: 10,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#FFC42B",
-    alignItems: "center",
+  verificationButton: {
+    // display: "flex",
     justifyContent: "center",
-    marginBottom: heightPercentageToDP("2%"),
-  },
-  datePickerText: {
-    color: "#000",
-    fontWeight: "bold",
-  },
-  uploadButton: {
-    padding: 15,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#FFC42B",
-    width: "60%",
-    alignItems: "center",
-    alignContent: "center",
-    marginBottom: 10,
-  },
-  uploadText: {
-    color: "#000",
-    fontWeight: "bold",
-  },
-  image: {
-    width: 200,
-    height: 200,
-    marginTop: 20,
-  },
-  checkboxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: heightPercentageToDP("3%"),
-  },
-  checkboxWrapper: {
-    backgroundColor: "rgba(220, 220, 220, 0.80)",
-    borderRadius: 12,
-    marginRight: 10,
-    height: 23,
-  },
-  checkboxText: {
-    color: "#000",
-    fontSize: 16,
-  },
-  buttonStyle: {
-    width: widthPercentageToDP("50%"),
-    height: heightPercentageToDP("6%"),
-    marginBottom: heightPercentageToDP("2%"),
+    // alignItems: "center",
+    borderRadius: 10,
+    padding: 10,
     backgroundColor: "#EEBA2B",
+    width: 250,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginHorizontal: 10,
+    marginTop: 10,
   },
-  menuStyle: {
-    width: widthPercentageToDP("50%"),
+  inputContainer: { backgroundColor: "red" },
+  verificationContainer: {
+    // backgroundColor: "red",
+    // display: "inline-block",
+    alignItems: "center",
+  }, //
+  verificationButtonBack: {
+    // display: "flex",
+    justifyContent: "center",
+    // alignItems: "center",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#EEBA2B",
+    width: 250,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginHorizontal: 10,
+    marginTop: 10,
   },
 });
 

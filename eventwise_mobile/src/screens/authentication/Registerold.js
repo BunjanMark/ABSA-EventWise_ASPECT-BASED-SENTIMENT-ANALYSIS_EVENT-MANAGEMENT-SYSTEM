@@ -74,6 +74,8 @@ const Register = () => {
 
   const [emailVerified, setEmailVerified] = useState(false); // Track verification status
   const [isCodeSent, setIsCodeSent] = useState(false);
+
+  const [canResendCode, setCanResendCode] = useState(false);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   // const [verificationCode, setVerificationCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -88,6 +90,7 @@ const Register = () => {
       const response = await signup(values);
       console.log("--------------------------------");
       console.log("handle submit test: signup response:", response);
+      alert(response.message);
       Toast.show(
         response.message,
         {
@@ -104,6 +107,7 @@ const Register = () => {
       );
       console.log("--------------------------------");
     } catch (error) {
+      alert(error);
       console.error(
         "Error in handleSubmitregister================:",
         error,
@@ -154,6 +158,7 @@ const Register = () => {
   const closeRoleMenu = () => setRoleMenuVisible(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countdown, setCountdown] = useState(15);
   const handleRegistration = async (values) => {
     // ...
     console.log("handleRegistration called with values:", values);
@@ -165,26 +170,82 @@ const Register = () => {
       console.error("Error in handleRegistration:", error);
     }
   };
+  const [emailSent, setEmailSent] = useState(false);
+
   const handleVerifyEmail = async (values) => {
+    if (emailSent) {
+      alert("Email has already been sent. Please try again later.");
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await sendVerificationEmail(values.email);
-      if (response.message) {
+
+      if (
+        response.message.includes("success") ||
+        response.message.includes("Verification code sent")
+      ) {
         setIsCodeSent(true);
         alert("Verification code sent to your email.");
+        setCountdown(15); // Reset countdown to 15 seconds
+        console.log(isCodeSent);
+        setEmailSent(true); // Set emailSent to true
+        const intervalId = setInterval(() => {
+          if (countdown > 0) {
+            setCountdown((prevCountdown) => prevCountdown - 1);
+          } else {
+            clearInterval(intervalId); // Clear interval when countdown reaches 0
+            setCanResendCode(true);
+          }
+        }, 1000); // 1 second
+      } else if (response.message.includes("Email is already in use")) {
+        alert("Email is already in use. Please try again.");
       } else {
-        alert("Error sending verification code.");
+        alert("An error occurred. Please try again.");
       }
-      console.log("Verification code sent");
     } catch (error) {
-      console.error("Error during email verification:", error);
-
-      alert("Failed to send verification email.");
+      if (error.message === "Email is already in use") {
+        alert("Email is already in use. Please try again.");
+      } else {
+        console.error("Error during email verification:", error);
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  const handleResendCode = async () => {
+    try {
+      const response = await sendVerificationEmail(values.email);
+      if (
+        response.message.includes("success") ||
+        response.message.includes("Verification code sent")
+      ) {
+        setIsCodeSent(true);
+        alert("Verification code sent to your email.");
+        setCountdown(15); // Reset countdown to 15 seconds
+        console.log(isCodeSent);
+        setEmailSent(true); // Set emailSent to true
+        const intervalId = setInterval(() => {
+          if (countdown > 0) {
+            setCountdown((prevCountdown) => prevCountdown - 1);
+          } else {
+            clearInterval(intervalId); // Clear interval when countdown reaches 0
+            setCanResendCode(true);
+          }
+        }, 1000); // 1 second
+      } else {
+        alert("An error occurred. Please try again.");
+      }
+    } catch (error) {
+      if (error.message === "Email is already in use") {
+        alert("Email is already in use. Please try again.");
+      } else {
+        console.error("Error during email verification:", error);
+      }
+    }
+  };
   // Triggered when the user submits the verification code
 
   const handleVerificationCode = async (values) => {
@@ -209,6 +270,7 @@ const Register = () => {
       setLoading(false);
     }
   };
+
   return (
     <ImageBackground
       source={require("../customerScreens/pictures/authbg.png")}
@@ -266,190 +328,217 @@ const Register = () => {
                   <>
                     {step === 1 ? (
                       <View style={styles.stepContainer}>
-                        <TextInput
-                          label="Full Name"
-                          value={values.name}
-                          onChangeText={(text) => {
-                            handleChange("name")(text);
-                            updateField("name", text);
-                          }}
-                          onBlur={handleBlur("name")}
-                          style={styles.input}
-                          mode="outlined"
-                        />
-                        {touched.name && errors.fullName && (
-                          <Text style={styles.errorText}>{errors.name}</Text>
-                        )}
-
-                        <Menu
-                          visible={roleMenuVisible}
-                          onDismiss={closeRoleMenu}
-                          anchor={
-                            <TouchableOpacity onPress={openRoleMenu}>
-                              <TextInput
-                                label="Gender"
-                                value={values.gender}
-                                editable={false}
-                                style={[styles.input]}
-                                mode="outlined"
-                              />
-                            </TouchableOpacity>
-                          }
-                        >
-                          <Menu.Item
-                            onPress={() => {
-                              setFieldValue("gender", "Male");
-                              updateField("gender", "Male");
-                              setRoleMenuVisible(false);
-                            }}
-                            title="Male"
-                          />
-                          <Menu.Item
-                            onPress={() => {
-                              setFieldValue("gender", "Female");
-                              updateField("gender", "Female");
-                              setRoleMenuVisible(false);
-                            }}
-                            title="Female"
-                          />
-                          <Menu.Item
-                            onPress={() => {
-                              setFieldValue("gender", "Other");
-                              updateField("gender", "Other");
-                              setRoleMenuVisible(false);
-                            }}
-                            title="Other"
-                          />
-                        </Menu>
-
-                        <TouchableOpacity onPress={openDatePicker}>
+                        <View styles={styles.inputContainer}>
                           <TextInput
-                            label="Date of Birth"
-                            value={values.dateOfBirth.toLocaleDateString()}
-                            editable={false}
+                            label="Full Name"
+                            value={values.name}
+                            onChangeText={(text) => {
+                              handleChange("name")(text);
+                              updateField("name", text);
+                            }}
+                            onBlur={handleBlur("name")}
                             style={styles.input}
                             mode="outlined"
                           />
-                        </TouchableOpacity>
-                        <DateTimePickerModal
-                          isVisible={isDatePickerVisible}
-                          mode="date"
-                          onConfirm={(date) => {
-                            setFieldValue("dateOfBirth", date);
-                            updateField("dateOfBirth", date);
-                            setDatePickerVisibility(false);
-                          }}
-                          onCancel={() => setDatePickerVisibility(false)}
-                        />
+                          {touched.name && errors.fullName && (
+                            <Text style={styles.errorText}>{errors.name}</Text>
+                          )}
 
-                        <TextInput
-                          label="Phone Number"
-                          value={values.phoneNumber}
-                          onChangeText={(text) => {
-                            handleChange("phoneNumber")(text);
-                            updateField("phoneNumber", text);
-                          }}
-                          onBlur={handleBlur("phoneNumber")}
-                          style={styles.input}
-                          mode="outlined"
-                          keyboardType="phone-pad"
-                        />
-                        {touched.phoneNumber && errors.phoneNumber && (
-                          <Text style={styles.errorText}>
-                            {errors.phoneNumber}
-                          </Text>
-                        )}
+                          <Menu
+                            visible={roleMenuVisible}
+                            onDismiss={closeRoleMenu}
+                            anchor={
+                              <TouchableOpacity onPress={openRoleMenu}>
+                                <TextInput
+                                  label="Gender"
+                                  value={values.gender}
+                                  editable={false}
+                                  style={[styles.input]}
+                                  mode="outlined"
+                                />
+                              </TouchableOpacity>
+                            }
+                          >
+                            <Menu.Item
+                              onPress={() => {
+                                setFieldValue("gender", "Male");
+                                updateField("gender", "Male");
+                                setRoleMenuVisible(false);
+                              }}
+                              title="Male"
+                            />
+                            <Menu.Item
+                              onPress={() => {
+                                setFieldValue("gender", "Female");
+                                updateField("gender", "Female");
+                                setRoleMenuVisible(false);
+                              }}
+                              title="Female"
+                            />
+                            <Menu.Item
+                              onPress={() => {
+                                setFieldValue("gender", "Other");
+                                updateField("gender", "Other");
+                                setRoleMenuVisible(false);
+                              }}
+                              title="Other"
+                            />
+                          </Menu>
 
-                        <Button
-                          mode="contained"
-                          onPress={() => {
-                            handleNextStep(values);
-                          }}
-                          style={{
-                            width: widthPercentageToDP("50%"),
-                            height: heightPercentageToDP("6%"),
-                            marginBottom: heightPercentageToDP("5%"),
-                            marginTop: heightPercentageToDP("2%"),
-                            alignSelf: "center",
-                            backgroundColor: "#EEBA2B",
-                          }}
-                        >
-                          Next
-                        </Button>
-                        <Button
-                          mode="contained"
-                          onPress={() => {
-                            navigation.goBack();
-                          }}
-                          style={{
-                            width: widthPercentageToDP("50%"),
-                            height: heightPercentageToDP("6%"),
-                            marginBottom: heightPercentageToDP("5%"),
-                            marginTop: heightPercentageToDP("-3%"),
-                            alignSelf: "center",
-                            backgroundColor: "#ffffff",
-                          }}
-                        >
-                          <Text style={styles.buttonText}>Go back</Text>
-                        </Button>
-                      </View>
-                    ) : step === 2 ? (
-                      <View style={styles.stepContainer}>
-                        <Text style={styles.headerText}>
-                          Email Verification
-                        </Text>
-                        <View>
-                          <TextInput
-                            label="Email Address"
-                            value={values.email}
-                            onChangeText={(text) => {
-                              handleChange("email")(text);
-                              updateField("email", text);
+                          <TouchableOpacity onPress={openDatePicker}>
+                            <TextInput
+                              label="Date of Birth"
+                              value={values.dateOfBirth.toLocaleDateString()}
+                              editable={false}
+                              style={styles.input}
+                              mode="outlined"
+                            />
+                          </TouchableOpacity>
+                          <DateTimePickerModal
+                            isVisible={isDatePickerVisible}
+                            mode="date"
+                            onConfirm={(date) => {
+                              setFieldValue("dateOfBirth", date);
+                              updateField("dateOfBirth", date);
+                              setDatePickerVisibility(false);
                             }}
-                            onBlur={handleBlur("email")}
-                            style={styles.input}
-                            mode=" "
-                            error={touched.email && errors.email}
-                            helperText={touched.email && errors.email}
+                            onCancel={() => setDatePickerVisibility(false)}
                           />
-                          {touched.email && errors.email && (
-                            <Text style={styles.errorText}>{errors.email}</Text>
+
+                          <TextInput
+                            label="Phone Number"
+                            value={values.phoneNumber}
+                            onChangeText={(text) => {
+                              handleChange("phoneNumber")(text);
+                              updateField("phoneNumber", text);
+                            }}
+                            onBlur={handleBlur("phoneNumber")}
+                            style={styles.input}
+                            mode="outlined"
+                            keyboardType="phone-pad"
+                          />
+                          {touched.phoneNumber && errors.phoneNumber && (
+                            <Text style={styles.errorText}>
+                              {errors.phoneNumber}
+                            </Text>
                           )}
 
                           <Button
                             mode="contained"
-                            onPress={() => handleVerifyEmail(values)}
-                            style={styles.verificationButton}
-                            loading={loading}
-                            disabled={loading}
+                            onPress={() => {
+                              handleNextStep(values);
+                            }}
+                            style={{
+                              width: widthPercentageToDP("50%"),
+                              height: heightPercentageToDP("6%"),
+                              marginBottom: heightPercentageToDP("5%"),
+                              marginTop: heightPercentageToDP("2%"),
+                              alignSelf: "center",
+                              backgroundColor: "#EEBA2B",
+                            }}
                           >
-                            Verify
+                            Next
                           </Button>
-
-                          {isCodeSent && (
+                          <Button
+                            mode="contained"
+                            onPress={() => {
+                              navigation.goBack();
+                            }}
+                            style={{
+                              width: widthPercentageToDP("50%"),
+                              height: heightPercentageToDP("6%"),
+                              marginBottom: heightPercentageToDP("5%"),
+                              marginTop: heightPercentageToDP("-3%"),
+                              alignSelf: "center",
+                              backgroundColor: "#ffffff",
+                            }}
+                          >
+                            <Text style={styles.buttonText}>Go back</Text>
+                          </Button>
+                        </View>
+                      </View>
+                    ) : step === 2 ? (
+                      <View style={styles.stepContainer}>
+                        <View>
+                          <Text style={styles.headerText}>
+                            Email Verification
+                          </Text>
+                          {!isCodeSent && (
                             <>
                               <View style={styles.verificationContainer}>
                                 <TextInput
-                                  label="Enter Verification Code"
-                                  value={values.verificationCode}
+                                  label="Email Address"
+                                  value={values.email}
                                   onChangeText={(text) => {
-                                    handleChange("verificationCode")(text);
-                                    updateField("verificationCode", text);
+                                    handleChange("email")(text);
+                                    updateField("email", text);
                                   }}
-                                  style={styles.verificationInput}
+                                  onBlur={handleBlur("email")}
+                                  style={styles.input}
+                                  mode=" "
+                                  error={touched.email && errors.email}
+                                  helperText={touched.email && errors.email}
                                 />
 
                                 <Button
                                   mode="contained"
-                                  onPress={() => handleVerificationCode(values)}
+                                  onPress={() => handleVerifyEmail(values)}
                                   style={styles.verificationButton}
                                   loading={loading}
                                   disabled={loading}
                                 >
-                                  Verify Code
+                                  Verify
+                                </Button>
+                                <Button
+                                  mode="contained"
+                                  onPress={handlePreviousStep}
+                                  style={styles.verificationButtonBack}
+                                >
+                                  <Text style={styles.buttonText}>Go back</Text>
                                 </Button>
                               </View>
                             </>
+                          )}
+                          {isCodeSent && (
+                            <View style={styles.verificationContainer}>
+                              <TextInput
+                                label="Enter Verification Code"
+                                value={values.verificationCode}
+                                onChangeText={(text) => {
+                                  handleChange("verificationCode")(text);
+                                  updateField("verificationCode", text);
+                                }}
+                                style={styles.input}
+                              />
+                              <Button
+                                mode="contained"
+                                onPress={() => handleVerificationCode(values)}
+                                style={styles.verificationButton}
+                                loading={loading}
+                                disabled={loading}
+                              >
+                                Verify Code
+                              </Button>
+
+                              <Button
+                                mode="contained"
+                                onPress={() => handleVerifyEmail(values)}
+                                style={styles.verificationButton}
+                                loading={loading}
+                                disabled={countdown > 0 || loading}
+                              >
+                                {countdown > 0
+                                  ? `Resend Code in ${countdown}s`
+                                  : "Resend Code"}
+                              </Button>
+                              <Button
+                                mode="contained"
+                                onPress={handlePreviousStep}
+                                style={styles.verificationButton}
+                              >
+                                <Text style={styles.buttonText}>Go back</Text>
+                              </Button>
+                            </View>
                           )}
                         </View>
                       </View>
@@ -658,6 +747,10 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 12,
+    width: 320,
+  },
+  verificationCode: {
+    marginTop: 12,
   },
   button: {
     marginTop: 16,
@@ -678,11 +771,48 @@ const styles = StyleSheet.create({
   },
   stepContainer: {
     padding: 16,
+    display: "flex",
+    alignItems: "center",
+    // backgroundColor: "red",
   },
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
+  },
+  verificationButton: {
+    // display: "flex",
+    justifyContent: "center",
+    // alignItems: "center",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#EEBA2B",
+    width: 250,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginHorizontal: 10,
+    marginTop: 10,
+  },
+  inputContainer: { backgroundColor: "red" },
+  verificationContainer: {
+    // backgroundColor: "red",
+    // display: "inline-block",
+    alignItems: "center",
+  }, //
+  verificationButtonBack: {
+    // display: "flex",
+    justifyContent: "center",
+    // alignItems: "center",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#EEBA2B",
+    width: 250,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginHorizontal: 10,
+    marginTop: 10,
   },
 });
 

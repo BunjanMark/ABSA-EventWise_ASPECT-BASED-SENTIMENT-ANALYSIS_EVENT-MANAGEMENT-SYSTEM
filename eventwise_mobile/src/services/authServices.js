@@ -36,7 +36,12 @@ export const signup = async (userData) => {
 export const sendVerificationEmail = async (email) => {
   try {
     const response = await api.post("/verify-email", { email });
-    console.log("Verification email response:", response.data);
+
+    if (response.data.message.includes("Email is already in use")) {
+      throw new Error("Email is already in use");
+    }
+
+    console.log(response);
     return response.data;
   } catch (error) {
     if (error.response) {

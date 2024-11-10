@@ -29,7 +29,7 @@ api.interceptors.request.use(
 // Function to submit a new package
 const submitPackage = async (packageData) => {
   try {
-    // console.log("Submitting Package:", packageData);
+    console.log("Submitting Package:", packageData);
 
     let coverPhotoURL =
       "https://ktmddejbdwjeremvbzbl.supabase.co/storage/v1/" +
