@@ -1,4 +1,8 @@
 import React, { useState } from "react";
+import ManualTestImage from "../../adminMain/screens/component/ManualTestImage";
+import { testSupabaseConnectivity } from "../../adminMain/screens/component/testSupabaseConnectivity";
+import { ScrollView } from "react-native";
+import { SafeAreaView } from "react-native";
 import {
   View,
   Text,
@@ -7,55 +11,12 @@ import {
   Image,
   Modal,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Import the navigation hook
 import ServiceManager from "./ServiceTab/ServiceManager";
-
-const servicesData = [
-  {
-    id: "1",
-    name: "Service A",
-    image: require("../assets/service1.png"),
-    price: "₱10,000",
-    details: "Includes feature 1, feature 2, and feature 3.",
-  },
-  {
-    id: "2",
-    name: "Service B",
-    image: require("../assets/service2.png"),
-    price: "₱15,000",
-    details: "Includes feature A, feature B, and feature C.",
-  },
-  {
-    id: "3",
-    name: "Service C",
-    image: require("../assets/service1.png"),
-    price: "₱200,000",
-    details: "Includes feature X, feature Y, and feature Z.",
-  },
-  {
-    id: "4",
-    name: "Service D",
-    image: require("../assets/service2.png"),
-    price: "₱25,000",
-    details: "Includes feature 1, feature 2, and feature 3.",
-  },
-  {
-    id: "5",
-    name: "Service E",
-    image: require("../assets/service1.png"),
-    price: "₱30,000",
-    details: "Includes feature A, feature B, and feature C.",
-  },
-  {
-    id: "6",
-    name: "Service F",
-    image: require("../assets/service2.png"),
-    price: "₱3,500",
-    details: "Includes feature X, feature Y, and feature Z.",
-  },
-];
+import ServiceManager2 from "./ServiceTab/ServiceManager2";
+import ServicesLists from "./ServiceTab/ServicesLists";
+import { Button } from "react-native-paper";
 
 const ServiceSP = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -89,64 +50,29 @@ const ServiceSP = () => {
     );
   };
 
-  // Insert the broken box as the first item
-  const dataWithBrokenBox = [
-    { id: "broken", isBrokenBox: true }, // This represents the broken line box
-    ...servicesData,
-  ];
-
   return (
-    <View style={styles.container}>
-      {/* <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <Text style={styles.title}>Services</Text>
-        <FlatList
-          data={dataWithBrokenBox}
-          renderItem={renderServiceItem}
-          keyExtractor={(item) => item.id}
-        />
-      </ScrollView> */}
-      {/* Modal for service details */}
-      {/* <Modal
-        transparent={true}
-        visible={modalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>X</Text>
-            </TouchableOpacity>
-            {selectedService && (
-              <>
-                <Text style={styles.modalHeader}>{selectedService.name}</Text>
-                <Image
-                  source={selectedService.image}
-                  style={styles.modalImage}
-                />
-                <Text style={styles.modalPrice}>{selectedService.price}</Text>
-                <Text style={styles.modalDetails}>
-                  {selectedService.details}
-                </Text>
-              </>
-            )}
-          </View>
-        </View>
-      </Modal> */}
-
+    <SafeAreaView style={styles.container}>
+      {/* <ServiceManager2 /> */}
       <ServiceManager />
-    </View>
+      {/* test connectivity */}
+      {/* <Text style={styles.title}>Services</Text>
+      <Button title="test" onPress={testSupabaseConnectivity} />
+      <ManualTestImage /> */}
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    backgroundColor: "white",
+    paddingVertical: 14,
+    padding: 12,
+    borderRadius: 8,
+    paddingTop: 10,
+    height: "100%",
+    width: "100%",
+    // backgroundColor: "green",
+    // margin: 5,
   },
   scrollViewContent: {
     paddingBottom: 60,

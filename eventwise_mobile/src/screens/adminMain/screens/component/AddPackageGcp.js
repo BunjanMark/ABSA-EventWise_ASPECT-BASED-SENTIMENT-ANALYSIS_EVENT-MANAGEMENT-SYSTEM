@@ -44,7 +44,7 @@ const AddPackageG = ({ onClose }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   // console.log("Local storage>>>>>:", servicesList);
-  console.log("fetch services info", services);
+  // console.log("fetch services info", services);
 
   useEffect(() => {
     const fetchServicesData = async () => {
@@ -161,7 +161,10 @@ const AddPackageG = ({ onClose }) => {
           values.coverPhoto,
           fileName
         );
-        console.log("Image uploaded successfully. URL:", coverPhotoUrl);
+        console.log(
+          "AddpackageImage uploaded successfully. URL:",
+          coverPhotoUrl
+        );
       }
 
       const newPackage = {

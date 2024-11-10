@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
-import * as ImagePicker from "expo-image-picker";
-import * as ImageManipulator from "expo-image-manipulator";
+import { SafeAreaView } from "react-native";
 import {
   View,
   Text,
@@ -9,10 +7,7 @@ import {
   Button,
   FlatList,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
-  Image,
-  Platform,
   Alert,
 } from "react-native";
 import { useServiceStore } from "../../../../stateManagement/serviceProvider/useServiceStore";
@@ -25,9 +20,6 @@ import {
 import { Modal } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { uploadImageToSupabase } from "../../../../services/organizer/uploadSupabaseService";
-import AddPackageG from "../../../adminMain/screens/component/AddPackageGcp";
-import useStore from "../../../../stateManagement/useStore";
 
 const validationSchema = Yup.object().shape({
   serviceName: Yup.string().required("Service name is required"),
@@ -50,18 +42,7 @@ const ServiceManager = () => {
   const [refresh, setRefresh] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [imageUri, setImageUri] = useState(null);
-  const { fetchEventPackages } = useStore();
-  const [isLoading, setIsLoading] = useState(false);
-  const handleAddPackage = async (newPackage) => {
-    try {
-      await fetchEventPackages(); // Refresh the list after adding a package
-    } catch (error) {
-      console.error("Error fetching event packages:", error);
-    }
-  };
+
   useEffect(() => {
     const fetchServicesData = async () => {
       try {
@@ -74,48 +55,12 @@ const ServiceManager = () => {
     fetchServicesData();
   }, [refresh, setServices]);
 
-  const handleCreateService = async (values, { resetForm }) => {
-    setIsLoading(true);
+  const handleCreateService = async (values) => {
     try {
-      let servicePhotoURL = null;
-
-      if (values.servicePhoto) {
-        const fileName = `cover_photo_${Date.now()}.jpg`;
-        console.log("Uploading image to Supabase:", fileName);
-
-        servicePhotoURL = await testUploadImageToSupabase(
-          values.servicePhoto,
-          fileName
-        );
-        console.log("Image uploaded successfully. URL:", servicePhotoURL);
-      }
-
-      const newService = {
-        serviceName: values.serviceName,
-        serviceCategory: values.serviceCategory,
-        serviceFeatures: values.serviceFeatures,
-        basePrice: values.basePrice,
-        pax: values.pax,
-        requirements: values.requirements,
-        servicePhotoURL,
-        serviceCreatedDate: new Date().toISOString().split("T")[0],
-      };
-
-      console.log("New service in ServiceManager:", newService);
-      const result = await createService(newService);
-
-      Alert.alert("Success", "Service added successfully!");
-      console.log("resule from result:", result);
-      // resetForm();
+      const response = await createService(values);
+      setRefresh(!refresh); // Refresh the component
     } catch (error) {
-      console.error("Error adding service:", error);
-      Alert.alert(
-        "Error",
-        error.response?.data?.message ||
-          "An error occurred while adding the service. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
+      console.error(error);
     }
   };
 
@@ -127,7 +72,6 @@ const ServiceManager = () => {
       console.error(error);
     }
   };
-
   const handleEditService = (service) => {
     setEditingService(service);
     setModalVisible(true);
@@ -135,8 +79,6 @@ const ServiceManager = () => {
 
   const handleSaveService = async (values) => {
     try {
-      // #TODO: fix
-      // console.log("yati!?");
       const response = await updateService(editingService.id, values);
       setRefresh(!refresh); // Refresh the component
       setEditingService(null);
@@ -152,49 +94,6 @@ const ServiceManager = () => {
       setRefresh(!refresh); // Refresh the component
     } catch (error) {
       console.error(error);
-    }
-  };
-
-  const handleImagePicker = async (setFieldValue) => {
-    try {
-      const permissionResult =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permissionResult.granted) {
-        Alert.alert(
-          "Permission Required",
-          "Permission to access camera roll is required!"
-        );
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 0.7,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const selectedUri = result.assets[0].uri;
-        const manipulatedResult = await ImageManipulator.manipulateAsync(
-          selectedUri,
-          [{ resize: { width: 800 } }],
-          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-        );
-
-        let uri = manipulatedResult.uri;
-        if (Platform.OS === "android" && !uri.startsWith("file://")) {
-          uri = `file://${uri}`;
-        }
-
-        setFieldValue("servicePhoto", uri);
-        setImageUri(uri);
-      }
-    } catch (error) {
-      console.error("Error selecting cover photo:", error);
-      Alert.alert(
-        "Error",
-        "An error occurred while selecting the cover photo."
-      );
     }
   };
 
@@ -229,38 +128,37 @@ const ServiceManager = () => {
   );
 
   return (
-    <View style={[styles.container, { display: "flex" }]}>
-      <View>
-        <Text style={styles.title}>Service Manager</Text>
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={() => setCreateServiceModalVisible(true)}
-        >
-          <Text style={styles.buttonText}>Add Service</Text>
-        </TouchableOpacity>
-      </View>
-      <View pointerEvents={createServiceModalVisible ? "none" : "auto"}>
-        <FlatList
-          data={services}
-          renderItem={renderServiceItem}
-          keyExtractor={(item) => item.id.toString()}
-          horizontal={true}
-          contentContainerStyle={{ flexGrow: 1, zIndex: -1 }}
-          accessibilityViewIsModal={true}
-          accessibilityModalRoot={true}
-        />
-      </View>
+    <View style={styles.container}>
+      <Text style={styles.title}>Service Manager</Text>
+      <TouchableOpacity
+        style={styles.createButton}
+        onPress={() => setCreateServiceModalVisible(true)}
+      >
+        <Text style={styles.buttonText}>Add Service</Text>
+      </TouchableOpacity>
+      <FlatList
+        data={services}
+        renderItem={renderServiceItem}
+        keyExtractor={(item) => item.id.toString()}
+        horizontal={true} // Add this prop
+        style={[
+          {
+            // backgroundColor: "red",
+            // width: "100%",
+            // height: "1%",
+            // position: "relative",
+          },
+        ]}
+        accessibilityViewIsModal={true}
+      />
       <Modal
         animationType="fade"
         transparent={false}
         visible={createServiceModalVisible}
         onRequestClose={() => setCreateServiceModalVisible(false)}
-        contentContainerStyle={[
-          styles.modalContaine,
-          { backgroundColor: "blue", elevation: 1000 },
-        ]}
+        elevation={1000}
       >
-        <View style={[styles.centeredView]}>
+        <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Text style={styles.modalText}>Add Service</Text>
             <Formik
@@ -268,54 +166,26 @@ const ServiceManager = () => {
                 serviceName: "",
                 serviceCategory: "",
                 serviceFeatures: "",
-                servicePhoto: null,
                 basePrice: "",
                 pax: "",
                 requirements: "",
               }}
               validationSchema={validationSchema}
-              onSubmit={handleCreateService}
+              onSubmit={(values, actions) => {
+                handleCreateService(values);
+                actions.resetForm();
+                setCreateServiceModalVisible(false);
+              }}
             >
               {({
                 handleChange,
                 handleBlur,
                 handleSubmit,
                 values,
-                setFieldValue,
                 errors,
                 touched,
               }) => (
                 <View style={styles.modalForm}>
-                  {/* {imageUri && (
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={styles.selectedImage}
-                    />
-                  )} */}
-                  <View>
-                    <TouchableOpacity
-                      onPress={() => {
-                        try {
-                          handleImagePicker(setFieldValue);
-                          console.log("Image URI:", imageUri);
-                        } catch (error) {}
-                      }}
-                    >
-                      {imageUri ? (
-                        <Image
-                          source={{ uri: values.servicePhoto }}
-                          style={{ width: 100, height: 100 }}
-                        />
-                      ) : (
-                        <Text>Select an Image</Text>
-                      )}
-                    </TouchableOpacity>
-                    {touched.servicePhoto && errors.servicePhoto && (
-                      <Text style={styles.errorText}>
-                        {errors.servicePhoto}
-                      </Text>
-                    )}
-                  </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Service Name"
@@ -326,7 +196,6 @@ const ServiceManager = () => {
                   {errors.serviceName && touched.serviceName && (
                     <Text style={styles.errorText}>{errors.serviceName}</Text>
                   )}
-
                   <TextInput
                     style={styles.input}
                     placeholder="Service Category"
@@ -403,6 +272,7 @@ const ServiceManager = () => {
           </View>
         </View>
       </Modal>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -520,48 +390,6 @@ const ServiceManager = () => {
           </View>
         </View>
       </Modal>
-      {/* <AddPackageG
-        onClose={() => setIsModalVisible(false)}
-        onAddPackage={handleAddPackage}
-      /> */}
-
-      {/* {services.map((service, index) => (
-        <View key={index} style={styles.serviceContainer}>
-          <Image
-            source={{ uri: service.servicePhotoURL }}
-            style={styles.serviceImage}
-          />
-          <View style={styles.serviceInfo}>
-            <Text style={styles.serviceName}>{service.serviceName}</Text>
-            <Text style={styles.serviceCategory}>
-              Category: {service.serviceCategory}
-            </Text>
-            <Text style={styles.servicePrice}>
-              Price: ₱{service.basePrice} (for {service.pax} pax)
-            </Text>
-            <Text style={styles.serviceFeatures}>
-              Features: {service.serviceFeatures}
-            </Text>
-            <Text style={styles.serviceRequirements}>
-              Requirements: {service.requirements}
-            </Text>
-          </View>
-          <View style={styles.serviceActions}>
-            <TouchableOpacity
-              style={styles.updateButton}
-              onPress={() => handleEditService(service)}
-            >
-              <Text style={styles.buttonText}>Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDeleteService(service.id)}
-            >
-              <Text style={styles.buttonText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))} */}
     </View>
   );
 };
@@ -570,63 +398,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#FFF",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
+    color: "#FFD700",
+    textAlign: "center",
     marginBottom: 20,
   },
   createButton: {
-    backgroundColor: "blue",
-    padding: 10,
+    backgroundColor: "#FFD700",
+    paddingVertical: 10,
     borderRadius: 5,
     alignItems: "center",
     marginBottom: 20,
   },
-  buttonText: {
-    color: "white",
+  createButtonText: {
+    color: "#FFF",
     fontSize: 16,
-  },
-  serviceCard: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  serviceName: {
-    fontSize: 18,
     fontWeight: "bold",
-  },
-  serviceCategory: {
-    fontSize: 16,
-    color: "gray",
-  },
-  servicePrice: {
-    fontSize: 16,
-    color: "green",
-  },
-  servicePax: {
-    fontSize: 16,
-    color: "blue",
-  },
-  serviceDuration: {
-    fontSize: 16,
-    color: "purple",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-  updateButton: {
-    backgroundColor: "orange",
-    padding: 10,
-    borderRadius: 5,
-  },
-  deleteButton: {
-    backgroundColor: "red",
-    padding: 10,
-    borderRadius: 5,
   },
   modalView: {
     margin: 20,
@@ -642,43 +433,67 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  modalForm: {
-    width: "100%",
+    zIndex: 100,
   },
   input: {
     height: 40,
-    borderColor: "gray",
+    borderColor: "#DDD",
     borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 10,
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
-  },
-  imagePickerButton: {
-    backgroundColor: "lightgray",
-    padding: 10,
     borderRadius: 5,
-    alignItems: "center",
     marginBottom: 10,
+    paddingHorizontal: 10,
   },
-  imagePickerText: {
-    color: "black",
+  serviceCard: {
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  selectedImage: {
-    width: 100,
-    height: 100,
-    marginBottom: 10,
+  serviceName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
   },
-  createButtonText: {
-    color: "white",
+  serviceCategory: {
     fontSize: 16,
+    color: "#666",
+    marginBottom: 5,
+  },
+  servicePrice: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFD700",
+  },
+  servicePax: {
+    fontSize: 16,
+    color: "#888",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  updateButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
+  deleteButton: {
+    backgroundColor: "#F44336",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "#FFF",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
 

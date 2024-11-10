@@ -3,6 +3,7 @@
 import axios from "axios";
 import API_URL from "../../constants/constant";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { uploadImageToSupabase } from "../organizer/uploadSupabaseService";
 
 // Create an Axios instance
 const api = axios.create({
@@ -29,12 +30,23 @@ api.interceptors.request.use(
 // Function to create a new service
 const createService = async (serviceData) => {
   try {
+    let servicePhotoURL =
+      "https://ktmddejbdwjeremvbzbl.supabase.co/storage/v1/" +
+      serviceData.servicePhotoURL;
+    // if (serviceData.servicePhotoURL) {
+    //   const fileName = serviceData.serviceImage.split("/").pop();
+    //   servicePhotoURL = await uploadImageToSupabase(
+    //     serviceData.servicePhotoURL,
+    //     fileName
+    //   );
+    //   console.log("Service Image uploaded to Supabase. URL:", servicePhotoURL);
+    // }
     const response = await api.post("/services", serviceData, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-
+    console.log("createService: ", response);
     return response.data;
   } catch (error) {
     console.error("Error creating service:", error, serviceData);
@@ -44,11 +56,12 @@ const createService = async (serviceData) => {
 
 // Function to update a service
 const updateService = async (id, updatedService) => {
+  console.log(id, updatedService);
   try {
     const response = await api.put(`/services/${id}`, updatedService);
     return response.data;
   } catch (error) {
-    console.error("Error updating service:", error);
+    console.error("Error updating service:<<:", error);
     throw error;
   }
 };
