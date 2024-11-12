@@ -105,6 +105,7 @@ const Register = () => {
           console.log("Toast hidden");
         }
       );
+      navigation.navigate("Login");
       console.log("--------------------------------");
     } catch (error) {
       alert(error);

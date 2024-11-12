@@ -99,7 +99,7 @@ const SidebarMenu = ({ visible, onClose }) => {
                   activeOption === item && styles.optionActive,
                 ]}
                 onPress={() =>
-                  handlePress(item === "Logout" ? "Login" : item, item)
+                  handlePress(item === "Logout" ? "Landing" : item, item)
                 }
                 onPressIn={() => setHoveredOption(item)}
                 onPressOut={() => setHoveredOption(null)}

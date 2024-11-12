@@ -7,6 +7,7 @@ const useServiceStore = create((set) => ({
     serviceCategory: "",
     serviceFeatures: "",
     basePrice: "",
+    servicePhoto: "",
     pax: "",
     requirements: "",
     availability_status: true,

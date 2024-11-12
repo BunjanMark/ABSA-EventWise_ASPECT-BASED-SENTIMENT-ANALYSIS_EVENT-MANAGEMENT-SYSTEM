@@ -46,7 +46,30 @@ class AuthenticatedSessionController extends Controller
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
+    public function logout(Request $request)
+{
+    if (!Auth::check()) {
+        return response()->json(['message' => 'You are not logged in'], 401);
+    }
 
+    try {
+        $request->user()->tokens()->delete();
+        Auth::logout();
+        return response()->json(['message' => 'Logged out successfully']);
+    } catch (\Throwable $th) {
+        return response()->json(['message' => $th->getMessage()], 500);
+    }
+}
+    // public function logout(Request $request)
+    // {
+    //     try {
+    //         $request->user()->tokens()->delete();
+    //         Auth::logout();
+    //         return response()->json(['message' => 'Logged out successfully']);
+    //     } catch (\Throwable $th) {
+    //         return response()->json(['message' => $th->getMessage()], 500);
+    //     }
+    // }
     public function show(Request $request){
         return response()->json($request->user(), 200);
     }

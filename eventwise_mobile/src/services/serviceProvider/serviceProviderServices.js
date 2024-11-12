@@ -30,6 +30,7 @@ api.interceptors.request.use(
 // Function to create a new service
 const createService = async (serviceData) => {
   try {
+    console.log("Service data:", serviceData);
     let servicePhotoURL =
       "https://ktmddejbdwjeremvbzbl.supabase.co/storage/v1/" +
       serviceData.servicePhotoURL;
@@ -41,7 +42,19 @@ const createService = async (serviceData) => {
     //   );
     //   console.log("Service Image uploaded to Supabase. URL:", servicePhotoURL);
     // }
-    const response = await api.post("/services", serviceData, {
+
+    const addServiceData = {
+      serviceName: serviceData.serviceName,
+      serviceCategory: serviceData.serviceCategory,
+      serviceFeatures: serviceData.serviceFeatures,
+      basePrice: serviceData.basePrice,
+      pax: serviceData.pax,
+      requirements: serviceData.requirements,
+      servicePhotoURL,
+      serviceCreatedDate: new Date().toISOString().split("T")[0],
+    };
+    console.info("serviceData: ", addServiceData);
+    const response = await api.post("/services", addServiceData, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -81,11 +94,28 @@ const deleteService = async (id) => {
 const fetchServices = async () => {
   try {
     const response = await api.get("/services");
+    console.log("fetched services: ", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching services:", error);
     throw error;
   }
 };
+const fetchMyServices = async () => {
+  try {
+    const response = await api.get(`/services/myservice`);
+    console.log("fetched my services: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching my services:", error);
+    throw error;
+  }
+};
 
-export { createService, updateService, deleteService, fetchServices };
+export {
+  fetchMyServices,
+  createService,
+  updateService,
+  deleteService,
+  fetchServices,
+};

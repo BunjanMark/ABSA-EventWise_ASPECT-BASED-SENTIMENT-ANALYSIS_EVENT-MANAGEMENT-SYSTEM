@@ -57,7 +57,7 @@ const EventPackagesHome = () => {
     <SafeAreaView style={styles.container}>
       <View>
         <Text style={styles.header}>
-          <Text style={styles.title}>My Event Packages</Text>
+          <Text style={styles.title}>Event Packages Archived</Text>
         </Text>
 
         {/* test connectivity */}

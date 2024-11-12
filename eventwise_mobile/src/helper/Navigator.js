@@ -60,6 +60,7 @@ import { ProfileContext } from "../services/profileContextcp";
 import Venue from "../screens/customerScreens/otherScreens/Venue";
 import GuestIndex from "../screens/guestScreens/GuestIndex";
 import { MyReactNativeForm } from "../screens/authentication/MyReactNativeForm";
+import ServiceCardDetails from "../screens/serviceProvidersScreen/screens/ServiceTab/ServiceCardDetails";
 const Stack = createNativeStackNavigator();
 
 const AuthenticationStack = () => {
@@ -232,7 +233,7 @@ const CustomAdminStack = () => {
   console.log("navigation active: ", activeProfile.role_id, activeProfile);
   useEffect(() => {
     // console.log("Loading:", loading, "Role ID:", profiles.id);
-    // #TODO: this results to registering the first profile in account role
+
     // console.log("active profile nav: ", activeProfile.role_id);
     // console.log("profile: nav", profiles[0].role_id);
     if (!loading) {
