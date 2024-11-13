@@ -157,69 +157,84 @@ const Equipment = () => {
 
       <div className="table-container-equipment">
         <div className="table-equipment">
-          <div className="table-header-equipment">
-            <div className="table-header-cell-equipment">ITEMS</div>
-            <div className="table-header-cell-equipment">NO. OF ITEMS</div>
-            <div className="table-header-cell-equipment">NO. OF SORT ITEMS</div>
-            <div className="table-header-cell-equipment">STATUS</div>
-          </div>
-          {inventoryData.map((item) => (
-            !itemsToRemove.includes(item.id) && (
-              <div key={item.id} className="table-row-equipment">
-                {removeMode && (
-                  <button 
-                    className="remove-button-equipment" 
-                    onClick={() => handleRemoveItem(item.id)}>
-                    <IoMdRemoveCircle size={24} color="red" />
-                  </button>
-                )}
-                <div className="table-cell-equipment">{item.item}</div>
-                <div className="table-cell-equipment">{item.number_of_items}</div>
-                <div className="table-cell-equipment">
-                  <button 
-                    className="sort-button" 
-                    onClick={() => handleDecrementSortItem(item.id)}>
-                    <IoMdRemoveCircle size={24} color="black" />
-                  </button>
-                  {sortItems[item.id] !== undefined ? sortItems[item.id] : item.number_of_sort_items}
-                  <button 
-                    className="sort-button" 
-                    onClick={() => handleIncrementSortItem(item.id)}>
-                    <IoMdAddCircle size={24} color="black" />
-                  </button>
-                </div>
-                <div className="table-cell-equipment">
-                  <div className="status-dropdown-equipment">
-                    <button 
-                      className={`status-dropdown-button ${item.status?.toLowerCase() || ''}`}
-                      onClick={() => handleStatusToggle(item.id)}>
-                      {item.status || 'Select Status'} <IoIosArrowDown />
-                    </button>
-                    {statusDropdownVisible === item.id && (
-                      <div className="status-options">
-                        <div className="status-option status-complete" onClick={() => handleStatusSelect(item.id, 'Complete')}>Complete</div>
-                        <div className="status-option status-missing" onClick={() => handleStatusSelect(item.id, 'Missing')}>Missing</div>
-                        <div className="status-option status-broken" onClick={() => handleStatusSelect(item.id, 'Broken')}>Broken</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )
-          ))}
-          <button className="add-button-equipment" onClick={() => setModalVisible(true)}>
-            <IoMdAddCircle size={24} color="white" />
-            <span>Add Item</span>
+  <div className="table-header-equipment">
+    <div className="table-header-cell-equipment">ITEMS</div>
+    <div className="table-header-cell-equipment">NO. OF ITEMS</div>
+    <div className="table-header-cell-equipment">NO. OF SORT ITEMS</div>
+    <div className="table-header-cell-equipment">STATUS</div>
+  </div>
+
+  {inventoryData.map((item) => (
+    !itemsToRemove.includes(item.id) && (
+      <div key={item.id} className="table-row-equipment">
+        {removeMode && (
+          <button 
+            className="remove-button-equipment" 
+            onClick={() => handleRemoveItem(item.id)}>
+            <IoMdRemoveCircle size={24} color="red" />
           </button>
-          <button className="remove-button-equipment" onClick={handleRemoveModeToggle}>
-            <IoMdRemoveCircle size={24} color="white" />
-            <span>{removeMode ? 'Cancel Remove' : 'Remove Item'}</span>
+        )}
+        
+        {/* Item Name */}
+        <div className="table-cell-equipment items">{item.item}</div>
+
+        {/* No. of Items */}
+        <div className="table-cell-equipment num-items">
+          {item.number_of_items}
+        </div>
+
+        {/* No. of Sort Items with +/- buttons */}
+        <div className="table-cell-equipment num-sort-items">
+          <button 
+            className="sort-button" 
+            onClick={() => handleDecrementSortItem(item.id)}>
+            <IoMdRemoveCircle size={20} color="black" />
           </button>
-          <button className="add-button-equipment" onClick={handleSaveItems}>
-            <IoIosDoneAll size={24} color="white" />
-            <span>Save</span>
+          {sortItems[item.id] !== undefined ? sortItems[item.id] : item.number_of_sort_items}
+          <button 
+            className="sort-button" 
+            onClick={() => handleIncrementSortItem(item.id)}>
+            <IoMdAddCircle size={20} color="black" />
           </button>
         </div>
+
+        {/* Status Dropdown */}
+        <div className="table-cell-equipment status">
+          <div className="status-dropdown-equipment">
+            <button 
+              className={`status-dropdown-button ${item.status?.toLowerCase() || ''}`}
+              onClick={() => handleStatusToggle(item.id)}>
+              {item.status || 'Select Status'} <IoIosArrowDown />
+            </button>
+            {statusDropdownVisible === item.id && (
+              <div className="status-options">
+                <div className="status-option status-complete" onClick={() => handleStatusSelect(item.id, 'Complete')}>Complete</div>
+                <div className="status-option status-missing" onClick={() => handleStatusSelect(item.id, 'Missing')}>Missing</div>
+                <div className="status-option status-broken" onClick={() => handleStatusSelect(item.id, 'Broken')}>Broken</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  ))}
+  
+  <button className="add-button-equipment" onClick={() => setModalVisible(true)}>
+    <IoMdAddCircle size={24} color="white" />
+    <span>Add Item</span>
+  </button>
+  
+  <button className="remove-button-equipment" onClick={handleRemoveModeToggle}>
+    <IoMdRemoveCircle size={24} color="white" />
+    <span>{removeMode ? 'Cancel Remove' : 'Remove Item'}</span>
+  </button>
+  
+  <button className="add-button-equipment" onClick={handleSaveItems}>
+    <IoIosDoneAll size={24} color="white" />
+    <span>Save</span>
+  </button>
+</div>
+
 
         <div className="summary-equipment">
           <div className="summary-text-equipment">Total Items: {totalItems}</div>

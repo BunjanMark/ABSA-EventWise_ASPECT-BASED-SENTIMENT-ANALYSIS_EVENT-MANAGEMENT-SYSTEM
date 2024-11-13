@@ -2422,6 +2422,18 @@ background-color: transparent;
   padding: 0 5px;
 }
 
+.sort-button {
+  background-color: transparent;
+  border: none; /* Remove border if present */
+  padding: 0; /* Remove padding for consistent height */
+  margin: 0; /* Ensure no extra space is added */
+  cursor: pointer;
+}
+
+.sort-button:hover {
+  background-color: transparent;
+}
+
 .header-line {
   border: 0;
   height: 1px;
@@ -2437,38 +2449,23 @@ background-color: transparent;
 }
 
 .table-equipment {
-  background-color: transparent;
-  border-radius: 10px;
-  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-header-equipment,
+.table-row-equipment {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+}
+.table-header-cell-equipment, .table-cell-equipment {
+  flex: 1;
+  text-align: center;
   padding: 10px;
 }
 
-.table-header-equipment {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 10px 0;
-}
-
-.table-header-cell-equipment {
-  flex: 1;
-  text-align: center;
-  font-weight: bold;
-  color: black; /* Changed to black */
-}
-
-.table-row-equipment {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 10px 0;
-}
-
-.table-cell-equipment {
-  flex: 1;
-  text-align: center;
-  color: black; /* Changed to black */
-}
 
 /* Buttons */
 .add-button-equipment, .remove-button-equipment {
@@ -2482,6 +2479,7 @@ background-color: transparent;
   border-radius: 5px;
   color: black; /* Changed text to black */
   cursor: pointer;
+  width: 10%;
 }
 
 .add-button-equipment span, .remove-button-equipment span {
@@ -3436,7 +3434,7 @@ textarea.text-input-addrole {
   background: url('./images/blob.png') no-repeat center center; /* Set background image */
   background-size: cover;
   padding: 20px;
-  height: 100vh;
+  height: 100%;
 }
 
 .container-portfolio {
@@ -3575,6 +3573,215 @@ textarea.text-input-addrole {
   color: white;
   cursor: pointer;
 }
+
+.services-container-portfolio {
+  margin-top: 20px;
+  border: 1px solid #eeba2b;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.services-header-portfolio {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.service-item-portfolio {
+  position: relative; /* This makes the 'X' button position relative to this container */
+  padding: 10px;
+  border-radius: 8px;
+  width: 96%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  
+}
+
+.delete-service-button-portfolio {
+  position: absolute;
+  top: -25px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  color: red;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 30%;
+}
+
+.delete-service-button-portfolio:hover {
+  background-color: transparent;
+}
+
+
+.service-input-portfolio {
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+
+}
+
+.add-service-button-portfolio {
+  background-color: #EEBA2B;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.overlay-container-buttons {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.overlay-content-buttons {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 300px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 2px solid #ddd;
+  text-align: center;
+}
+
+.overlay-container-services {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: auto;
+}
+
+.overlay-container-services::-webkit-scrollbar {
+  display: none;
+}
+
+.overlay-content-services::-webkit-scrollbar {
+  display: none;
+}
+
+.overlay-content-services {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 1000px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 2px solid #ddd;
+  overflow: auto; /* Remove scrollbars on content */
+}
+
+.close-overlay-services {
+  background: transparent;
+  color: red;
+  font-size: 24px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  border: none;
+  padding: 5px;
+  border-radius: 50%;
+}
+
+.filter-buttons-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.filter-button {
+  background-color: #FFC42B;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+}
+
+.filter-button.selected {
+  background-color: #FF9E00; /* Highlight selected category */
+}
+
+.service-buttons-container-services {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  margin-top: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.service-item-overlay {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.service-image-overlay {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.service-details-overlay {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.select-service-overlay {
+  background-color: #FFC42B;
+  color: white;
+  border: none;
+  padding: 8px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+
 
 
 
@@ -4482,31 +4689,37 @@ button:disabled {
 .schedule-layout {
   display: flex; /* Aligns children (calendar and details) horizontally */
   justify-content: space-between;
+  
 }
 
 .calendar-schedule {
   width: 50%;
   margin-right: 20px; /* Space between calendar and details */
   flex: 1; /* Allows the calendar to take up available space */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
 }
+
 
 .days-header-schedule {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   margin-bottom: 10px;
+  margin-left: 20px;
 }
 
 .dates-schedule {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
+  gap: 7px;
+  margin-left: 20px;
 }
 
 .date-schedule {
-  width: 40px;
+  width: 30px;
   height: 40px;
   border: 1px solid #ddd;
-  border-radius: 50%;
+  border:none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4515,8 +4728,8 @@ button:disabled {
 }
 
 .selected-schedule {
-  background-color: #eeba2b;
-  border-radius: 50%; /* Circle effect when selected */
+  background-color: #dfdfdf;
+  border-radius: 60%; /* Circle effect when selected */
 }
 
 .event-dot-schedule {
@@ -4534,7 +4747,6 @@ button:disabled {
   width: 50%; /* Adjust width as needed */
   border-radius: 10px;
   padding: 20px;
-  background-color: #fff;
 }
 
 .event-container-schedule {

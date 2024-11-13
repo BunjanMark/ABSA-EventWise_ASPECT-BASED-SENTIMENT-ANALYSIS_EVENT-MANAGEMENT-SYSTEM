@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Package;
+use App\Models\Service; // Ensure you import the Service model
 use Illuminate\Support\Facades\DB;
 
 class PackageController extends Controller
@@ -12,13 +13,8 @@ class PackageController extends Controller
     public function index()
     {
         try {
-            // Retrieve all packages
-            $packages = Package::all();
-
-            // Decode the 'services' JSON field for each package
-            foreach ($packages as $package) {
-                $package->services = json_decode($package->services, true); // Decode JSON to an array
-            }
+            // Retrieve all packages with the related services
+            $packages = Package::with('services')->get();
 
             return response()->json($packages, 200); // Return the updated packages with 200 status
         } catch (\Exception $e) {
@@ -37,38 +33,42 @@ class PackageController extends Controller
         try {
             // Validate the incoming data
             $validatedData = $request->validate([
-                'package_id' => 'nullable|exists:packages,id',
                 'packageName' => 'required|string|max:255',
                 'eventType' => 'required|string',
                 'packageType' => 'nullable|string',
-                'services.*.serviceName' => 'required|string',
-                'services.*.serviceCategory' => 'required|string',
-                'services.*.basePrice'=> 'required|numeric',
+                'services' => 'required|array', // Ensure it's an array of services
                 'totalPrice' => 'required|numeric|min:1',
                 'coverPhoto' => 'nullable|url',
                 'packageCreatedDate' => 'nullable|date',
             ]);
 
-            // Ensure 'services' is an empty array if not provided
-            $validatedData['services'] = $validatedData['services'] ?? [];
-
             // Handle nullable fields
             $coverPhoto = $validatedData['coverPhoto'] ?? null;
             $packageCreatedDate = $validatedData['packageCreatedDate'] ?? null;
 
-            // Determine the package type
-            $packageType = count($validatedData['services']) > 0 ? 'Custom' : 'Pre-Defined';
-
-            // Create a new package
+            // Create the package
             $package = Package::create([
                 'packageName' => $validatedData['packageName'],
                 'eventType' => $validatedData['eventType'],
-                'packageType' => $packageType,
+                'packageType' => 'Pre-Defined', // You can use custom logic for this
                 'totalPrice' => $validatedData['totalPrice'],
                 'coverPhoto' => $coverPhoto,
                 'packageCreatedDate' => $packageCreatedDate,
-                'services' => json_encode($validatedData['services']),
+                'services' => json_encode($validatedData['services']), // Store services as JSON
             ]);
+
+            // Attach services to the package
+            foreach ($validatedData['services'] as $serviceData) {
+                // First create or find the service by name or category
+                $service = Service::firstOrCreate([
+                    'serviceName' => $serviceData['serviceName'],
+                    'serviceCategory' => $serviceData['serviceCategory'],
+                    'basePrice' => $serviceData['basePrice'],
+                ]);
+
+                // Attach the service to the package using the pivot table
+                $package->services()->attach($service->id);
+            }
 
             DB::commit(); // Commit the transaction
 
@@ -85,7 +85,7 @@ class PackageController extends Controller
             DB::rollBack();
             return response()->json([
                 "status" => "error",
-                "message" => $th->getMessage()
+                "message" => $th->getMessage(),
             ], 500);
         }
     }
@@ -113,22 +113,15 @@ class PackageController extends Controller
                 ], 404);
             }
 
-            // Decode the current services array from the package
-            $currentServices = json_decode($package->services, true) ?? [];
-
-            // Create a new service array
-            $newService = [
+            // Find or create the service
+            $service = Service::firstOrCreate([
                 'serviceName' => $validatedData['serviceName'],
                 'serviceCategory' => $validatedData['serviceCategory'],
                 'basePrice' => $validatedData['basePrice'],
-            ];
+            ]);
 
-            // Append the new service to the current services array
-            $currentServices[] = $newService;
-
-            // Update the package with the new services list
-            $package->services = json_encode($currentServices);
-            $package->save();
+            // Attach the service to the package
+            $package->services()->attach($service->id);
 
             DB::commit();
 

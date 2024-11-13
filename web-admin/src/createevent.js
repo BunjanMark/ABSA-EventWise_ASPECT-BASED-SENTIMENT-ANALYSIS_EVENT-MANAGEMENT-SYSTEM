@@ -52,7 +52,7 @@ const randomDescriptions = [
 
 //   SERVICE PROVIDER
  
-const eventServices = ["Food Catering", "Photography", "Video Editing", "Florists"];
+const eventServices = ["Food Catering", "Photography", "Video Editing", "Florists", "Venue"];
 const images = [image1, image2, image3];
 
 
@@ -409,7 +409,8 @@ const ChoosePackage = () => {
   // Handle final confirmation and navigate to the review overlay page
   const confirmPackage = () => {
     localStorage.setItem('services', JSON.stringify(selectedPackage.services)); // Save services array to localStorage
-    navigate('/review-overlay'); // Navigate to the review page
+    localStorage.removeItem('addedEvents'); // Clear addedEvents from localStorage after submitting
+    navigate('/add-guest'); // Navigate to the review page
   };
 
   return (
@@ -486,13 +487,14 @@ const ChooseServiceProv = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [likedEvents, setLikedEvents] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
-  const [addedEvents, setAddedEvents] = useState([]);
+  const [addedEvents, setAddedEvents] = useState([]); // Keep track of added events in state
   const [services, setServices] = useState([]);
 
   useEffect(() => {
+    // Fetch services from the API
     axios.get('http://localhost:8000/api/services', {
       headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
+        Authorization: `Bearer ${getAuthToken()}`, // Replace with your auth token function
       },
     })
       .then((response) => {
@@ -501,15 +503,25 @@ const ChooseServiceProv = () => {
           serviceName: service.serviceName,
           basePrice: service.basePrice,
           serviceCategory: service.serviceCategory,
-          image: images[Math.floor(Math.random() * images.length)],
+          image: images[Math.floor(Math.random() * images.length)], // Add your image logic
         }));
         setServices(mappedServices);
       })
       .catch((error) => {
         console.error('Error fetching services:', error);
       });
-  }, []); // Added empty array here
-  
+
+    // Load added events from localStorage when the component mounts
+    const storedAddedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
+    setAddedEvents(storedAddedEvents);
+  }, []); // Empty array ensures this runs only once on mount
+
+  useEffect(() => {
+    // Sync added events with localStorage whenever it changes
+    if (addedEvents.length > 0) {
+      localStorage.setItem('addedEvents', JSON.stringify(addedEvents));
+    }
+  }, [addedEvents]); // Runs every time addedEvents is updated
 
   const toggleLike = (eventId) => {
     setLikedEvents((prevState) => ({
@@ -537,17 +549,16 @@ const ChooseServiceProv = () => {
         basePrice: selectedEvent.basePrice,
       };
 
+      // Merge the new event with previously added events
       const updatedEvents = [...addedEvents, eventToAdd];
-      localStorage.setItem('addedEvents', JSON.stringify(updatedEvents));
-      setAddedEvents(updatedEvents);
-      handleCloseModal();
+      setAddedEvents(updatedEvents); // Update state
+      handleCloseModal(); // Close modal
     }
   };
 
   const handleRemoveEvent = (eventId) => {
     const updatedEvents = addedEvents.filter((event) => event.id !== eventId);
-    setAddedEvents(updatedEvents);
-    localStorage.setItem('addedEvents', JSON.stringify(updatedEvents));
+    setAddedEvents(updatedEvents); // Update state
   };
 
   const handleFinish = async () => {
@@ -569,11 +580,6 @@ const ChooseServiceProv = () => {
       if (!response.ok) {
         throw new Error('Network response was not ok.');
       }
-
-      const data = await response.json();
-      localStorage.removeItem('eventData');
-      localStorage.removeItem('addedEvents');
-      navigate('/dashboard');
     } catch (error) {
       console.error('Error saving event:', error);
     }
@@ -679,8 +685,9 @@ const ChooseServiceProv = () => {
                   <p className="modal-provider-sp">Provider: {selectedEvent.serviceCategory}</p>
                   <p className="modal-price-sp">Price: ${selectedEvent.basePrice}</p>
                   <div className="modal-actions-sp">
-                    <button className="modal-add-button-sp" onClick={handleNext}>Add</button>
-                    <button className="modal-cancel-button-sp" onClick={handleCloseModal}>Cancel</button>
+                    <button className="modal-add-button-sp" onClick={handleNext}>
+                      Add to Event
+                    </button>
                   </div>
                 </>
               )}
@@ -707,9 +714,9 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
 
   const handleBookEvent = async () => {
     const eventData = JSON.parse(localStorage.getItem('eventData')) || {};
-  const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')) || null;
-  const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
-  const token = getAuthToken();
+    const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')) || null;
+    const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
+    const token = getAuthToken();
   
     // Ensure the services field is an array
     if (!Array.isArray(addedEvents)) {
