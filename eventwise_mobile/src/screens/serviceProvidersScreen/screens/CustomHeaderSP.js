@@ -1,26 +1,54 @@
 import React, { useState } from "react";
-import { View, Image, StyleSheet, TouchableOpacity, Modal, Text } from "react-native";
+import { Alert } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Text,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 const CustomHeader = ({ onBackPress }) => {
   const navigation = useNavigation();
   const [dropdownVisible, setDropdownVisible] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
   };
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-    navigation.navigate("landing");
-    toggleDropdown();
-  };
+  // const handleLogout = () => {
+  //   console.log("Logging out...");
 
+  // };
+
+  // const handleLogout = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await logout();
+  //     setLoading(false);
+  //     if (response.ok) {
+  //       navigation.navigate("landing");
+  //     } else {
+  //       console.error("Error during logout:", response.message);
+  //     }
+  //     navigation.navigate("landing");
+  //   } catch (error) {
+  //     setLoading(false);
+  //     console.error("Error during logout:", error);
+  //   }
+  // };
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity onPress={onBackPress}>
-        <Ionicons name="arrow-back" size={20} color="white" style={styles.backIcon} />
+        <Ionicons
+          name="arrow-back"
+          size={20}
+          color="white"
+          style={styles.backIcon}
+        />
       </TouchableOpacity>
       <Image
         source={require("../assets/EMSLogo.png")}
@@ -28,7 +56,12 @@ const CustomHeader = ({ onBackPress }) => {
         resizeMode="contain"
       />
       <TouchableOpacity onPress={toggleDropdown}>
-        <Ionicons name="person-circle" size={24} color="white" style={styles.profileIcon} />
+        <Ionicons
+          name="person-circle"
+          size={24}
+          color="white"
+          style={styles.profileIcon}
+        />
       </TouchableOpacity>
 
       {/* Dropdown Modal */}
@@ -44,9 +77,21 @@ const CustomHeader = ({ onBackPress }) => {
           onPressOut={toggleDropdown}
         >
           <View style={styles.modalContent}>
-      
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-              <Text style={[styles.dropdownText, styles.logoutText]}>Logout</Text>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={() => {
+                setDropdownVisible(false);
+                Alert.alert("Logged Out Successfully!");
+                navigation.navigate("Login"); // navigate to a different screen
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: "Login" }],
+                });
+              }}
+            >
+              <Text style={[styles.dropdownText, styles.logoutText]}>
+                Logouts
+              </Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -92,9 +137,9 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     position: "absolute",
-    top: 130, 
+    top: 130,
     right: 10,
-    backgroundColor: "rgba(255, 196, 43, 0.7)", 
+    backgroundColor: "rgba(255, 196, 43, 0.7)",
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 20,

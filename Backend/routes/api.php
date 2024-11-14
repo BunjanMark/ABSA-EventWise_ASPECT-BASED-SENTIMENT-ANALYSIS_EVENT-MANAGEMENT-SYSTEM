@@ -26,6 +26,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 // user Management authentication
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthenticatedSessionController::class, 'loginAccount']);
+    Route::post('/user/logout', [AuthenticatedSessionController::class, 'logout']);
     Route::post('signup', [AuthenticatedSessionController::class, 'signupAccount']);
     // Route::post('/signup', [AuthenticatedSessionController::class, 'signupAccount']);
     Route::patch('update', [AuthenticatedSessionController::class, 'accountUpdate'])->middleware(['auth:sanctum']);
@@ -82,10 +83,12 @@ Route::get('/guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
 // service management
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/services', [ServiceController::class, 'index']);         // Get all services for the authenticated user
+    Route::get('/services/myservice', [ServiceController::class, 'myService']); // Get the services of the authenticated user
     Route::post('/services', [ServiceController::class, 'store']);       // Create a new service
     Route::get('/services/{id}', [ServiceController::class, 'show']);    // Get a specific service
     Route::put('/services/{id}', [ServiceController::class, 'update']);   // Update a specific service
     Route::delete('/services/{id}', [ServiceController::class, 'destroy']); // Delete a specific service
+    // Route::post('/services/myservice', [ServiceController::class, 'storeOwnService']);
 });
 
 

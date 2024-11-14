@@ -48,23 +48,20 @@ class ServiceController extends Controller
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
-   
-    // Define this function in your ServiceController or a dedicated UserRole service class
-    private function getUserIdAndRole()
+    public function myService()
     {
-        $user = Auth::user();
-        $accountRole = $user->accountRoles()->whereIn('role_id', [1, 3])->first();  
-
-        if ($accountRole) {
-            return [
-                'user_id' => $user->id,
-                'role_id' => $accountRole->role_id,
-            ];
+        try {
+            // $userId = $this->getUserIdFromRole(); // Get the user ID from account roles
+            $userId = $this->getUserIdIfHasRoleId3();
+            $services = Service::where('user_id', $userId)->get();
+            return response()->json($services);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['message' => $th->getMessage()], 500);
         }
-        
-        // If the user does not have a permitted role
-        return null;
     }
+    // Define this function in your ServiceController or a dedicated UserRole service class
+  
 
  
 // public function store (Request $request)
@@ -109,12 +106,16 @@ class ServiceController extends Controller
         if (!$userRole) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-
+        if (!$request->has('servicePhotoURL')) {
+            return response()->json(['message' => 'servicePhotoURL is required'], 422);
+        }
         // Proceed with validation and service creation
         $validatedData = $request->validate([
             'serviceName' => 'required|string|max:255',
             'serviceCategory' => 'required|string|max:255',
             'serviceFeatures' => 'required|string|max:255',
+            'servicePhotoURL' => 'nullable|string', 
+            'verified' => 'boolean|nullable',
             'basePrice' => 'required|numeric|min:0',
             'pax' => 'required|integer|min:1',
             'requirements' => 'nullable|string',
@@ -217,6 +218,7 @@ class ServiceController extends Controller
     private function getUserIdFromRole()
     {
         // Assuming the AccountRole model has a relationship to fetch the user ID
+        #TODO get accountRole id where role_id is the service provider role
         $role = AccountRole::where('user_id', Auth::id())->first();
 
         if (!$role) {
@@ -224,5 +226,28 @@ class ServiceController extends Controller
         }
 
         return $role->user_id; // Assuming 'user_id' is the foreign key in account_roles
+    }
+
+    private function getUserIdAndRole()
+    {
+        $user = Auth::user();
+        $accountRole = $user->accountRoles()->whereIn('role_id', [1, 3])->first();  
+
+        if ($accountRole) {
+            return [
+                'user_id' => $user->id,
+                'role_id' => $accountRole->role_id,
+            ];
+        }
+        
+        // If the user does not have a permitted role
+        return null;
+    }
+
+        private function getUserIdIfHasRoleId3()
+    {
+        $user = Auth::user();
+        $accountRole = $user->accountRoles()->where('role_id', 3)->first();
+        return $accountRole ? $user->id : null;
     }
 }

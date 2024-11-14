@@ -68,7 +68,7 @@ const ProfileMyEvents = () => {
   return (
     <SafeAreaView style={[styles.container, {}]}>
       <Text style={styles.header}>
-        <Text style={styles.title}>My Events</Text>
+        <Text style={styles.title}>Events Archived</Text>
       </Text>
       <View
         style={[

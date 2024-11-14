@@ -105,6 +105,7 @@ const Register = () => {
           console.log("Toast hidden");
         }
       );
+      navigation.navigate("Login");
       console.log("--------------------------------");
     } catch (error) {
       alert(error);
@@ -358,31 +359,44 @@ const Register = () => {
                                 />
                               </TouchableOpacity>
                             }
+                            contentStyle={{
+                              width: 200,
+                              bottom: 220,
+                              right: 20,
+                            }}
                           >
-                            <Menu.Item
-                              onPress={() => {
-                                setFieldValue("gender", "Male");
-                                updateField("gender", "Male");
-                                setRoleMenuVisible(false);
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
                               }}
-                              title="Male"
-                            />
-                            <Menu.Item
-                              onPress={() => {
-                                setFieldValue("gender", "Female");
-                                updateField("gender", "Female");
-                                setRoleMenuVisible(false);
-                              }}
-                              title="Female"
-                            />
-                            <Menu.Item
-                              onPress={() => {
-                                setFieldValue("gender", "Other");
-                                updateField("gender", "Other");
-                                setRoleMenuVisible(false);
-                              }}
-                              title="Other"
-                            />
+                            >
+                              <Menu.Item
+                                onPress={() => {
+                                  setFieldValue("gender", "Male");
+                                  updateField("gender", "Male");
+                                  setRoleMenuVisible(false);
+                                }}
+                                title="Male"
+                              />
+                              <Menu.Item
+                                onPress={() => {
+                                  setFieldValue("gender", "Female");
+                                  updateField("gender", "Female");
+                                  setRoleMenuVisible(false);
+                                }}
+                                title="Female"
+                              />
+                              <Menu.Item
+                                onPress={() => {
+                                  setFieldValue("gender", "Other");
+                                  updateField("gender", "Other");
+                                  setRoleMenuVisible(false);
+                                }}
+                                title="Other"
+                              />
+                            </View>
                           </Menu>
 
                           <TouchableOpacity onPress={openDatePicker}>
@@ -626,7 +640,7 @@ const Register = () => {
                               />
                             </TouchableOpacity>
                           }
-                          contentStyle={{ width: 200, bottom: 220, right: 30 }}
+                          contentStyle={{ width: 200, bottom: 220, right: 20 }}
                         >
                           <Menu.Item
                             onPress={() => {

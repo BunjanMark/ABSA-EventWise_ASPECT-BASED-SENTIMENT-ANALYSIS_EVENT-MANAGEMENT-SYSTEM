@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { BackHandler } from "react-native";
+import selectimage from "../../../../../assets/selectimage.png";
 import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
+import { FontAwesome6 } from "@expo/vector-icons";
 import {
   View,
   Text,
   TextInput,
-  Button,
   FlatList,
   StyleSheet,
   SafeAreaView,
@@ -15,8 +17,10 @@ import {
   Platform,
   Alert,
 } from "react-native";
+import { Button } from "react-native-paper";
 import { useServiceStore } from "../../../../stateManagement/serviceProvider/useServiceStore";
 import {
+  fetchMyServices,
   createService,
   updateService,
   deleteService,
@@ -26,8 +30,10 @@ import { Modal } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { uploadImageToSupabase } from "../../../../services/organizer/uploadSupabaseService";
+import ServiceCard from "./ServiceCard";
 import AddPackageG from "../../../adminMain/screens/component/AddPackageGcp";
 import useStore from "../../../../stateManagement/useStore";
+import ServiceHeader from "./ServiceHeader";
 
 const validationSchema = Yup.object().shape({
   serviceName: Yup.string().required("Service name is required"),
@@ -47,14 +53,28 @@ const ServiceManager = () => {
     useState(false);
   const { services, newService, updateNewService, setServices } =
     useServiceStore();
+
   const [refresh, setRefresh] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+
   const [imageUri, setImageUri] = useState(null);
   const { fetchEventPackages } = useStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [likedServices, setLikedServices] = useState({});
+
+  const toggleLike = (serviceId) => {
+    setLikedServices((prevLikedServices) => {
+      const newLikedServices = { ...prevLikedServices };
+      if (newLikedServices[serviceId]) {
+        delete newLikedServices[serviceId];
+      } else {
+        newLikedServices[serviceId] = true;
+      }
+      return newLikedServices;
+    });
+  };
   const handleAddPackage = async (newPackage) => {
     try {
       await fetchEventPackages(); // Refresh the list after adding a package
@@ -63,24 +83,49 @@ const ServiceManager = () => {
     }
   };
   useEffect(() => {
-    const fetchServicesData = async () => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (createServiceModalVisible) {
+          setCreateServiceModalVisible(false);
+          return true;
+        } else if (modalVisible) {
+          setModalVisible(false);
+          return true;
+        }
+        return false;
+      }
+    );
+    return () => backHandler.remove();
+  }, [createServiceModalVisible, modalVisible]);
+  useEffect(() => {
+    const fetchMyServicesData = async () => {
       try {
-        const data = await fetchServices();
+        const data = await fetchMyServices();
         setServices(data);
       } catch (error) {
         console.error(error);
       }
     };
-    fetchServicesData();
+    fetchMyServicesData();
   }, [refresh, setServices]);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    // Add a dependency array to specify when the effect should run
+    if (count < 10) {
+      setCount(count + 1);
+    }
+  }, [count]); // Add count to the dependency array
 
   const handleCreateService = async (values, { resetForm }) => {
     setIsLoading(true);
+
     try {
       let servicePhotoURL = null;
 
       if (values.servicePhoto) {
-        const fileName = `cover_photo_${Date.now()}.jpg`;
+        const fileName = `service_photo_${Date.now()}.jpg`;
         console.log("Uploading image to Supabase:", fileName);
 
         servicePhotoURL = await testUploadImageToSupabase(
@@ -97,7 +142,7 @@ const ServiceManager = () => {
         basePrice: values.basePrice,
         pax: values.pax,
         requirements: values.requirements,
-        servicePhotoURL,
+        servicePhotoURL: servicePhotoURL || null, // Add a check here
         serviceCreatedDate: new Date().toISOString().split("T")[0],
       };
 
@@ -106,7 +151,9 @@ const ServiceManager = () => {
 
       Alert.alert("Success", "Service added successfully!");
       console.log("resule from result:", result);
-      // resetForm();
+      setRefresh(!refresh); // Refresh the component
+      resetForm();
+      setCreateServiceModalVisible(false);
     } catch (error) {
       console.error("Error adding service:", error);
       Alert.alert(
@@ -199,10 +246,20 @@ const ServiceManager = () => {
   };
 
   const renderServiceItem = ({ item }) => (
-    <SafeAreaView
-      style={{ alignItems: "center", backgroundColor: "red", height: 300 }}
-    >
-      <View style={[styles.serviceCard, { width: 350 }]}>
+    <SafeAreaView style={styles.serviceItemContainer}>
+      <View style={[styles.serviceCard]}>
+        <Image
+          style={{ backgroundColor: "green" }}
+          source={{ uri: item.servicePhoto }}
+          // defaultSource={require("../../../../../assets/selectimage.png")} // Optional: a placeholder image
+        />
+        {/* <Image
+          pho
+          src={[{ width: 150, height: 150, borderRadius: 10 }]}
+          source={selectimage}
+        /> */}
+
+        {/* <Text style={styles.serviceID}>ID: {item.servicePhotoURL}</Text> */}
         <Text style={styles.serviceName}>{item.serviceName}</Text>
         <Text style={styles.serviceCategory}>{item.serviceCategory}</Text>
         <Text style={styles.servicePrice}>Price: ₱{item.basePrice}</Text>
@@ -229,18 +286,20 @@ const ServiceManager = () => {
   );
 
   return (
-    <View style={[styles.container, { display: "flex" }]}>
-      <View>
-        <Text style={styles.title}>Service Manager</Text>
-        <TouchableOpacity
-          style={styles.createButton}
+    <SafeAreaView style={[styles.container, { display: "flex" }]}>
+      <Text style={styles.title}>Services </Text>
+      <ServiceHeader services={services} />
+      <View style={styles.createButtonContainer}>
+        <Button
           onPress={() => setCreateServiceModalVisible(true)}
+          style={styles.createButton}
         >
-          <Text style={styles.buttonText}>Add Service</Text>
-        </TouchableOpacity>
+          <FontAwesome6 name="plus" size={16} color="#fff" />
+          <Text style={styles.createButtonText}>Create Services</Text>
+        </Button>
       </View>
       <View pointerEvents={createServiceModalVisible ? "none" : "auto"}>
-        <FlatList
+        {/* <FlatList
           data={services}
           renderItem={renderServiceItem}
           keyExtractor={(item) => item.id.toString()}
@@ -248,6 +307,25 @@ const ServiceManager = () => {
           contentContainerStyle={{ flexGrow: 1, zIndex: -1 }}
           accessibilityViewIsModal={true}
           accessibilityModalRoot={true}
+          showsHorizontalScrollIndicator={false}
+        /> */}
+        <FlatList
+          data={services}
+          renderItem={({ item }) => (
+            <ServiceCard
+              service={item}
+              likedServices={likedServices}
+              toggleLike={toggleLike}
+              handleEditService={handleEditService}
+              handleDeleteService={handleDeleteService}
+            />
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal={true}
+          contentContainerStyle={{ gap: 20 }}
+          accessibilityViewIsModal={true}
+          accessibilityModalRoot={true}
+          showsHorizontalScrollIndicator={false}
         />
       </View>
       <Modal
@@ -255,12 +333,15 @@ const ServiceManager = () => {
         transparent={false}
         visible={createServiceModalVisible}
         onRequestClose={() => setCreateServiceModalVisible(false)}
-        contentContainerStyle={[
-          styles.modalContaine,
-          { backgroundColor: "blue", elevation: 1000 },
-        ]}
+        contentContainerStyle={[styles.modalContainer, {}]}
       >
-        <View style={[styles.centeredView]}>
+        <View
+          style={[
+            {
+              height: "100%",
+            },
+          ]}
+        >
           <View style={styles.modalView}>
             <Text style={styles.modalText}>Add Service</Text>
             <Formik
@@ -286,13 +367,7 @@ const ServiceManager = () => {
                 touched,
               }) => (
                 <View style={styles.modalForm}>
-                  {/* {imageUri && (
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={styles.selectedImage}
-                    />
-                  )} */}
-                  <View>
+                  <View style={styles.servicePhotoContainer}>
                     <TouchableOpacity
                       onPress={() => {
                         try {
@@ -301,14 +376,14 @@ const ServiceManager = () => {
                         } catch (error) {}
                       }}
                     >
-                      {imageUri ? (
-                        <Image
-                          source={{ uri: values.servicePhoto }}
-                          style={{ width: 100, height: 100 }}
-                        />
-                      ) : (
-                        <Text>Select an Image</Text>
-                      )}
+                      <Image
+                        source={
+                          values.servicePhoto
+                            ? { uri: values.servicePhoto }
+                            : selectimage
+                        }
+                        style={styles.servicePhoto}
+                      />
                     </TouchableOpacity>
                     {touched.servicePhoto && errors.servicePhoto && (
                       <Text style={styles.errorText}>
@@ -345,6 +420,9 @@ const ServiceManager = () => {
                     value={values.serviceFeatures}
                     onChangeText={handleChange("serviceFeatures")}
                     onBlur={handleBlur("serviceFeatures")}
+                    multiline={true}
+                    numberOfLines={4}
+                    textAlignVertical="top"
                   />
                   {errors.serviceFeatures && touched.serviceFeatures && (
                     <Text style={styles.errorText}>
@@ -383,20 +461,40 @@ const ServiceManager = () => {
                   {errors.requirements && touched.requirements && (
                     <Text style={styles.errorText}>{errors.requirements}</Text>
                   )}
-                  <TouchableOpacity
+                  {/* <TouchableOpacity
                     style={styles.createButton}
                     onPress={handleSubmit}
+                    loading={isLoading}
+                    disable={isLoading}
                   >
                     <Text style={styles.createButtonText}>Create Service</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.createButton}
-                    onPress={() => {
-                      setCreateServiceModalVisible(false);
-                    }}
-                  >
-                    <Text style={styles.createButtonText}>Close</Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
+                  <View style={[styles.createButtonContainer]}>
+                    <Button
+                      mode="contained"
+                      onPress={handleSubmit}
+                      loading={isLoading}
+                      disable={isLoading}
+                      style={styles.createButton}
+                    >
+                      <FontAwesome6 name="plus" size={16} color="#fff" />
+                      <Text style={styles.createButtonText}>
+                        Create Services
+                      </Text>
+                    </Button>
+
+                    <Button
+                      mode="contained"
+                      onPress={() => {
+                        setCreateServiceModalVisible(false);
+                      }}
+                      loading={isLoading}
+                      disable={isLoading}
+                      style={styles.createButton}
+                    >
+                      <Text style={styles.createButtonText}>Close</Text>
+                    </Button>
+                  </View>
                 </View>
               )}
             </Formik>
@@ -562,7 +660,7 @@ const ServiceManager = () => {
           </View>
         </View>
       ))} */}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -576,22 +674,37 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
+  createButtonContainer: {
+    // backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
+    alignContent: "center",
+  },
+
   createButton: {
-    backgroundColor: "blue",
-    padding: 10,
+    backgroundColor: "#EEBA2B",
+    padding: 1,
     borderRadius: 5,
     alignItems: "center",
     marginBottom: 20,
+    width: 200,
   },
   buttonText: {
     color: "white",
     fontSize: 16,
+  },
+  serviceItemContainer: {
+    alignItems: "center",
+    height: 300,
+    marginRight: 20,
   },
   serviceCard: {
     backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
     marginBottom: 20,
+    width: 250,
+    gap: 10,
   },
   serviceName: {
     fontSize: 18,
@@ -629,7 +742,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   modalView: {
-    margin: 20,
+    margin: 10,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
@@ -649,6 +762,9 @@ const styles = StyleSheet.create({
   },
   modalForm: {
     width: "100%",
+    flexDirection: "column",
+    display: "flex",
+    justifyContent: "center",
   },
   input: {
     height: 40,
@@ -656,6 +772,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingLeft: 10,
+    borderRadius: 8,
   },
   errorText: {
     color: "red",
@@ -679,6 +796,17 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: "white",
     fontSize: 16,
+  },
+  servicePhotoContainer: {
+    justifyContent: "center",
+    alignContent: "center",
+    alignItems: "center",
+  },
+  servicePhoto: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginBottom: 5,
   },
 });
 

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Alert } from "react-native";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -8,7 +9,7 @@ import logoWhite from "../assets/logoWhite.png";
 import { useNavigation } from "@react-navigation/native";
 const CustomDrawerContent = (props) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const navigator = useNavigation();
+  const navigation = useNavigation();
   const DropdownItem = ({ icon, label, onPress }) => (
     <TouchableOpacity style={styles.dropdownItem} onPress={onPress}>
       <Ionicons
@@ -103,8 +104,12 @@ const CustomDrawerContent = (props) => {
               label="Logout"
               onPress={() => {
                 setDropdownVisible(false);
-                // Handle logout functionality here
-                navigator.navigate("Login");
+                Alert.alert("Logged Out Successfully!");
+                navigation.navigate("Login"); // navigate to a different screen
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: "Login" }],
+                });
               }}
             />
           </View>

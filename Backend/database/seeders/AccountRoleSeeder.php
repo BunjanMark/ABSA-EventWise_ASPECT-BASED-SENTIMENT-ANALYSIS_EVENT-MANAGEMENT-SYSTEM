@@ -33,5 +33,12 @@ class AccountRoleSeeder extends Seeder
             "service_provider_name" => "Diwata pares services",
             "description" => "Service provider account description is diwata??",
         ]);
+        DB::table("account_roles")->insert([
+            "user_id" => 2,
+            "role_id" => 2,
+            "service_provider_name" => "Customer",
+            "description" => "Customer",
+        ]);    
+  
     }
 }

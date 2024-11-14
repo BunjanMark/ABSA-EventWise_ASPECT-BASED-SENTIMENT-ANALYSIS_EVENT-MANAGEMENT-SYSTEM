@@ -261,8 +261,12 @@ const AdminDrawerContent = (props) => {
             label="Logout"
             onPress={() => {
               setDropdownVisible(false);
-              // Handle logout functionality here
-              navigation.goBack();
+              Alert.alert("Logged Out Successfully!");
+              navigation.navigate("Login"); // navigate to a different screen
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Login" }],
+              });
             }}
           />
         </View>

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('serviceName'); // Service name
             $table->string('serviceCategory'); // Service category
             $table->string('serviceFeatures');//package inclusions/features/ contains
+            $table->longText('servicePhotoURL')->nullable();
+            $table->boolean('verified')->default(false);
             $table->decimal('basePrice', 10, 2); // Base price with precision
             $table->integer('pax'); // Number of persons (PAX)
             $table->text('requirements')->nullable(); // Requirements, nullable

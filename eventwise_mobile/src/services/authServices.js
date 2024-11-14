@@ -89,13 +89,26 @@ export const updateAccount = async (userData) => {
 
 export const logout = async () => {
   try {
-    await api.post("/user/logout");
-    await AsyncStorage.removeItem("authToken");
+    const response = await api.post("/auth/logout");
+    if (response.status === 200) {
+      await AsyncStorage.removeItem("authToken");
+    } else {
+      console.error("Logout API call failed");
+    }
   } catch (error) {
     console.error("Logout error:", error);
     throw error;
   }
 };
+// export const logout = async () => {
+//   try {
+//     await api.post("/user/logout");
+//     await AsyncStorage.removeItem("authToken");
+//   } catch (error) {
+//     console.error("Logout error:", error);
+//     throw error;
+//   }
+// };
 
 export const getUser = async () => {
   try {
