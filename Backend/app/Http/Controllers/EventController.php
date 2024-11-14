@@ -31,19 +31,6 @@ class EventController extends Controller
         return response()->json($events);
     }
 
-    // public function index(){
-    //     try {
-    //         $events = Event::all(); //retrieve all events
-    //         return response()->json($packages, 200); //return with 200 status
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
-    // function to add events
  // Store a new event with package
  public function eventsForDay($date)
 {
@@ -119,120 +106,6 @@ public function store(Request $request)
     return response()->json(['message' => 'Event and guests created successfully!', 'event' => $event], 201);
 }
 
-
-
-// public function store(Request $request)
-// {
-//     try {
-//         // Ensure user is authenticated
-//         $user = Auth::user();
-//         if (!$user) {
-//             return response()->json(['message' => 'Unauthorized. Please log in.'], 401);
-//         }
-
-        // Validate the incoming request
-        //     $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'type' => 'required|string',
-        //     'pax' => 'required|numeric|min:1',
-        //     'date' => 'required|date',
-        //     'time' => 'nullable|sometimes|date_format:H:i',
-        //     'status' => 'nullable|string',
-        //     'venue' => 'required|string',
-        //     'description' => 'nullable|string',
-        //     'package_id' => 'nullable|exists:packages,id',
-        //     'guests' => 'nullable|array',
-        //     'guests.*.GuestName' => 'nullable|string|max:255',
-        //     'guests.*.email' => 'nullable|email',
-        //     'guests.*.phone' => 'nullable|string|max:15',
-        //     'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:16384', // 16MB limit
-        // ], [
-        //     'cover_photo.max' => 'The cover photo must not exceed 16MB.',
-        // ]);
-
-        
-//         $event = new Event();
-//         $event->name = $request->name;
-//         $event->date = $request->date;
-//         $event->pax = $request->pax;
-//         $event->venue = $request->venue;
-//         $event->type = $request->type;
-//         $event->time = $request->time;
-//         $event->status = $request->status;
-//         $event->description = $request->description;
-//         $event->package_id = $request->package_id;
-
-//         // Store the cover photo (cov_pho) for MySQL
-//         if ($request->hasFile('cover_photo')) {
-//             $coverPhotoPath = $request->file('cover_photo')->store('cover_photos', 'public');
-//             $event->cover_photo = $coverPhotoPath; // Save the file path
-//         }
-
-
-//         $event->save();
-
-//         // Attach user ID to validated data
-//         $validatedData['user_id'] = $user->id;
-
-//         // Create the event with package association
-//         $event = Event::create([
-//             'name' => $validatedData['name'],
-//             'type' => $validatedData['type'],
-//             'pax' => $validatedData['pax'],
-//             'date' => $validatedData['date'],
-//             'time' => $validatedData['time'],
-//             'status' => $validatedData['status'],
-//             'venue' => $validatedData['venue'],
-//             'description' => $validatedData['description'],
-//             'cover_photo' => $validatedData['coverPhoto'],
-//             'package_id' => $validatedData['package_id'],
-//             'user_id' => $validatedData['user_id'],
-//         ]);
-
-//         // Add guests if any
-//         if (!empty($validatedData['guests'])) {
-//             foreach ($validatedData['guests'] as $guestData) {
-//                 Guests::create([
-//                     'event_id' => $event->id,
-//                     'GuestName' => $guestData['GuestName'],
-//                     'email' => $guestData['email'],
-//                     'phone' => $guestData['phone'],
-//                 ]);
-//             }
-//         }
-
-//         return response()->json([$event->load('package'), $user], 201); // Return event and user info
-//     } catch (\Illuminate\Validation\ValidationException $e) {
-//         return response()->json([
-//             'status' => 'error',
-//             'message' => 'Validation failed.',
-//             'errors' => $e->errors(),
-//         ], 422);
-//     } catch (\Exception $e) {
-//         return response()->json([
-//             'status' => 'error',
-//             'message' => $e->getMessage(),
-//         ], 500);
-//     }
-// }
-
-
- 
- 
-
-    // public function show($eventId)
-    // {
-    //     // Retrieve the event by ID
-    //     $event = Event::with('guests')->find($eventId);
-
-    //     // Check if the event exists
-    //     if (!$event) {
-    //         return response()->json(['error' => 'Event not found'], 404);
-    //     }
-
-    //     // Return the event details as a JSON response
-    //     return response()->json($event);
-    // }
     public function showEventById($eventId)
     {
         try {
@@ -328,9 +201,5 @@ public function store(Request $request)
         $events = Event::where('archived', true)->get();
         return response()->json($events);
     }
-
-    
-
-    
 }
 

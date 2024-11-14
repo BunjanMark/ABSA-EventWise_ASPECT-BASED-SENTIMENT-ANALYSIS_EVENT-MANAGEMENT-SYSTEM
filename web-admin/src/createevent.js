@@ -356,8 +356,11 @@ const ChoosePackage = () => {
       try {
         const response = await axios.get('http://localhost:8000/api/admin/packages');
         const data = response.data.map((pkg) => {
-          const totalPrice = calculateTotalPrice(pkg.services);
-          const description = randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)];
+          const totalPrice = pkg.services.reduce((sum, service) => sum + parseFloat(service.basePrice), 0);
+          
+          // Assign a random description if there's no description from the API
+          const description = pkg.description || randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)];
+
 
           return {
             ...pkg,
@@ -714,27 +717,31 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
 
   const handleBookEvent = async () => {
     const eventData = JSON.parse(localStorage.getItem('eventData')) || {};
-    const selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')) || null;
+    let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage')) || null;
     const addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
     const token = getAuthToken();
   
-    // Ensure the services field is an array
     if (!Array.isArray(addedEvents)) {
       console.error("The services field must be an array.");
       return;
     }
   
-    // Combine pre-defined package services with added services
     let combinedServices = [];
-  if (selectedPackage && Array.isArray(selectedPackage.services)) {
-    combinedServices = [...selectedPackage.services, ...addedEvents];
-  } else {
-    combinedServices = [...addedEvents];
-  }
+    if (selectedPackage && Array.isArray(selectedPackage.services)) {
+      combinedServices = [...selectedPackage.services, ...addedEvents];
+    } else {
+      combinedServices = [...addedEvents];
+    }
   
     console.log('Combined Services:', combinedServices);
   
-    // Create FormData for the request
+    if (!selectedPackage || !selectedPackage.id) {
+      console.error('Selected package is missing or has no valid ID.');
+      return;
+    }
+  
+    console.log('Selected Package ID before update:', selectedPackage.id);
+  
     const formData = new FormData();
     formData.append('name', eventData.name);
     formData.append('date', eventData.date);
@@ -742,24 +749,11 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
     formData.append('venue', eventData.venue);
     formData.append('type', eventData.type);
   
-    // Add package data (if selected)
+    // Add package details (make sure they exist in selectedPackage)
     if (selectedPackage) {
-      formData.append('package_id', selectedPackage.id);
-      formData.append('packageName', selectedPackage.packageName);
-      formData.append('eventType', selectedPackage.eventType);
-      formData.append('totalPrice', selectedPackage.totalPrice);
-      formData.append('packageCreatedDate', selectedPackage.packageCreatedDate || null);
-  
-      // Handle cover photo (if exists)
-      if (selectedPackage.coverPhoto) {
-        try {
-          const response = await fetch(selectedPackage.coverPhoto);
-          const blob = await response.blob();
-          formData.append('cover_photo', blob, 'cover_photo.jpg');
-        } catch (fetchError) {
-          console.error('Error fetching the cover photo:', fetchError);
-        }
-      }
+      formData.append('packageName', selectedPackage.packageName);  // Package name
+      formData.append('eventType', selectedPackage.eventType);        // Event type
+      formData.append('totalPrice', selectedPackage.totalPrice);      // Total price
     }
   
     // Handle cover photo for the event (if exists)
@@ -772,14 +766,6 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
         console.error('Error fetching the cover photo:', fetchError);
       }
     }
-  
-    // Add guest data
-    guests.forEach((guest, index) => {
-      formData.append(`guests[${index}][name]`, guest.name);
-      formData.append(`guests[${index}][email]`, guest.email);
-      if (guest.phone) formData.append(`guests[${index}][phone]`, guest.phone);
-      if (guest.role) formData.append(`guests[${index}][role]`, guest.role);
-    });
   
     // Add combined services to FormData
     combinedServices.forEach((service, index) => {
@@ -800,11 +786,22 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
         });
   
         if (packageResponse.status === 201) {
-          console.log('Package created successfully:', packageResponse.data);
+          const newPackage = packageResponse.data;
+          console.log('New package created:', newPackage);
+  
+          // Update selectedPackage with new package data
+          selectedPackage = newPackage;
+          localStorage.setItem('selectedPackage', JSON.stringify(newPackage));
+  
+          console.log('Updated Package ID:', selectedPackage.id);
         } else {
           console.error('Failed to create package:', packageResponse.statusText);
+          return;
         }
       }
+  
+      // Add the new package ID to the event data
+      formData.append('package_id', selectedPackage.id);
   
       // Send event data to the backend
       const eventResponse = await axios.post('http://localhost:8000/api/events', formData, {
@@ -824,6 +821,8 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
       console.error('An error occurred:', error.response ? error.response.data : error.message);
     }
   };
+  
+  
   
   
 
