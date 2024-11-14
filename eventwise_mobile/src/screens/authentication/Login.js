@@ -47,10 +47,6 @@ const Login = ({ navigation }) => {
     return <Icon name={name} size={size} color={color} />;
   };
 
-  const showToast = (message = "Something went wrong") => {
-    Toast.show(message, 3000);
-  };
-
   // symon
   // const navigateBasedOnRole = (role) => {
   //   if (role === "service provider") {
@@ -68,21 +64,29 @@ const Login = ({ navigation }) => {
       if (role_id === 1) {
         console.log("Navigating to CustomAdminStack...");
         navigation.navigate("CustomAdminStack");
+        Toast.show("User logged in successfully", 3000);
+        Alert.alert("Welcome!", "You are now logged in as an Admin.");
       } else if (role_id === 2) {
         console.log("Navigating to CustomCustomerStack...");
         navigation.navigate("CustomCustomerStack");
+        Toast.show("User logged in successfully", 3000);
+        Alert.alert("Welcome!", "You are now logged in as a Customer.");
       } else if (role_id === 3) {
         console.log("Navigating to ServiceProvider...");
         navigation.navigate("ServiceProviderStack");
+        Toast.show("User logged in successfully", 3000);
+        Alert.alert("Welcome!", "You are now logged in as a Service Provider.");
       } else if (role_id === 4) {
         console.log("Navigating to GuestStack...");
         navigation.navigate("GuestStack");
+        Toast.show("User logged in successfully", 3000);
+        Alert.alert("Welcome!", "You are now logged in as a Guest.");
       } else {
-        showToast("Role not recognized");
+        Toast.show("Role invalid", 3000);
       }
     } catch (error) {
       console.error("Navigation error:", error);
-      showToast("An error occurred during navigation.");
+      Toast.show("Error occured during login", 3000);
     }
   };
   // React.useEffect(() => {
@@ -95,13 +99,13 @@ const Login = ({ navigation }) => {
       setLoading(true);
 
       if (!username || !password) {
-        showToast("Please input required data");
+        Toast.show("Please input required data", 3000);
         setIsError(true);
         return;
       }
 
       const result = await signIn(username, password);
-      showToast(result?.message);
+      Toast.show(result?.message, 3000);
 
       const user = await getUser();
       const response = await getAccountProfile();
@@ -117,7 +121,7 @@ const Login = ({ navigation }) => {
       navigateBasedOnRole(userProfiles[0].role_id);
     } catch (error) {
       console.error("Login error:", error);
-      showToast("An error occurred during login.");
+      Toast.show("An error occured during Login", 3000);
     } finally {
       setLoading(false);
     }

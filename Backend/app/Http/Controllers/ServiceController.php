@@ -98,7 +98,7 @@ class ServiceController extends Controller
 //             return response()->json(['message' => $th->getMessage()], 500);
 //         }
 //     }
-    public function store(Request $request)
+public function store(Request $request)
 {
     try {
         // Check if the user has a permitted role
@@ -116,6 +116,8 @@ class ServiceController extends Controller
             'serviceFeatures' => 'required|string|max:255',
             'servicePhotoURL' => 'nullable|string', 
             'verified' => 'boolean|nullable',
+            #TODO apply location input when type of service is picked
+            'location' => 'nullable|string|max:255',
             'basePrice' => 'required|numeric|min:0',
             'pax' => 'required|integer|min:1',
             'requirements' => 'nullable|string',
@@ -135,6 +137,7 @@ class ServiceController extends Controller
         return response()->json(['message' => $th->getMessage()], 500);
     }
 }
+
 
 
 

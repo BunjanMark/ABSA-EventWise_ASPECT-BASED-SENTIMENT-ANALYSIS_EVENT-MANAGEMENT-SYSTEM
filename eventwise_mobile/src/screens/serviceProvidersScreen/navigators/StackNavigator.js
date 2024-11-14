@@ -1,4 +1,5 @@
 import React from "react";
+import CreateServiceScreen from "../screens/ServiceTab/createServiceScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 
 //Main Stack Home
@@ -27,6 +28,7 @@ import CustomHeader from "../screens/CustomHeaderSP";
 import SetSchedSP from "../screens/SetschedSP";
 import ServiceCardDetails from "../screens/ServiceTab/ServiceCardDetails";
 import ServiceDetails from "../screens/ServiceTab/ServiceCardDetails";
+import EditServiceScreen from "../screens/ServiceTab/editServiceScreen";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -99,6 +101,8 @@ const ServiceStackNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ServiceSP" component={ServiceSP} />
       <Stack.Screen name="ServiceCardDetails" component={ServiceDetails} />
+      <Stack.Screen name="CreateService" component={CreateServiceScreen} />
+      <Stack.Screen name="EditService" component={EditServiceScreen} />
     </Stack.Navigator>
   );
 };

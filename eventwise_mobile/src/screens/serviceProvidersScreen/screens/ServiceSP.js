@@ -3,61 +3,111 @@ import ManualTestImage from "../../adminMain/screens/component/ManualTestImage";
 import { testSupabaseConnectivity } from "../../adminMain/screens/component/testSupabaseConnectivity";
 import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native";
+import { useServiceStore } from "../../../stateManagement/serviceProvider/useServiceStore";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
+  RefreshControl,
   Image,
   Modal,
   TouchableOpacity,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Import the navigation hook
 import ServiceManager from "./ServiceTab/ServiceManager";
-import ServiceManager2 from "./ServiceTab/ServiceManager2";
-import ServicesLists from "./ServiceTab/ServicesLists";
-import { Button } from "react-native-paper";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+import ServiceCard from "./ServiceTab/ServiceCard";
+import { useEffect } from "react";
+import {
+  updateService,
+  deleteService,
+  fetchMyServices,
+} from "../../../services/serviceProvider/serviceProviderServices";
 
 const ServiceSP = () => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedService, setSelectedService] = useState(null);
-  const navigation = useNavigation(); // Get the navigation prop
+  const [refreshing, setRefreshing] = useState(false);
 
-  const renderServiceItem = ({ item }) => {
-    if (item.isBrokenBox) {
-      return (
-        <TouchableOpacity
-          style={styles.brokenBox}
-          onPress={() => navigation.navigate("ServicePortfolioSP")} // Navigate to CreateServiceSP
-        >
-          <Text style={styles.brokenBoxText}>Add Service</Text>
-        </TouchableOpacity>
-      );
+  const { services, setServices } = useServiceStore();
+
+  const [likedServices, setLikedServices] = useState({});
+  // Use useFocusEffect to call refreshServices when this screen is focused
+  const refreshServices = useCallback(async () => {
+    setRefreshing(true); // Start refreshing
+    try {
+      const updatedServices = await fetchMyServices();
+      setServices(updatedServices); // Update services in store
+    } catch (error) {
+      console.error("Failed to fetch services", error);
+    } finally {
+      setRefreshing(false); // Stop refreshing
     }
+  }, [setServices]);
+  const toggleLike = (serviceId) => {
+    setLikedServices((prevLikedServices) => {
+      const newLikedServices = { ...prevLikedServices };
+      if (newLikedServices[serviceId]) {
+        delete newLikedServices[serviceId];
+      } else {
+        newLikedServices[serviceId] = true;
+      }
+      return newLikedServices;
+    });
+  };
+  const handleEditService = async (serviceId, updatedData) => {
+    try {
+      await updateService(serviceId, updatedData); // Perform the update action
+      refreshServices(); // Refresh the services list
+    } catch (error) {
+      console.error("Failed to update service", error);
+    }
+  };
 
-    return (
-      <TouchableOpacity
-        style={styles.itemContainer}
-        onPress={() => {
-          setSelectedService(item);
-          setModalVisible(true);
-        }}
-      >
-        <Image source={item.image} style={styles.image} />
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.price}>{item.price}</Text>
-      </TouchableOpacity>
-    );
+  // Modify the deleteService to call refreshServices after deleting
+  const handleDeleteService = async (id) => {
+    try {
+      await deleteService(id); // Assuming deleteService is a valid function
+      refreshServices(); // Refresh the service list after deletion
+    } catch (error) {
+      console.error("Failed to delete service", error);
+    }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* <ServiceManager2 /> */}
-      <ServiceManager />
-      {/* test connectivity */}
-      {/* <Text style={styles.title}>Services</Text>
-      <Button title="test" onPress={testSupabaseConnectivity} />
-      <ManualTestImage /> */}
+    <SafeAreaView style={[styles.container]}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={refreshServices} // Trigger refresh on pull-to-refresh
+            colors={["#ff9900"]} // Customize color for the refresh indicator
+            tintColor="#ff9900" // Customize the spinner color
+          />
+        }
+      >
+        <ServiceManager />
+        <View style={[]}>
+          <FlatList
+            data={services}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={true}
+            contentContainerStyle={{ gap: 20 }}
+            accessibilityViewIsModal={true}
+            accessibilityModalRoot={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <ServiceCard
+                service={item}
+                likedServices={likedServices}
+                toggleLike={toggleLike}
+                handleDeleteService={handleDeleteService}
+                handleEditService={handleEditService}
+              />
+            )}
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

@@ -1,73 +1,160 @@
-import React from "react";
-import { View, Text, Image, ScrollView } from "react-native";
+// src/screens/ServiceCardDetailsScreen.js
 
-const ServiceDetails = ({ route }) => {
-  const { service } = route.params;
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from "react-native";
+
+const ServiceCardDetails = ({ route, navigation }) => {
+  const { service } = route.params; // Retrieve the service data passed through navigation
 
   return (
-    <ScrollView>
-      <View style={{ padding: 20 }}>
-        <Text style={{ fontSize: 18, fontWeight: "bold" }}>Service Name:</Text>
-        <Text style={{ fontSize: 24, fontWeight: "bold" }}>
-          {service.serviceName}
+    <ScrollView style={styles.container}>
+      <View style={styles.card}>
+        {/* Displaying service photo */}
+        <Image
+          source={{ uri: service.servicePhotoURL }}
+          style={styles.servicePhoto}
+        />
+
+        <Text style={styles.title}>{service.serviceName}</Text>
+        <Text style={styles.category}>Category: {service.serviceCategory}</Text>
+        <Text style={styles.price}>Price: ${service.basePrice}</Text>
+        <Text style={styles.pax}>Max Pax: {service.pax}</Text>
+        <Text style={styles.requirements}>
+          Requirements: {service.requirements}
         </Text>
-        {service.servicePhotoURL && (
-          <Image
-            source={{ uri: service.servicePhotoURL }}
-            style={{ width: 200, height: 200, borderRadius: 10 }}
-          />
-        )}
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Service Category:
-          </Text>
-          <Text>{service.serviceCategory}</Text>
-        </View>
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Service Price:
-          </Text>
-          <Text>{service.basePrice}</Text>
-        </View>
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Availability Status:
-          </Text>
-          <Text>
-            {service.availability_status === 1 ? "Available" : "Not Available"}
-          </Text>
-        </View>
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Requirements:
-          </Text>
-          <Text>{service.requirements}</Text>
-        </View>
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>Verified:</Text>
-          <Text>{service.verified === 1 ? "Yes" : "No | pending"}</Text>
-        </View>
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Service Description:
-          </Text>
-          <Text>{service.serviceDescription}</Text>
-        </View>
-        {/* <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Service Price:
-          </Text>
-          <Text>{service.servicePrice}</Text>
-        </View> */}
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Service Features:
-          </Text>
-          <Text>{service.serviceFeatures}</Text>
+        <Text style={styles.status}>
+          Availability Status:{" "}
+          {service.availability_status === 1 ? "Available" : "Unavailable"}
+        </Text>
+
+        <Text style={styles.sectionTitle}>Service Features:</Text>
+        <Text style={styles.features}>{service.serviceFeatures}</Text>
+
+        <Text style={styles.sectionTitle}>Created At:</Text>
+        <Text style={styles.createdAt}>
+          {new Date(service.created_at).toLocaleString()}
+        </Text>
+
+        <Text style={styles.sectionTitle}>Last Updated:</Text>
+        <Text style={styles.updatedAt}>
+          {new Date(service.updated_at).toLocaleString()}
+        </Text>
+
+        {/* Edit Button */}
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => navigation.navigate("EditService", { service })}
+          >
+            <Text style={styles.buttonText}>Edit Service</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
   );
 };
 
-export default ServiceDetails;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 20,
+  },
+  card: {
+    backgroundColor: "#f9f9f9",
+    padding: 20,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    paddingBottom: 200,
+  },
+  servicePhoto: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
+  },
+  category: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 10,
+  },
+  price: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#ff9900",
+    marginBottom: 10,
+  },
+  pax: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 10,
+  },
+  requirements: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 10,
+  },
+  status: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
+  },
+  features: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  createdAt: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 20,
+  },
+  updatedAt: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 20,
+  },
+  buttonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  editButton: {
+    backgroundColor: "#ff9900",
+    padding: 12,
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+    width: "100%",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+});
+
+export default ServiceCardDetails;

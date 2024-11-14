@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Deletes services if the user is deleted
             $table->string('serviceName'); // Service name
             $table->string('serviceCategory'); // Service category
+            $table->string('location')->nullable()->defaultValue("N/a");
             $table->string('serviceFeatures');//package inclusions/features/ contains
             $table->longText('servicePhotoURL')->nullable();
             $table->boolean('verified')->default(false);
