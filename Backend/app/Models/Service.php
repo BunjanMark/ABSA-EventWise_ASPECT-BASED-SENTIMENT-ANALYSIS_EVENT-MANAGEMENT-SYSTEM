@@ -19,6 +19,7 @@ class Service extends Model
         'serviceCategory',
         'serviceFeatures',
         'servicePhotoURL',
+        'location',
         'basePrice',
         'verified',
         'pax',

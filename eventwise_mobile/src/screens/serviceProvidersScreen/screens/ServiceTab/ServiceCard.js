@@ -4,15 +4,18 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { deleteService } from "../../../../services/serviceProvider/serviceProviderServices";
+
 const ServiceCard = ({
   service,
   likedServices,
   toggleLike,
-  handleEditService,
   handleDeleteService,
+  handleEditService,
 }) => {
   // console.log("service pasesed: ", service);
   const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -63,13 +66,15 @@ const ServiceCard = ({
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.updateButton}
-          onPress={() => handleEditService(service)}
+          onPress={() => {
+            navigation.navigate("EditService", { service: service }); // Pass service data to the Edit screen
+          }}
         >
           <Text style={styles.buttonText}>Edit</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.deleteButton}
-          onPress={() => handleDeleteService(service.id)}
+          onPress={() => handleDeleteService(service.id)} // Now using the prop
         >
           <Text style={styles.buttonText}>Delete</Text>
         </TouchableOpacity>

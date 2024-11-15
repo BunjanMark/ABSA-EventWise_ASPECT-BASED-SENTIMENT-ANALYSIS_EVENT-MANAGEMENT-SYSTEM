@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import RNPickerSelect from "react-native-picker-select";
+
 import { BackHandler } from "react-native";
 import selectimage from "../../../../../assets/selectimage.png";
 import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
@@ -30,11 +32,11 @@ import { Modal } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { uploadImageToSupabase } from "../../../../services/organizer/uploadSupabaseService";
-import ServiceCard from "./ServiceCard";
+// import ServiceCard from "./ServiceCard";
 import AddPackageG from "../../../adminMain/screens/component/AddPackageGcp";
 import useStore from "../../../../stateManagement/useStore";
 import ServiceHeader from "./ServiceHeader";
-
+import { useNavigation } from "@react-navigation/native";
 const validationSchema = Yup.object().shape({
   serviceName: Yup.string().required("Service name is required"),
   serviceCategory: Yup.string().required("Service category is required"),
@@ -49,39 +51,19 @@ const validationSchema = Yup.object().shape({
 });
 
 const ServiceManager = () => {
+  const navigation = useNavigation();
   const [createServiceModalVisible, setCreateServiceModalVisible] =
     useState(false);
-  const { services, newService, updateNewService, setServices } =
-    useServiceStore();
+  const { services, setServices } = useServiceStore();
 
   const [refresh, setRefresh] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
 
   const [imageUri, setImageUri] = useState(null);
   const { fetchEventPackages } = useStore();
   const [isLoading, setIsLoading] = useState(false);
-  const [likedServices, setLikedServices] = useState({});
 
-  const toggleLike = (serviceId) => {
-    setLikedServices((prevLikedServices) => {
-      const newLikedServices = { ...prevLikedServices };
-      if (newLikedServices[serviceId]) {
-        delete newLikedServices[serviceId];
-      } else {
-        newLikedServices[serviceId] = true;
-      }
-      return newLikedServices;
-    });
-  };
-  const handleAddPackage = async (newPackage) => {
-    try {
-      await fetchEventPackages(); // Refresh the list after adding a package
-    } catch (error) {
-      console.error("Error fetching event packages:", error);
-    }
-  };
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -118,7 +100,8 @@ const ServiceManager = () => {
     }
   }, [count]); // Add count to the dependency array
 
-  const handleCreateService = async (values, { resetForm }) => {
+  const handleCreateService = async (values, resetForm) => {
+    console.log("Values in CreateServiceScreen:", values);
     setIsLoading(true);
 
     try {
@@ -140,9 +123,10 @@ const ServiceManager = () => {
         serviceCategory: values.serviceCategory,
         serviceFeatures: values.serviceFeatures,
         basePrice: values.basePrice,
+        location: values.location,
         pax: values.pax,
         requirements: values.requirements,
-        servicePhotoURL: servicePhotoURL || null, // Add a check here
+        servicePhotoURL: servicePhotoURL || null,
         serviceCreatedDate: new Date().toISOString().split("T")[0],
       };
 
@@ -150,10 +134,9 @@ const ServiceManager = () => {
       const result = await createService(newService);
 
       Alert.alert("Success", "Service added successfully!");
-      console.log("resule from result:", result);
+      console.log("Result from result:", result);
       setRefresh(!refresh); // Refresh the component
       resetForm();
-      setCreateServiceModalVisible(false);
     } catch (error) {
       console.error("Error adding service:", error);
       Alert.alert(
@@ -166,20 +149,18 @@ const ServiceManager = () => {
     }
   };
 
-  const handleUpdateService = async (id, updatedService) => {
+  const handleEditService = (service) => {
+    setEditingService(service);
+    setModalVisible(true);
+  };
+  const handleDeleteService = async (id) => {
     try {
-      const response = await updateService(id, updatedService);
+      await deleteService(id);
       setRefresh(!refresh); // Refresh the component
     } catch (error) {
       console.error(error);
     }
   };
-
-  const handleEditService = (service) => {
-    setEditingService(service);
-    setModalVisible(true);
-  };
-
   const handleSaveService = async (values) => {
     try {
       // #TODO: fix
@@ -193,9 +174,9 @@ const ServiceManager = () => {
     }
   };
 
-  const handleDeleteService = async (id) => {
+  const handleUpdateService = async (id, updatedService) => {
     try {
-      await deleteService(id);
+      const response = await updateService(id, updatedService);
       setRefresh(!refresh); // Refresh the component
     } catch (error) {
       console.error(error);
@@ -245,95 +226,29 @@ const ServiceManager = () => {
     }
   };
 
-  const renderServiceItem = ({ item }) => (
-    <SafeAreaView style={styles.serviceItemContainer}>
-      <View style={[styles.serviceCard]}>
-        <Image
-          style={{ backgroundColor: "green" }}
-          source={{ uri: item.servicePhoto }}
-          // defaultSource={require("../../../../../assets/selectimage.png")} // Optional: a placeholder image
-        />
-        {/* <Image
-          pho
-          src={[{ width: 150, height: 150, borderRadius: 10 }]}
-          source={selectimage}
-        /> */}
-
-        {/* <Text style={styles.serviceID}>ID: {item.servicePhotoURL}</Text> */}
-        <Text style={styles.serviceName}>{item.serviceName}</Text>
-        <Text style={styles.serviceCategory}>{item.serviceCategory}</Text>
-        <Text style={styles.servicePrice}>Price: ₱{item.basePrice}</Text>
-        <Text style={styles.servicePax}>Pax: {item.pax}</Text>
-        <Text style={styles.serviceDuration}>
-          Service Features: {item.serviceFeatures}
-        </Text>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.updateButton}
-            onPress={() => handleEditService(item)}
-          >
-            <Text style={styles.buttonText}>Edit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => handleDeleteService(item.id)}
-          >
-            <Text style={styles.buttonText}>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </SafeAreaView>
-  );
-
   return (
-    <SafeAreaView style={[styles.container, { display: "flex" }]}>
+    <SafeAreaView style={[styles.container, { display: "flex", flex: 1 }]}>
       <Text style={styles.title}>Services </Text>
       <ServiceHeader services={services} />
       <View style={styles.createButtonContainer}>
         <Button
-          onPress={() => setCreateServiceModalVisible(true)}
+          mode="contained"
+          onPress={() => navigation.navigate("CreateService")}
+          loading={isLoading}
+          disable={isLoading}
           style={styles.createButton}
         >
           <FontAwesome6 name="plus" size={16} color="#fff" />
           <Text style={styles.createButtonText}>Create Services</Text>
         </Button>
       </View>
-      <View pointerEvents={createServiceModalVisible ? "none" : "auto"}>
-        {/* <FlatList
-          data={services}
-          renderItem={renderServiceItem}
-          keyExtractor={(item) => item.id.toString()}
-          horizontal={true}
-          contentContainerStyle={{ flexGrow: 1, zIndex: -1 }}
-          accessibilityViewIsModal={true}
-          accessibilityModalRoot={true}
-          showsHorizontalScrollIndicator={false}
-        /> */}
-        <FlatList
-          data={services}
-          renderItem={({ item }) => (
-            <ServiceCard
-              service={item}
-              likedServices={likedServices}
-              toggleLike={toggleLike}
-              handleEditService={handleEditService}
-              handleDeleteService={handleDeleteService}
-            />
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          horizontal={true}
-          contentContainerStyle={{ gap: 20 }}
-          accessibilityViewIsModal={true}
-          accessibilityModalRoot={true}
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
+      <View pointerEvents={createServiceModalVisible ? "none" : "auto"}></View>
       <Modal
         animationType="fade"
-        transparent={false}
+        transparent={true}
         visible={createServiceModalVisible}
         onRequestClose={() => setCreateServiceModalVisible(false)}
-        contentContainerStyle={[styles.modalContainer, {}]}
+        contentContainerStyle={[styles.modalContainer, { flex: 1 }]}
       >
         <View
           style={[
@@ -350,6 +265,7 @@ const ServiceManager = () => {
                 serviceCategory: "",
                 serviceFeatures: "",
                 servicePhoto: null,
+                location: "",
                 basePrice: "",
                 pax: "",
                 requirements: "",
@@ -402,27 +318,56 @@ const ServiceManager = () => {
                     <Text style={styles.errorText}>{errors.serviceName}</Text>
                   )}
 
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Service Category</Text>
+                    <RNPickerSelect
+                      onValueChange={(value) =>
+                        setFieldValue("serviceCategory", value)
+                      }
+                      items={[
+                        {
+                          label: "Food Catering",
+                          value: "Food Catering",
+                        },
+                        { label: "Accommodation", value: "Accommodation" },
+                        { label: "Transportation", value: "Transportation" },
+                        { label: "Photography", value: "Photography" },
+                        { label: "Videography", value: "Videography" },
+                        { label: "Host", value: "Host" },
+                        { label: "Videography", value: "Videography" },
+                        { label: "Decoration", value: "Decoration" },
+                        { label: "Entertainment", value: "Entertainment" },
+                        { label: "Sound", value: "Sound" },
+                        { label: "Lighting", value: "Lighting" },
+                        { label: "Decoration", value: "Decoration" },
+                        { label: "Catering", value: "Catering" },
+                        {
+                          label: "Venue Management",
+                          value: "Venue Management",
+                        },
+                        { label: "Marketing", value: "Marketing" },
+
+                        { label: "Other", value: "Other" },
+                      ]}
+                      placeholder={{ label: "Select a category", value: null }}
+                      style={{
+                        inputAndroid: styles.input,
+                        inputIOS: styles.input,
+                      }}
+                    />
+                    {errors.serviceCategory && touched.serviceCategory && (
+                      <Text style={styles.errorText}>
+                        {errors.serviceCategory}
+                      </Text>
+                    )}
+                  </View>
                   <TextInput
-                    style={styles.input}
-                    placeholder="Service Category"
-                    value={values.serviceCategory}
-                    onChangeText={handleChange("serviceCategory")}
-                    onBlur={handleBlur("serviceCategory")}
-                  />
-                  {errors.serviceCategory && touched.serviceCategory && (
-                    <Text style={styles.errorText}>
-                      {errors.serviceCategory}
-                    </Text>
-                  )}
-                  <TextInput
-                    style={styles.input}
+                    style={[styles.input]}
                     placeholder="Inclusions (e.g., feature 1, feature 2..)"
                     value={values.serviceFeatures}
                     onChangeText={handleChange("serviceFeatures")}
                     onBlur={handleBlur("serviceFeatures")}
-                    multiline={true}
-                    numberOfLines={4}
-                    textAlignVertical="top"
+                    numberOfLines={12}
                   />
                   {errors.serviceFeatures && touched.serviceFeatures && (
                     <Text style={styles.errorText}>
@@ -461,18 +406,11 @@ const ServiceManager = () => {
                   {errors.requirements && touched.requirements && (
                     <Text style={styles.errorText}>{errors.requirements}</Text>
                   )}
-                  {/* <TouchableOpacity
-                    style={styles.createButton}
-                    onPress={handleSubmit}
-                    loading={isLoading}
-                    disable={isLoading}
-                  >
-                    <Text style={styles.createButtonText}>Create Service</Text>
-                  </TouchableOpacity> */}
+
                   <View style={[styles.createButtonContainer]}>
                     <Button
                       mode="contained"
-                      onPress={handleSubmit}
+                      onPress={() => navigation.navigate("CreateService")}
                       loading={isLoading}
                       disable={isLoading}
                       style={styles.createButton}
@@ -618,48 +556,6 @@ const ServiceManager = () => {
           </View>
         </View>
       </Modal>
-      {/* <AddPackageG
-        onClose={() => setIsModalVisible(false)}
-        onAddPackage={handleAddPackage}
-      /> */}
-
-      {/* {services.map((service, index) => (
-        <View key={index} style={styles.serviceContainer}>
-          <Image
-            source={{ uri: service.servicePhotoURL }}
-            style={styles.serviceImage}
-          />
-          <View style={styles.serviceInfo}>
-            <Text style={styles.serviceName}>{service.serviceName}</Text>
-            <Text style={styles.serviceCategory}>
-              Category: {service.serviceCategory}
-            </Text>
-            <Text style={styles.servicePrice}>
-              Price: ₱{service.basePrice} (for {service.pax} pax)
-            </Text>
-            <Text style={styles.serviceFeatures}>
-              Features: {service.serviceFeatures}
-            </Text>
-            <Text style={styles.serviceRequirements}>
-              Requirements: {service.requirements}
-            </Text>
-          </View>
-          <View style={styles.serviceActions}>
-            <TouchableOpacity
-              style={styles.updateButton}
-              onPress={() => handleEditService(service)}
-            >
-              <Text style={styles.buttonText}>Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDeleteService(service.id)}
-            >
-              <Text style={styles.buttonText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))} */}
     </SafeAreaView>
   );
 };
