@@ -766,6 +766,14 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
         console.error('Error fetching the cover photo:', fetchError);
       }
     }
+
+    guests.forEach((guest, index) => {
+      formData.append(`guests[${index}][name]`, guest.name);
+      formData.append(`guests[${index}][email]`, guest.email);
+      if (guest.phone) formData.append(`guests[${index}][phone]`, guest.phone);
+      if (guest.role) formData.append(`guests[${index}][role]`, guest.role);
+    });
+    
   
     // Add combined services to FormData
     combinedServices.forEach((service, index) => {
