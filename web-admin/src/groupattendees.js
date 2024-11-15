@@ -4,9 +4,9 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const GroupAttendees = () => {
-  const location = useLocation();  // Access state passed via navigate
-  const { eventId } = location.state || {};  // Ensure eventId is available
-  
+  const location = useLocation();
+  const { eventId } = location.state || {};
+
   const [guests, setGuests] = useState([]);
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
@@ -16,7 +16,6 @@ const GroupAttendees = () => {
   const guestsPerPage = 10;
 
   useEffect(() => {
-    // Check if eventId exists
     if (!eventId) {
       console.error('No eventId found');
       return;
@@ -25,52 +24,90 @@ const GroupAttendees = () => {
     const fetchGuests = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/api/guests/${eventId}`);
-        console.log('Guests fetched:', response.data);  // Debugging the API response
-        setGuests(response.data);  // Set the guests data
+        setGuests(response.data);
       } catch (error) {
         console.error('Error fetching guests:', error);
       }
     };
 
-    // Fetch guests only if eventId is available
     fetchGuests();
   }, [eventId]);
 
-  // Pagination Logic
   const totalGuests = guests.length;
   const totalPages = Math.ceil(totalGuests / guestsPerPage);
-  
   const indexOfLastGuest = currentPage * guestsPerPage;
   const indexOfFirstGuest = indexOfLastGuest - guestsPerPage;
   const currentGuests = guests.slice(indexOfFirstGuest, indexOfLastGuest);
-
-  const handleEditGuest = () => {
-    setEditModalVisible(true);
-    setEditGuestModalVisible(true);
-  };
-
-  const handleDeleteGuest = () => {
-    setDeleteModalVisible(true);
-  };
-
-  const handleSaveEdit = () => {
-    if (selectedGuest) {
-      setGuests(guests.map(guest =>
-        guest.id === selectedGuest.id ? selectedGuest : guest
-      ));
-    }
+  
+  const handleDoneEdit = () => {
+    setGuests(guests.map(guest =>
+      guest.id === selectedGuest.id ? selectedGuest : guest
+    ));
     setEditGuestModalVisible(false);
     setEditModalVisible(false);
   };
+  
 
-  const handleConfirmDelete = () => {
-    setGuests(guests.filter(guest => guest.id !== selectedGuest.id));
-    setDeleteModalVisible(false);
-    setEditModalVisible(false);
+  const handleEditGuest = () => {
+    if (selectedGuest) {
+      setEditModalVisible(true);
+      setEditGuestModalVisible(true);
+    }
+  };
+
+  const handleDeleteGuest = () => {
+    if (selectedGuest) {
+      setDeleteModalVisible(true);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    let successMessage = 'Guest details updated successfully!';  
+    if (selectedGuest && selectedGuest.id) {
+      try {
+        const response = await axios.put(`http://localhost:8000/api/guests/${selectedGuest.id}`, {
+          name: selectedGuest.name,
+          role: selectedGuest.role,
+          phone: selectedGuest.phone,
+          email: selectedGuest.email
+        });
+  
+        const updatedGuest = response.data.guest;
+        setGuests(guests.map(guest => guest.id === updatedGuest.id ? updatedGuest : guest));
+        setEditGuestModalVisible(false);
+        setEditModalVisible(false);
+      } catch {
+    window.alert(successMessage);
+      }
+    } else {
+      console.error('No guest selected or invalid guest data');
+      successMessage = 'Invalid guest data.'; // Change message for invalid data
+    }
+  
+
+  };
+  
+  
+
+  const handleConfirmDelete = async () => {
+    if (selectedGuest && selectedGuest.id) {
+      try {
+        await axios.delete(`http://localhost:8000/api/guests/${selectedGuest.id}`);
+        setGuests(guests.filter(guest => guest.id !== selectedGuest.id));
+        setDeleteModalVisible(false);
+        setEditModalVisible(false);
+
+        // Show success alert
+        window.alert('Guest deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting guest:', error);
+      }
+    } else {
+      console.error('Selected guest is not valid for deletion.');
+    }
   };
 
   const renderItem = (item, index) => {
-    // Calculate the "No." number based on the current page and index
     const displayNumber = (currentPage - 1) * guestsPerPage + index + 1;
 
     return (
@@ -105,24 +142,13 @@ const GroupAttendees = () => {
           </tbody>
         </table>
       </div>
+      <button onClick={handleSaveEdit} className="save-changes-groupattendee">Save Changes</button>
 
-      {/* Pagination Controls */}
       <div className="pagination-controls">
-        <button
-          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="pagination-button"
-        >
-          &lt; 
-        </button>
+      
+        <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="pagination-button">&lt;</button>
         <span className="pagination-info">{`Page ${currentPage} of ${totalPages}`}</span>
-        <button
-          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-          className="pagination-button"
-        >
-           &gt;
-        </button>
+        <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="pagination-button">&gt;</button>
       </div>
 
       {/* Edit/Delete Modal */}
@@ -142,43 +168,23 @@ const GroupAttendees = () => {
         <div className="modal-groupattendee">
           <div className="modalContent-groupattendee">
             <h2 className="modalTitle-groupattendee">Edit Guest</h2>
-            <input
-              className="input-groupattendee"
-              placeholder="Name"
-              value={selectedGuest?.name || ''}
-              onChange={(e) => setSelectedGuest({ ...selectedGuest, name: e.target.value })}
-            />
-            <input
-              className="input-groupattendee"
-              placeholder="Role"
-              value={selectedGuest?.role || ''}
-              onChange={(e) => setSelectedGuest({ ...selectedGuest, role: e.target.value })}
-            />
-            <input
-              className="input-groupattendee"
-              placeholder="Mobile Number"
-              value={selectedGuest?.mobile || ''}
-              onChange={(e) => setSelectedGuest({ ...selectedGuest, mobile: e.target.value })}
-            />
-            <input
-              className="input-groupattendee"
-              placeholder="Email"
-              value={selectedGuest?.email || ''}
-              onChange={(e) => setSelectedGuest({ ...selectedGuest, email: e.target.value })}
-            />
-            <button onClick={handleSaveEdit} className="edit">Save</button>
-            <button onClick={() => setEditGuestModalVisible(false)} className="close">Close</button>
+            <input className="input-groupattendee" placeholder="Name" value={selectedGuest?.name || ''} onChange={(e) => setSelectedGuest({ ...selectedGuest, name: e.target.value })} />
+            <input className="input-groupattendee" placeholder="Role" value={selectedGuest?.role || ''} onChange={(e) => setSelectedGuest({ ...selectedGuest, role: e.target.value })} />
+            <input className="input-groupattendee" placeholder="Mobile Number" value={selectedGuest?.phone || ''} onChange={(e) => setSelectedGuest({ ...selectedGuest, phone: e.target.value })} />
+            <input className="input-groupattendee" placeholder="Email" value={selectedGuest?.email || ''} onChange={(e) => setSelectedGuest({ ...selectedGuest, email: e.target.value })} />
+            <button onClick={handleDoneEdit} className="done-groupattendee">Done</button>
+            <button onClick={() => setEditGuestModalVisible(false)} className="cancel-groupattendee">Cancel</button>
           </div>
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation */}
       {isDeleteModalVisible && (
         <div className="modal-groupattendee">
           <div className="modalContent-groupattendee">
             <h2 className="modalTitle-groupattendee">Are you sure you want to delete this guest?</h2>
-            <button onClick={handleConfirmDelete} className="delete">Delete</button>
-            <button onClick={() => setDeleteModalVisible(false)} className="close">Cancel</button>
+            <button onClick={handleConfirmDelete} className="confirm-delete-groupattendee">Yes, Delete</button>
+            <button onClick={() => setDeleteModalVisible(false)} className="cancel-groupattendee">Cancel</button>
           </div>
         </div>
       )}

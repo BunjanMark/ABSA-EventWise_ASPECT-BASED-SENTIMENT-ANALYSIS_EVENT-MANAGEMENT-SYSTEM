@@ -247,7 +247,7 @@ function Dashboard() {
             <ul>
               {selectedPackage.services && selectedPackage.services.length > 0 ? (
                 selectedPackage.services.map((service, index) => (
-                  <li key={index}>{service.serviceName} - ${service.basePrice}</li>
+                  <li key={index}>{service.serviceName} - {service.basePrice}</li>
                 ))
               ) : (
                 <li>No services available</li>

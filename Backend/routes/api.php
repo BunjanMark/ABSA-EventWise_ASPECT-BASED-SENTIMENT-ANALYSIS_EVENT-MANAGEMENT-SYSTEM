@@ -75,6 +75,9 @@ Route::post('/events/{id}/archive', [EventController::class, 'archiveEvent']);
 // Guest management 
 Route::get('/guests', [GuestsController::class, 'index']);
 Route::get('guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
+Route::put('/guests/{id}', [GuestsController::class, 'update']);
+Route::delete('/guests/{id}', [GuestsController::class, 'destroy']);
+
 
 
 // service management

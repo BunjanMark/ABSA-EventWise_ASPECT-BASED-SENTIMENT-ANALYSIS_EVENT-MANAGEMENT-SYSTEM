@@ -13,7 +13,7 @@ const Package = () => {
 
   const [packageName, setPackageName] = useState('');
   const [eventType, setEventType] = useState('');
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState('');
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [services, setServices] = useState([]);
   const [availableServices, setAvailableServices] = useState([]);
@@ -24,7 +24,6 @@ const Package = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const images = [image1, image2, image3];
-
   const serCategory = ["All", "Food Catering", "Photography", "Video Editing", "Florists", "Venue"];
 
   useEffect(() => {
@@ -50,13 +49,10 @@ const Package = () => {
   }, []);
 
   useEffect(() => {
-    // Filter services based on the selected category
     if (selectedCategory === 'All') {
       setFilteredServices(availableServices);
     } else {
-      const filtered = availableServices.filter(
-        (service) => service.serviceCategory === selectedCategory
-      );
+      const filtered = availableServices.filter((service) => service.serviceCategory === selectedCategory);
       setFilteredServices(filtered);
     }
   }, [selectedCategory, availableServices]);
@@ -71,12 +67,11 @@ const Package = () => {
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
-    setShowConfirmOverlay(true); // Show confirmation overlay
+    setShowConfirmOverlay(true);
   };
 
   const handleConfirmService = () => {
     if (selectedService) {
-      // Add the new service to the services array
       setServices((prevServices) => {
         const updatedServices = [...prevServices, {
           id: selectedService.id,
@@ -84,17 +79,12 @@ const Package = () => {
           serviceCategory: selectedService.serviceCategory,
           basePrice: selectedService.basePrice,
         }];
-        
-        // Recalculate total price whenever a new service is added
-        const newTotalPrice = updatedServices.reduce((sum, service) => sum + service.basePrice, 0);
-        setTotalPrice(newTotalPrice); // Update the total price
-        return updatedServices; // Return the updated services array
+        return updatedServices;
       });
     }
     setShowConfirmOverlay(false);
     setShowOverlay(false);
   };
-
 
   const handleCancelService = () => {
     setShowConfirmOverlay(false);
@@ -102,16 +92,16 @@ const Package = () => {
   };
 
   const handleRemoveService = (serviceId) => {
-    // Remove the service by filtering out the selected service
     const updatedServices = services.filter(service => service.id !== serviceId);
-    
-    // Recalculate total price after removing a service
-    const newTotalPrice = updatedServices.reduce((sum, service) => sum + service.basePrice, 0);
-    setTotalPrice(newTotalPrice); // Update the total price
-    setServices(updatedServices); // Update the services array
+    setServices(updatedServices);
   };
 
   const handleCreatePackage = () => {
+    if (!packageName || !eventType) {
+      alert("Please fill in all fields and select at least one service.");
+      return;
+    }
+  
     const packageData = {
       packageName,
       eventType,
@@ -130,19 +120,44 @@ const Package = () => {
     })
     .then((response) => {
       console.log('Package created successfully:', response.data);
-      // Show success message as an alert
       alert('Package created successfully!');
-  })
-  .catch((error) => {
+      // Optionally clear the form after success
+      resetForm();
+    })
+    .catch((error) => {
       console.error('Error creating package:', error);
-      // Optionally handle error with an alert as well
       alert('Failed to create package. Please try again.');
-  });
+    });
+  };
   
+  const resetForm = () => {
+    setPackageName('');
+    setEventType('');
+    setTotalPrice(0);
+    setCoverPhoto(null);
+    setServices([]);
+    setSelectedCategory('All');
+    setFilteredServices([]);
   };
   
 
-    
+  // Handle totalPrice input manually (ensuring it's a valid float)
+  const handleTotalPriceChange = (e) => {
+    let value = e.target.value;
+  
+    // Remove any non-numeric characters (keeping only numbers)
+    value = value.replace(/[^0-9]/g, "");
+  
+    // Set the total price only if the value is a valid number
+    if (value !== "") {
+      setTotalPrice(parseInt(value, 10)); // Parse as integer
+    } else {
+      setTotalPrice(0); // Default to 0 if input is empty
+    }
+  };
+  
+  
+
   return (
     <div className="gradient-container-portfolio">
       <button onClick={() => navigate('/profile')} className="back-button-portfolio">
@@ -206,12 +221,14 @@ const Package = () => {
 
         <label className="label-portfolio">Enter Total Price</label>
         <input
-          type="text"
+          type="number"  // Use number type for whole numbers
           className="text-input-portfolio"
           placeholder="Total Price"
           value={totalPrice}
-          onChange={(e) => setTotalPrice(e.target.value)} // Parse value as a number
+          step="1"  // Only whole numbers allowed
+          onChange={handleTotalPriceChange}  // Manual input handling
         />
+
 
 
         <div className="services-container-portfolio">
@@ -237,10 +254,8 @@ const Package = () => {
             </button>
           </div>
         </div>
-        <button className="create-package-button" onClick={handleCreatePackage}>
-    Create Package
-  </button>
 
+        <button className="create-package-button" onClick={handleCreatePackage}>Create Package</button>
 
         {showOverlay && (
           <div className="overlay-container-services">

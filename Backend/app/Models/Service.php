@@ -24,10 +24,10 @@ class Service extends Model
         'availabilityStatus',
     ];
 
-    public function packages()
-    {
-        return $this->belongsToMany(Package::class, 'package_services');
-    }
-    
+public function packages()
+{
+    return $this->belongsToMany(Package::class, 'package_services', 'service_id', 'package_id');
+}
+
    
 }

@@ -15,21 +15,22 @@ class EventController extends Controller
 {
     //Add a method to fetch all events
     public function index()
-    {
-        // Retrieve all events from the database
-        $events = Event::all();
+{
+    // Retrieve all events with a count of related guests
+    $events = Event::withCount('guests')->get();
 
-        // Encode the cover photo if it exists
-        foreach ($events as $event) {
-            if ($event->cover_photo) {
-                // Assuming cover_photo is a path to the image file, encode it as Base64
-                $event->cover_photo = 'data:image/jpeg;base64,' . base64_encode(Storage::disk('public')->get($event->cover_photo));
-            }
+    // Encode the cover photo if it exists
+    foreach ($events as $event) {
+        if ($event->cover_photo) {
+            // Assuming cover_photo is a path to the image file, encode it as Base64
+            $event->cover_photo = 'data:image/jpeg;base64,' . base64_encode(Storage::disk('public')->get($event->cover_photo));
         }
-
-        // Return the events as a JSON response
-        return response()->json($events);
     }
+
+    // Return the events as a JSON response
+    return response()->json($events);
+}
+
 
  // Store a new event with package
  public function eventsForDay($date)

@@ -345,26 +345,17 @@ const ChoosePackage = () => {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Function to calculate the total price of services
-  const calculateTotalPrice = (services) => {
-    return services.reduce((total, service) => total + service.basePrice, 0);
-  };
-
   // Fetching packages data from API
   useEffect(() => {
     const fetchPackages = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/admin/packages');
         const data = response.data.map((pkg) => {
-          const totalPrice = pkg.services.reduce((sum, service) => sum + parseFloat(service.basePrice), 0);
-          
-          // Assign a random description if there's no description from the API
+          // Don't recalculate totalPrice here, use the one from the database
           const description = pkg.description || randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)];
-
 
           return {
             ...pkg,
-            totalPrice,
             image: image[Math.floor(Math.random() * image.length)],
             description,
           };
@@ -394,11 +385,21 @@ const ChoosePackage = () => {
 
   // Handle removal of service
   const removeService = (serviceId) => {
+    // Find the removed service
+    const removedService = selectedPackage.services.find(service => service.id === serviceId);
+
+    // Subtract the basePrice of the removed service from the totalPrice
+    const updatedTotalPrice = selectedPackage.totalPrice - parseFloat(removedService.basePrice);
+
+    // Update the selected package with the new totalPrice
     const updatedServices = selectedPackage.services.filter(service => service.id !== serviceId);
-    const updatedPackage = { ...selectedPackage, services: updatedServices, totalPrice: calculateTotalPrice(updatedServices) };
+    const updatedPackage = { ...selectedPackage, services: updatedServices, totalPrice: updatedTotalPrice };
+
+    // Update the selectedPackage state and localStorage
     setSelectedPackage(updatedPackage);
     localStorage.setItem('selectedPackage', JSON.stringify(updatedPackage)); // Save updated package to localStorage
 
+    // Update addedEvents in localStorage
     let addedEvents = JSON.parse(localStorage.getItem('addedEvents')) || [];
     addedEvents = addedEvents.filter(service => service.id !== serviceId);
     localStorage.setItem('addedEvents', JSON.stringify(addedEvents));
@@ -479,6 +480,7 @@ const ChoosePackage = () => {
     </div>
   );
 };
+
 
 
 
@@ -583,6 +585,7 @@ const ChooseServiceProv = () => {
       if (!response.ok) {
         throw new Error('Network response was not ok.');
       }
+      
     } catch (error) {
       console.error('Error saving event:', error);
     }
@@ -726,14 +729,25 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
       return;
     }
   
+
     let combinedServices = [];
     if (selectedPackage && Array.isArray(selectedPackage.services)) {
       combinedServices = [...selectedPackage.services, ...addedEvents];
     } else {
       combinedServices = [...addedEvents];
-    }
+    }  
+    // Calculate the total price of the package based on the selected package's price
+    let updatedTotalPrice = selectedPackage ? parseFloat(selectedPackage.totalPrice) : 0;
+  
+    // Sum the base prices of the added services (additional events)
+    let addedServicesTotalPrice = addedEvents.reduce((total, service) => total + parseFloat(service.basePrice), 0);
+  
+    // Final total price = existing package total price + price of added services
+    updatedTotalPrice += addedServicesTotalPrice;
+  
   
     console.log('Combined Services:', combinedServices);
+    console.log('Updated Total Price:', updatedTotalPrice);
   
     if (!selectedPackage || !selectedPackage.id) {
       console.error('Selected package is missing or has no valid ID.');
@@ -748,12 +762,14 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
     formData.append('pax', eventData.pax);
     formData.append('venue', eventData.venue);
     formData.append('type', eventData.type);
-  
+
+
+    formData.append('packageType', 'Custom');
     // Add package details (make sure they exist in selectedPackage)
     if (selectedPackage) {
       formData.append('packageName', selectedPackage.packageName);  // Package name
       formData.append('eventType', selectedPackage.eventType);        // Event type
-      formData.append('totalPrice', selectedPackage.totalPrice);      // Total price
+      formData.append('totalPrice', updatedTotalPrice);               // Updated total price (original package + added services)
     }
   
     // Handle cover photo for the event (if exists)
@@ -766,14 +782,13 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
         console.error('Error fetching the cover photo:', fetchError);
       }
     }
-
+  
     guests.forEach((guest, index) => {
       formData.append(`guests[${index}][name]`, guest.name);
       formData.append(`guests[${index}][email]`, guest.email);
       if (guest.phone) formData.append(`guests[${index}][phone]`, guest.phone);
       if (guest.role) formData.append(`guests[${index}][role]`, guest.role);
     });
-    
   
     // Add combined services to FormData
     combinedServices.forEach((service, index) => {
@@ -829,6 +844,7 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
       console.error('An error occurred:', error.response ? error.response.data : error.message);
     }
   };
+  
   
   
   
