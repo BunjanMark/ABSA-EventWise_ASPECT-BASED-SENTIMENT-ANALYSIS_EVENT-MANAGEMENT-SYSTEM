@@ -1,6 +1,9 @@
 import React from "react";
+import EditPackageScreen from "../screens/package/EditPackageScreen";
+import CreatePackageScreen from "../screens/package/CreatePackageScreen";
+import PackageCardDetails from "../screens/package/PackageCardDetails";
 import { createStackNavigator } from "@react-navigation/stack";
-
+import CreateEventScreen from "../screens/event/CreateEventScreen";
 //Main Stack Home
 import HomeAdmin from "../screens/home/HomeAdmin";
 import MessagesAdmin from "../screens/home/MessagesAdmin";
@@ -87,6 +90,13 @@ const EventStackNavigator = () => {
         name="EventPackageDetails"
         component={EventPackageDetails}
       />
+      <Stack.Screen
+        name="CreatePackageScreen"
+        component={CreatePackageScreen}
+      />
+      <Stack.Screen name="EditPackageScreen" component={EditPackageScreen} />
+      <Stack.Screen name="PackageCardDetails" component={PackageCardDetails} />
+      <Stack.Screen name="CreateEventScreen" component={CreateEventScreen} />
     </Stack.Navigator>
   );
 };
