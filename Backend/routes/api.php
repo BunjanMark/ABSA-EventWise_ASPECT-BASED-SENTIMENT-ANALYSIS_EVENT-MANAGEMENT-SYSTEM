@@ -16,7 +16,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\GuestsController;
 use App\Http\Controllers\AccountRoleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
+use App\Http\Controllers\PackageServiceController;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -65,7 +65,10 @@ return response()->json(['status' => 200, 'message' => 'Hello World!']);
 // Admin Package Management
 Route::post('/admin/packages', [PackageController::class, 'store']);
 Route::get('/admin/packages', [PackageController::class, 'index']);
-
+Route::put('/admin/packages/{id}', [PackageController::class, 'update']);
+Route::delete('/admin/packages/{id}', [PackageController::class, 'destroy']);
+// Route::get('/admin/packages/{packageId}/services',[PackageServiceController::class, 'packageService']);
+Route::get('/admin/packages/{packageId}/services',[PackageServiceController::class, 'getPackageServices']);
 // Admin Event Management
 // Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class, 'store']);
 Route::post('/admin/events', [EventController::class, 'store']);

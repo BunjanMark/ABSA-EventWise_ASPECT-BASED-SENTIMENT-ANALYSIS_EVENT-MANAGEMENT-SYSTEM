@@ -26,15 +26,11 @@ import {
   createService,
   updateService,
   deleteService,
-  fetchServices,
 } from "../../../../services/serviceProvider/serviceProviderServices";
 import { Modal } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { uploadImageToSupabase } from "../../../../services/organizer/uploadSupabaseService";
-// import ServiceCard from "./ServiceCard";
-import AddPackageG from "../../../adminMain/screens/component/AddPackageGcp";
-import useStore from "../../../../stateManagement/useStore";
+
 import ServiceHeader from "./ServiceHeader";
 import { useNavigation } from "@react-navigation/native";
 const validationSchema = Yup.object().shape({
@@ -55,13 +51,10 @@ const ServiceManager = () => {
   const [createServiceModalVisible, setCreateServiceModalVisible] =
     useState(false);
   const { services, setServices } = useServiceStore();
-
   const [refresh, setRefresh] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-
   const [imageUri, setImageUri] = useState(null);
-  const { fetchEventPackages } = useStore();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -149,35 +142,13 @@ const ServiceManager = () => {
     }
   };
 
-  const handleEditService = (service) => {
-    setEditingService(service);
-    setModalVisible(true);
-  };
-  const handleDeleteService = async (id) => {
-    try {
-      await deleteService(id);
-      setRefresh(!refresh); // Refresh the component
-    } catch (error) {
-      console.error(error);
-    }
-  };
   const handleSaveService = async (values) => {
     try {
-      // #TODO: fix
       // console.log("yati!?");
       const response = await updateService(editingService.id, values);
       setRefresh(!refresh); // Refresh the component
       setEditingService(null);
       setModalVisible(false);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleUpdateService = async (id, updatedService) => {
-    try {
-      const response = await updateService(id, updatedService);
-      setRefresh(!refresh); // Refresh the component
     } catch (error) {
       console.error(error);
     }
