@@ -173,7 +173,7 @@ function AdminStack() {
 
 //   useEffect(() => {
 //     // console.log("Loading:", loading, "Role ID:", profiles.id);
-//     // #TODO: this results to registering the first profile in account role
+//     // this results to registering the first profile in account role
 //     console.log("active profile nav: ", activeProfile["role_id"]);
 //     console.log("profile: nav", profiles[0].role_id);
 //     if (!loading) {
@@ -291,7 +291,7 @@ const CustomCustomerStack = () => {
   const navigation = useNavigation();
   useEffect(() => {
     // console.log("Loading:", loading, "Role ID:", profiles.id);
-    // #TODO: this results to registering the first profile in account role
+
     // console.log("active profile nav: ", activeProfile.role_id);
     // console.log("profile: nav", profiles[0].role_id);
     if (!loading) {

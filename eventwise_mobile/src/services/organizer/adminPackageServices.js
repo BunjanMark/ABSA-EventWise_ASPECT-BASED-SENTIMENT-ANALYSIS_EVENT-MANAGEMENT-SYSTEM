@@ -157,7 +157,7 @@ const fetchServices = async () => {
     // console.log("fetched services: ", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching services:", error);
+    console.error("Error fetching servicesss:", error);
     throw error;
   }
 };

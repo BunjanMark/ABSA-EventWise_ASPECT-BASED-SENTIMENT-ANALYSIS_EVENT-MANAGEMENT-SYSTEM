@@ -21,7 +21,6 @@ class Package extends Model
         'services',
         'totalPrice',
         'coverPhoto',
- 
     ];
 
     protected $casts = [

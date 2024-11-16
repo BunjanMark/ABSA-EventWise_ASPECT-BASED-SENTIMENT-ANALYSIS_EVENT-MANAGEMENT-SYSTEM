@@ -18,7 +18,7 @@ return new class extends Migration
             $table->json('services');
             $table->decimal('totalPrice', 10, 2);
             $table->longText('coverPhoto')->nullable(); // Ensure this is a string and nullable and 2000 characters max
-            $table->date('packageCreatedDate');
+            // $table->date('packageCreatedDate');
             $table->timestamps();
         });
     }

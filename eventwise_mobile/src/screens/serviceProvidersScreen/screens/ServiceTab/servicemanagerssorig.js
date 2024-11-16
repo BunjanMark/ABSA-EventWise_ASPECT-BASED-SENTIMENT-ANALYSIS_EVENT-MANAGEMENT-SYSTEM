@@ -136,8 +136,6 @@ const ServiceManager = () => {
 
   const handleSaveService = async (values) => {
     try {
-      // #TODO: fix
-      // console.log("yati!?");
       const response = await updateService(editingService.id, values);
       setRefresh(!refresh); // Refresh the component
       setEditingService(null);

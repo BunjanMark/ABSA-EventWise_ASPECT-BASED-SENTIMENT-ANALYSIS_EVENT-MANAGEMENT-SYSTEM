@@ -12,38 +12,34 @@ class Event extends Model
 {
     use HasFactory;
 
-<<<<<<< HEAD
-    protected $fillable = ['name', 'date','pax', 'venue', 'type', 'cover_photo'];
-
-=======
     protected $fillable = [
         'name', 
         'type', 
         'pax',
         'status',
         'date', 
+        'totalPrice',
         'time', 
         'location', 
         'description', 
-        'cover_photo',
-        'package_id',
+        'coverPhoto',
+        'packages',
         'user_id',
         'archived', 
     ];
->>>>>>> main
 
     // Relationship to guests
     public function guests()
     {
         return $this->hasMany(Guests::class);
     }
-
-    // Relationship to package
     public function package()
-    {
-        return $this->belongsTo(Package::class);
-    }
-       // Relationship to user
+{
+    return $this->belongsTo(Package::class);
+}
+ 
+ 
+    // Relationship to user
     public function user()
     {
         return $this->belongsTo(User::class);
