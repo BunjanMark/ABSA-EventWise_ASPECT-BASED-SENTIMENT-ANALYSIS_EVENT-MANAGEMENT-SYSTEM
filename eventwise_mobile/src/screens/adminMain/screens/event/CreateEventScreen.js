@@ -1,46 +1,85 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ScrollView,
+  Image,
+  Platform,
+  Alert,
   View,
   Text,
   TextInput,
   StyleSheet,
-  Alert,
   TouchableOpacity,
-  Image,
 } from "react-native";
-import { Formik } from "formik";
+import { Button } from "react-native-paper";
+import { Formik, FieldArray } from "formik";
 import * as Yup from "yup";
 import * as ImagePicker from "expo-image-picker";
-import { Button } from "react-native-paper";
+import * as ImageManipulator from "expo-image-manipulator";
 import RNPickerSelect from "react-native-picker-select";
-import {
-  createEvent,
-  fetchServices,
-} from "../../../../services/organizer/adminEventServices";
-import { useEffect } from "react";
+import { MultiSelect } from "react-native-element-dropdown";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import selectimage from "../../../../../assets/selectimage.png";
 import { useServicesStore } from "../../../../stateManagement/admin/useServicesStore";
+import { fetchServices } from "../../../../services/organizer/adminPackageServices";
+import { createEvent } from "../../../../services/organizer/adminEventServices";
 import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
-
+import { fetchPackages } from "../../../../services/organizer/adminPackageServices";
+import DateTimePicker from "@react-native-community/datetimepicker";
 const CreateEventScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPackages, setCurrentPackages] = useState([]);
   const { services, setServices } = useServicesStore();
-
+  const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [selected, setSelected] = useState([]);
+  // Validation schema
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Event name is required"),
-    date: Yup.date().required("Event date is required"),
-    pax: Yup.number()
-      .required("Number of pax is required")
-      .positive("Number of pax must be positive"),
-    venue: Yup.string().required("Venue is required"),
-    type: Yup.string().required("Type is required"),
-    coverPhoto: Yup.mixed()
-      .nullable()
-      .test("fileSize", "Cover photo must not exceed 16MB", (value) => {
-        return value === null || (value && value.size <= 16384 * 1024);
-      }),
+    eventName: Yup.string().required("Event name is required"),
+    eventType: Yup.string().required("Event type is required"),
+    eventPax: Yup.number()
+      .required("Event pax is required")
+      .min(1, "Minimum 1 pax is required"),
+    eventDate: Yup.date().required("Event date is required"),
+    eventTime: Yup.string().required("Event time is required"),
+    eventLocation: Yup.string().required("Event location is required"),
+    description: Yup.string().required("Description is required"),
+    currentPackages: Yup.array(), // !!Work with packages #TODO work event packages it must be array, and self will be notified
+    // coverPhoto: Yup.string()
+    //   .url("Must be a valid URL")
+    //   .required("Cover photo URL is required"),
+    guests: Yup.array().of(
+      Yup.object().shape({
+        GuestName: Yup.string().required("Guest name is required"),
+        email: Yup.string()
+          .email("Invalid email")
+          .required("Email is required"),
+      })
+    ),
   });
+  // Fetch packages on mount
+  // console.log("setPackages function:" );
 
+  // Fetch packages on mount
+  useEffect(() => {
+    const loadPackages = async () => {
+      try {
+        const fetchedPackages = await fetchPackages();
+        console.log(
+          "Fetched packages (eventAdmin): ",
+          JSON.stringify(fetchedPackages, null, 2)
+        );
+        setCurrentPackages(fetchedPackages); // Set the state
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+        Alert.alert("Error", "Unable to load packages. Please try again.");
+      }
+    };
+    loadPackages();
+  }, [setCurrentPackages]);
+  console.log("fetched packages: " + JSON.stringify(currentPackages, null, 2));
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -60,7 +99,7 @@ const CreateEventScreen = ({ navigation }) => {
       let coverPhotoURL = null;
 
       if (values.coverPhoto) {
-        const fileName = `event_cover_${Date.now()}.jpg`;
+        const fileName = `package_cover_${Date.now()}.jpg`;
         console.log("Uploading image to server:", fileName);
 
         // Replace with your actual image upload logic
@@ -72,18 +111,23 @@ const CreateEventScreen = ({ navigation }) => {
       }
 
       const newEvent = {
-        name: values.name,
-        date: values.date,
-        pax: values.pax,
-        venue: values.venue,
-        type: values.type,
-        cover_photo: coverPhotoURL || null,
+        eventName: values.eventName,
+        eventType: values.eventType,
+        eventPax: values.eventPax,
+        eventStatus: "Tenative",
+        packages: selected,
+        eventDate: values.eventDate,
+        eventTime: values.eventTime,
+        eventLocation: values.eventLocation,
+        description: values.description,
+        guests: values.guests,
+        coverPhoto: null,
       };
 
       console.log("New event data:", newEvent);
       const result = await createEvent(newEvent);
 
-      Alert.alert("Success", "Event created successfully!");
+      Alert.alert("Success", "eevnt created successfully!");
       console.log("Server response:", result);
       resetForm();
     } catch (error) {
@@ -91,15 +135,30 @@ const CreateEventScreen = ({ navigation }) => {
       Alert.alert(
         "Error",
         error.response?.data?.message ||
-          "An error occurred while creating the event. Please try again."
+          "An error occurred while creating the package. Please try again."
       );
     } finally {
       setIsLoading(false);
     }
   };
-
-  const handleImagePicker = async () => {
+  const renderItem = (item) => (
+    <View style={styles.item}>
+      <Text style={styles.selectedTextStyle}>{item.label}</Text>
+      <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
+    </View>
+  );
+  const handleImagePicker = async (setFieldValue) => {
     try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert(
+          "Permission Required",
+          "Permission to access camera roll is required!"
+        );
+        return;
+      }
+
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -108,7 +167,19 @@ const CreateEventScreen = ({ navigation }) => {
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedUri = result.assets[0].uri;
-        setImageUri(selectedUri);
+        const manipulatedResult = await ImageManipulator.manipulateAsync(
+          selectedUri,
+          [{ resize: { width: 800 } }],
+          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+        );
+
+        let uri = manipulatedResult.uri;
+        if (Platform.OS === "android" && !uri.startsWith("file://")) {
+          uri = `file://${uri}`;
+        }
+
+        setFieldValue("coverPhoto", uri);
+        setImageUri(uri);
       }
     } catch (error) {
       console.error("Error selecting cover photo:", error);
@@ -121,108 +192,276 @@ const CreateEventScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Formik
-        initialValues={{
-          name: "",
-          date: "",
-          pax: "",
-          venue: "",
-          type: "",
-          coverPhoto: null,
-        }}
-        validationSchema={validationSchema}
-        onSubmit={(values, { resetForm }) => {
-          handleCreateEvent(values, resetForm);
-        }}
-      >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          setFieldValue,
-          errors,
-          touched,
-        }) => (
-          <View style={styles.form}>
-            <Button
-              mode="contained"
-              onPress={() => navigation.goBack()}
-              style={styles.closeButton}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Button>
-            <Text style={styles.title}>Create Event</Text>
-            <View style={styles.coverPhotoContainer}>
-              <TouchableOpacity onPress={handleImagePicker}>
-                <Image
-                  source={
-                    imageUri
-                      ? { uri: imageUri }
-                      : require("../../../../../assets/selectimage.png")
-                  }
-                  style={styles.servicePhoto}
-                />
+      <ScrollView style={{ width: "100%" }}>
+        <Formik
+          initialValues={{
+            eventName: "",
+            eventType: "",
+            eventPax: "",
+            currentPackages: [],
+            eventDate: "",
+            eventTime: "",
+            eventLocation: "",
+            description: "",
+            coverPhoto: "",
+            guests: [{ GuestName: "", email: "" }],
+          }}
+          validationSchema={validationSchema}
+          onSubmit={(values, { resetForm }) => {
+            handleCreateEvent(values, resetForm);
+          }}
+        >
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            setFieldValue,
+            errors,
+            touched,
+          }) => (
+            <View style={[styles.form, { paddingBottom: 100 }]}>
+              <Text style={styles.title}>Create Event</Text>
+              <View style={styles.servicePhotoContainer}>
+                <TouchableOpacity
+                  onPress={() => {
+                    try {
+                      handleImagePicker(setFieldValue);
+                      console.log("Image URI:", imageUri);
+                    } catch (error) {}
+                  }}
+                >
+                  <Image
+                    source={
+                      values.coverPhoto
+                        ? { uri: values.coverPhoto }
+                        : selectimage
+                    }
+                    style={styles.servicePhoto}
+                  />
+                </TouchableOpacity>
+                {touched.coverPhoto && errors.coverPhoto && (
+                  <Text style={styles.errorText}>{errors.coverPhoto}</Text>
+                )}
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Event Name"
+                onChangeText={handleChange("eventName")}
+                onBlur={handleBlur("eventName")}
+                value={values.eventName}
+              />
+              {touched.eventName && errors.eventName && (
+                <Text style={styles.errorText}>{errors.eventName}</Text>
+              )}
+
+              <RNPickerSelect
+                onValueChange={(value) => setFieldValue("eventType", value)}
+                items={[
+                  { label: "Wedding", value: "Wedding" },
+                  { label: "Birthday", value: "Birthday" },
+                  { label: "Corporate Event", value: "Corporate Event" },
+                  { label: "Other", value: "Other" },
+                ]}
+                placeholder={{ label: "Select event type", value: null }}
+              />
+              {touched.eventType && errors.eventType && (
+                <Text style={styles.errorText}>{errors.eventType}</Text>
+              )}
+
+              <TextInput
+                style={styles.input}
+                placeholder="Event Pax"
+                keyboardType="numeric"
+                onChangeText={handleChange("eventPax")}
+                onBlur={handleBlur("eventPax")}
+                value={values.eventPax}
+              />
+              {touched.eventPax && errors.eventPax && (
+                <Text style={styles.errorText}>{errors.eventPax}</Text>
+              )}
+
+              <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                <Text style={styles.datePicker}>
+                  {values.eventDate ? values.eventDate : "Select Event Date"}
+                </Text>
               </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) {
+                      setDate(selectedDate);
+                      setFieldValue(
+                        "eventDate",
+                        selectedDate.toISOString().split("T")[0]
+                      );
+                    }
+                  }}
+                />
+              )}
+              {touched.eventDate && errors.eventDate && (
+                <Text style={styles.errorText}>{errors.eventDate}</Text>
+              )}
+
+              <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+                <Text style={styles.datePicker}>
+                  {values.eventTime ? values.eventTime : "Select Event Time"}
+                </Text>
+              </TouchableOpacity>
+              {showTimePicker && (
+                <DateTimePicker
+                  value={time}
+                  mode="time"
+                  display="default"
+                  onChange={(event, selectedTime) => {
+                    setShowTimePicker(false);
+                    if (selectedTime) {
+                      setTime(selectedTime);
+                      const formattedTime = selectedTime.toLocaleTimeString(
+                        "en-US",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      );
+                      setFieldValue("eventTime", formattedTime);
+                    }
+                  }}
+                />
+              )}
+              {touched.eventTime && errors.eventTime && (
+                <Text style={styles.errorText}>{errors.eventTime}</Text>
+              )}
+
+              <TextInput
+                style={styles.input}
+                placeholder="Event Location"
+                onChangeText={handleChange("eventLocation")}
+                onBlur={handleBlur("eventLocation")}
+                value={values.eventLocation}
+              />
+              {touched.eventLocation && errors.eventLocation && (
+                <Text style={styles.errorText}>{errors.eventLocation}</Text>
+              )}
+              <MultiSelect
+                style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={currentPackages
+                  .filter(
+                    (currentPackage) =>
+                      currentPackage.packageName && currentPackage.id
+                  )
+                  .map((currentPackage) => ({
+                    label: currentPackage.packageName,
+                    value: currentPackage.id,
+                    category: currentPackage.eventType,
+                  }))}
+                labelField="label"
+                valueField="value"
+                placeholder="Select currentPackages"
+                value={selected}
+                // data={data}
+                search
+                searchPlaceholder="Search..."
+                onChange={(items) => {
+                  setSelected(items);
+                  setFieldValue(
+                    "currentPackages",
+                    items.map((item) =>
+                      console.log("hello this is the item", item)
+                    )
+                  ); // Update Formik's services field with the selected item values (not the full object)
+                  console.log("Selected packagesss:", items);
+                }}
+                renderItem={renderItem}
+                renderLeftIcon={() => (
+                  <AntDesign
+                    style={styles.icon}
+                    color="black"
+                    name="Safety"
+                    size={20}
+                  />
+                )}
+                renderSelectedItem={(item, unSelect) => (
+                  <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+                    <View style={styles.selectedStyle}>
+                      <Text style={styles.textSelectedStyle}>{item.label}</Text>
+                      <AntDesign color="black" name="delete" size={17} />
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Description"
+                multiline
+                onChangeText={handleChange("description")}
+                onBlur={handleBlur("description")}
+                value={values.description}
+              />
+              {touched.description && errors.description && (
+                <Text style={styles.errorText}>{errors.description}</Text>
+              )}
+
+              <TextInput
+                style={styles.input}
+                placeholder="Cover Photo URL"
+                onChangeText={handleChange("coverPhoto")}
+                onBlur={handleBlur("coverPhoto")}
+                value={values.coverPhoto}
+              />
               {touched.coverPhoto && errors.coverPhoto && (
                 <Text style={styles.errorText}>{errors.coverPhoto}</Text>
               )}
-            </View>
-            <TextInput
-              style={styles.input}
-              placeholder="Event Name"
-              value={values.name}
-              onChangeText={handleChange("name")}
-              onBlur={handleBlur("name")}
-            />
-            {errors.name && touched.name && (
-              <Text style={styles.errorText}>{errors.name}</Text>
-            )}
-            <TextInput
-              style={styles.input}
-              placeholder="Date"
-              value={values.date}
-              onChangeText={handleChange("date")}
-              onBlur={handleBlur("date")}
-            />
-            {errors.date && touched.date && (
-              <Text style={styles.errorText}>{errors.date}</Text>
-            )}
-            <TextInput
-              style={styles.input}
-              placeholder="Number of Pax"
-              value={values.pax}
-              onChangeText={handleChange("pax")}
-              onBlur={handleBlur("pax")}
-              keyboardType="numeric"
-            />
-            {errors.pax && touched.pax && (
-              <Text style={styles.errorText}>{errors.pax}</Text>
-            )}
-            <TextInput
-              style={styles.input}
-              placeholder="Venue"
-              value={values.venue}
-              onChangeText={handleChange("venue")}
-              onBlur={handleBlur("venue")}
-            />
-            {errors.venue && touched.venue && (
-              <Text style={styles.errorText}>{errors.venue}</Text>
-            )}
-            <RNPickerSelect
-              onValueChange={(value) => setFieldValue("type", value)}
-              items={[
-                { label: "Wedding", value: "Wedding" },
-                { label: "Birthday", value: "Birthday" },
-                { label: "Corporate Event", value: "Corporate Event" },
-                { label: "Other", value: "Other" },
-              ]}
-              placeholder={{ label: "Select event type", value: null }}
-            />
-            {errors.type && touched.type && (
-              <Text style={styles.errorText}>{errors.type}</Text>
-            )}
-            <View style={styles.createButtonContainer}>
+
+              <FieldArray name="guests">
+                {({ remove, push }) => (
+                  <View>
+                    {values.guests.map((guest, index) => (
+                      <View key={index} style={styles.guestContainer}>
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Guest Name"
+                          value={guest.GuestName}
+                          onChangeText={handleChange(
+                            `guests.${index}.GuestName`
+                          )} // Dynamically updating guest fields
+                        />
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Email"
+                          value={guest.email}
+                          onChangeText={handleChange(`guests.${index}.email`)} // Dynamically updating guest fields
+                        />
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Phone"
+                          value={guest.phone}
+                          onChangeText={handleChange(`guests.${index}.phone`)} // Dynamically updating guest fields
+                        />
+                        <TouchableOpacity onPress={() => remove(index)}>
+                          <Text style={styles.removeGuest}>Remove</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                    <Button
+                      onPress={() =>
+                        push({ GuestName: "", email: "", phone: "" })
+                      }
+                    >
+                      Add Guest
+                    </Button>
+                  </View>
+                )}
+              </FieldArray>
+
               <Button
                 mode="contained"
                 onPress={handleSubmit}
@@ -230,94 +469,72 @@ const CreateEventScreen = ({ navigation }) => {
                 disabled={isLoading}
                 style={styles.createButton}
               >
-                <Text style={styles.createButtonText}>Create Event</Text>
+                Create Eventsss
               </Button>
             </View>
-          </View>
-        )}
-      </Formik>
+          )}
+        </Formik>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
+    flexGrow: 1,
+    padding: 16,
   },
   form: {
-    width: "100%",
-    padding: 20,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 10,
-    marginBottom: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 16,
   },
   input: {
-    height: 40,
-    width: "100%",
-    borderRadius: 5,
     borderWidth: 1,
-    borderColor: "#CCC",
-    marginBottom: 10,
-    paddingHorizontal: 10,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
   },
-  inputContainer: {
-    marginBottom: 10,
-    flex: 1,
-    width: "100%",
-  },
-  label: {
-    fontWeight: "bold",
-    marginBottom: 5,
+  datePicker: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+    textAlign: "center",
+    color: "#888",
   },
   errorText: {
     color: "red",
     fontSize: 12,
-    marginTop: 5,
+    marginBottom: 8,
+  },
+  guestContainer: {
+    marginBottom: 16,
+  },
+  removeGuest: {
+    color: "red",
+    textAlign: "right",
+  },
+  submitButton: {
+    marginTop: 16,
   },
   servicePhoto: {
     width: 100,
     height: 100,
     borderRadius: 10,
     marginBottom: 5,
-  },
-  createButton: {
-    backgroundColor: "#EEBA2B",
-    padding: 1,
-    borderRadius: 5,
-    alignItems: "center",
-    marginBottom: 20,
-    width: 200,
-  },
-  closeButton: {
-    position: "absolute",
-    backgroundColor: "transparent",
-    top: 20,
-    right: 20,
-    width: 80,
-    borderRadius: 100,
-  },
-  closeButtonText: {
-    color: "red",
-    fontSize: 16,
-  },
-  createButtonContainer: {
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  createButtonText: {
-    color: "#fff",
-    fontSize: 16,
   },
 });
 

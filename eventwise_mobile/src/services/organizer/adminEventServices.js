@@ -171,16 +171,35 @@ const fetchMyServices = async () => {
     throw error;
   }
 };
+const formatTimeTo24Hour = (time) => {
+  const [hours, minutes] = time.split(":");
+  const period = time.slice(-2); // Extract AM/PM
+  let formattedHours = parseInt(hours, 10);
+  if (period === "PM" && formattedHours !== 12) formattedHours += 12; // Convert PM to 24-hour
+  if (period === "AM" && formattedHours === 12) formattedHours = 0; // Convert 12AM to 00:xx
+  return `${formattedHours.toString().padStart(2, "0")}:${minutes.slice(0, 2)}`;
+};
 
-const createEvent = async () => {
+const createEvent = async (eventData) => {
   try {
-    const response = await api.post("/event");
+    // Convert eventTime to 24-hour format before sending to backend
+    const formattedEventTime = formatTimeTo24Hour(eventData.eventTime);
+    eventData.eventTime = formattedEventTime; // Update eventData with formatted time
+
+    console.log("Event data submission: ", eventData);
+    const response = await api.post("/admin/events", eventData);
+    console.log("Created event: ", response.data);
     return response.data;
   } catch (error) {
-    console.error("Create event error:", error);
+    if (error.response) {
+      console.error("Create event error:", error.response.data); // Log full error response
+    } else {
+      console.error("Error without response:", error.message); // For network-related errors
+    }
     throw error;
   }
 };
+
 export {
   createEvent,
   fetchMyServices,

@@ -32,7 +32,7 @@ const EventAdmin = () => {
     try {
       const updatedPackages = await fetchPackages();
       setCurrentPackages(updatedPackages); // Update services in store
-      console.log("Packages eventAdmin:" + JSON.stringify(updatedPackages));
+      // console.log("Packages eventAdmin:" + JSON.stringify(updatedPackages));
     } catch (error) {
       console.error("Failed to fetch services", error);
     } finally {

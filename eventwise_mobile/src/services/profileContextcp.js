@@ -23,7 +23,7 @@ export const ProfileProvider = ({ children }) => {
   //       setActiveProfile(userProfiles[0]);
   //       console.log("Active profile pcontext:", activeProfile);
   //       // Load the active profile from AsyncStorage if it exists
-  //       // #TODO left off
+  //       //  left off
   //       // const storedProfile = await AsyncStorage.getItem("activeProfile");
   //       // if (storedProfile) {
   //       //   setActiveProfile(JSON.parse(storedProfile));

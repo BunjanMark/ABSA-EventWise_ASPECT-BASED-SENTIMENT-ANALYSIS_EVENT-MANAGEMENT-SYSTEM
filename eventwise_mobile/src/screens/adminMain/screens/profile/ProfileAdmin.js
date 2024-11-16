@@ -44,7 +44,7 @@ const ProfileAdmin = () => (
           </Text>
         </View>
       </View> */}
-      {/* #TODO: - put the profile switch here - apply profile switch between
+      {/*   - put the profile switch here - apply profile switch between
       admin and serviceProviderd - serviceprovider: crud services - admin:
       crud packages, events - customer: crud bookings. */}
       <ProfileSwitcherAdmin />

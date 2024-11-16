@@ -32,6 +32,7 @@ const CreatePackageScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { services, setServices } = useServicesStore();
+  const [selected, setSelected] = useState([]);
   // Validation schema
   const validationSchema = Yup.object().shape({
     packageName: Yup.string().required("Package name is required"),
@@ -48,14 +49,17 @@ const CreatePackageScreen = ({ navigation }) => {
       try {
         const fetchedServices = await fetchServices();
         setServices(fetchedServices);
+        // console.log("Fetched services: " + services);
       } catch (error) {
         console.error("Error fetching services:", error);
-        Alert.alert("Error", "Unable to load services. Please try again.");
+        Alert.alert("Error", "Unable to load servicesss. Please try again.");
       }
     };
     loadServices();
   }, [setServices]);
+  // console.log("Fetched services: " + services);
   const handleCreatePackage = async (values, resetForm) => {
+    console.log("Creating package with values:", values);
     setIsLoading(true);
     try {
       let coverPhotoURL = null;
@@ -140,7 +144,6 @@ const CreatePackageScreen = ({ navigation }) => {
       );
     }
   };
-  const [selected, setSelected] = useState([]);
 
   const renderItem = (item) => (
     <View style={styles.item}>
@@ -149,20 +152,20 @@ const CreatePackageScreen = ({ navigation }) => {
     </View>
   );
 
-  useEffect(() => {
-    console.log("selected services: ", selected);
-  });
+  // useEffect(() => {
+  //   console.log("selected services: ", selected);
+  // });
 
-  console.log(
-    "Console log services ",
-    services
-      .filter((service) => service.serviceName && service.id)
-      .map((service) => ({
-        label: service.serviceName,
-        value: service.id,
-        category: service.serviceCategory,
-      }))
-  );
+  // console.log(
+  //   "Console log services ",
+  //   services
+  //     .filter((service) => service.serviceName && service.id)
+  //     .map((service) => ({
+  //       label: service.serviceName,
+  //       value: service.id,
+  //       category: service.serviceCategory,
+  //     }))
+  // );
 
   return (
     <View style={styles.container}>

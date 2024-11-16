@@ -22,7 +22,7 @@ const ProfileSwitcherAdmin = () => {
   const setAccountProfiles = useStore((state) => state.setAccountProfiles);
   // const { user, accountProfiles, setUser, setAccountProfiles } = useStore();
 
-  //TODO this is the previous state  12;23 nov3
+  // this is the previous state  12;23 nov3
   // const handleSwitchProfile = async (profile) => {
   //   try {
   //     setActiveProfile(profile);
@@ -143,7 +143,7 @@ const ProfileSwitcherAdmin = () => {
               key={profile.id}
               title={`Delete ${profile.service_provider_name}`}
               onPress={() => {
-                // TODO: Implement delete profile functionality
+                //  Implement delete profile functionality
                 console.log("Deleting profile:", profile.id);
               }}
             />

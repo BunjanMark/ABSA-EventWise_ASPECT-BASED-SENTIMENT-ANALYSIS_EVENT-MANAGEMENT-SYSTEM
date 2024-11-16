@@ -116,7 +116,6 @@ public function store(Request $request)
             'serviceFeatures' => 'required|string|max:255',
             'servicePhotoURL' => 'nullable|string', 
             'verified' => 'boolean|nullable',
-            #TODO apply location input when type of service is picked
             'location' => 'nullable|string|max:255',
             'basePrice' => 'required|numeric|min:0',
             'pax' => 'required|integer|min:1',
@@ -221,7 +220,7 @@ public function store(Request $request)
     private function getUserIdFromRole()
     {
         // Assuming the AccountRole model has a relationship to fetch the user ID
-        #TODO get accountRole id where role_id is the service provider role
+      
         $role = AccountRole::where('user_id', Auth::id())->first();
 
         if (!$role) {

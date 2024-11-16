@@ -158,4 +158,4 @@ const ServiceProviderHomeScreen = () => {
 
 export default ServiceProviderHomeScreen;
 
-#TODO this is impoementation algoritm switch profile algorithm. I logged in my account as admin but i have naother profile service provider. I want to login as admin everytimg and can be a service provider by changing in my profile side bar menu option
+#  this is impoementation algoritm switch profile algorithm. I logged in my account as admin but i have naother profile service provider. I want to login as admin everytimg and can be a service provider by changing in my profile side bar menu option

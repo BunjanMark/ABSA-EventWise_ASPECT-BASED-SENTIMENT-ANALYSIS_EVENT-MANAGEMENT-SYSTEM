@@ -70,8 +70,8 @@ Route::delete('/admin/packages/{id}', [PackageController::class, 'destroy']);
 // Route::get('/admin/packages/{packageId}/services',[PackageServiceController::class, 'packageService']);
 Route::get('/admin/packages/{packageId}/services',[PackageServiceController::class, 'getPackageServices']);
 // Admin Event Management
-// Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class, 'store']);
-Route::post('/admin/events', [EventController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class, 'store']);
+// Route::post('/admin/events', [EventController::class, 'store']);
 Route::get('/admin/events', [EventController::class, 'index']);
 Route::get('/admin/events/{id}', [EventController::class, 'showEventById']);
 Route::patch('/admin/events/{event}', [EventController::class, 'updateEvent']);

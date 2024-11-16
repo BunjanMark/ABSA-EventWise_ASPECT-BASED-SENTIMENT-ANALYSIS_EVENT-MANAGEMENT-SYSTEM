@@ -17,12 +17,13 @@ return new class extends Migration
             $table->string('type');
             $table->integer('pax');
             $table->string('status');
+            $table->integer('totalPrice')->nullable();
             $table->date('date');
             $table->time('time');
             $table->string('location');
             $table->text('description');
-            $table->string('cover_photo');
-            $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');  
+            $table->string('coverPhoto')->nullable();
+            $table->json('packages');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');  
             $table->timestamps();
         });

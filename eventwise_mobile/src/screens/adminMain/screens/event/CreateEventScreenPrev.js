@@ -1,42 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  ScrollView,
-  Image,
-  Platform,
-  Alert,
   View,
   Text,
   TextInput,
   StyleSheet,
+  ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Button } from "react-native-paper";
 import { Formik, FieldArray } from "formik";
 import * as Yup from "yup";
-import * as ImagePicker from "expo-image-picker";
-import * as ImageManipulator from "expo-image-manipulator";
 import RNPickerSelect from "react-native-picker-select";
-import { MultiSelect } from "react-native-element-dropdown";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import selectimage from "../../../../../assets/selectimage.png";
-import { useServicesStore } from "../../../../stateManagement/admin/useServicesStore";
-import { fetchServices } from "../../../../services/organizer/adminPackageServices";
-import { createEvent } from "../../../../services/organizer/adminEventServices";
-import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
-
 import DateTimePicker from "@react-native-community/datetimepicker";
-const CreateEventScreen = ({ navigation }) => {
-  const [imageUri, setImageUri] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedServices, setSelectedServices] = useState([]);
-  const { services, setServices } = useServicesStore();
+import { createEvent } from "../../../../services/organizer/adminEventServices";
+const CreateEventScreenPrev = ({ navigation }) => {
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [packages, setPackages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Validation schema
   const validationSchema = Yup.object().shape({
     eventName: Yup.string().required("Event name is required"),
     eventType: Yup.string().required("Event type is required"),
@@ -60,19 +45,37 @@ const CreateEventScreen = ({ navigation }) => {
     ),
   });
 
-  useEffect(() => {
-    const loadServices = async () => {
-      try {
-        const fetchedServices = await fetchServices();
-        setServices(fetchedServices);
-      } catch (error) {
-        console.error("Error fetching services:", error);
-        Alert.alert("Error", "Unable to load services. Please try again.");
-      }
-    };
-    loadServices();
-  }, [setServices]);
+  // const handleCreateEvent = async (values, { resetForm }) => {
+  //   console.log("Form Values:", values);
+  //   setIsLoading(true);
+  //   try {
+  //     const newEvent = {
+  //       eventname: values.eventName, // Correct field name
+  //       eventType: values.eventType,
+  //       eventPax: values.eventPax,
+  //       eventDate: values.eventDate,
+  //       eventTime: values.eventTime,
+  //       eventLocation: values.eventLocation,
+  //       description: values.description,
+  //       guests: values.guests,
+  //     };
 
+  //     console.log("New event data:", newEvent);
+  //     const result = await createEvent(newEvent);
+  //     Alert.alert("Success", "Event created successfully!");
+  //     console.log("Server response:", result);
+  //     resetForm(); // Reset form after success
+  //     navigation.goBack(); // Navigate back after event creation
+  //   } catch (error) {
+  //     console.error("Error creating event:", error);
+  //     Alert.alert(
+  //       "Error",
+  //       error?.message || "An error occurred while creating the event."
+  //     );
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const handleCreateEvent = async (values, resetForm) => {
     setIsLoading(true);
     try {
@@ -91,26 +94,24 @@ const CreateEventScreen = ({ navigation }) => {
       }
 
       const newEvent = {
-        eventName: values.eventName,
+        eventname: values.eventName, // Correct field name
         eventType: values.eventType,
         eventPax: values.eventPax,
         eventDate: values.eventDate,
         eventTime: values.eventTime,
-        eventStatus: "Tentative", // Add this field #TODO this needs to be discussed !URGENT!!! #FIXME  // !URGENT!!!
         eventLocation: values.eventLocation,
         description: values.description,
-        coverPhoto: values.coverPhoto,
         guests: values.guests,
       };
 
-      console.log("New event data:", newEvent);
-      const result = await createEvent(newEvent);
+      console.log("New package data:", newEvent);
+      const result = await createPackage(newEvent);
 
-      Alert.alert("Success", "eevnt created successfully!");
+      Alert.alert("Success", "Package created successfully!");
       console.log("Server response:", result);
-      // resetForm();
+      resetForm();
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error("Error creating package:", error);
       Alert.alert(
         "Error",
         error.response?.data?.message ||
@@ -120,53 +121,9 @@ const CreateEventScreen = ({ navigation }) => {
       setIsLoading(false);
     }
   };
-
-  const handleImagePicker = async (setFieldValue) => {
-    try {
-      const permissionResult =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permissionResult.granted) {
-        Alert.alert(
-          "Permission Required",
-          "Permission to access camera roll is required!"
-        );
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 0.7,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const selectedUri = result.assets[0].uri;
-        const manipulatedResult = await ImageManipulator.manipulateAsync(
-          selectedUri,
-          [{ resize: { width: 800 } }],
-          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-        );
-
-        let uri = manipulatedResult.uri;
-        if (Platform.OS === "android" && !uri.startsWith("file://")) {
-          uri = `file://${uri}`;
-        }
-
-        setFieldValue("coverPhoto", uri);
-        setImageUri(uri);
-      }
-    } catch (error) {
-      console.error("Error selecting cover photo:", error);
-      Alert.alert(
-        "Error",
-        "An error occurred while selecting the cover photo."
-      );
-    }
-  };
-
   return (
-    <View style={styles.container}>
-      <ScrollView style={{ width: "100%" }}>
+    <View style={[styles.container, { paddingBottom: 100 }]}>
+      <ScrollView style={[{ width: "100%" }]}>
         <Formik
           initialValues={{
             eventName: "",
@@ -180,43 +137,21 @@ const CreateEventScreen = ({ navigation }) => {
             guests: [{ GuestName: "", email: "" }],
           }}
           validationSchema={validationSchema}
-          onSubmit={(values, { resetForm }) =>
-            handleCreateEvent(values, resetForm)
-          }
+          onSubmit={(values, { resetForm }) => {
+            handleCreateEvent(values, resetForm);
+          }}
         >
           {({
             handleChange,
             handleBlur,
             handleSubmit,
-            values,
             setFieldValue,
+            values,
             errors,
             touched,
           }) => (
-            <View style={[styles.form, { paddingBottom: 100 }]}>
+            <View style={styles.form}>
               <Text style={styles.title}>Create Event</Text>
-              <View style={styles.servicePhotoContainer}>
-                <TouchableOpacity
-                  onPress={() => {
-                    try {
-                      handleImagePicker(setFieldValue);
-                      console.log("Image URI:", imageUri);
-                    } catch (error) {}
-                  }}
-                >
-                  <Image
-                    source={
-                      values.coverPhoto
-                        ? { uri: values.coverPhoto }
-                        : selectimage
-                    }
-                    style={styles.servicePhoto}
-                  />
-                </TouchableOpacity>
-                {touched.coverPhoto && errors.coverPhoto && (
-                  <Text style={styles.errorText}>{errors.coverPhoto}</Text>
-                )}
-              </View>
               <TextInput
                 style={styles.input}
                 placeholder="Event Name"
@@ -453,28 +388,6 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 16,
   },
-  servicePhoto: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-    marginBottom: 5,
-  },
 });
 
-// const styles = StyleSheet.create({
-//   container: { flex: 1, alignItems: "center", padding: 20 },
-//   title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
-//   input: {
-//     borderWidth: 1,
-//     borderColor: "#CCC",
-//     marginBottom: 10,
-//     padding: 10,
-//     borderRadius: 5,
-//   },
-//   servicePhoto: { width: 150, height: 150, borderRadius: 10, marginBottom: 20 },
-//   dropdown: { marginBottom: 20 },
-//   createButton: { backgroundColor: "#4CAF50", marginTop: 10 },
-//   errorText: { color: "red", fontSize: 12, marginBottom: 10 },
-// });
-
-export default CreateEventScreen;
+export default CreateEventScreenPrev;
