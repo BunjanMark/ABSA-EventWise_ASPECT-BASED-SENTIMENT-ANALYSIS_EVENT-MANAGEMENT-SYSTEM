@@ -93,6 +93,106 @@ class PackageController extends Controller
     }
 }
 
+public function update(Request $request, $id)
+{
+    DB::beginTransaction();
+
+    try {
+        // Validate incoming data
+        $validatedData = $request->validate([
+            'packageName' => 'required|string|max:255',
+            'eventType' => 'required|string',
+            'packageType' => 'nullable|string',
+            'services' => 'required|array',
+            'totalPrice' => 'required|numeric|min:1',
+            'coverPhoto' => 'nullable|url',
+            'packageCreatedDate' => 'nullable|date',
+        ]);
+
+        // Find the package to update
+        $package = Package::find($id);
+        if (!$package) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Package not found.',
+            ], 404);
+        }
+
+        // Update package fields
+        $package->update([
+            'packageName' => $validatedData['packageName'],
+            'eventType' => $validatedData['eventType'],
+            'packageType' => $validatedData['packageType'] ?? $package->packageType,
+            'totalPrice' => $validatedData['totalPrice'],
+            'coverPhoto' => $validatedData['coverPhoto'] ?? $package->coverPhoto,
+            'packageCreatedDate' => $validatedData['packageCreatedDate'] ?? $package->packageCreatedDate,
+        ]);
+
+        // Update services (detach existing and attach new ones)
+        $package->services()->detach();
+        foreach ($validatedData['services'] as $serviceData) {
+            $service = Service::firstOrCreate([
+                'serviceName' => $serviceData['serviceName'],
+                'serviceCategory' => $serviceData['serviceCategory'],
+                'basePrice' => $serviceData['basePrice'],
+            ]);
+            $package->services()->attach($service->id);
+        }
+
+        DB::commit();
+
+        return response()->json($package->load('services'), 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Validation failed.',
+            'errors' => $e->errors(),
+        ], 422);
+    } catch (\Throwable $th) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 'error',
+            'message' => $th->getMessage(),
+        ], 500);
+    }
+}
+
+
+public function destroy($id)
+{
+    try {
+        // Find the package by ID
+        $package = Package::find($id);
+
+        if (!$package) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Package not found.',
+            ], 404);
+        }
+
+        // Detach services associated with the package (optional, depending on relationships)
+        $package->services()->detach();
+
+        // Delete the package
+        $package->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Package deleted successfully.',
+        ], 200);
+    } catch (\Throwable $th) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $th->getMessage(),
+        ], 500);
+    }
+}
+
+
+
 
     // Method to add a new service to an existing package
     public function addService(Request $request, $packageId)

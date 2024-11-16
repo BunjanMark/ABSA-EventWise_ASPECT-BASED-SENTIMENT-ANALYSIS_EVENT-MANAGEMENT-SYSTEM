@@ -61,6 +61,9 @@ return response()->json(['status' => 200, 'message' => 'Hello World!']);
 // Admin Package Management
 Route::post('/admin/packages', [PackageController::class, 'store']);
 Route::get('/admin/packages', [PackageController::class, 'index']);
+Route::put('/admin/packages/{id}', [PackageController::class, 'update']);
+Route::delete('/admin/packages/{id}', [PackageController::class, 'destroy']);
+
 
 // Admin Event Management
 // Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class, 'store']);

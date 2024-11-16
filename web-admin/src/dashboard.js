@@ -29,6 +29,8 @@ function Dashboard() {
   const [showPackageOverlay, setShowPackageOverlay] = useState(false);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [packageToDelete, setPackageToDelete] = useState(null); // Track the selected package to delete
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -118,6 +120,39 @@ function Dashboard() {
     setShowPackageOverlay(false);
     setSelectedPackage(null);
   };
+  const handleEditPackage = (packageDetails) => {
+    console.log('Navigating with packageDetails:', packageDetails);
+    navigate('/package', { state: { packageDetails } });
+  };
+  const handleConfirmDelete = async (packageToDelete) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/admin/packages/${packageToDelete.id}`, {
+        method: 'DELETE',
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        console.log("Package deleted successfully:", result);
+        // Optionally, refresh the package list after deletion
+        setPackages((prevPackages) =>
+          prevPackages.filter((pkg) => pkg.id !== packageToDelete.id)
+        );
+      } else {
+        console.error("Failed to delete package:", result.message);
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error deleting package:", error);
+      alert("An error occurred while deleting the package.");
+    } finally {
+      setShowDeleteConfirmation(false); // Close the confirmation overlay
+      setPackageToDelete(null); // Reset the state
+    }
+  };
+  
+  
+  
 
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
   const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -234,28 +269,78 @@ function Dashboard() {
 
       {/* Package Overlay */}
       {showPackageOverlay && selectedPackage && (
-        <div className="details-overlay-dashboard-overlay">
-          <div className="overlay-content-dashboard-overlay">
-            <button className="close-button-dashboard-overlay" onClick={handleClosePackageOverlay}>
-              X
-            </button>
-            <img src={selectedPackage.image} alt={selectedPackage.packageName} className="image-dashboard-overlay" />
-            <h3>{selectedPackage.packageName}</h3>
-            <h3>Price: {selectedPackage.totalPrice}</h3>
-            <p>{selectedPackage.description}</p>
-            <h4>Inclusions:</h4>
-            <ul>
-              {selectedPackage.services && selectedPackage.services.length > 0 ? (
-                selectedPackage.services.map((service, index) => (
-                  <li key={index}>{service.serviceName} - {service.basePrice}</li>
-                ))
-              ) : (
-                <li>No services available</li>
-              )}
-            </ul>
-          </div>
-        </div>
-      )}
+  <div className="details-overlay-dashboard-overlay">
+    <div className="overlay-content-dashboard-overlay">
+      <button className="close-button-dashboard-overlay" onClick={handleClosePackageOverlay}>
+        X
+      </button>
+      <img
+        src={selectedPackage.image}
+        alt={selectedPackage.packageName}
+        className="image-dashboard-overlay"
+      />
+      <h3>{selectedPackage.packageName}</h3>
+      <h3>Price: {selectedPackage.totalPrice}</h3>
+      <p>{selectedPackage.description}</p>
+      <h4>Inclusions:</h4>
+      <ul>
+        {selectedPackage.services && selectedPackage.services.length > 0 ? (
+          selectedPackage.services.map((service, index) => (
+            <li key={index}>
+              {service.serviceName} - {service.basePrice}
+            </li>
+          ))
+        ) : (
+          <li>No services available</li>
+        )}
+      </ul>
+      {/* Footer Section */}
+      <div className="overlay-footer-dashboard">
+      <button
+          className="edit-button-dashboard"
+          onClick={() => handleEditPackage(selectedPackage)} // Use an arrow function to explicitly pass selectedPackage
+        >
+          Edit
+        </button>
+
+        <button
+          className="delete-button-dashboard"
+          onClick={() => {
+            setShowDeleteConfirmation(true); // Show confirmation overlay
+            setPackageToDelete(selectedPackage); // Set the selected package for deletion
+          }}
+        >
+          Delete
+        </button>
+      </div>
+      {showDeleteConfirmation && (
+  <div className="delete-confirmation-overlay">
+    <div className="confirmation-content">
+      <h3>Are you sure you want to delete this package?</h3>
+      <p>{packageToDelete?.packageName}</p>
+      <div className="confirmation-buttons">
+        <button
+          className="confirm-delete-button"
+          onClick={() => handleConfirmDelete(packageToDelete)}
+        >
+          Yes, Delete
+        </button>
+        <button
+          className="cancel-delete-button"
+          onClick={() => setShowDeleteConfirmation(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import './App.css';
 import { IoArrowBack, IoAdd } from 'react-icons/io5';
 import image1 from './images/event1.png';
@@ -25,6 +26,54 @@ const Package = () => {
 
   const images = [image1, image2, image3];
   const serCategory = ["All", "Food Catering", "Photography", "Video Editing", "Florists", "Venue"];
+
+  const location = useLocation();
+
+useEffect(() => {
+  if (location.state && location.state.packageDetails) {
+    const { packageDetails } = location.state;
+    setPackageName(packageDetails.packageName || '');
+    setEventType(packageDetails.eventType || '');
+    setTotalPrice(packageDetails.totalPrice || '');
+    setCoverPhoto(packageDetails.coverPhoto || null);
+    setServices(packageDetails.services || []);
+  }
+}, [location.state]);
+
+const handleUpdatePackage = () => {
+  if (!packageName || !eventType) {
+    alert("Please fill in all fields and select at least one service.");
+    return;
+  }
+
+  const updatedPackageData = {
+    packageName,
+    eventType,
+    services,
+    totalPrice,
+    coverPhoto,
+  };
+
+  axios.put(`http://localhost:8000/api/admin/packages/${location.state.packageDetails.id}`, updatedPackageData, {
+    headers: {
+      Authorization: `Bearer ${getAuthToken()}`,
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => {
+      console.log('Package updated successfully:', response.data);
+      alert('Package updated successfully!');
+      navigate('/profile'); // Redirect to a suitable page after update
+    })
+    .catch((error) => {
+      console.error('Error updating package:', error);
+      alert('Failed to update package. Please try again.');
+    });
+};
+
+
+
+
 
   useEffect(() => {
     axios.get('http://localhost:8000/api/services', {
@@ -255,7 +304,16 @@ const Package = () => {
           </div>
         </div>
 
-        <button className="create-package-button" onClick={handleCreatePackage}>Create Package</button>
+              {location.state && location.state.packageDetails ? (
+        <button className="create-package-button" onClick={handleUpdatePackage}>
+          Update Package
+        </button>
+      ) : (
+        <button className="create-package-button" onClick={handleCreatePackage}>
+          Create Package
+        </button>
+      )}
+
 
         {showOverlay && (
           <div className="overlay-container-services">
