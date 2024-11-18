@@ -58,7 +58,7 @@ class EventController extends Controller
             'eventStatus' => 'required|string', // e.g., Tentative, Booked, etc.
             'eventLocation' => 'required|string',
             'description' => 'required|string',
-            'coverPhoto' => 'nullable|url',
+            'coverPhoto' => 'nullable|string', // !#TODO kani ang problema oh url sja pero sa db string. c
             'totalPrice' => 'nullable|integer',
             // 'package_id' => 'required|exists:packages,id',
             'packages' => 'nullable|array',
@@ -117,7 +117,74 @@ class EventController extends Controller
         ], 500);
     }
 }
- 
+public function fetchEventsByType(Request $request)
+{
+    try {
+        $eventType = $request->input('type'); // Get the 'eventType' parameter from the request
+
+        if (!$eventType) {
+            return response()->json(['error' => 'Event type is required'], 400); // Return error if eventType is not provided
+        }
+
+        // Fetch events that match the provided event type
+        $events = Event::where('type', $eventType)->get();
+
+        if ($events->isEmpty()) {
+            return response()->json(['error' => 'No events found for this type'], 404); // Return error if no events are found
+        }
+
+        return response()->json($events); // Return the filtered events as a JSON response
+
+    } catch (\Exception $e) {
+        \Log::error('Error fetching events by type: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to fetch events'], 500); // Return error if something goes wrong
+    }
+}
+
+// !Mao ni original
+// public function fetchEventsByDate($date)
+// {
+//     // Fetch events where the date matches
+//     $events = Event::whereDate('date', $date)->get();
+
+//     if ($events->isEmpty()) {
+//         return response()->json(['error' => 'No events found for this date'], 404);
+//     }
+
+//     return response()->json($events);
+//         // Get the count of events on a specific date
+// //         $eventsCount = Event::whereDate('date', $date)
+// //         ->selectRaw('count(*) as count')
+// //         ->first();
+
+// // return response()->json(['count' => $eventsCount->count]);
+      
+// }
+
+public function fetchEventsByDate($date)
+{
+        try {
+                // Get the count of events on a specific date
+                $eventsCount = Event::whereDate('date', $date)
+                ->selectRaw('count(*) as count')
+                        ->first();
+
+                    if ($eventsCount->count >= 3) {
+                        return response()->json(['count' => $eventsCount->count]);
+                    } else {
+                        return response()->json(['count' => 0]);
+                    }
+                } catch (\Throwable $th) {
+                    //throw $th;
+                    return response()->json(['message' => $th->getMessage()], 500);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $e->getMessage(),
+                    ], 500);
+         }
+}
+
  
 
     // public function show($eventId)
@@ -153,6 +220,11 @@ class EventController extends Controller
             ], 500);
         }
     }
+    public function getEventsByType($type)
+{
+    $events = Event::where('type', $type)->get();
+    return response()->json($events);
+}
     public function updateEvent(Request $request, $eventId)
     {
         DB::beginTransaction();
@@ -229,7 +301,52 @@ class EventController extends Controller
         return response()->json($events);
     }
 
-    
+    //function to softdelete event
+    public function deleteEvent($id)
+    {
+        try {
+            $event = Event::findOrFail($id);
+
+            // perform soft dekeying
+            $event->delete(); 
+            return response()->json([
+                'success' => true,
+                'message' => 'Event Deleted Successfully',  //
+            ], 200);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['message' => $th->getMessage()], 500);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Event not found or could not be deleted',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
+    }
+
+    // Method to retrieve deleted events
+    public function restoreEvent($id)
+    {
+        try {
+            $event = Event::withTrashed()->findOrFail($id);
+
+            $event->restore();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Event restored successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Event not found or could not be restored',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
+    }
+
 
     
 }

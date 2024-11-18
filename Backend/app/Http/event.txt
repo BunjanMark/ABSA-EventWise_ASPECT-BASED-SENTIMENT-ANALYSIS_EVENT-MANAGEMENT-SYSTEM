@@ -96,7 +96,7 @@ const CreateEventScreen = ({ navigation }) => {
         eventPax: values.eventPax,
         eventDate: values.eventDate,
         eventTime: values.eventTime,
-        eventStatus: "Tentative", // Add this field #TODO this needs to be discussed !URGENT!!! #FIXME  // !URGENT!!!
+        eventStatus: "Tentative", 
         eventLocation: values.eventLocation,
         description: values.description,
         coverPhoto: values.coverPhoto,

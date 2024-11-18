@@ -11,10 +11,16 @@ import {
   deletePackage,
 } from "../../../../services/organizer/adminPackageServices";
 import PackageCard from "../../screens/package/PackageCard";
+import EventCard from "./EventCard";
+import { fetchEvents } from "../../../../services/organizer/adminEventServices";
+import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
+import { deleteEvent } from "../../../../services/organizer/adminEventServices";
 const EventAdmin = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { currentPackages, setCurrentPackages } = usePackageStore();
+  const { currentEvents, setCurrentEvents } = useEventStore();
   const [likedPackages, setlikedPackages] = useState({});
+  const [likedEvents, setlikedEvents] = useState({});
   // console.log("packages in EventAdmin:", currentPackages);
   const toggleLike = (currentPackagesId) => {
     setlikedPackages((prevLikedPackages) => {
@@ -27,18 +33,19 @@ const EventAdmin = () => {
       return newLikedPackages;
     });
   };
-  const refreshPackages = useCallback(async () => {
-    setRefreshing(true); // Start refreshing
-    try {
-      const updatedPackages = await fetchPackages();
-      setCurrentPackages(updatedPackages); // Update services in store
-      // console.log("Packages eventAdmin:" + JSON.stringify(updatedPackages));
-    } catch (error) {
-      console.error("Failed to fetch services", error);
-    } finally {
-      setRefreshing(false); // Stop refreshing
-    }
-  }, [setCurrentPackages]);
+
+  const toggleLikeEvent = (currentEventsID) => {
+    setlikedEvents((prevLikedPackages) => {
+      const newLikedEvents = { ...prevLikedPackages };
+      if (newLikedEvents[currentEventsID]) {
+        delete newLikedEvents[currentEventsID];
+      } else {
+        newLikedEvents[currentEventsID] = true;
+      }
+      return newLikedEvents;
+    });
+  };
+
   const handleEditPackage = async (currentPackageId, updatedData) => {
     try {
       await updateService(serviceId, updatedData); // Perform the update action
@@ -49,7 +56,7 @@ const EventAdmin = () => {
   };
 
   // Modify the deleteService to call refreshServices after deleting
-  const handleDeletePackage = async (id) => {
+  const handleDeletePackage = async (events) => {
     try {
       await deletePackage(id); // Assuming deleteService is a valid function
       refreshPackages(); // Refresh the service list after deletion
@@ -58,19 +65,85 @@ const EventAdmin = () => {
     }
   };
 
+  // *!----- for events
+
+  const handleDeleteEvent = async (id) => {
+    try {
+      await deleteEvent(id);
+      refreshPackages();
+    } catch (error) {
+      console.error("Failed to delete event", error);
+    }
+  };
+
+  const handleEditEvent = async (currentEventId, updateEvent) => {
+    try {
+      await updateEvent(currentEventId, updateEvent);
+      refreshEvents(); // Refresh the events list after editing
+    } catch (error) {
+      console.error("Failed to update event", error);
+    }
+  };
+
+  const refreshPackages = useCallback(async () => {
+    setRefreshing(true); // Start refreshing
+    try {
+      const updatedPackages = await fetchPackages();
+      setCurrentPackages(updatedPackages); // Update packages in store
+    } catch (error) {
+      console.error("Failed to fetch packages", error);
+    } finally {
+      setRefreshing(false); // Stop refreshing
+    }
+  }, [setCurrentPackages]);
+
+  const refreshEvents = useCallback(async () => {
+    setRefreshing(true); // Start refreshing
+    try {
+      const updatedEvents = await fetchEvents();
+      setCurrentEvents(updatedEvents); // Update events in store
+    } catch (error) {
+      console.error("Failed to fetch events", error);
+    } finally {
+      setRefreshing(false); // Stop refreshing
+    }
+  }, [setCurrentEvents]);
   return (
     <SafeAreaView style={[styles.container, { paddingBottom: 100 }]}>
       <ScrollView
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={refreshPackages} // Trigger refresh on pull-to-refresh
-            colors={["#ff9900"]} // Customize color for the refresh indicator
-            tintColor="#ff9900" // Customize the spinner color
+            onRefresh={() => {
+              refreshEvents();
+              refreshPackages();
+            }} // Trigger both refresh functions
+            colors={["#ff9900"]}
+            tintColor="#ff9900"
           />
-        }
+        } // Trigger refresh on pull-to-refresh
       >
         <EventManager />
+        <View style={[]}>
+          <FlatList
+            data={currentEvents}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={true}
+            contentContainerStyle={{ gap: 20 }}
+            accessibilityViewIsModal={true}
+            accessibilityModalRoot={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <EventCard
+                currentEvents={item}
+                handleDeleteEvent={handleDeleteEvent}
+                likedEvent={likedEvents}
+                toggleLike={toggleLikeEvent}
+                handleEditEvent={handleEditEvent}
+              />
+            )}
+          />
+        </View>
         <PackageManager />
         <View style={[]}>
           <FlatList

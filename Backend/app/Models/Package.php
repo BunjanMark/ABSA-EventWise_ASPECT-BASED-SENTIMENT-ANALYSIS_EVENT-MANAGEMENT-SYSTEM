@@ -18,6 +18,7 @@ class Package extends Model
     protected $fillable = [
         'packageName',
         'eventType',
+        'packageType',
         'services',
         'totalPrice',
         'coverPhoto',
