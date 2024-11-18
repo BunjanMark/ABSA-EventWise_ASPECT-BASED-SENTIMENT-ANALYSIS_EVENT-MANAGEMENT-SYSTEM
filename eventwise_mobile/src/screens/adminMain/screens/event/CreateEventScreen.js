@@ -9,6 +9,7 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import { Button } from "react-native-paper";
 import { Formik, FieldArray } from "formik";
@@ -21,18 +22,24 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import selectimage from "../../../../../assets/selectimage.png";
 import { useServicesStore } from "../../../../stateManagement/admin/useServicesStore";
 import { fetchServices } from "../../../../services/organizer/adminPackageServices";
-import { createEvent } from "../../../../services/organizer/adminEventServices";
+import {
+  createEvent,
+  fetchEvents,
+} from "../../../../services/organizer/adminEventServices";
 import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
 import { fetchPackages } from "../../../../services/organizer/adminPackageServices";
+
 import DateTimePicker from "@react-native-community/datetimepicker";
+import CalendarPicker from "react-native-calendar-picker";
+import { fetchEventsByDate } from "../../../../services/organizer/adminEventServices";
 const CreateEventScreen = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPackages, setCurrentPackages] = useState([]);
   const { services, setServices } = useServicesStore();
-  const [date, setDate] = useState(new Date());
+
   const [time, setTime] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [selected, setSelected] = useState([]);
   // Validation schema
@@ -46,7 +53,7 @@ const CreateEventScreen = ({ navigation }) => {
     eventTime: Yup.string().required("Event time is required"),
     eventLocation: Yup.string().required("Event location is required"),
     description: Yup.string().required("Description is required"),
-    currentPackages: Yup.array(), // !!Work with packages #TODO work event packages it must be array, and self will be notified
+    currentPackages: Yup.array(),
     // coverPhoto: Yup.string()
     //   .url("Must be a valid URL")
     //   .required("Cover photo URL is required"),
@@ -67,10 +74,10 @@ const CreateEventScreen = ({ navigation }) => {
     const loadPackages = async () => {
       try {
         const fetchedPackages = await fetchPackages();
-        console.log(
-          "Fetched packages (eventAdmin): ",
-          JSON.stringify(fetchedPackages, null, 2)
-        );
+        // console.log(
+        //   "Fetched packages (eventAdmin): ",
+        //   JSON.stringify(fetchedPackages, null, 2)
+        // );
         setCurrentPackages(fetchedPackages); // Set the state
       } catch (error) {
         console.error("Error fetching packages:", error);
@@ -79,7 +86,7 @@ const CreateEventScreen = ({ navigation }) => {
     };
     loadPackages();
   }, [setCurrentPackages]);
-  console.log("fetched packages: " + JSON.stringify(currentPackages, null, 2));
+  // console.log("fetched packages: " + JSON.stringify(currentPackages, null, 2));
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -100,16 +107,24 @@ const CreateEventScreen = ({ navigation }) => {
 
       if (values.coverPhoto) {
         const fileName = `package_cover_${Date.now()}.jpg`;
-        console.log("Uploading image to server:", fileName);
-
-        // Replace with your actual image upload logic
         coverPhotoURL = await testUploadImageToSupabase(
           values.coverPhoto,
           fileName
         );
-        console.log("Image uploaded successfully. URL:", coverPhotoURL);
       }
-
+      // Fetch existing events for the selected date
+      const existingEvents = await fetchEventsByDate(values.eventDate);
+      console.log(
+        "event date" + values.eventDate + " events: " + existingEvents
+      );
+      // Check if the number of events for the selected date is less than 3
+      if (existingEvents.length >= 3) {
+        Alert.alert(
+          "Event Limit Reached",
+          `You cannot create more than 3 events on ${values.eventDate}.`
+        );
+        return;
+      }
       const newEvent = {
         eventName: values.eventName,
         eventType: values.eventType,
@@ -121,26 +136,59 @@ const CreateEventScreen = ({ navigation }) => {
         eventLocation: values.eventLocation,
         description: values.description,
         guests: values.guests,
-        coverPhoto: null,
+        coverPhoto: coverPhotoURL !== null ? coverPhotoURL : null,
       };
 
       console.log("New event data:", newEvent);
       const result = await createEvent(newEvent);
 
-      Alert.alert("Success", "eevnt created successfully!");
-      console.log("Server response:", result);
+      Alert.alert("Success", "Event created successfully!");
       resetForm();
     } catch (error) {
       console.error("Error creating event:", error);
       Alert.alert(
         "Error",
         error.response?.data?.message ||
-          "An error occurred while creating the package. Please try again."
+          "An error occurred while creating the event. Please try again."
       );
     } finally {
       setIsLoading(false);
     }
   };
+  const [datesWithThreeOrMoreEvents, setDatesWithThreeOrMoreEvents] = useState(
+    []
+  );
+
+  useEffect(() => {
+    const fetchDatesWithThreeOrMoreEvents = async () => {
+      try {
+        const dates = await fetchEvents(); // fetch all events
+        console.log("from fetchDatesWithThreeOrMoreEvents", dates);
+        if (dates.length === 0) {
+          console.log("No events found");
+          return;
+        }
+        const datesWithThreeOrMoreEvents = dates.reduce((acc, event) => {
+          const date = event.date;
+          if (!acc.includes(date)) {
+            const eventsOnDate = dates.filter((e) => e.date === date);
+            if (eventsOnDate.length >= 3) {
+              acc.push(date);
+            }
+          }
+          return acc;
+        }, []);
+        setDatesWithThreeOrMoreEvents(datesWithThreeOrMoreEvents);
+      } catch (error) {
+        console.error("Error fetching dates with three or more events:", error);
+      }
+    };
+    fetchDatesWithThreeOrMoreEvents();
+  }, []);
+
+  useEffect(() => {
+    console.log("Dates with three or more events:", datesWithThreeOrMoreEvents);
+  }, [datesWithThreeOrMoreEvents]);
   const renderItem = (item) => (
     <View style={styles.item}>
       <Text style={styles.selectedTextStyle}>{item.label}</Text>
@@ -189,6 +237,9 @@ const CreateEventScreen = ({ navigation }) => {
       );
     }
   };
+
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -254,7 +305,6 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.eventName && errors.eventName && (
                 <Text style={styles.errorText}>{errors.eventName}</Text>
               )}
-
               <RNPickerSelect
                 onValueChange={(value) => setFieldValue("eventType", value)}
                 items={[
@@ -268,7 +318,6 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.eventType && errors.eventType && (
                 <Text style={styles.errorText}>{errors.eventType}</Text>
               )}
-
               <TextInput
                 style={styles.input}
                 placeholder="Event Pax"
@@ -280,33 +329,59 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.eventPax && errors.eventPax && (
                 <Text style={styles.errorText}>{errors.eventPax}</Text>
               )}
-
-              <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              {/* // !------ */}
+              <TouchableOpacity onPress={() => setShowCalendar(true)}>
                 <Text style={styles.datePicker}>
-                  {values.eventDate ? values.eventDate : "Select Event Date"}
+                  {selectedDate
+                    ? `Selected Date: ${
+                        selectedDate.toISOString().split("T")[0]
+                      }`
+                    : "Pick an Event Date"}
                 </Text>
               </TouchableOpacity>
-              {showDatePicker && (
-                <DateTimePicker
-                  value={date}
-                  mode="date"
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowDatePicker(false);
-                    if (selectedDate) {
-                      setDate(selectedDate);
-                      setFieldValue(
-                        "eventDate",
-                        selectedDate.toISOString().split("T")[0]
-                      );
-                    }
-                  }}
-                />
+              {showCalendar && (
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={showCalendar}
+                  onRequestClose={() => setShowCalendar(false)}
+                  style={styles.modalContainer}
+                >
+                  <View style={styles.modalContainer}>
+                    <CalendarPicker
+                      onDateChange={(date) => {
+                        setShowCalendar(false);
+                        setSelectedDate(date);
+                        setFieldValue(
+                          "eventDate",
+                          date.toISOString().split("T")[0]
+                        );
+                      }}
+                      disabledDates={datesWithThreeOrMoreEvents}
+                      minDate={new Date()}
+                      maxDate={
+                        new Date(
+                          new Date().getFullYear(),
+                          new Date().getMonth() + 6,
+                          new Date().getDate()
+                        )
+                      }
+                      selectedDate={selectedDate}
+                    />
+                    <Button
+                      onPress={() => setShowCalendar(false)}
+                      mode="contained"
+                      style={styles.closeButton}
+                    >
+                      Close
+                    </Button>
+                  </View>
+                </Modal>
               )}
               {touched.eventDate && errors.eventDate && (
                 <Text style={styles.errorText}>{errors.eventDate}</Text>
               )}
-
+              {/* // !--------------------- */}
               <TouchableOpacity onPress={() => setShowTimePicker(true)}>
                 <Text style={styles.datePicker}>
                   {values.eventTime ? values.eventTime : "Select Event Time"}
@@ -336,7 +411,6 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.eventTime && errors.eventTime && (
                 <Text style={styles.errorText}>{errors.eventTime}</Text>
               )}
-
               <TextInput
                 style={styles.input}
                 placeholder="Event Location"
@@ -409,7 +483,6 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.description && errors.description && (
                 <Text style={styles.errorText}>{errors.description}</Text>
               )}
-
               <TextInput
                 style={styles.input}
                 placeholder="Cover Photo URL"
@@ -420,7 +493,6 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.coverPhoto && errors.coverPhoto && (
                 <Text style={styles.errorText}>{errors.coverPhoto}</Text>
               )}
-
               <FieldArray name="guests">
                 {({ remove, push }) => (
                   <View>
@@ -461,7 +533,6 @@ const CreateEventScreen = ({ navigation }) => {
                   </View>
                 )}
               </FieldArray>
-
               <Button
                 mode="contained"
                 onPress={handleSubmit}
@@ -480,6 +551,23 @@ const CreateEventScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  selectedDateText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: "black",
+  },
+  modalContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF",
+    top: 200,
+    height: "50%",
+  },
+  calendarContainer: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+  },
   container: {
     flexGrow: 1,
     padding: 16,

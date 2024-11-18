@@ -4,95 +4,78 @@ import { View, Text, TouchableOpacity, Image } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect } from "react";
-import { fetchPackageServiceDetails } from "../../../../services/organizer/adminPackageServices";
-const PackageCard = ({
-  currentPackages,
-  likedPackages,
+
+const EventCard = ({
+  currentEvents,
+  likedEvents,
   toggleLike,
-  handleDeletePackage,
-  handleEditService,
+  handleDeleteEvent,
+  handleEditEvent,
 }) => {
-  // console.log("service pasesed: ", service);
   const navigation = useNavigation();
-  const [serviceDetails, setServiceDetails] = useState([]);
+  const [eventDetails, setEventDetails] = useState([]);
+
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        if (currentPackages) {
-          const details = await fetchPackageServiceDetails(currentPackages.id);
-
-          setServiceDetails(details);
+        if (currentEvents) {
+          const details = await fetchEventDetails(currentEvents?.id);
+          console.log("fetch event details in the card: " + details);
+          setEventDetails(details);
         }
       } catch (error) {
-        console.log("Error fetching package service details: ", error);
+        console.log("Error fetching event details: ", error);
       }
     };
     fetchDetails();
-  }, [currentPackages]);
+  }, [currentEvents]);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate("PackageCardDetails", {
-            packageData: currentPackages,
+          navigation.navigate("EventCardDetails", {
+            eventData: currentEvents,
           })
         }
       >
         <Image
           source={{
-            uri: currentPackages.coverPhoto,
+            uri: currentEvents?.coverPhoto || "defaultImageURL", // Fallback if coverPhoto is undefined
           }}
           style={styles.image}
         />
-
         <View style={styles.serviceCardHeader}>
-          <Text style={styles.serviceName}>{currentPackages.packageName}</Text>
+          <Text style={styles.serviceName}>
+            {currentEvents?.name || "Default Event Name"}
+          </Text>
           <TouchableOpacity
-            onPress={() => toggleLike(currentPackages.id)}
+            onPress={() => toggleLike(currentEvents?.id)}
             style={styles.heartIcon}
           >
             <MaterialCommunityIcons
               name={
-                likedPackages[currentPackages.id] ? "heart" : "heart-outline"
+                likedEvents?.[currentEvents?.id] ? "heart" : "heart-outline"
               }
-              color={likedPackages[currentPackages.id] ? "#FF0000" : "#888"}
+              color={likedEvents?.[currentEvents?.id] ? "#FF0000" : "#888"}
               size={25}
             />
           </TouchableOpacity>
         </View>
-        <View style={styles.serviceDetails}>
-          <View>
-            <Text style={styles.serviceCategory}>
-              Package Type: {currentPackages.eventType}
-            </Text>
-          </View>
-        </View>
-        <View>
-          <Text style={styles.servicePrice}>
-            Price: ₱{currentPackages.totalPrice}
-          </Text>
-        </View>
-        <Text style={styles.serviceFeatures} numberOfLines={2}>
-          Inclusions:
-          {serviceDetails.map((service, index) => (
-            <Text key={index}>
-              {"   "}• {service.serviceName}
-            </Text>
-          ))}
+        <Text style={styles.serviceCategory}>
+          Event Type: {currentEvents?.type || "Not specified"}
         </Text>
-        <Text style={styles.serviceFeaturesDetails} numberOfLines={2}>
-          {currentPackages.serviceFeatures}
-        </Text>
+        {/* <Text style={styles.servicePrice}>
+          Price: ₱{currentEvents?.totalPrice || "0.00"}
+        </Text> */}
       </TouchableOpacity>
-      {/* <Text style={styles.serviceFeatures} numberOfLines={2}>
-        {"   "}• {service.serviceFeatures}
-      </Text> */}
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.updateButton}
           onPress={() => {
             navigation.navigate("EditPackageScreen", {
-              packageData: currentPackages,
+              eventData: currentEvents,
             }); // Pass service data to the Edit screen
           }}
         >
@@ -100,7 +83,7 @@ const PackageCard = ({
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.deleteButton}
-          onPress={() => handleDeletePackage(currentPackages.id)} // Now using the prop
+          onPress={() => handleDeleteEvent(currentEvents?.id)} // Now using the prop
         >
           <Text style={styles.buttonText}>Delete</Text>
         </TouchableOpacity>
@@ -193,4 +176,5 @@ const styles = {
     fontSize: 14,
   },
 };
-export default PackageCard;
+
+export default EventCard;

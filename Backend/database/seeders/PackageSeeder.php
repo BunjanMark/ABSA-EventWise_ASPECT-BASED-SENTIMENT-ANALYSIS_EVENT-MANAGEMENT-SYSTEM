@@ -16,7 +16,9 @@ class PackageSeeder extends Seeder
         DB::table('packages')->insert([
             'packageName' => 'mr and malik wedding',
             'eventType' => 'Wedding',
+            'packageType' => 1, //it's predefined
             'totalPrice' => 1000.00,
+            
             'coverPhoto' => 'https://example.com/package1.jpg',
             'services' => json_encode("[1, 2]"), // Store services as JSON
         ]);

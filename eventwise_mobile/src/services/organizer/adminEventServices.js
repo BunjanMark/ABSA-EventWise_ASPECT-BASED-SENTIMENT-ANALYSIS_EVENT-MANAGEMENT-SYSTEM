@@ -26,7 +26,45 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+// function to fetch all the events based on the date
+const fetchEventsByDate1 = async (date) => {
+  try {
+    const response = await fetch(
+      `https://your-api-url.com/api/events?date=${date}`
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch events");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching events by date:", error);
+    return [];
+  }
+};
+const fetchEventsByDate = async (date) => {
+  try {
+    console.log("date", date);
+    const response = await api.get(`/admin/events/by-date/${date}`);
+    // console.log("fetched events: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+};
 
+// function to fetch all the events
+
+const fetchEvents = async () => {
+  try {
+    const response = await api.get("/admin/events");
+    console.log("fetched events: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+};
 // Function to create a new service
 const createService = async (serviceData) => {
   try {
@@ -109,6 +147,17 @@ const updateService = async (id, updatedService) => {
   }
 };
 
+//  *!------
+const deleteEvent = async (id) => {
+  try {
+    const response = await api.delete(`/admin/events/${id}`);
+    console.log("deleted event in eventservice: ", response);
+    console.log(response);
+  } catch (error) {
+    console.error("Delete event error:", error);
+    throw error;
+  }
+};
 // function to delete a package
 const deletePackage = async (id) => {
   console.log("deleting package: ", id);
@@ -150,6 +199,7 @@ const fetchPackages = async () => {
     throw error;
   }
 };
+
 // Function to fetch all services
 const fetchServices = async () => {
   try {
@@ -186,6 +236,8 @@ const createEvent = async (eventData) => {
     const formattedEventTime = formatTimeTo24Hour(eventData.eventTime);
     eventData.eventTime = formattedEventTime; // Update eventData with formatted time
 
+    // reassign eventData to match backend validation
+
     console.log("Event data submission: ", eventData);
     const response = await api.post("/admin/events", eventData);
     console.log("Created event: ", response.data);
@@ -199,14 +251,28 @@ const createEvent = async (eventData) => {
     throw error;
   }
 };
+const updateEvent = async (id, updateEvent) => {
+  try {
+    const response = await api.put(`/admin/events/${id}`, updateEvent);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating event:<<:", error);
+    throw error;
+  }
+};
 
 export {
+  updateEvent,
   createEvent,
   fetchMyServices,
   updatePackage,
   createPackage,
   deletePackage,
+  fetchEventsByDate,
   fetchServices,
+  fetchEvents,
   fetchPackages,
   fetchPackageServiceDetails,
+  deleteEvent,
 };
