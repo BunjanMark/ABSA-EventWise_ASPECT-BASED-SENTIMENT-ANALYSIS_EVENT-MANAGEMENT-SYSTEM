@@ -60,44 +60,7 @@ class ServiceController extends Controller
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
-    // Define this function in your ServiceController or a dedicated UserRole service class
-  
-
- 
-// public function store (Request $request)
-//     {
-//         try {
-//             $user = Auth::user();
-//             $account = $user->accountRoles()->first();
-
-//             if (!$account || $account->role_id != 3) {
-//                 return response()->json(['message' => 'Unauthorized. Only service providers can create services.'], 403);
-//             }
-
-
-//             $validatedData = $request->validate([
-//                 'serviceName' => 'required|string|max:255',
-//                 'serviceCategory' => 'required|string|max:255',
-//                 'basePrice' => 'required|numeric|min:0',
-//                 'pax' => 'required|integer|min:1',
-//                 'requirements' => 'nullable|string',
-//                 'availability_status' => 'boolean',
-//             ]);
-
-//             $validatedData['user_id'] = $user->id;
-//             $validatedData['role_id'] = $user->role_id;
-//             $validatedData['submitted_by'] = $user->name;
-//             $validatedData['submitted_at'] = now();
-
-//             $service = Service::create($validatedData);
-
-//             return response()->json($service, 201);
-//         } catch (ValidationException $e) {
-//             return response()->json(['status' => 'error', 'errors' => $e->errors()], 422);
-//         } catch (\Throwable $th) {
-//             return response()->json(['message' => $th->getMessage()], 500);
-//         }
-//     }
+   
 public function store(Request $request)
 {
     try {

@@ -150,7 +150,7 @@ const Profile = () => {
           <div className="packages-list-profile"> {/* New wrapper for package items */}
           <div className="broken-box-profile">
               <p className="broken-box-text">Add New Package</p>
-              <button className="add-package-button-profile" onClick={() => navigate('/create-event-portfolio')}>
+              <button className="add-package-button-profile" onClick={() => navigate('/package')}>
                 Add Package
               </button>
             </div>

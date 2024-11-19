@@ -19,20 +19,6 @@ class EventController extends Controller
     // Return the events as a JSON response
     return response()->json($events);
 }
-    // public function index(){
-    //     try {
-    //         $events = Event::all(); //retrieve all events
-    //         return response()->json($packages, 200); //return with 200 status
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
-    // function to add events
- // Store a new event with package
  public function eventsForDay($date)
 {
     $events = Event::whereDate('date', $date)->get();
@@ -60,7 +46,7 @@ class EventController extends Controller
             'description' => 'required|string',
             'coverPhoto' => 'nullable|url',
             'totalPrice' => 'nullable|integer',
-            // 'package_id' => 'required|exists:packages,id',
+            'package_id' => 'required|exists:packages,id',
             'packages' => 'nullable|array',
             'guests' => 'required|array',
             'guests.*.GuestName' => 'required|string|max:255',
@@ -88,8 +74,8 @@ class EventController extends Controller
             'location' => $validatedData['eventLocation'],
             'description' => $validatedData['description'],
             'cover_photo' => $validatedData['coverPhoto'],
-            // 'package_id' => $validatedData['package_id'],
-            'packages' => json_encode($validatedData['packages']), // Store packages as JSON
+            'package_id' => $validatedData['package_id'],
+            // 'packages' => json_encode($validatedData['packages']), // Store packages as JSON
             'user_id' => $validatedData['user_id'], // Now user_id is explicitly set
         ]);
 
@@ -118,21 +104,6 @@ class EventController extends Controller
     }
 }
  
- 
-
-    // public function show($eventId)
-    // {
-    //     // Retrieve the event by ID
-    //     $event = Event::with('guests')->find($eventId);
-
-    //     // Check if the event exists
-    //     if (!$event) {
-    //         return response()->json(['error' => 'Event not found'], 404);
-    //     }
-
-    //     // Return the event details as a JSON response
-    //     return response()->json($event);
-    // }
     public function showEventById($eventId)
     {
         try {

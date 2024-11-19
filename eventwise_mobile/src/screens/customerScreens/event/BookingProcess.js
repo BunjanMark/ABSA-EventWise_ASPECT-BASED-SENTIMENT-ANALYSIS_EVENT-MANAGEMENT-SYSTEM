@@ -1,121 +1,203 @@
-import pickerSelectStyles from "../style/pickerSelectStyles";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Modal,
+  ScrollView,
+  Image,
+  Platform,
+  Alert,
   View,
   Text,
   TextInput,
-  Button,
-  Image,
+  StyleSheet,
   TouchableOpacity,
-  Alert,
-  Platform,
-  ScrollView,
-  FlatList,
+  Modal,
 } from "react-native";
-import useStore from "../../../stateManagement/useStore";
+import { Button } from "react-native-paper";
+import { Formik, FieldArray } from "formik";
+import * as Yup from "yup";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 import RNPickerSelect from "react-native-picker-select";
+import { MultiSelect } from "react-native-element-dropdown";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import selectimage from "../pictures/selectimage.png";
+import { useServicesStore } from "../../../stateManagement/serviceProvider/useServiceStore";
+import { fetchServices } from "../../../services/organizer/adminPackageServices";
+import {
+  createEvent,
+  fetchEvents,
+} from "../../../services/organizer/adminEventServices";
+import { testUploadImageToSupabase } from "../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
+import { fetchPackages } from "../../../services/organizer/adminPackageServices";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { StyleSheet } from "react-native";
-import event2 from "../../../../assets/event2.png";
-import selectimage from "../../../../assets/selectimage.png";
+import CalendarPicker from "react-native-calendar-picker";
+import { fetchEventsByDate } from "../../../../services/organizer/adminEventServices";
+const BookingProcess = ({ navigation }) => {
+  const [imageUri, setImageUri] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPackages, setCurrentPackages] = useState([]);
+  const { services, setServices } = useServicesStore();
 
-const BookingProcess = ({ visible, onClose, type }) => {
-  const { addEvent, addEventPackage, eventPackages, servicesList } = useStore();
+  const [time, setTime] = useState(new Date());
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const [title, setTitle] = useState("");
-  const [eventType, setEventType] = useState("");
-  const [eventDate, setEventDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [eventTime, setEventTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [location, setLocation] = useState("");
-  const [description, setDescription] = useState("");
-  const [coverPhoto, setCoverPhoto] = useState(null);
-  const [filteredPackages, setFilteredPackages] = useState([]);
-  const [selectedPackage, setSelectedPackage] = useState(null);
-  const [packageName, setPackageName] = useState("");
-  const [packageEventType, setPackageEventType] = useState("");
-  const [selectedServices, setSelectedServices] = useState({});
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [guests, setGuests] = useState([{ name: "", email: "" }]);
+  const [selected, setSelected] = useState([]);
+  // Validation schema
+  const validationSchema = Yup.object().shape({
+    eventName: Yup.string().required("Event name is required"),
+    eventType: Yup.string().required("Event type is required"),
+    eventPax: Yup.number()
+      .required("Event pax is required")
+      .min(1, "Minimum 1 pax is required"),
+    eventDate: Yup.date().required("Event date is required"),
+    eventTime: Yup.string().required("Event time is required"),
+    eventLocation: Yup.string().required("Event location is required"),
+    description: Yup.string().required("Description is required"),
+    currentPackages: Yup.array(),
+    // coverPhoto: Yup.string()
+    //   .url("Must be a valid URL")
+    //   .required("Cover photo URL is required"),
+    guests: Yup.array().of(
+      Yup.object().shape({
+        GuestName: Yup.string().required("Guest name is required"),
+        email: Yup.string()
+          .email("Invalid email")
+          .required("Email is required"),
+      })
+    ),
+  });
+  // Fetch packages on mount
+  // console.log("setPackages function:" );
+
+  // Fetch packages on mount
+  useEffect(() => {
+    const loadPackages = async () => {
+      try {
+        const fetchedPackages = await fetchPackages();
+        // console.log(
+        //   "Fetched packages (eventAdmin): ",
+        //   JSON.stringify(fetchedPackages, null, 2)
+        // );
+        setCurrentPackages(fetchedPackages); // Set the state
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+        Alert.alert("Error", "Unable to load packages. Please try again.");
+      }
+    };
+    loadPackages();
+  }, [setCurrentPackages]);
+  // console.log("fetched packages: " + JSON.stringify(currentPackages, null, 2));
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const fetchedServices = await fetchServices();
+        setServices(fetchedServices);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        Alert.alert("Error", "Unable to load services. Please try again.");
+      }
+    };
+    loadServices();
+  }, [setServices]);
+
+  const handleCreateEvent = async (values, resetForm) => {
+    setIsLoading(true);
+    try {
+      let coverPhotoURL = null;
+
+      if (values.coverPhoto) {
+        const fileName = `package_cover_${Date.now()}.jpg`;
+        coverPhotoURL = await testUploadImageToSupabase(
+          values.coverPhoto,
+          fileName
+        );
+      }
+      // Fetch existing events for the selected date
+      const existingEvents = await fetchEventsByDate(values.eventDate);
+      console.log(
+        "event date" + values.eventDate + " events: " + existingEvents
+      );
+      // Check if the number of events for the selected date is less than 3
+      if (existingEvents.length >= 3) {
+        Alert.alert(
+          "Event Limit Reached",
+          `You cannot create more than 3 events on ${values.eventDate}.`
+        );
+        return;
+      }
+      const newEvent = {
+        eventName: values.eventName,
+        eventType: values.eventType,
+        eventPax: values.eventPax,
+        eventStatus: "Tenative",
+        packages: selected,
+        eventDate: values.eventDate,
+        eventTime: values.eventTime,
+        eventLocation: values.eventLocation,
+        description: values.description,
+        guests: values.guests,
+        coverPhoto: coverPhotoURL !== null ? coverPhotoURL : null,
+      };
+
+      console.log("New event data:", newEvent);
+      const result = await createEvent(newEvent);
+
+      Alert.alert("Success", "Event created successfully!");
+      resetForm();
+    } catch (error) {
+      console.error("Error creating event:", error);
+      Alert.alert(
+        "Error",
+        error.response?.data?.message ||
+          "An error occurred while creating the event. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const [datesWithThreeOrMoreEvents, setDatesWithThreeOrMoreEvents] = useState(
+    []
+  );
 
   useEffect(() => {
-    if (eventType) {
-      const packages = eventPackages.filter(
-        (pkg) => pkg.eventType?.toLowerCase() === eventType.toLowerCase()
-      );
-      setFilteredPackages(packages);
-    } else {
-      setFilteredPackages([]);
-    }
-  }, [eventType, eventPackages]);
+    const fetchDatesWithThreeOrMoreEvents = async () => {
+      try {
+        const dates = await fetchEvents(); // fetch all events
+        console.log("from fetchDatesWithThreeOrMoreEvents", dates);
+        if (dates.length === 0) {
+          console.log("No events found");
+          return;
+        }
+        const datesWithThreeOrMoreEvents = dates.reduce((acc, event) => {
+          const date = event.date;
+          if (!acc.includes(date)) {
+            const eventsOnDate = dates.filter((e) => e.date === date);
+            if (eventsOnDate.length >= 3) {
+              acc.push(date);
+            }
+          }
+          return acc;
+        }, []);
+        setDatesWithThreeOrMoreEvents(datesWithThreeOrMoreEvents);
+      } catch (error) {
+        console.error("Error fetching dates with three or more events:", error);
+      }
+    };
+    fetchDatesWithThreeOrMoreEvents();
+  }, []);
 
-  const handleAddInclusion = (serviceName) => {
-    // Check if the service is already included
-    const alreadyIncluded = selectedPackage.services.includes(serviceName);
-
-    // Update the selected package's inclusions
-    const updatedServices = alreadyIncluded
-      ? selectedPackage.services.filter((service) => service !== serviceName) // Remove if already included
-      : [...selectedPackage.services, serviceName]; // Add if not included
-
-    setSelectedPackage((prevState) => ({
-      ...prevState,
-      services: updatedServices,
-    }));
-
-    // Calculate the new total price
-    const additionalServices = updatedServices.reduce((acc, service) => {
-      const foundService = servicesList.find((s) => s.serviceName === service);
-      return acc + (foundService ? foundService.basePrice : 0);
-    }, 0);
-
-    // Update the total price
-    setTotalPrice(additionalServices);
-  };
-
-  const PackageDetails = ({ selectedPackage }) => {
-    return (
-      <View style={styles.packageDetailsContainer}>
-        <Text style={styles.packageName}>Package Details:</Text>
-        <Text>
-          Package name:{" "}
-          <Text style={styles.packageName}>{selectedPackage.packageName}</Text>
-        </Text>
-
-        <Text style={styles.packageType}>
-          Package type: {selectedPackage.eventType}
-        </Text>
-        <Text style={styles.packageInclusions}>Package Inclusions:</Text>
-        <View style={styles.servicesContainer}>
-          {selectedPackage.services.map((service, index) => (
-            <Text key={index} style={styles.service}>
-              • {service}
-            </Text>
-          ))}
-        </View>
-        <Text>
-          Package Price:
-          <Text style={styles.packagePrice}>
-            {totalPrice + (selectedPackage?.basePrice || 0)}
-          </Text>
-        </Text>
-
-        <Text style={styles.packageDate}>
-          {selectedPackage.packageCreatedDate}
-        </Text>
-      </View>
-    );
-  };
-  const handleCoverPhotoSelection = async () => {
+  useEffect(() => {
+    console.log("Dates with three or more events:", datesWithThreeOrMoreEvents);
+  }, [datesWithThreeOrMoreEvents]);
+  const renderItem = (item) => (
+    <View style={styles.item}>
+      <Text style={styles.selectedTextStyle}>{item.label}</Text>
+      <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
+    </View>
+  );
+  const handleImagePicker = async (setFieldValue) => {
     try {
-      // Request permission to access the gallery
       const permissionResult =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
-
       if (!permissionResult.granted) {
         Alert.alert(
           "Permission Required",
@@ -124,20 +206,27 @@ const BookingProcess = ({ visible, onClose, type }) => {
         return;
       }
 
-      // Launch the image picker
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
+        quality: 0.7,
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedUri = result.assets[0].uri;
-        // console.log("Selected image URI:", selectedUri); // Debugging
-        setCoverPhoto(selectedUri); // Update state with selected image URI
-      } else {
-        // console.log("Image selection was canceled."); // Debugging
+        const manipulatedResult = await ImageManipulator.manipulateAsync(
+          selectedUri,
+          [{ resize: { width: 800 } }],
+          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+        );
+
+        let uri = manipulatedResult.uri;
+        if (Platform.OS === "android" && !uri.startsWith("file://")) {
+          uri = `file://${uri}`;
+        }
+
+        setFieldValue("coverPhoto", uri);
+        setImageUri(uri);
       }
     } catch (error) {
       console.error("Error selecting cover photo:", error);
@@ -148,661 +237,392 @@ const BookingProcess = ({ visible, onClose, type }) => {
     }
   };
 
-  const handleAddGuest = () => {
-    setGuests([...guests, { name: "", email: "" }]);
-  };
-
-  const updateGuest = (index, field, value) => {
-    setGuests((prevGuests) =>
-      prevGuests.map((guest, i) =>
-        i === index ? { ...guest, [field]: value } : guest
-      )
-    );
-  };
-
-  const handleAdd = () => {
-    if (!title || !eventType || !eventDate || !eventTime || !location) {
-      Alert.alert("Error", "Please fill in all required fields.");
-      return;
-    }
-
-    const newEvent = {
-      eventId: Date.now().toString(),
-      eventName: title,
-      eventType,
-      eventDate: eventDate.toISOString().split("T")[0],
-      eventTime: eventTime.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      eventLocation: location,
-      eventDescription: description,
-      EventImage: coverPhoto,
-      eventPackageName: selectedPackage ? selectedPackage.packageName : null, // Ensure selectedPackage is defined
-      // PackageInclusions: selectedPackage ? selectedPackage.inclusions : [], // Ensure inclusions are defined
-      packageInclusions: selectedPackage ? selectedPackage.services : [], // Ensure selectedPackage is defined
-      guests,
-      totalPrice: totalPrice + (selectedPackage?.basePrice || 0), // Default to 0 if no package
-    };
-
-    addEvent(newEvent);
-    resetFields();
-    onClose();
-    console.log("New event added addEventorPackage:", newEvent);
-  };
-
-  const resetFields = () => {
-    setCurrentStep(1);
-    setTitle("");
-    setEventType("");
-    setEventDate(new Date());
-    setEventTime(new Date());
-    setLocation("");
-    setDescription("");
-    setCoverPhoto(null);
-    setFilteredPackages([]);
-    setSelectedPackage(null);
-    setSelectedServices({});
-    setTotalPrice(0);
-    setGuests([{ name: "", email: "" }]);
-  };
-  const handlePackageSelect = (packageItem) => {
-    setSelectedPackage(packageItem);
-    const packagePrice = packageItem.basePrice || 0;
-    const additionalServices = packageItem.services.reduce((acc, service) => {
-      const foundService = servicesList.find((s) => s.serviceName === service);
-      return acc + (foundService ? foundService.basePrice : 0);
-    }, 0);
-    setTotalPrice(packagePrice + additionalServices);
-  };
-  const handleNext = () => {
-    if (
-      currentStep === 1 &&
-      (!title || !eventType || !eventDate || !location)
-    ) {
-      Alert.alert("Error", "Please fill in all required fields.");
-      return;
-    }
-    setCurrentStep((prev) => (prev < 5 ? prev + 1 : prev));
-  };
-
-  const handleBack = () => {
-    setCurrentStep((prev) => (prev > 1 ? prev - 1 : prev));
-  };
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true}>
-      <ScrollView contentContainerStyle={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalHeader}>
-            {type === "event" ? "Create Event" : "Add Event Package"}
-          </Text>
-          <Text style={styles.stepIndicator}>Step {currentStep} of 5</Text>
-
-          {currentStep === 1 && (
-            <>
+    <View style={styles.container}>
+      <ScrollView style={{ width: "100%" }}>
+        <Formik
+          initialValues={{
+            eventName: "",
+            eventType: "",
+            eventPax: "",
+            currentPackages: [],
+            eventDate: "",
+            eventTime: "",
+            eventLocation: "",
+            description: "",
+            coverPhoto: "",
+            guests: [{ GuestName: "", email: "" }],
+          }}
+          validationSchema={validationSchema}
+          onSubmit={(values, { resetForm }) => {
+            handleCreateEvent(values, resetForm);
+          }}
+        >
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            setFieldValue,
+            errors,
+            touched,
+          }) => (
+            <View style={[styles.form, { paddingBottom: 100 }]}>
+              <Text style={styles.title}>Create Event</Text>
+              <View style={styles.servicePhotoContainer}>
+                <TouchableOpacity
+                  onPress={() => {
+                    try {
+                      handleImagePicker(setFieldValue);
+                      console.log("Image URI:", imageUri);
+                    } catch (error) {}
+                  }}
+                >
+                  <Image
+                    source={
+                      values.coverPhoto
+                        ? { uri: values.coverPhoto }
+                        : selectimage
+                    }
+                    style={styles.servicePhoto}
+                  />
+                </TouchableOpacity>
+                {touched.coverPhoto && errors.coverPhoto && (
+                  <Text style={styles.errorText}>{errors.coverPhoto}</Text>
+                )}
+              </View>
               <TextInput
-                placeholder={
-                  type === "event" ? "Enter Event Name" : "Enter Package Name"
-                }
-                value={title}
-                onChangeText={setTitle}
-                style={styles.inputStyle}
+                style={styles.input}
+                placeholder="Event Name"
+                onChangeText={handleChange("eventName")}
+                onBlur={handleBlur("eventName")}
+                value={values.eventName}
               />
+              {touched.eventName && errors.eventName && (
+                <Text style={styles.errorText}>{errors.eventName}</Text>
+              )}
               <RNPickerSelect
-                onValueChange={(value) => setEventType(value)}
-                placeholder={{ label: "Choose Event Type...", value: null }}
+                onValueChange={(value) => setFieldValue("eventType", value)}
                 items={[
-                  { label: "Birthday", value: "Birthday" },
                   { label: "Wedding", value: "Wedding" },
-                  { label: "Reunion", value: "Reunion" },
-                  { label: "Conference", value: "Conference" },
+                  { label: "Birthday", value: "Birthday" },
+                  { label: "Corporate Event", value: "Corporate Event" },
+                  { label: "Other", value: "Other" },
                 ]}
-                style={pickerSelectStyles}
-                value={eventType}
-                useNativeAndroidPickerStyle={false}
+                placeholder={{ label: "Select event type", value: null }}
               />
-              <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                style={styles.datePicker}
-              >
-                <Text style={styles.datePickerText}>
-                  {eventDate ? eventDate.toLocaleDateString() : "Select Date"}
+              {touched.eventType && errors.eventType && (
+                <Text style={styles.errorText}>{errors.eventType}</Text>
+              )}
+              <TextInput
+                style={styles.input}
+                placeholder="Event Pax"
+                keyboardType="numeric"
+                onChangeText={handleChange("eventPax")}
+                onBlur={handleBlur("eventPax")}
+                value={values.eventPax}
+              />
+              {touched.eventPax && errors.eventPax && (
+                <Text style={styles.errorText}>{errors.eventPax}</Text>
+              )}
+              {/* // !------ */}
+              <TouchableOpacity onPress={() => setShowCalendar(true)}>
+                <Text style={styles.datePicker}>
+                  {selectedDate
+                    ? `Selected Date: ${
+                        selectedDate.toISOString().split("T")[0]
+                      }`
+                    : "Pick an Event Date"}
                 </Text>
               </TouchableOpacity>
-              {showDatePicker && (
-                <DateTimePicker
-                  value={eventDate}
-                  mode="date"
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowDatePicker(false);
-                    if (selectedDate) {
-                      setEventDate(selectedDate);
-                    }
-                  }}
-                />
+              {showCalendar && (
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={showCalendar}
+                  onRequestClose={() => setShowCalendar(false)}
+                  style={styles.modalContainer}
+                >
+                  <View style={styles.modalContainer}>
+                    <CalendarPicker
+                      onDateChange={(date) => {
+                        setShowCalendar(false);
+                        setSelectedDate(date);
+                        setFieldValue(
+                          "eventDate",
+                          date.toISOString().split("T")[0]
+                        );
+                      }}
+                      disabledDates={datesWithThreeOrMoreEvents}
+                      minDate={new Date()}
+                      maxDate={
+                        new Date(
+                          new Date().getFullYear(),
+                          new Date().getMonth() + 6,
+                          new Date().getDate()
+                        )
+                      }
+                      selectedDate={selectedDate}
+                    />
+                    <Button
+                      onPress={() => setShowCalendar(false)}
+                      mode="contained"
+                      style={styles.closeButton}
+                    >
+                      Close
+                    </Button>
+                  </View>
+                </Modal>
               )}
-              <TouchableOpacity
-                onPress={() => setShowTimePicker(true)}
-                style={styles.datePicker}
-              >
-                <Text style={styles.datePickerText}>
-                  {eventTime
-                    ? eventTime.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "Select Time"}
+              {touched.eventDate && errors.eventDate && (
+                <Text style={styles.errorText}>{errors.eventDate}</Text>
+              )}
+              {/* // !--------------------- */}
+              <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+                <Text style={styles.datePicker}>
+                  {values.eventTime ? values.eventTime : "Select Event Time"}
                 </Text>
               </TouchableOpacity>
               {showTimePicker && (
                 <DateTimePicker
-                  value={eventTime}
+                  value={time}
                   mode="time"
                   display="default"
                   onChange={(event, selectedTime) => {
                     setShowTimePicker(false);
                     if (selectedTime) {
-                      setEventTime(selectedTime);
+                      setTime(selectedTime);
+                      const formattedTime = selectedTime.toLocaleTimeString(
+                        "en-US",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      );
+                      setFieldValue("eventTime", formattedTime);
                     }
                   }}
                 />
               )}
-              <TextInput
-                placeholder="Enter Event Venue"
-                value={location}
-                onChangeText={setLocation}
-                style={styles.inputStyle}
-              />
-              <TextInput
-                placeholder="Description"
-                value={description}
-                onChangeText={setDescription}
-                style={[styles.inputStyle, { height: 80 }]}
-                multiline
-              />
-              <TouchableOpacity
-                onPress={handleCoverPhotoSelection}
-                style={styles.coverPhotoContainer}
-              >
-                <Image
-                  source={coverPhoto ? { uri: coverPhoto } : selectimage}
-                  style={styles.coverPhoto}
-                />
-                <Text style={styles.addPhotoText}>Add Cover Photo</Text>
-              </TouchableOpacity>
-              <View style={styles.buttonContainer}>
-                <Button title="Next" onPress={handleNext} />
-                <Button title="Close" onPress={onClose} color="#FF3B30" />
-              </View>
-            </>
-          )}
-
-          {currentStep === 2 && (
-            <>
-              {/* Choose Event Package or Customize */}
-              <Text style={styles.sectionTitle}>Choose an Event Package</Text>
-
-              {filteredPackages.length > 0 ? (
-                <FlatList
-                  data={filteredPackages}
-                  keyExtractor={(item) => item.packageId}
-                  renderItem={({ item }) => (
-                    // <TouchableOpacity
-                    //   style={[
-                    //     styles.packageItem,
-                    //     selectedPackage?.packageId === item.packageId &&
-                    //       styles.packageItemSelected,
-                    //   ]}
-                    //   onPress={() => setSelectedPackage(item)}
-                    // >
-                    <TouchableOpacity
-                      style={[
-                        styles.packageItem,
-                        selectedPackage?.packageId === item.packageId &&
-                          styles.packageItemSelected,
-                      ]}
-                      onPress={() => handlePackageSelect(item)}
-                    >
-                      <Image
-                        source={item.packageImage || event2}
-                        style={styles.packageImage}
-                      />
-                      <View style={styles.packageInfo}>
-                        <Text style={styles.packageName}>
-                          {item.packageName}
-                        </Text>
-                        {/* <Text style={styles.packagePrice}>
-                Base Price: ${item.basePrice}
-              </Text> */}
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                />
-              ) : (
-                <Text style={styles.noPackagesText}>
-                  No packages available for the selected event type.
-                </Text>
+              {touched.eventTime && errors.eventTime && (
+                <Text style={styles.errorText}>{errors.eventTime}</Text>
               )}
-
-              {selectedPackage && (
-                <TouchableOpacity
-                  onPress={() => setCurrentStep(2.5)}
-                  style={styles.customizeButton}
-                >
-                  <Text style={styles.customizeButtonText}>Modify Package</Text>
-                </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder="Event Location"
+                onChangeText={handleChange("eventLocation")}
+                onBlur={handleBlur("eventLocation")}
+                value={values.eventLocation}
+              />
+              {touched.eventLocation && errors.eventLocation && (
+                <Text style={styles.errorText}>{errors.eventLocation}</Text>
               )}
-
-              <TouchableOpacity
-                onPress={() => setSelectedPackage(null)}
-                style={styles.customizeButton}
-              >
-                <Text style={styles.customizeButtonText}>
-                  Customize Your Package
-                </Text>
-              </TouchableOpacity>
-
-              <View style={styles.buttonContainer}>
-                <Button title="Back" onPress={handleBack} />
-                <Button
-                  title="Next"
-                  onPress={handleNext}
-                  disabled={!selectedPackage}
-                />
-              </View>
-            </>
-          )}
-
-          {currentStep === 2.5 && (
-            <View style={{ height: "60%" }}>
-              <Text style={styles.subTitle}>Modify Package</Text>
-              <Text style={styles.packageName}>
-                {selectedPackage.packageName}
-              </Text>
-
-              <Text style={styles.sectionHeader}>Package Inclusions:</Text>
-              <View style={styles.servicesContainer}>
-                {selectedPackage.services.map((service, index) => (
-                  <Text key={index} style={styles.serviceItem}>
-                    • {service}
-                  </Text>
-                ))}
-              </View>
-
-              <Text style={styles.sectionHeader}>Available Services:</Text>
-              <View style={{ height: "60%" }}>
-                <ScrollView>
-                  <View style={styles.servicesContainer}>
-                    {servicesList.map((service, index) => (
-                      // console.log(service),
-                      <TouchableOpacity
-                        key={index}
-                        style={styles.serviceOption}
-                        onPress={() => handleAddInclusion(service.serviceName)}
-                      >
-                        <Text style={styles.serviceName}>
-                          {service.serviceName}
-                        </Text>
-                        <Text style={styles.servicePrice}>
-                          ${service.basePrice}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-
-              <Text style={styles.totalPriceText}>
-                Total Price: ${totalPrice + (selectedPackage?.basePrice || 0)}
-              </Text>
-
-              <View style={styles.buttonContainer}>
-                <Button
-                  title="Back"
-                  onPress={() => setCurrentStep(2)}
-                  color="#808080"
-                />
-                <Button
-                  title="Confirm"
-                  onPress={() => setCurrentStep(3)}
-                  color="#1E90FF"
-                />
-              </View>
-            </View>
-          )}
-
-          {currentStep === 3 && (
-            <>
-              <Text style={styles.subTitle}>Add Guests</Text>
-              <FlatList
-                data={guests}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item, index }) => (
-                  <View style={styles.guestContainer}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Guest Name"
-                      value={item.name}
-                      onChangeText={(text) => updateGuest(index, "name", text)}
-                    />
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Guest Email"
-                      value={item.email}
-                      onChangeText={(text) => updateGuest(index, "email", text)}
-                    />
-                  </View>
+              <MultiSelect
+                style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={currentPackages
+                  .filter(
+                    (currentPackage) =>
+                      currentPackage.packageName && currentPackage.id
+                  )
+                  .map((currentPackage) => ({
+                    label: currentPackage.packageName,
+                    value: currentPackage.id,
+                    category: currentPackage.eventType,
+                  }))}
+                labelField="label"
+                valueField="value"
+                placeholder="Select currentPackages"
+                value={selected}
+                // data={data}
+                search
+                searchPlaceholder="Search..."
+                onChange={(items) => {
+                  setSelected(items);
+                  setFieldValue(
+                    "currentPackages",
+                    items.map((item) =>
+                      console.log("hello this is the item", item)
+                    )
+                  ); // Update Formik's services field with the selected item values (not the full object)
+                  console.log("Selected packagesss:", items);
+                }}
+                renderItem={renderItem}
+                renderLeftIcon={() => (
+                  <AntDesign
+                    style={styles.icon}
+                    color="black"
+                    name="Safety"
+                    size={20}
+                  />
+                )}
+                renderSelectedItem={(item, unSelect) => (
+                  <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+                    <View style={styles.selectedStyle}>
+                      <Text style={styles.textSelectedStyle}>{item.label}</Text>
+                      <AntDesign color="black" name="delete" size={17} />
+                    </View>
+                  </TouchableOpacity>
                 )}
               />
-              <Button title="Add Guest" onPress={handleAddGuest} />
-              <View style={styles.buttonContainer}>
-                <Button title="Back" onPress={handleBack} />
-                <Button title="Next" onPress={handleNext} />
-              </View>
-            </>
-          )}
-
-          {currentStep === 4 && (
-            <>
-              <Text style={styles.subTitle}>Review Details</Text>
-              <Text>Event Name: {title}</Text>
-              <Text>Event Type: {eventType}</Text>
-              <Text>Date: {eventDate.toLocaleDateString()}</Text>
-              <Text>
-                Time:{" "}
-                {eventTime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </Text>
-              <Text>Venue: {location}</Text>
-              <Text>Description: {description}</Text>
-              <Text>Guests:</Text>
-              {guests.map((guest, index) => (
-                <Text key={index}>
-                  {guest.name} - {guest.email}
-                </Text>
-              ))}
-
-              {selectedPackage ? (
-                <>
-                  {/* <Text>Selected Package: {selectedPackage.packageName}</Text> */}
-                  {/* <Text>Base Price: ${selectedPackage.basePrice}</Text> */}
-                  {currentStep === 4 && (
-                    <PackageDetails selectedPackage={selectedPackage} />
-                  )}
-                </>
-              ) : (
-                <>
-                  <Text>Custom Package:</Text>
-                  {Object.keys(selectedServices).map((category) => (
-                    <Text key={category}>
-                      {category}: {selectedServices[category].join(", ")}
-                    </Text>
-                  ))}
-                  <Text>Total Price: ${totalPrice}</Text>
-                </>
+              <TextInput
+                style={styles.input}
+                placeholder="Description"
+                multiline
+                onChangeText={handleChange("description")}
+                onBlur={handleBlur("description")}
+                value={values.description}
+              />
+              {touched.description && errors.description && (
+                <Text style={styles.errorText}>{errors.description}</Text>
               )}
-              <View style={styles.buttonContainer}>
-                <Button title="Back" onPress={handleBack} />
-                <Button title="Next" onPress={handleNext} />
-              </View>
-            </>
+              <TextInput
+                style={styles.input}
+                placeholder="Cover Photo URL"
+                onChangeText={handleChange("coverPhoto")}
+                onBlur={handleBlur("coverPhoto")}
+                value={values.coverPhoto}
+              />
+              {touched.coverPhoto && errors.coverPhoto && (
+                <Text style={styles.errorText}>{errors.coverPhoto}</Text>
+              )}
+              <FieldArray name="guests">
+                {({ remove, push }) => (
+                  <View>
+                    {values.guests.map((guest, index) => (
+                      <View key={index} style={styles.guestContainer}>
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Guest Name"
+                          value={guest.GuestName}
+                          onChangeText={handleChange(
+                            `guests.${index}.GuestName`
+                          )} // Dynamically updating guest fields
+                        />
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Email"
+                          value={guest.email}
+                          onChangeText={handleChange(`guests.${index}.email`)} // Dynamically updating guest fields
+                        />
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Phone"
+                          value={guest.phone}
+                          onChangeText={handleChange(`guests.${index}.phone`)} // Dynamically updating guest fields
+                        />
+                        <TouchableOpacity onPress={() => remove(index)}>
+                          <Text style={styles.removeGuest}>Remove</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                    <Button
+                      onPress={() =>
+                        push({ GuestName: "", email: "", phone: "" })
+                      }
+                    >
+                      Add Guest
+                    </Button>
+                  </View>
+                )}
+              </FieldArray>
+              <Button
+                mode="contained"
+                onPress={handleSubmit}
+                loading={isLoading}
+                disabled={isLoading}
+                style={styles.createButton}
+              >
+                Create Eventsss
+              </Button>
+            </View>
           )}
-
-          {currentStep === 5 && (
-            <>
-              <Text style={styles.subTitle}>Finalize Booking</Text>
-              <Button title="Book Event" onPress={handleAdd} />
-              <Button title="Back" onPress={handleBack} />
-            </>
-          )}
-        </View>
+        </Formik>
       </ScrollView>
-    </Modal>
+    </View>
   );
 };
 
-export default BookingProcess;
-
 const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  selectedDateText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: "black",
   },
   modalContainer: {
-    width: "90%",
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 20,
-    elevation: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF",
+    top: 200,
+    height: "50%",
   },
-  modalHeader: {
+  calendarContainer: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+  },
+  container: {
+    flexGrow: 1,
+    padding: 16,
+  },
+  form: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  title: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 16,
   },
-  stepIndicator: {
-    fontSize: 16,
-    color: "#888",
-    marginBottom: 10,
-  },
-  coverPhotoContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  coverPhoto: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  addPhotoText: {
-    color: "#888",
-    fontSize: 14,
-  },
-  inputStyle: {
+  input: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 15,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
   },
   datePicker: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 15,
-  },
-  datePickerText: {
-    fontSize: 16,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  packageItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    marginBottom: 10,
-  },
-  packageItemSelected: {
-    borderColor: "#FF9800",
-  },
-  packageImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  packageInfo: {
-    flex: 1,
-  },
-  packageName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  packagePrice: {
-    fontSize: 14,
-    color: "#555",
-  },
-  packageDescription: {
-    fontSize: 12,
-    color: "#777",
-  },
-  noPackagesText: {
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
     textAlign: "center",
-    fontSize: 14,
     color: "#888",
-    marginBottom: 10,
   },
-  customizeButton: {
-    backgroundColor: "#FF9800",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  customizeButtonText: {
-    color: "white",
-    fontSize: 16,
-  },
-  categoryContainer: {
-    marginBottom: 15,
-  },
-  categoryTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  serviceItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    marginBottom: 10,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 3,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 10,
-  },
-  checkboxText: {
-    fontSize: 14,
-  },
-  serviceName: {
-    fontSize: 14,
-  },
-  totalPriceContainer: {
-    alignItems: "center",
-    marginTop: 10,
-  },
-  totalPriceText: {
-    fontSize: 16,
-    fontWeight: "bold",
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 8,
   },
   guestContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 16,
   },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    padding: 10,
-    marginHorizontal: 5,
+  removeGuest: {
+    color: "red",
+    textAlign: "right",
   },
-  subTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
+  submitButton: {
+    marginTop: 16,
   },
-
-  container: {
-    padding: 20,
-    backgroundColor: "#F5F5F5",
+  servicePhoto: {
+    width: 100,
+    height: 100,
     borderRadius: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-  },
-  subTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1E90FF",
-    marginBottom: 10,
-  },
-  packageName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
     marginBottom: 5,
-  },
-  sectionHeader: {
-    fontSize: 16,
-    color: "#696969",
-    marginTop: 10,
-    marginBottom: 5,
-    fontWeight: "500",
-  },
-  servicesContainer: {
-    backgroundColor: "#FFF",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  serviceItem: {
-    fontSize: 14,
-    color: "#333",
-    marginVertical: 3,
-  },
-  serviceOption: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#FFF",
-    borderRadius: 6,
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  serviceName: {
-    fontSize: 14,
-    color: "#1E90FF",
-  },
-  servicePrice: {
-    fontSize: 14,
-    color: "#696969",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 15,
   },
 });
+
+export default BookingProcess;

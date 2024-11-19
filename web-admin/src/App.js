@@ -15,7 +15,7 @@ import Profile from './profile';
 import EditProfile from './editprofile';
 import AddRole from './addrole';
 import Settings from './settings';
-import EventPortfolio from './eventportfolio';
+import Package from './package';
 import Feedback from './feedback';
 import EventsFeedback from './eventsfeedback';
 import Group from './group';
@@ -49,7 +49,7 @@ function App() {
           <Route path="/edit-profile" element={<><Navbar /><EditProfile/></>} />
           <Route path="/add-role" element={<><Navbar /><AddRole/></>} />
           <Route path="/settings" element={<><Navbar /><Settings/></>} />
-          <Route path="/create-event-portfolio" element={<><Navbar /><EventPortfolio/></>} />
+          <Route path="/package" element={<><Navbar /><Package/></>} />
           <Route path="/feedback" element={<><Navbar /><EventsFeedback/></>} />
           <Route path="/feedback/feedback-events" element={<><Navbar /><Feedback/></>} />
           <Route path="/groups" element={<><Navbar /><Group/></>} />

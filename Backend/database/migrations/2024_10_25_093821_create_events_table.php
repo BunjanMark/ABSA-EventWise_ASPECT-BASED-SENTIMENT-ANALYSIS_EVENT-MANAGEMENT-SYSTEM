@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('location');
             $table->text('description');
             $table->string('coverPhoto')->nullable();
-            $table->json('packages');
+            $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');  
             $table->timestamps();
         });

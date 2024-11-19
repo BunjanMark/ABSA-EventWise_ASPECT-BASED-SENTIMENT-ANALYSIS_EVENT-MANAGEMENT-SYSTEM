@@ -23,7 +23,7 @@ class Event extends Model
         'location', 
         'description', 
         'coverPhoto',
-        'packages',
+        'package_id',
         'user_id',
         'archived', 
     ];

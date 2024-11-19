@@ -1,43 +1,50 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import SidebarMenu from "./SidebarMenu";
 import { useNavigation } from "@react-navigation/native";
-import AntDesign from "react-native-vector-icons/AntDesign";
 
 const Header2 = ({ onBackPress, showBackButton }) => {
-  const navigator = useNavigation();
   const navigation = useNavigation();
-  
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
+
   return (
     <SafeAreaView>
       <SafeAreaView style={styles.headerContainer}>
-        <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-          <Icon name="close" size={24} color="black" />
+        {showBackButton && (
+          <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
+            <Icon name="arrow-back-outline" size={24} color="black" />
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity onPress={toggleSidebar} style={styles.dropdownButton}>
+          <Icon name="menu-outline" size={24} color="black" />
         </TouchableOpacity>
         <Image
           source={require("../../../../assets/logoWhite.png")}
           style={styles.logo}
           resizeMode="contain"
         />
-
         <View style={styles.rightIcons}>
           <TouchableOpacity
             onPress={() => {
-              navigator.navigate("InboxView");
+              navigation.navigate("InboxView");
             }}
-            style={styles.iconmessage}
+            style={styles.iconMessage}
           >
-            <AntDesign name="message1" size={18} color="black" />
-            </TouchableOpacity>
-
+            <Icon name="chatbubble-outline" size={24} color="#333" />
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              navigator.navigate("Notification");
+              navigation.navigate("Notification");
             }}
             style={styles.iconButton}
           >
-            <Icon name="notifications" size={24} color="black" />
+            <Icon name="notifications-outline" size={24} color="#333" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -46,6 +53,8 @@ const Header2 = ({ onBackPress, showBackButton }) => {
         style={styles.line}
         resizeMode="contain"
       />
+      {/* Sidebar Menu */}
+      <SidebarMenu visible={isSidebarVisible} onClose={toggleSidebar} />
     </SafeAreaView>
   );
 };
@@ -57,15 +66,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 15,
-    backgroundColor: "#fff", 
+    backgroundColor: "white",
     zIndex: 1,
     marginTop: -20,
   },
-  closeButton: {
-    alignSelf: "flex-start",
-    padding: 10,
-    marginTop: 15,
-    marginLeft: -5
+  backButton: {
+    position: "absolute",
+    marginTop: 35,
+    left: 15,
+    top: "50%",
+    transform: [{ translateY: -12 }],
   },
   dropdownButton: {
     padding: 10,
@@ -74,8 +84,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: "100%",
     resizeMode: "contain",
-    marginLeft: "auto",
-    marginRight: "auto",
   },
   line: {
     marginLeft: "auto",
@@ -83,30 +91,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   rightIcons: {
-    flexDirection: "row",
+    flexDirection: "row", // Ensures horizontal alignment
     alignItems: "center",
-    marginLeft: -35,
-    marginRight: -7,
-    padding: 10,
+    marginLeft: "auto", // Aligns the icons to the right
   },
-  iconmessage: {
+  iconMessage: {
     padding: 10,
-    marginHorizontal: -5,
-    marginTop: 3,
   },
   iconButton: {
     padding: 10,
-    marginHorizontal: -5,
-  },
-  searchIconButton: {
-    backgroundColor: '#D3D3D3', 
-    borderRadius: 20,
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
   },
 });
+
 
 export default Header2;
