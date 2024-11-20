@@ -74,10 +74,6 @@ const CreateEventScreen = ({ navigation }) => {
     const loadPackages = async () => {
       try {
         const fetchedPackages = await fetchPackages();
-        // console.log(
-        //   "Fetched packages (eventAdmin): ",
-        //   JSON.stringify(fetchedPackages, null, 2)
-        // );
         setCurrentPackages(fetchedPackages); // Set the state
       } catch (error) {
         console.error("Error fetching packages:", error);
@@ -105,13 +101,13 @@ const CreateEventScreen = ({ navigation }) => {
     try {
       let coverPhotoURL = null;
 
-      if (values.coverPhoto) {
-        const fileName = `package_cover_${Date.now()}.jpg`;
-        coverPhotoURL = await testUploadImageToSupabase(
-          values.coverPhoto,
-          fileName
-        );
-      }
+      // if (values.coverPhoto) {  //#FIX needs to be uncommented
+      //   const fileName = `package_cover_${Date.now()}.jpg`;
+      //   coverPhotoURL = await testUploadImageToSupabase(
+      //     values.coverPhoto,
+      //     fileName
+      //   );
+      // }
       // Fetch existing events for the selected date
       const existingEvents = await fetchEventsByDate(values.eventDate);
       console.log(

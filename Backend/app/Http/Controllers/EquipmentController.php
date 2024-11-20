@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipment;
 use Illuminate\Http\Request;
+use App\Models\Event;
 
 class EquipmentController extends Controller
 {
@@ -41,7 +42,18 @@ class EquipmentController extends Controller
         // Return the newly created item
         return response()->json($equipment, 201);
     }
+    public function getEquipmentForEvent($eventId)
+    {
+        $event = Event::find($eventId);
 
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
+        }
+
+        $equipment = Equipment::where('event_id', $eventId)->get();
+
+        return response()->json($equipment);
+    }
     // Update an existing equipment entry
     public function update(Request $request, $id)
     {

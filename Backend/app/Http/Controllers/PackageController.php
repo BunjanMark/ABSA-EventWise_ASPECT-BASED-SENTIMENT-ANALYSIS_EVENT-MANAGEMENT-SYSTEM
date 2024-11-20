@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Package;
 use Illuminate\Support\Facades\DB;
 use App\Events\PackageCreatedNotification;
+use Illuminate\Support\Facades\Auth;
 class PackageController extends Controller
 {
     // Method to fetch all packages
@@ -158,6 +159,18 @@ public function update(Request $request, $id)
         ], 500);
     }
 }
+    public function getAllServicesInPackages(Request $request)
+    {
+        $packages = Package::all();
+        $servicesInPackages = [];
+
+        foreach ($packages as $package) {
+            $services = json_decode($package->services, true);
+            $servicesInPackages = array_merge($servicesInPackages, $services);
+        }
+
+        return response()->json($servicesInPackages);
+    }
     public function destroy(Request $request, $id)
     {
         DB::beginTransaction(); // Start the transaction
@@ -193,5 +206,19 @@ public function update(Request $request, $id)
                 "message" => $th->getMessage()
             ], 500);
         }
+    }
+
+    public function getServicesInPackage(Request $request)
+    {
+        $userId = Auth::id();
+        $packages = Package::where('user_id', $userId)->get();
+        $servicesInPackages = [];
+
+        foreach ($packages as $package) {
+            $services = json_decode($package->services, true);
+            $servicesInPackages = array_merge($servicesInPackages, $services);
+        }
+
+        return response()->json($servicesInPackages);
     }
 }
