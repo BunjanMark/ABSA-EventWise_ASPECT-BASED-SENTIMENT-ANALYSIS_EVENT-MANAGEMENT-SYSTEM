@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Inventory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Guests;
 use App\Models\Package;
@@ -48,5 +49,10 @@ class Event extends Model
         public function equipment()
     {
         return $this->hasMany(Equipment::class);
+    }
+
+        public function inventories()
+    {
+        return $this->belongsToMany(Inventory::class);
     }
 }

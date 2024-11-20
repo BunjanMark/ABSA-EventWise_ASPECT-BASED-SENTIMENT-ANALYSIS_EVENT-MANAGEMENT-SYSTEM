@@ -41,6 +41,17 @@ const fetchEventsByDate1 = async (date) => {
     return [];
   }
 };
+const fetchEventPackageDetails = async (id) => {
+  try {
+    const response = await api.get(`/admin/events/${id}/packages`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching EventPackage details in adminEventServices:" +
+        JSON.stringify(error)
+    );
+  }
+};
 const fetchEventsByDate = async (date) => {
   try {
     console.log("date", date);
@@ -275,4 +286,5 @@ export {
   fetchPackages,
   fetchPackageServiceDetails,
   deleteEvent,
+  fetchEventPackageDetails,
 };

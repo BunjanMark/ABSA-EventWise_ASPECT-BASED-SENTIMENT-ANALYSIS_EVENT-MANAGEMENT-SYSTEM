@@ -31,7 +31,7 @@ export default Landing = () => {
           </Text>
         </SafeAreaView>
 
-        <SafeAreaView style={styles.buttonContainer}>
+        <SafeAreaView style={[styles.buttonContainer, { top: 0 }]}>
           <Button
             mode="contained"
             onPress={() => {

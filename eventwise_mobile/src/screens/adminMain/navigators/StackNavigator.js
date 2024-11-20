@@ -29,6 +29,8 @@ import GroupAdmin from "../screens/group/GroupAdmin";
 import GuestListAdmin from "../screens/group/GuestListAdmin";
 import EventDetails from "../screens/event/EventDetails";
 import EventPackageDetails from "../screens/event/EventPackageDetails";
+import EquipmentPanelDetails from "../screens/inventory/EquipmentPanelDetails";
+import EventCardDetails from "../screens/event/EventCardDetails";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -97,6 +99,7 @@ const EventStackNavigator = () => {
       <Stack.Screen name="EditPackageScreen" component={EditPackageScreen} />
       <Stack.Screen name="PackageCardDetails" component={PackageCardDetails} />
       <Stack.Screen name="CreateEventScreen" component={CreateEventScreen} />
+      <Stack.Screen name="EventCardDetails" component={EventCardDetails} />
     </Stack.Navigator>
   );
 };
@@ -142,6 +145,10 @@ const InventoryTrackerStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="InventoryTrackerAdmin" component={InventoryAdmin} />
+      <Stack.Screen
+        name="EquipmentPanelDetails"
+        component={EquipmentPanelDetails}
+      />
     </Stack.Navigator>
   );
 };
