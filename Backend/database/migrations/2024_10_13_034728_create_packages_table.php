@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('packages', function (Blueprint $table) {
+        Schema::create('packages', function (Blueprint $table) 
+        {
             $table->id();
             $table->string('packageName');
             $table->string('eventType');
-            $table->boolean('packageType')->default(1);
+            $table->boolean('packageType')->default(1);  
             $table->json('services');
             $table->decimal('totalPrice', 10, 2);
-            $table->longText('coverPhoto')->nullable(); // Ensure this is a string and nullable and 2000 characters max
-            // $table->date('packageCreatedDate');
+            $table->longText('coverPhoto')->nullable(); // Ensure this is a string and nullable and 2000 characters max$table->date('packageCreatedDate');
             $table->timestamps();
         });
     }

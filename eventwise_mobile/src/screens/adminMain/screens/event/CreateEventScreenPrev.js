@@ -1,27 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ScrollView,
+  Image,
+  Platform,
+  Alert,
   View,
   Text,
   TextInput,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
-  Alert,
+  Modal,
 } from "react-native";
 import { Button } from "react-native-paper";
 import { Formik, FieldArray } from "formik";
 import * as Yup from "yup";
+import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 import RNPickerSelect from "react-native-picker-select";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { createEvent } from "../../../../services/organizer/adminEventServices";
-const CreateEventScreenPrev = ({ navigation }) => {
-  const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [packages, setPackages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+import { MultiSelect } from "react-native-element-dropdown";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import selectimage from "../../../../../assets/selectimage.png";
+import { useServicesStore } from "../../../../stateManagement/admin/useServicesStore";
+import { fetchServices } from "../../../../services/organizer/adminPackageServices";
+import {
+  createEvent,
+  fetchEvents,
+} from "../../../../services/organizer/adminEventServices";
+import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
+import { fetchPackages } from "../../../../services/organizer/adminPackageServices";
 
+import DateTimePicker from "@react-native-community/datetimepicker";
+import CalendarPicker from "react-native-calendar-picker";
+import { fetchEventsByDate } from "../../../../services/organizer/adminEventServices";
+const CreateEventScreen = ({ navigation }) => {
+  const [imageUri, setImageUri] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPackages, setCurrentPackages] = useState([]);
+  const { services, setServices } = useServicesStore();
+
+  const [time, setTime] = useState(new Date());
+
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [selected, setSelected] = useState([]);
+  // Validation schema
   const validationSchema = Yup.object().shape({
     eventName: Yup.string().required("Event name is required"),
     eventType: Yup.string().required("Event type is required"),
@@ -32,6 +53,7 @@ const CreateEventScreenPrev = ({ navigation }) => {
     eventTime: Yup.string().required("Event time is required"),
     eventLocation: Yup.string().required("Event location is required"),
     description: Yup.string().required("Description is required"),
+    currentPackages: Yup.array(),
     // coverPhoto: Yup.string()
     //   .url("Must be a valid URL")
     //   .required("Cover photo URL is required"),
@@ -44,38 +66,40 @@ const CreateEventScreenPrev = ({ navigation }) => {
       })
     ),
   });
+  // Fetch packages on mount
+  // console.log("setPackages function:" );
 
-  // const handleCreateEvent = async (values, { resetForm }) => {
-  //   console.log("Form Values:", values);
-  //   setIsLoading(true);
-  //   try {
-  //     const newEvent = {
-  //       eventname: values.eventName, // Correct field name
-  //       eventType: values.eventType,
-  //       eventPax: values.eventPax,
-  //       eventDate: values.eventDate,
-  //       eventTime: values.eventTime,
-  //       eventLocation: values.eventLocation,
-  //       description: values.description,
-  //       guests: values.guests,
-  //     };
+  // Fetch packages on mount
+  useEffect(() => {
+    const loadPackages = async () => {
+      try {
+        const fetchedPackages = await fetchPackages();
+        // console.log(
+        //   "Fetched packages (eventAdmin): ",
+        //   JSON.stringify(fetchedPackages, null, 2)
+        // );
+        setCurrentPackages(fetchedPackages); // Set the state
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+        Alert.alert("Error", "Unable to load packages. Please try again.");
+      }
+    };
+    loadPackages();
+  }, [setCurrentPackages]);
+  // console.log("fetched packages: " + JSON.stringify(currentPackages, null, 2));
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const fetchedServices = await fetchServices();
+        setServices(fetchedServices);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        Alert.alert("Error", "Unable to load services. Please try again.");
+      }
+    };
+    loadServices();
+  }, [setServices]);
 
-  //     console.log("New event data:", newEvent);
-  //     const result = await createEvent(newEvent);
-  //     Alert.alert("Success", "Event created successfully!");
-  //     console.log("Server response:", result);
-  //     resetForm(); // Reset form after success
-  //     navigation.goBack(); // Navigate back after event creation
-  //   } catch (error) {
-  //     console.error("Error creating event:", error);
-  //     Alert.alert(
-  //       "Error",
-  //       error?.message || "An error occurred while creating the event."
-  //     );
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
   const handleCreateEvent = async (values, resetForm) => {
     setIsLoading(true);
     try {
@@ -83,52 +107,148 @@ const CreateEventScreenPrev = ({ navigation }) => {
 
       if (values.coverPhoto) {
         const fileName = `package_cover_${Date.now()}.jpg`;
-        console.log("Uploading image to server:", fileName);
-
-        // Replace with your actual image upload logic
         coverPhotoURL = await testUploadImageToSupabase(
           values.coverPhoto,
           fileName
         );
-        console.log("Image uploaded successfully. URL:", coverPhotoURL);
       }
-
+      // Fetch existing events for the selected date
+      const existingEvents = await fetchEventsByDate(values.eventDate);
+      console.log(
+        "event date" + values.eventDate + " events: " + existingEvents
+      );
+      // Check if the number of events for the selected date is less than 3
+      if (existingEvents.length >= 3) {
+        Alert.alert(
+          "Event Limit Reached",
+          `You cannot create more than 3 events on ${values.eventDate}.`
+        );
+        return;
+      }
       const newEvent = {
-        eventname: values.eventName, // Correct field name
+        eventName: values.eventName,
         eventType: values.eventType,
         eventPax: values.eventPax,
+        eventStatus: "Tenative",
+        packages: selected,
         eventDate: values.eventDate,
         eventTime: values.eventTime,
         eventLocation: values.eventLocation,
         description: values.description,
         guests: values.guests,
+        coverPhoto: coverPhotoURL !== null ? coverPhotoURL : null,
       };
 
-      console.log("New package data:", newEvent);
-      const result = await createPackage(newEvent);
+      console.log("New event data:", newEvent);
+      const result = await createEvent(newEvent);
 
-      Alert.alert("Success", "Package created successfully!");
-      console.log("Server response:", result);
+      Alert.alert("Success", "Event created successfully!");
       resetForm();
     } catch (error) {
-      console.error("Error creating package:", error);
+      console.error("Error creating event:", error);
       Alert.alert(
         "Error",
         error.response?.data?.message ||
-          "An error occurred while creating the package. Please try again."
+          "An error occurred while creating the event. Please try again."
       );
     } finally {
       setIsLoading(false);
     }
   };
+  const [datesWithThreeOrMoreEvents, setDatesWithThreeOrMoreEvents] = useState(
+    []
+  );
+
+  useEffect(() => {
+    const fetchDatesWithThreeOrMoreEvents = async () => {
+      try {
+        const dates = await fetchEvents(); // fetch all events
+        console.log("from fetchDatesWithThreeOrMoreEvents", dates);
+        if (dates.length === 0) {
+          console.log("No events found");
+          return;
+        }
+        const datesWithThreeOrMoreEvents = dates.reduce((acc, event) => {
+          const date = event.date;
+          if (!acc.includes(date)) {
+            const eventsOnDate = dates.filter((e) => e.date === date);
+            if (eventsOnDate.length >= 3) {
+              acc.push(date);
+            }
+          }
+          return acc;
+        }, []);
+        setDatesWithThreeOrMoreEvents(datesWithThreeOrMoreEvents);
+      } catch (error) {
+        console.error("Error fetching dates with three or more events:", error);
+      }
+    };
+    fetchDatesWithThreeOrMoreEvents();
+  }, []);
+
+  useEffect(() => {
+    console.log("Dates with three or more events:", datesWithThreeOrMoreEvents);
+  }, [datesWithThreeOrMoreEvents]);
+  const renderItem = (item) => (
+    <View style={styles.item}>
+      <Text style={styles.selectedTextStyle}>{item.label}</Text>
+      <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
+    </View>
+  );
+  const handleImagePicker = async (setFieldValue) => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert(
+          "Permission Required",
+          "Permission to access camera roll is required!"
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.7,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedUri = result.assets[0].uri;
+        const manipulatedResult = await ImageManipulator.manipulateAsync(
+          selectedUri,
+          [{ resize: { width: 800 } }],
+          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+        );
+
+        let uri = manipulatedResult.uri;
+        if (Platform.OS === "android" && !uri.startsWith("file://")) {
+          uri = `file://${uri}`;
+        }
+
+        setFieldValue("coverPhoto", uri);
+        setImageUri(uri);
+      }
+    } catch (error) {
+      console.error("Error selecting cover photo:", error);
+      Alert.alert(
+        "Error",
+        "An error occurred while selecting the cover photo."
+      );
+    }
+  };
+
+  const [selectedDate, setSelectedDate] = useState(null);
+
   return (
-    <View style={[styles.container, { paddingBottom: 100 }]}>
-      <ScrollView style={[{ width: "100%" }]}>
+    <View style={styles.container}>
+      <ScrollView style={{ width: "100%" }}>
         <Formik
           initialValues={{
             eventName: "",
             eventType: "",
             eventPax: "",
+            currentPackages: [],
             eventDate: "",
             eventTime: "",
             eventLocation: "",
@@ -145,13 +265,36 @@ const CreateEventScreenPrev = ({ navigation }) => {
             handleChange,
             handleBlur,
             handleSubmit,
-            setFieldValue,
             values,
+            setFieldValue,
             errors,
             touched,
           }) => (
-            <View style={styles.form}>
+            <View style={[styles.form, { paddingBottom: 100 }]}>
               <Text style={styles.title}>Create Event</Text>
+              <View style={styles.servicePhotoContainer}>
+                <TouchableOpacity
+                  onPress={() => {
+                    try {
+                      handleImagePicker(setFieldValue);
+                      console.log("Image URI:", imageUri);
+                    } catch (error) {}
+                  }}
+                >
+                  <Image
+                    source={
+                      values.coverPhoto
+                        ? { uri: values.coverPhoto }
+                        : selectimage
+                    }
+                    style={styles.servicePhoto}
+                  />
+                </TouchableOpacity>
+                {touched.coverPhoto && errors.coverPhoto && (
+                  <Text style={styles.errorText}>{errors.coverPhoto}</Text>
+                )}
+              </View>
+
               <TextInput
                 style={styles.input}
                 placeholder="Event Name"
@@ -188,33 +331,6 @@ const CreateEventScreenPrev = ({ navigation }) => {
               {touched.eventPax && errors.eventPax && (
                 <Text style={styles.errorText}>{errors.eventPax}</Text>
               )}
-
-              <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                <Text style={styles.datePicker}>
-                  {values.eventDate ? values.eventDate : "Select Event Date"}
-                </Text>
-              </TouchableOpacity>
-              {showDatePicker && (
-                <DateTimePicker
-                  value={date}
-                  mode="date"
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowDatePicker(false);
-                    if (selectedDate) {
-                      setDate(selectedDate);
-                      setFieldValue(
-                        "eventDate",
-                        selectedDate.toISOString().split("T")[0]
-                      );
-                    }
-                  }}
-                />
-              )}
-              {touched.eventDate && errors.eventDate && (
-                <Text style={styles.errorText}>{errors.eventDate}</Text>
-              )}
-
               <TouchableOpacity onPress={() => setShowTimePicker(true)}>
                 <Text style={styles.datePicker}>
                   {values.eventTime ? values.eventTime : "Select Event Time"}
@@ -255,7 +371,57 @@ const CreateEventScreenPrev = ({ navigation }) => {
               {touched.eventLocation && errors.eventLocation && (
                 <Text style={styles.errorText}>{errors.eventLocation}</Text>
               )}
-
+              <MultiSelect
+                style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={currentPackages
+                  .filter(
+                    (currentPackage) =>
+                      currentPackage.packageName && currentPackage.id
+                  )
+                  .map((currentPackage) => ({
+                    label: currentPackage.packageName,
+                    value: currentPackage.id,
+                    category: currentPackage.eventType,
+                  }))}
+                labelField="label"
+                valueField="value"
+                placeholder="Select currentPackages"
+                value={selected}
+                // data={data}
+                search
+                searchPlaceholder="Search..."
+                onChange={(items) => {
+                  setSelected(items);
+                  setFieldValue(
+                    "currentPackages",
+                    items.map((item) =>
+                      console.log("hello this is the item", item)
+                    )
+                  ); // Update Formik's services field with the selected item values (not the full object)
+                  console.log("Selected packagesss:", items);
+                }}
+                renderItem={renderItem}
+                renderLeftIcon={() => (
+                  <AntDesign
+                    style={styles.icon}
+                    color="black"
+                    name="Safety"
+                    size={20}
+                  />
+                )}
+                renderSelectedItem={(item, unSelect) => (
+                  <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+                    <View style={styles.selectedStyle}>
+                      <Text style={styles.textSelectedStyle}>{item.label}</Text>
+                      <AntDesign color="black" name="delete" size={17} />
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
               <TextInput
                 style={styles.input}
                 placeholder="Description"
@@ -338,6 +504,22 @@ const CreateEventScreenPrev = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  selectedDateText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: "black",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  calendarContainer: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+  },
   container: {
     flexGrow: 1,
     padding: 16,
@@ -388,6 +570,12 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 16,
   },
+  servicePhoto: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginBottom: 5,
+  },
 });
 
-export default CreateEventScreenPrev;
+export default CreateEventScreen;

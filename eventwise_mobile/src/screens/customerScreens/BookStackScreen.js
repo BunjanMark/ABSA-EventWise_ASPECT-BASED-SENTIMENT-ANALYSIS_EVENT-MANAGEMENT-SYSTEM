@@ -6,6 +6,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 // import BookingContinuation4 from "./otherScreens/BookingContinuation4";
 import Book from "./screens/Book";
 import EventPackageDetails from "../adminMain/screens/event/EventPackageDetails";
+import BookingProcess from "./event/BookingProcess";
+
 const BookStack = createStackNavigator();
 
 const BookStackScreen = () => {
@@ -43,7 +45,14 @@ const BookStackScreen = () => {
         component={EventPackageDetails}
         options={{ headerShown: false }}
       />
+      <BookStack.Screen
+        name="BookingProcess"
+        component={BookingProcess}
+        options={{ headerShown: false }}
+      />
     </BookStack.Navigator>
+    
+    
   );
 };
 

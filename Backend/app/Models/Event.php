@@ -8,10 +8,11 @@ use App\Models\Guests;
 use App\Models\Package;
 use App\Models\User;
 use App\Models\Equipment;
+use Illuminate\Database\Eloquent\SoftDeletes;
 class Event extends Model
 {
     use HasFactory;
-
+    use SoftDeletes;
     protected $fillable = [
         'name', 
         'type', 
@@ -23,11 +24,11 @@ class Event extends Model
         'location', 
         'description', 
         'coverPhoto',
-        'package_id',
+        'packages',
         'user_id',
         'archived', 
     ];
-
+    protected $dates = ['deleted_at']; // To track soft delete timestamps
     // Relationship to guests
     public function guests()
     {

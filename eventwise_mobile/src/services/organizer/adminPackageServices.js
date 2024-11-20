@@ -58,7 +58,8 @@ const createService = async (serviceData) => {
     throw error;
   }
 };
-// Function to create a package
+
+// Function to create a package that's predefined
 const createPackage = async (packageData) => {
   try {
     console.log("Service data:", packageData);
@@ -71,9 +72,10 @@ const createPackage = async (packageData) => {
       eventType: packageData.eventType,
       services: packageData.services,
       totalPrice: packageData.totalPrice,
+      packageType: 1,
       coverPhoto: packagePhotoURL, // URL from Supabase Storage
     };
-    // console.info("Adding package" + addPackageData);
+    console.info("Adding package" + JSON.stringify(addPackageData));
 
     const response = await api.post("/admin/packages", addPackageData, {
       headers: {

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Package;
 use Illuminate\Support\Facades\DB;
-
+use App\Events\PackageCreatedNotification;
 class PackageController extends Controller
 {
     // Method to fetch all packages
@@ -142,7 +142,7 @@ public function update(Request $request, $id)
                 ]);
             }
         }
-
+        event(new PackageCreatedNotification($package));
         DB::commit(); // Commit the transaction
 
         return response()->json($package, 201); // Return the created package with 201 status

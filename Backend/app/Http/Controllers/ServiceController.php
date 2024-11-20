@@ -1,12 +1,13 @@
 <?php
 namespace App\Http\Controllers;
-
+use App\Notifications\NewServiceNotification;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AccountRole; // Add this import
 use Illuminate\Validation\ValidationException;
-
+use App\Events\NewServiceCreated;
+use App\Models\User;
 class ServiceController extends Controller
 {
 
@@ -86,20 +87,25 @@ public function store(Request $request)
             'availability_status' => 'boolean',
         ]);
 
-        // Attach the authenticated user's ID and role ID if needed
-        $validatedData['user_id'] = $userRole['user_id'];
-        $validatedData['role_id'] = $userRole['role_id']; // Only if you want to store role_id
+            // Attach the authenticated user's ID and role ID if needed
+            $validatedData['user_id'] = $userRole['user_id'];
+            $validatedData['role_id'] = $userRole['role_id']; // Only if you want to store role_id
 
-        $service = Service::create($validatedData);
-
-        return response()->json($service, 201); // Created successfully
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json(['status' => 'error', 'errors' => $e->errors()], 422);
-    } catch (\Throwable $th) {
-        return response()->json(['message' => $th->getMessage()], 500);
+            $service = Service::create($validatedData);
+            // $users = User::all(); // Notify all users
+            // Notification::send($users, new NewServiceNotification($service));
+            // foreach ($users as $user) {
+            //     $user->notify(new NewServiceCreated($service));
+            // }
+           
+            return response()->json([$service, 'message' => 'Service created successfully'], 201); // Created successfully
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['status' => 'error', 'errors' => $e->errors()], 422);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 500);
+        }
     }
-}
-
+    
 
 
 
@@ -215,4 +221,23 @@ public function store(Request $request)
         $accountRole = $user->accountRoles()->where('role_id', 3)->first();
         return $accountRole ? $user->id : null;
     }
+
+    public function triggerEventManually()
+{
+    try {
+        // Manually create a service or get an existing service
+        $newService = Service::find(1); // Example: Fetch service with ID = 1 (replace with your own logic)
+        
+        if (!$newService) {
+            return response()->json(['message' => 'Service not found'], 404);
+        }
+
+        // Trigger the NewServiceCreated event manually
+        event(new NewServiceCreated($newService));
+
+        return response()->json(['message' => 'Event triggered successfully'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['message' => $e->getMessage()], 500);
+    }
+}
 }

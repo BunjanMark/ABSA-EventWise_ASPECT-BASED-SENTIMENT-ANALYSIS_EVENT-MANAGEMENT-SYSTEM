@@ -17,6 +17,7 @@ use App\Http\Controllers\GuestsController;
 use App\Http\Controllers\AccountRoleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PackageServiceController;
+use App\Events\NewServiceCreated;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -51,7 +52,7 @@ Route::delete('/admin/account-management/{user}', [AccountManagementController::
 Route::get('/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);
 
 
-
+Route::get('/notifications', [AuthenticatedSessionController::class, 'fetchNotifications']);
 
 // Route::middleware(['admin'])->get('/admin', [AdminController::class, 'index']);
 // test route respond hello world
@@ -74,12 +75,16 @@ Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class
 // Route::post('/admin/events', [EventController::class, 'store']);
 Route::get('/admin/events', [EventController::class, 'index']);
 Route::get('/admin/events/{id}', [EventController::class, 'showEventById']);
+Route::delete('/admin/events/{id}', [EventController::class, 'deleteEvent']);
 Route::patch('/admin/events/{event}', [EventController::class, 'updateEvent']);
 Route::get('/events/active', [EventController::class, 'getActiveEvents']);
 Route::get('/events/archived', [EventController::class, 'getArchivedEvents']);
 Route::post('/events/{id}/archive', [EventController::class, 'archiveEvent']);
+Route::get('/admin/events/by-type', [EventController::class, 'fetchEventsByType']);
+Route::get('/admin/events/type/{type}', [EventController::class, 'getEventsByType']);// Guest management 
+Route::get('/admin/events/by-date/{date}', [EventController::class, 'fetchEventsByDate']);
+Route::post('/admin/events/{id}/restore', [EventController::class, 'restoreEvent']);
 
-// Guest management 
 Route::get('/guests', [GuestsController::class, 'index']);
 Route::get('/guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
 
@@ -93,7 +98,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/services/{id}', [ServiceController::class, 'destroy']); // Delete a specific service
     // Route::post('/services/myservice', [ServiceController::class, 'storeOwnService']);
 });
+Route::get('/trigger-event', function () {
+    $newService = Service::find(1); // Or create a new service for testing
+    event(new NewServiceCreated($newService));
 
+    return 'Event triggered';
+});
 
 
 // Protected Routes for admin

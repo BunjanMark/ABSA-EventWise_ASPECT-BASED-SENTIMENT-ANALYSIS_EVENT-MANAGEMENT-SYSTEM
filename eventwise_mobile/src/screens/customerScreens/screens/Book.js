@@ -6,14 +6,14 @@ import { ScrollView } from "react-native-gesture-handler";
 import Header from "../elements/Header";
 import API_URL from "../../../constants/constant";
 
-// Example of imported images
+// Imported event images
 import event1 from "../pictures/event1.png";
 import event2 from "../pictures/event2.png";
 import event3 from "../pictures/event3.png";
 import event4 from "../pictures/event4.png";
 import event5 from "../pictures/event5.png";
 
-// Event packages data (will now be fetched from the backend)
+// Mapping images to event IDs
 const eventImages = {
   1: event1,
   2: event2,
@@ -22,46 +22,33 @@ const eventImages = {
   5: event5,
 };
 
-
-
-const Book = () => {
+const Book = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState("packages");
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [eventPackages, setEventPackages] = useState([]);
 
   useEffect(() => {
-    // Fetch event data from your backend API
     const fetchEventPackages = async () => {
       try {
         const response = await fetch(`${API_URL}/api/admin/packages`);
-        // Check if the response is not JSON (i.e., HTML error page)
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-  
         const data = await response.json();
-        console.log(data);
-  
         const packagesWithImages = data.map((pkg) => ({
           ...pkg,
           coverPhoto: eventImages[pkg.id] || null,
-          services: pkg.services || [], // Ensure services array is present
+          services: pkg.services || [],
         }));
-  
         setEventPackages(packagesWithImages);
       } catch (error) {
         console.error("Error fetching event data:", error);
       }
     };
-  
     fetchEventPackages();
   }, []);
-  
 
-
-
-  
   const handlePackageClick = (packageItem) => {
     setSelectedPackage(packageItem);
     setCurrentStep("details");
@@ -76,13 +63,20 @@ const Book = () => {
             <View>
               <View style={styles.eventSection}>
                 <Text style={styles.eventTitle}>Event</Text>
-                <Button title="Add Event" onPress={() => setIsModalVisible(true)} />
+                <Button
+  title="Add Event"
+  onPress={() => {
+    try {
+      navigation.navigate("BookingProcess");
+    } catch (error) {
+      console.error("Navigation error:", error);
+    }
+  }}
+/>
+
+
               </View>
-              <BookingProcess
-                visible={isModalVisible}
-                onClose={() => setIsModalVisible(false)}
-                type="event"
-              />
+              
               <View style={styles.packagesSection}>
                 <Text style={styles.packagesTitle}>Packages</Text>
                 <ScrollView
@@ -100,7 +94,7 @@ const Book = () => {
                         <Image source={packageItem.coverPhoto} style={styles.coverPhoto} />
                       )}
                       <Text style={styles.packageName}>{packageItem.packageName}</Text>
-                      <Text style={styles.totalPrice}>{packageItem.totalPrice}</Text>
+                      <Text style={styles.totalPrice}>{`Price: ${packageItem.totalPrice}`}</Text>
                       <Text style={styles.eventType}>{packageItem.eventType}</Text>
                     </TouchableOpacity>
                   ))}
@@ -117,24 +111,22 @@ const Book = () => {
                 <Image source={selectedPackage.coverPhoto} style={styles.coverPhoto} />
               )}
               <Text style={styles.eventType}>{selectedPackage.eventType}</Text>
-              <Text style={styles.totalPrice}>{selectedPackage.totalPrice}</Text>
-              
+              <Text style={styles.totalPrice}>{`Price: ${selectedPackage.totalPrice}`}</Text>
               <View style={styles.servicesSection}>
-  <Text style={styles.servicesTitle}>Services</Text>
-  {selectedPackage.services.length > 0 ? (
-    selectedPackage.services.map((service) => (
-      <View key={service.id} style={styles.serviceCard}>
-        <Text style={styles.serviceName}>{service.serviceName}</Text>
-        <Text>{service.serviceCategory}</Text>
-        <Text>{service.serviceFeatures}</Text>
-        <Text>{`Base Price: ${service.basePrice}`}</Text>
-      </View>
-    ))
-  ) : (
-    <Text>No services available for this package.</Text>
-  )}
-</View>
-
+                <Text style={styles.servicesTitle}>Services</Text>
+                {selectedPackage.services.length > 0 ? (
+                  selectedPackage.services.map((service) => (
+                    <View key={service.id} style={styles.serviceCard}>
+                      <Text style={styles.serviceName}>{service.serviceName}</Text>
+                      <Text>{`Category: ${service.serviceCategory}`}</Text>
+                      <Text>{`Features: ${service.serviceFeatures}`}</Text>
+                      <Text>{`Base Price: ${service.basePrice}`}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text>No services available for this package.</Text>
+                )}
+              </View>
             </View>
           )}
         </ScrollView>
