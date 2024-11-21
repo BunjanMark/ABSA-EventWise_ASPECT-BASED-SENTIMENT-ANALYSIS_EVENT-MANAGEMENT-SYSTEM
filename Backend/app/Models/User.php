@@ -14,7 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
- 
+use App\Models\ExpoToken;
  
 
 class User extends Authenticatable
@@ -125,6 +125,11 @@ class User extends Authenticatable
      public function equipments()
     {
         return $this->belongsToMany(Equipment::class);
+    }
+
+    public function expoTokens()
+    {
+        return $this->hasMany(ExpoToken::class);
     }
 
 

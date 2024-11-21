@@ -114,9 +114,10 @@ const Login = ({ navigation }) => {
       );
 
       // Set profiles and active profile
+      // console.log("Login response: " + JSON.stringify(response));
+      // console.log(Boolean(response));
 
       setActiveProfile(userProfiles[0].role_id);
-
       // Navigate based on the role directly
       navigateBasedOnRole(userProfiles[0].role_id);
     } catch (error) {
