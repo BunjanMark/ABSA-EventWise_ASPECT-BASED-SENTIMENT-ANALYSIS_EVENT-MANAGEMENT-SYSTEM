@@ -1,4 +1,8 @@
 import axios from "axios";
+import {
+  registerForPushNotificationsAsync,
+  sendTokenToBackend,
+} from "./notification/notificationService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API_URL from "../constants/constant";
 
@@ -67,7 +71,20 @@ export const verifyCode = async (email, code) => {
 };
 export const login = async (email, password) => {
   try {
-    const response = await api.post("/auth/login", { email, password });
+    // Fetch the push token first
+    const pushToken = await registerForPushNotificationsAsync();
+    if (!pushToken) {
+      console.warn("Push token could not be obtained.");
+      return;
+    }
+
+    // Include push_token in the login request
+    const response = await api.post("/auth/login", {
+      email,
+      password,
+      push_token: pushToken,
+    });
+
     const { token } = response.data;
     console.log(response.data);
     await AsyncStorage.setItem("authToken", token);
