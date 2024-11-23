@@ -8,6 +8,7 @@ use App\Models\AccountRole; // Add this import
 use Illuminate\Validation\ValidationException;
 use App\Events\NewServiceCreated;
 use App\Models\User;
+use App\Events\ServiceCreatedEvent;
 class ServiceController extends Controller
 {
 
@@ -92,12 +93,10 @@ public function store(Request $request)
             $validatedData['role_id'] = $userRole['role_id']; // Only if you want to store role_id
 
             $service = Service::create($validatedData);
-            // $users = User::all(); // Notify all users
-            // Notification::send($users, new NewServiceNotification($service));
-            // foreach ($users as $user) {
-            //     $user->notify(new NewServiceCreated($service));
-            // }
-           
+            event(new ServiceCreatedEvent($service));
+ 
+            \Log::info("ServiceCreatedEvent fired for service: " . $service->serviceName);
+            
             return response()->json([$service, 'message' => 'Service created successfully'], 201); // Created successfully
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['status' => 'error', 'errors' => $e->errors()], 422);

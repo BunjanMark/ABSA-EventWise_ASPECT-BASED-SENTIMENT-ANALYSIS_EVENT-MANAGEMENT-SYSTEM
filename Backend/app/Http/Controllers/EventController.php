@@ -47,7 +47,7 @@ public function store(Request $request)
             'eventStatus' => 'required|string', // e.g., Tentative, Booked, etc.
             'eventLocation' => 'required|string',
             'description' => 'required|string',
-            'coverPhoto' => 'nullable|string', // !#TODO kani ang problema oh url sja pero sa db string. c
+            'coverPhoto' => 'nullable|string', 
             'totalPrice' => 'nullable|integer',
             // 'package_id' => 'required|exists:packages,id',
             'packages' => 'nullable|array',

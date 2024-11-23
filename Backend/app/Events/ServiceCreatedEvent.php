@@ -9,17 +9,19 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-
-class ServiceCreated
+use App\Models\Service;
+class ServiceCreatedEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public $service;
+    public function __construct(Service $service)
     {
         //
+        $this->service = $service;
     }
 
     /**
