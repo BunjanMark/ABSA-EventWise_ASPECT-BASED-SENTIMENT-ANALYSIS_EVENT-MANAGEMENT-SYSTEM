@@ -9,30 +9,31 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-
-class PackageCreatedNotification implements ShouldBroadcast
+use App\Models\Package;
+class PackageCreatedEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $package;
+
     /**
      * Create a new event instance.
      */
-    public function __construct($package)
+
+     public $package;
+    public function __construct(Package $package)
     {
+        //
         $this->package = $package;
     }
 
     /**
      * Get the channels the event should broadcast on.
-     *
+     *  
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn()
+    public function broadcastOn(): array
     {
-        return ['package-created'];
-    }
-    public function broadcastAs()
-    {
-        return 'package.created';
+        return [
+            new PrivateChannel('channel-name'),
+        ];
     }
 }

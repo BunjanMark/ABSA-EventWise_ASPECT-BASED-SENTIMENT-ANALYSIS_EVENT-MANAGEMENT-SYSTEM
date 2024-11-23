@@ -7,7 +7,6 @@ import {
   Image,
   FlatList,
   Button,
-  SafeAreaView,
 } from "react-native";
 import { formatDistanceToNow } from "date-fns";
 import * as Notifications from "expo-notifications"; // Import Expo Notifications
@@ -19,30 +18,23 @@ import { RefreshControl } from "react-native";
 
 export default NotificationsComponent = () => {
   const [notifications, setNotifications] = useState([]);
-
   const [refreshing, setRefreshing] = useState(false);
 
-  const [visibleNotifications, setVisibleNotifications] = useState([]);
-
-  const INITIAL_LIMIT = 10;
-  const LOAD_MORE_COUNT = 5;
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
       const notificationsFromServer = await fetchNotifications();
       const formattedNotifications = notificationsFromServer.map((notif) => ({
         ...notif,
-        receivedAt: notif.receivedAt ? new Date(notif.receivedAt) : new Date(),
+        receivedAt: notif.receivedAt ? new Date(notif.receivedAt) : new Date(), // Fallback to current date
       }));
       setNotifications(formattedNotifications);
-      setVisibleNotifications(formattedNotifications.slice(0, INITIAL_LIMIT));
     } catch (error) {
       console.error("Error fetching notifications:", error);
     } finally {
       setRefreshing(false);
     }
   };
-
   useEffect(() => {
     const fetchNotificationsFromServer = async () => {
       try {
@@ -51,10 +43,10 @@ export default NotificationsComponent = () => {
           ...notif,
           receivedAt: notif.receivedAt
             ? new Date(notif.receivedAt)
-            : new Date(),
+            : new Date(), // Fallback to current date
         }));
         setNotifications(formattedNotifications);
-        setVisibleNotifications(formattedNotifications.slice(0, INITIAL_LIMIT));
+        console.log("Fetched notifications:", notificationsFromServer);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
@@ -83,9 +75,6 @@ export default NotificationsComponent = () => {
             return new Date(b.created_at) - new Date(a.created_at);
           });
         }); // Add new notification to the top
-        setVisibleNotifications((prevVisible) =>
-          [newNotification, ...prevVisible].slice(0, INITIAL_LIMIT)
-        );
       }
     );
 
@@ -100,13 +89,6 @@ export default NotificationsComponent = () => {
       )
     );
 
-    // Update the visibleNotifications state
-    setVisibleNotifications((prevVisible) =>
-      prevVisible.map((notif) =>
-        notif.id === id ? { ...notif, read: true } : notif
-      )
-    );
-
     try {
       await markNotificationAsRead(id); // Persist the read status in backend
     } catch (error) {
@@ -114,32 +96,16 @@ export default NotificationsComponent = () => {
     }
   };
 
-  const loadMoreNotifications = () => {
-    const nextVisibleCount = visibleNotifications.length + LOAD_MORE_COUNT;
-    setVisibleNotifications(notifications.slice(0, nextVisibleCount));
-  };
-
   const clearAllNotifications = () => {
-    setNotifications([]);
-    setVisibleNotifications([]);
+    setNotifications([]); // Clears all notifications
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {
-          display: "flex",
-          flex: 1,
-          flexDirection: "column",
-          paddingBottom: 300,
-        },
-      ]}
-    >
+    <>
       <Button title="Clear All" onPress={clearAllNotifications} />
       <FlatList
         style={styles.root}
-        data={visibleNotifications}
+        data={notifications}
         keyExtractor={(item) => item.id.toString()}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         renderItem={({ item }) => {
@@ -152,7 +118,7 @@ export default NotificationsComponent = () => {
             <TouchableOpacity
               style={[
                 styles.container,
-                { backgroundColor: item.read ? "white" : "#F0F8FF" },
+                { backgroundColor: item.read ? "red" : "#F0F8FF" },
               ]}
               onPress={() => markAsRead(item.id)}
             >
@@ -163,7 +129,7 @@ export default NotificationsComponent = () => {
                     <Text style={styles.name}>{item.title}</Text>
                     <Text>{item.body}</Text>
                     {/* <Text>{item.data}</Text> */}
-                    {/* <Text> {JSON.stringify(item, null, 2)}</Text> */}
+                    <Text> {JSON.stringify(item, null, 2)}</Text>
                   </View>
                   <Text style={styles.timeAgo}>{timeAgo}</Text>
                 </View>
@@ -180,13 +146,8 @@ export default NotificationsComponent = () => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
-        ListFooterComponent={() =>
-          notifications.length > visibleNotifications.length ? (
-            <Button title="Load More" onPress={loadMoreNotifications} />
-          ) : null
-        }
       />
-    </SafeAreaView>
+    </>
   );
 };
 
@@ -230,16 +191,5 @@ const styles = StyleSheet.create({
     height: 100,
     marginTop: 10,
     borderRadius: 8,
-  },
-  loadMoreButton: {
-    padding: 10,
-    backgroundColor: "#2196F3",
-    alignItems: "center",
-    marginVertical: 10,
-    borderRadius: 5,
-  },
-  loadMoreText: {
-    color: "#FFF",
-    fontWeight: "bold",
   },
 });

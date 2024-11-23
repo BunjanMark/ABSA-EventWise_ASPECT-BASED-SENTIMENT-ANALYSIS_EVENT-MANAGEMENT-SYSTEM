@@ -17,7 +17,6 @@ import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
 import { deleteEvent } from "../../../../services/organizer/adminEventServices";
 import { useEffect } from "react";
 const EventAdmin = () => {
-  const [refreshing, setRefreshing] = useState(false);
   const { currentPackages, setCurrentPackages } = usePackageStore();
   const { currentEvents, setCurrentEvents } = useEventStore();
   const [likedPackages, setlikedPackages] = useState({});
@@ -116,7 +115,7 @@ const EventAdmin = () => {
     }
   }, [setCurrentEvents]);
   return (
-    <SafeAreaView style={[styles.container, { paddingBottom: 100 }]}>
+    <SafeAreaView style={[{ paddingBottom: 100 }]}>
       <ScrollView
         refreshControl={
           <RefreshControl
