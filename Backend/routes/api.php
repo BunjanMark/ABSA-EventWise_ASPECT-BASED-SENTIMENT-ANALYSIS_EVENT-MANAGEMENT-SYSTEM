@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\EventController;
@@ -17,6 +17,7 @@ use App\Http\Controllers\GuestsController;
 use App\Http\Controllers\AccountRoleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PackageServiceController;
+use App\Http\Controllers\EventPackageController;
 use App\Events\NewServiceCreated;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -84,9 +85,23 @@ Route::get('/admin/events/by-type', [EventController::class, 'fetchEventsByType'
 Route::get('/admin/events/type/{type}', [EventController::class, 'getEventsByType']);// Guest management 
 Route::get('/admin/events/by-date/{date}', [EventController::class, 'fetchEventsByDate']);
 Route::post('/admin/events/{id}/restore', [EventController::class, 'restoreEvent']);
+Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEventPackages']);
 
 Route::get('/guests', [GuestsController::class, 'index']);
-Route::get('/guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
+Route::get('guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
+Route::put('/guests/{id}', [GuestsController::class, 'update']);
+Route::delete('/guests/{id}', [GuestsController::class, 'destroy']);
+
+
+
+
+
+
+
+
+
+
+
 
 // service management
 Route::middleware('auth:sanctum')->group(function () {
@@ -126,7 +141,7 @@ Route::get('equipment', [EquipmentController::class, 'index']);
 Route::post('equipment', [EquipmentController::class, 'store']);
 Route::put('equipment/{id}', [EquipmentController::class, 'update']);
 Route::delete('equipment/{id}', [EquipmentController::class, 'destroy']);
-
+Route::get('/event/{eventId}/equipment', [EquipmentController::class, 'getEquipmentForEvent']);
 
 Route::get('pending', [PendingUserController::class, 'index']);
 Route::post('/pending', [PendingUserController::class, 'register']);
@@ -135,3 +150,19 @@ Route::post('/accept-pending-user/{id}', [UserController::class, 'acceptPendingU
 Route::delete('/decline-pending-user/{id}', [UserController::class, 'declinePendingUser']);
 
 Route::post('/login', [UserController::class, 'login']);
+
+
+
+// 
+
+Route::get('/inventories', 'InventoryController@index');
+Route::post('/inventories', 'InventoryController@store');
+Route::get('/inventories/{id}', 'InventoryController@show');
+Route::put('/inventories/{id}', 'InventoryController@update');
+Route::delete('/inventories/{id}', 'InventoryController@destroy');
+
+Route::get('/inventories',  [EventController::class, 'index']);
+Route::post('/inventories', [EventController::class, 'store']);
+Route::get('/inventories/{id}', [EventController::class, 'show']);
+Route::put('/inventories/{id}', [EventController::class, 'update']);
+Route::delete('/inventories/{id}', [EventController::class, 'destroy']);

@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Role;
 use App\Models\AccountRole;
+use App\Models\Equipment;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Hash;
@@ -120,6 +121,11 @@ class User extends Authenticatable
      {
          $this->attributes['password'] = Hash::make($value);
      }
+
+     public function equipments()
+    {
+        return $this->belongsToMany(Equipment::class);
+    }
 
 
 }

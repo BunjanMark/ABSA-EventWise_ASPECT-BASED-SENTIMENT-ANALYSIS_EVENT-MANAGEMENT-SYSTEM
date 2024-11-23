@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Inventory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Guests;
 use App\Models\Package;
@@ -31,9 +32,10 @@ class Event extends Model
     protected $dates = ['deleted_at']; // To track soft delete timestamps
     // Relationship to guests
     public function guests()
-    {
-        return $this->hasMany(Guests::class);
-    }
+{
+    return $this->hasMany(Guests::class, 'event_id');
+}
+
     public function package()
 {
     return $this->belongsTo(Package::class);
@@ -48,5 +50,10 @@ class Event extends Model
         public function equipment()
     {
         return $this->hasMany(Equipment::class);
+    }
+
+        public function inventories()
+    {
+        return $this->belongsToMany(Inventory::class);
     }
 }

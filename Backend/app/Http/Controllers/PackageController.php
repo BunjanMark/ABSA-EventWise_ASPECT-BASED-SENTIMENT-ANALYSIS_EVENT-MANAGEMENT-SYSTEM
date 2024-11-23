@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Package;
 use Illuminate\Support\Facades\DB;
 use App\Events\PackageCreatedNotification;
+use Illuminate\Support\Facades\Auth;
 class PackageController extends Controller
 {
     // Method to fetch all packages
@@ -110,6 +111,7 @@ public function update(Request $request, $id)
             'eventType' => 'required|string',
             'packageType' => 'nullable|boolean',  // packageType is optional here    
             'services' => 'nullable|array', // Make services nullable
+            'services.*' => 'integer',
             'totalPrice' => 'required|numeric|min:1',
             'coverPhoto' => 'nullable|url', // Ensure it's a valid URL
  
@@ -128,7 +130,7 @@ public function update(Request $request, $id)
             'packageType' => $packageType,  // Assign the correct package type
             'totalPrice' => $validatedData['totalPrice'],
             'coverPhoto' => $validatedData['coverPhoto'],
-            'services' => json_encode($validatedData['services']), // Store services as JSON
+            'services' => json_encode($validatedData['services']),
         ]);
 
         // Link associated service IDs to the package
@@ -162,6 +164,18 @@ public function update(Request $request, $id)
         ], 500);
     }
 }
+    public function getAllServicesInPackages(Request $request)
+    {
+        $packages = Package::all();
+        $servicesInPackages = [];
+
+        foreach ($packages as $package) {
+            $services = json_decode($package->services, true);
+            $servicesInPackages = array_merge($servicesInPackages, $services);
+        }
+
+        return response()->json($servicesInPackages);
+    }
     public function destroy(Request $request, $id)
     {
         DB::beginTransaction(); // Start the transaction
@@ -197,5 +211,19 @@ public function update(Request $request, $id)
                 "message" => $th->getMessage()
             ], 500);
         }
+    }
+
+    public function getServicesInPackage(Request $request)
+    {
+        $userId = Auth::id();
+        $packages = Package::where('user_id', $userId)->get();
+        $servicesInPackages = [];
+
+        foreach ($packages as $package) {
+            $services = json_decode($package->services, true);
+            $servicesInPackages = array_merge($servicesInPackages, $services);
+        }
+
+        return response()->json($servicesInPackages);
     }
 }

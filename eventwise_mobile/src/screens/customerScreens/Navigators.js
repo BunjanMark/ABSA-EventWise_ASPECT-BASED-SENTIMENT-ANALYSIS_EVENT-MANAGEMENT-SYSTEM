@@ -44,6 +44,7 @@ import Feedback from "../screens/customerScreens/otherScreens/Feedback";
 import Profile from "../screens/customerScreens/screens/Profile";
 import EventPackage from "../screens/customerScreens/otherScreens/EventPackage";
 import EventPackageDetails from "../adminMain/screens/event/EventPackageDetails";
+import GuestList from "../screens/customerScreens/sidebarScreens/Guest";
 
 // Guest Stack here
 
@@ -111,6 +112,12 @@ const Navigators = () => {
           component={InventoryTracker}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="GuestList"
+          component={GuestList}
+          options={{ headerShown: false }}
+        />
+
         <Stack.Screen
           name="Schedule"
           component={Schedule}

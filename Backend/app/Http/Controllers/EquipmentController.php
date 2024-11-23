@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipment;
 use Illuminate\Http\Request;
+use App\Models\Event;
 
 class EquipmentController extends Controller
 {
@@ -24,24 +25,35 @@ class EquipmentController extends Controller
 
 
     // Store a new equipment entry
-    public function store(Request $request)
+    // public function store(Request $request)
+    // {
+    //     // Validate the incoming data
+    //     $validatedData = $request->validate([
+    //         'item' => 'required|string',
+    //         'number_of_items' => 'required|integer',
+    //         'number_of_sort_items' => 'required|integer',
+    //         'status' => 'nullable|string',
+    //         'event_id' => 'required|exists:events,id'
+    //     ]);
+
+    //     // Create a new equipment entry
+    //     $equipment = Equipment::create($validatedData);
+
+    //     // Return the newly created item
+    //     return response()->json($equipment, 201);
+    // }
+    public function getEquipmentForEvent($eventId)
     {
-        // Validate the incoming data
-        $validatedData = $request->validate([
-            'item' => 'required|string',
-            'number_of_items' => 'required|integer',
-            'number_of_sort_items' => 'required|integer',
-            'status' => 'nullable|string',
-            'event_id' => 'required|exists:events,id'
-        ]);
+        $event = Event::find($eventId);
 
-        // Create a new equipment entry
-        $equipment = Equipment::create($validatedData);
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
+        }
 
-        // Return the newly created item
-        return response()->json($equipment, 201);
+        $equipment = Equipment::where('event_id', $eventId)->get();
+
+        return response()->json($equipment);
     }
-
     // Update an existing equipment entry
     public function update(Request $request, $id)
     {

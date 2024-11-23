@@ -181,7 +181,7 @@ const AdminDrawerContent = (props) => {
           icon={"people-group"}
         />
         <DrawerItem
-          label="Inventory Tracker"
+          label="Equipment Tracker"
           iconComponent={
             <MaterialCommunityIcons
               name={

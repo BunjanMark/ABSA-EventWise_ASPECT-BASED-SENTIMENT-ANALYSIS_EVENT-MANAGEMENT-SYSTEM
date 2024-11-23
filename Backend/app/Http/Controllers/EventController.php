@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Guests;
+use App\Models\Equipment;
+use App\Models\Package;
+use App\Models\Service;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -24,7 +27,7 @@ class EventController extends Controller
     $events = Event::whereDate('date', $date)->get();
     return response()->json($events);
 }
- public function store(Request $request)
+public function store(Request $request)
 {
     try {
         // Ensure user is authenticated
@@ -62,7 +65,6 @@ class EventController extends Controller
             $validatedData['packages'] = []; // Default to an empty array if services are not provided
         }
 
-
         // Create the event with package association
         $event = Event::create([
             'name' => $validatedData['eventName'],
@@ -78,6 +80,8 @@ class EventController extends Controller
             'packages' => json_encode($validatedData['packages']), // Store packages as JSON
             'user_id' => $validatedData['user_id'], // Now user_id is explicitly set
         ]);
+
+
         if (isset($validatedData['packages']) && count($validatedData['packages']) > 0) {
             foreach ($validatedData['packages'] as $packageId) {
                 DB::table('event_packages')->insert([
@@ -88,6 +92,21 @@ class EventController extends Controller
                 ]);
             }
         }
+        // Create equipment records for the event
+        foreach ($validatedData['packages'] as $packageId) {
+            $package = Package::find($packageId);
+            $services = json_decode($package->services, true);
+
+            foreach ($services as $serviceId) {
+                $service = Service::find($serviceId);
+                $equipment = Equipment::create([
+                    'event_id' => $event->id,
+                    'service_id' => $serviceId,
+                    'user_id' => $service->user_id,
+                ]);
+            }
+        }
+
         // Add guests to the event
         foreach ($validatedData['guests'] as $guestData) {
             Guests::create([
@@ -112,6 +131,8 @@ class EventController extends Controller
         ], 500);
     }
 }
+
+
 public function fetchEventsByType(Request $request)
 {
     try {
@@ -136,25 +157,19 @@ public function fetchEventsByType(Request $request)
     }
 }
 
-// !Mao ni original
-// public function fetchEventsByDate($date)
-// {
-//     // Fetch events where the date matches
-//     $events = Event::whereDate('date', $date)->get();
+public function getEventsWithMyServices(Request $request)
+{
+    $userId = Auth::id();
+    $myServices = Service::where('user_id', $userId)->pluck('id');
+    $packages = Package::whereHas('services', function ($query) use ($myServices) {
+        $query->whereIn('service_id', $myServices);
+    })->pluck('id');
+    $events = Event::whereHas('packages', function ($query) use ($packages) {
+        $query->whereIn('package_id', $packages);
+    })->get();
 
-//     if ($events->isEmpty()) {
-//         return response()->json(['error' => 'No events found for this date'], 404);
-//     }
-
-//     return response()->json($events);
-//         // Get the count of events on a specific date
-// //         $eventsCount = Event::whereDate('date', $date)
-// //         ->selectRaw('count(*) as count')
-// //         ->first();
-
-// // return response()->json(['count' => $eventsCount->count]);
-      
-// }
+    return response()->json($events);
+}
 
 public function fetchEventsByDate($date)
 {
@@ -180,26 +195,24 @@ public function fetchEventsByDate($date)
          }
 }
  
-    public function showEventById($eventId)
-    {
-        try {
-            // Log::debug("Fetching event with ID: $eventId");
-            $event = Event::find($eventId);
-    
-            if (!$event) {
-                // Log::error("Event with ID $eventId not found");
-                return response()->json(['error' => 'Event not found'], 404);
-            }
-    
-            return response()->json($event);
-        } catch (\Throwable $th) {
-            // Log::error("An error occurred while fetching the event: " . $th->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred while fetching the event',
-            ], 500);
+public function showEventById($eventId)
+{
+    try {
+        $event = Event::with('guests')->find($eventId);
+
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
         }
+
+        return response()->json($event);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'An error occurred while fetching the event',
+        ], 500);
     }
+}
+
     public function getEventsByType($type)
 {
     $events = Event::where('type', $type)->get();
