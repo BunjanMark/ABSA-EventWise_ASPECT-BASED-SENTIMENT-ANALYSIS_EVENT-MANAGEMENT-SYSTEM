@@ -18,6 +18,7 @@ use App\Http\Controllers\AccountRoleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PackageServiceController;
 use App\Http\Controllers\EventPackageController;
+use App\Http\Controllers\NotificationController;
 use App\Events\NewServiceCreated;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -52,8 +53,6 @@ Route::patch('/admin/account-management/{user}', [AccountManagementController::c
 Route::delete('/admin/account-management/{user}', [AccountManagementController::class, 'destroy']);
 Route::get('/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);
 
-
-Route::get('/notifications', [AuthenticatedSessionController::class, 'fetchNotifications']);
 
 // Route::middleware(['admin'])->get('/admin', [AdminController::class, 'index']);
 // test route respond hello world
@@ -93,7 +92,9 @@ Route::put('/guests/{id}', [GuestsController::class, 'update']);
 Route::delete('/guests/{id}', [GuestsController::class, 'destroy']);
 
 
-
+// Notification handlers
+Route::get('/notifications', [NotificationController::class, 'index']);
+Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
 
 

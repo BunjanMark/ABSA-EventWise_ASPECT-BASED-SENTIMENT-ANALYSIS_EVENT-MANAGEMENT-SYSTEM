@@ -10,7 +10,10 @@ use App\Events\SendExpoTokenEvent;
 use App\Listeners\SaveExpoTokenListener;
 use App\Events\ServiceCreatedEvent;
 use App\Listeners\NotifyAdminListener;
-
+use App\Listeners\EventCreatedListener;
+use App\Events\EventCreatedEvent;
+use App\Listeners\PackageCreatedListener;
+use App\Events\PackageCreatedEvent;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -33,8 +36,15 @@ class AppServiceProvider extends ServiceProvider
        Event::listen(
          SendExpoTokenEvent::class,
          SaveExpoTokenListener::class,
+         // service creation notification
          ServiceCreatedEvent::class,
          NotifyAdminListener::class,
+        //  event creation notification
+        EventCreatedEvent::class,
+        EventCreatedListener::class,
+        // package creation notification
+        PackageCreatedEvent::class,
+        PackageCreatedListener::class
        );
 
        

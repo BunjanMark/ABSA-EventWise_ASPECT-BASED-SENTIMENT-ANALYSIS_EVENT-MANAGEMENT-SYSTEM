@@ -124,11 +124,7 @@ class AuthenticatedSessionController extends Controller
         
     }
 
-    public function fetchNotifications()
-    {
-        $notifications = auth()->user()->notifications;  // Get all notifications for the authenticated user
-        return response()->json($notifications);
-    }
+ 
     // Send email verification code
     public function sendVerificationEmail(Request $request)
     {

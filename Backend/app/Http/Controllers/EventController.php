@@ -11,6 +11,7 @@ use App\Models\Service;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Events\EventCreatedEvent;
 class EventController extends Controller
 {
     //Add a method to fetch all events
@@ -81,6 +82,7 @@ public function store(Request $request)
             'user_id' => $validatedData['user_id'], // Now user_id is explicitly set
         ]);
 
+        event(new EventCreatedEvent($event));
 
         if (isset($validatedData['packages']) && count($validatedData['packages']) > 0) {
             foreach ($validatedData['packages'] as $packageId) {

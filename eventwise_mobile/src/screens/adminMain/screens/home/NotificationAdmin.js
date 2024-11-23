@@ -165,14 +165,7 @@ const NotificationAdmin = () => {
         return notificationsData["All"].map((notification) => (
           <View key={notification.id} style={styles.notificationBox}>
             <View style={styles.leftContainer}>
-              {notification.profilePicture ? (
-                <Image
-                  source={notification.profilePicture}
-                  style={styles.profilePicture}
-                />
-              ) : (
-                <Image source={profilepic} style={styles.profilePicture} />
-              )}
+              <Image source={profilepic} style={styles.profilePicture} />
               <View style={styles.notificationDetails}>
                 {notification.title && (
                   <Text style={styles.notificationTitle}>
@@ -197,14 +190,6 @@ const NotificationAdmin = () => {
                 <Text style={styles.daysAgo}>{notification.daysAgo}</Text>
               </View>
             </View>
-            {notification.rightImage && (
-              <View style={styles.rightContainer}>
-                <Image
-                  source={notification.rightImage}
-                  style={styles.rightImage}
-                />
-              </View>
-            )}
           </View>
         ));
       default:
@@ -213,10 +198,7 @@ const NotificationAdmin = () => {
   };
 
   return (
-    <LinearGradient
-      colors={["#0D0D0D", "#1A1A1A"]} // Gradient colors
-      style={styles.container}
-    >
+    <LinearGradient colors={["#0D0D0D", "#1A1A1A"]} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -226,7 +208,6 @@ const NotificationAdmin = () => {
         </TouchableOpacity>
         <Text style={styles.headerText}>Notification</Text>
       </View>
-
       <View style={styles.tabsContainer}>
         <ScrollView
           horizontal
@@ -244,7 +225,7 @@ const NotificationAdmin = () => {
               style={[
                 styles.tabButton,
                 {
-                  backgroundColor: selectedTab === tab ? "#FFC42B" : "#1A1A1A", // Updated background color
+                  backgroundColor: selectedTab === tab ? "#FFC42B" : "#1A1A1A",
                   borderColor: selectedTab === tab ? "#FFC42B" : "#FFFFFF",
                 },
               ]}
@@ -253,9 +234,7 @@ const NotificationAdmin = () => {
               <Text
                 style={[
                   styles.tabText,
-                  {
-                    color: selectedTab === tab ? "#000000" : "#FFFFFF",
-                  },
+                  { color: selectedTab === tab ? "#000000" : "#FFFFFF" },
                 ]}
               >
                 {tab}
@@ -264,7 +243,6 @@ const NotificationAdmin = () => {
           ))}
         </ScrollView>
       </View>
-
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
@@ -276,125 +254,7 @@ const NotificationAdmin = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#2A2A2A",
-  },
-  backButton: {
-    position: "absolute",
-    left: 20,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FFC42B",
-  },
-  tabsContainer: {
-    backgroundColor: "#1A1A1A",
-    paddingVertical: 5,
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  tabsContentContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  tabButton: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginHorizontal: 5,
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  notificationBox: {
-    backgroundColor: "#F0F0F0", // Whitish-gray background
-    borderRadius: 10,
-    marginVertical: 10,
-    padding: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  leftContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  profilePicture: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
-  },
-  notificationDetails: {
-    flex: 1,
-  },
-  notificationTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#000000", // Black text
-  },
-  notificationName: {
-    fontSize: 16,
-    color: "#000000", // Black text
-  },
-  notificationService: {
-    fontSize: 14,
-    color: "#000000", // Black text
-  },
-  notificationJoined: {
-    fontSize: 14,
-    color: "#6F6F6F", // Gray text
-  },
-  rightImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
-  daysAgo: {
-    fontSize: 12,
-    color: "#6F6F6F", // Gray text
-  },
-  rightContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-  },
-  acceptButton: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    marginRight: 5,
-  },
-  declineButton: {
-    backgroundColor: "#F44336",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-  },
-  contentContainer: {
-    paddingHorizontal: 10,
-    paddingBottom: 20,
-  },
+  // Your styles here...
 });
 
 export default NotificationAdmin;

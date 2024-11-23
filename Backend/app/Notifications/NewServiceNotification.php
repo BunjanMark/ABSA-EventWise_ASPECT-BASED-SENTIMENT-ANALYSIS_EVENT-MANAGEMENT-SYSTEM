@@ -24,9 +24,9 @@ class NewServiceNotification extends Notification
      *
      * @return array<int, string>
      */
-        public function via($notifiable)
+    public function via($notifiable)
     {
-        return ['database', 'broadcast'];
+        return ['expo', 'database'];
     }
 
     public function toBroadcast($notifiable)

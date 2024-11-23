@@ -8,7 +8,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use ExpoSDK\Expo;
 use ExpoSDK\ExpoMessage;
 use App\Models\ExpoToken;
- 
+use App\Models\Notification;
+
 class NotifyAdminListener
 {
     /**
@@ -47,8 +48,22 @@ class NotifyAdminListener
     
             // Send the notification to the admin
             (new Expo)->send($message)->to([$adminExpoToken])->push();
-    
+
+                 // Store the notification in the database
+                 Notification::create([
+                    'title' => 'New Service Created',
+                    'body' => "Service '{$service->serviceName}' has been added.",
+                    'data' => json_encode(['service_id' => $service->id]),
+                    'user_id' => 1, // The ID of the admin receiving the notification
+                ]);
+
+                
             \Log::info("Notification sent successfully to admin with token: " . $adminExpoToken);
+
+
+   
+
+ 
         } catch (\Throwable $th) {
             \Log::error('Failed to send notification: ' . $th->getMessage());
         }
