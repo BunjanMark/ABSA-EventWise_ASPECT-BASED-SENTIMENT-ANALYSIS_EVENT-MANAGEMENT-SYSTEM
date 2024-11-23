@@ -29,7 +29,7 @@ const SidebarMenu = ({ visible, onClose }) => {
           "profilePicture"
         );
 
-        setUsername(storedUsername || "Customer Name");
+        setUsername(storedUsername || "Customer");
         if (storedProfilePicture) {
           setProfilePicture(storedProfilePicture);
         }
@@ -70,24 +70,23 @@ const SidebarMenu = ({ visible, onClose }) => {
           </View>
 
           <View style={styles.drawerHeader}>
-            <View style={styles.userProfile}>
-              <Image
-                source={
-                  profilePicture
-                    ? { uri: profilePicture }
-                    : require("../pictures/user.png")
-                }
-                style={styles.accountImage}
-              />
-            </View>
-
-            <View style={styles.drawer2}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={styles.userName}>{username}</Text>
-              </View>
-              <Text style={styles.userRole}>Customer</Text>
-            </View>
+          <View style={styles.userProfile}>
+            <Image
+              source={
+                profilePicture
+                  ? { uri: profilePicture }
+                  : require("../pictures/user.png")
+              }
+              style={styles.accountImage}
+            />
           </View>
+
+          <View style={styles.drawerInfo}>
+            <Text style={styles.userName}>{username}</Text>
+            <Text style={styles.userRole}>Customer</Text>
+          </View>
+        </View>
+
 
           {["Home", "Profile", "Settings", "About", "Logout"].map(
             (item, index) => (
@@ -179,6 +178,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    width: "70%",
   },
   sidebar: {
     flex: 1,
@@ -194,17 +194,20 @@ const styles = StyleSheet.create({
     marginLeft: -5,
   },
   drawerHeader: {
-    flexDirection: "row",
+    flexDirection: "row", // Aligns the profile picture and text horizontally
+    alignItems: "center", // Centers the items vertically in the row
     marginBottom: 40,
   },
   userProfile: {
-    marginTop: 10,
+    marginRight: 15, // Adds space between the profile picture and the text
   },
   accountImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 100,
-    marginLeft: -5,
+    width: 50,
+    height: 50,
+    borderRadius: 25, // Ensures the image is circular
+  },
+  drawerInfo: {
+    flexDirection: "column", // Aligns the text vertically
   },
   drawer2: {
     marginLeft: 40,
@@ -212,7 +215,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   userName: {
-    fontSize: 24,
+    fontSize: 20,
     color: "#000",
     fontWeight: "bold",
     fontFamily: "Poppins",
@@ -232,7 +235,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#eeba2b",
     borderColor: "#eeba2b",
     borderWidth: 1,
-    width: 700,
+    width: "70%",
   },
   optionActive: {
     backgroundColor: "#eeba2b",

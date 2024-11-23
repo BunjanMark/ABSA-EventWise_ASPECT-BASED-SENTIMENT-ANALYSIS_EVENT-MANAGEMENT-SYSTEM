@@ -66,6 +66,10 @@ function Events() {
     navigate('/inventory', { state: { eventId } });
 };
 
+const handleGuestClick = (eventId) => {
+  navigate('/group-attendees', { state: { eventId } });
+};
+
 
   const toggleLike = (eventId) => {
     setLikedEvents((prevState) => ({
@@ -125,7 +129,7 @@ function Events() {
                     <div className="menu-item-events" onClick={() => navigate('/feedback/feedback-events')}>
                         <FontAwesomeIcon icon={faCommentDots} /> Feedback
                     </div>
-                    <div className="menu-item-events" onClick={() => navigate('/group-attendees')}>
+                    <div className="menu-item-events" onClick={() => handleGuestClick(item.id)}>
                         <FontAwesomeIcon icon={faUserFriends} /> Guest
                     </div>
                 </div>

@@ -130,11 +130,12 @@ const Schedule = () => {
             <FontAwesomeIcon icon={faPlus} /> Add Schedule
           </button></h2>
         </div>
-        <div className="current-month-schedule" style={{ fontSize: '2em', margin: '20px 0' }}>
-          {moment().format("MMMM YYYY")}
-        </div>
+        
 <div className="schedule-layout">
         <div className="calendar-schedule">
+        <div className="current-month-schedule" style={{ fontSize: '2em', margin: '20px 20px 20px 20px' }}>
+          {moment().format("MMMM YYYY")}
+        </div>
           <div className="days-header-schedule">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
               <div key={day}>{day}</div>

@@ -3,84 +3,94 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Event;
 use App\Models\Guests;
+use App\Models\Event;  // Ensure the Event model is included
 use Illuminate\Support\Facades\DB;
 
 class GuestsController extends Controller
 {
-    // Fetch all events with guests
-    public function index()
-    {
-        $events = Event::with('guests')->get();
-        return response()->json($events, 200);
-    }
-
-    // Store a new event with guests
-    public function store(Request $request)
-    {
-        DB::beginTransaction();
-
-        try {
-            // Validate event and guest data
-            $validatedData = $request->validate([
-                'eventName' => 'required|string|max:255',
-                'eventType' => 'required|string',
-                'eventDate' => 'required|date',
-                'eventTime' => 'required|date_format:H:i',
-                'eventLocation' => 'required|string',
-                'description' => 'nullable|string',
-                'coverPhoto' => 'nullable|url',
-                'guests' => 'required|array',
-                'guests.*.GuestName' => 'required|string|max:255',
-                'guests.*.email' => 'required|email',
-                'guests.*.phone' => 'nullable|string|max:15',
-            ]);
-
-            // Create the event
-            $event = Event::create([
-                'name' => $validatedData['eventName'],
-                'type' => $validatedData['eventType'],
-                'date' => $validatedData['eventDate'],
-                'time' => $validatedData['eventTime'],
-                'location' => $validatedData['eventLocation'],
-                'description' => $validatedData['description'] ?? 'No description available',
-                'cover_photo' => $validatedData['coverPhoto'] ?? null,
-            ]);
-
-            // Create guests and associate them with the event
-            foreach ($validatedData['guests'] as $guestData) {
-                $event->guests()->create([
-                    'GuestName' => $guestData['GuestName'],
-                    'email' => $guestData['email'],
-                    'phone' => $guestData['phone'] ?? null,
-                ]);
-            }
-
-            DB::commit();
-
-            return response()->json(['event' => $event, 'guests' => $event->guests], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => 'Failed to create event with guests', 'message' => $e->getMessage()], 500);
-        }
-    }
-    public function getGuests()
-    {
-        $guests = Guest::all();
-        return response()->json($guests);
-    }
+    // Fetch all guests for a specific event
     public function getGuestByEvent($eventid)
     {
-       try {
-        $guests = Guest::where('event_id', $eventid)->get();
-        return response()->json($guests);
-        // return Guest::where('event_id', $eventid)->get();
-       } catch (\Throwable $th) {
-        //throw $th;
-        return response()->json(['message' => $th->getMessage()], 500);
-       }
+        try {
+            // Fetch guests for a specific event
+            $guests = Guests::where('event_id', $eventid)->get();
+            
+            // If no guests are found, return a 404 response
+            if ($guests->isEmpty()) {
+                return response()->json(['message' => 'No guests found for this event'], 404);
+            }
 
+            return response()->json($guests, 200);  // Return guests data with 200 OK status
+        } catch (\Throwable $th) {
+            // Log the error
+            \Log::error('Error fetching guests for event: ' . $th->getMessage());
+            return response()->json(['message' => 'Error fetching guests: ' . $th->getMessage()], 500);
+        }
+    }
+
+    // Store a new guest
+    public function store(Request $request)
+    {
+        $request->validate([
+            'GuestName' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:15',
+            'event_id' => 'required|exists:events,id',  // Ensure event exists before saving
+        ]);
+
+        $guest = new Guests();  // Instantiate a new Guest
+        $guest->GuestName = $request->GuestName;
+        $guest->email = $request->email;
+        $guest->phone = $request->phone;
+        $guest->event_id = $request->event_id;
+        $guest->save();
+
+        return response()->json($guest, 201);  // Return the saved guest with 201 Created status
+    }
+
+    // Edit an existing guest
+   // Inside GuestsController
+
+   public function update(Request $request, $id)
+    {
+        // Validate the request data
+        $request->validate([
+            'GuestName' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:15',
+        ]);
+
+        // Find the guest by ID
+        $guest = Guests::find($id);
+
+        if (!$guest) {
+            return response()->json(['message' => 'Guest not found'], 404);
+        }
+
+        // Update the guest's information
+        $guest->GuestName = $request->GuestName;
+        $guest->email = $request->email;
+        $guest->phone = $request->phone;
+        $guest->save();
+
+        return response()->json($guest, 200);  // Return the updated guest
+    }
+
+   
+
+
+    // Delete a guest
+    public function destroy($id)
+    {
+        $guest = Guests::find($id);
+
+        if (!$guest) {
+            return response()->json(['message' => 'Guest not found'], 404);
+        }
+
+        $guest->delete();
+
+        return response()->json(['message' => 'Guest deleted successfully'], 200);
     }
 }

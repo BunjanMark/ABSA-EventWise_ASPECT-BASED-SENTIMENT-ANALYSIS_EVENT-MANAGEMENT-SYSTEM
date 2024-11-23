@@ -19,7 +19,7 @@ const Inventory = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8000/api/equipment?event_id=${eventId}`);
+        const response = await fetch(`http://localhost:8000/api/equipments?event_id=${eventId}`);
         const data = await response.json();
         console.log('Fetched Inventory Data:', data); // Log the fetched data
         setInventory(data); // Update the inventory state with fetched data

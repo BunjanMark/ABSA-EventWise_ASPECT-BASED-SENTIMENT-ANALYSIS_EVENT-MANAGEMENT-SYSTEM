@@ -1,43 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from "react-native-root-toast";
 import Header from "../elements/Header";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {
+  fetchEvents,
+} from "../../../services/organizer/adminEventServices";
 
 const Event = () => {
   const navigation = useNavigation();
-  const [events, setEvents] = useState([]);  
-  const [isDropdownVisible, setDropdownVisible] = useState(false); 
-  const [activeEventIndex, setActiveEventIndex] = useState(null); 
-  const [searchQuery, setSearchQuery] = useState(''); 
+  const [events, setEvents] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownVisible, setDropdownVisible] = useState(false);
+  const [activeEventIndex, setActiveEventIndex] = useState(null);
 
   const showToast = (message = "Something went wrong") => {
     Toast.show(message, 3000);
   };
-
   const loadEvents = async () => {
     try {
-      const savedEventsJson = await AsyncStorage.getItem('@event_data');
-      const savedEvents = savedEventsJson ? JSON.parse(savedEventsJson) : [];
-      const sortedEvents = savedEvents.sort((a, b) => new Date(b.selectedDate) - new Date(a.selectedDate));
-      setEvents(sortedEvents); 
+      const fetchedEvents = await fetchEvents();
+      setEvents(fetchedEvents);
     } catch (error) {
-      console.error('Error loading events:', error);
+      showToast("Failed to load events");
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      loadEvents(); 
-    }, [])
-  );  
+  useEffect(() => {
+    loadEvents();
+    console.log("fetched events: ", events);
+  }, []);
 
-  const filteredEvents = events.filter(event => 
-    (event.eventName && event.eventName.toLowerCase().includes(searchQuery.toLowerCase())) || 
-    (event.venue && event.venue.toLowerCase().includes(searchQuery.toLowerCase()))
-  );   
+  const filteredEvents = events.filter(event =>
+    (event.name && event.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (event.location && event.location.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const handleDropdownToggle = (index) => {
     if (activeEventIndex === index) {
@@ -82,16 +80,16 @@ const Event = () => {
                   resizeMode="cover"
                 />
                 <View style={styles.eventDetailsContainer}>
-                  <Text style={styles.eventName}>{event.eventName || 'No event name'}</Text>
+                  <Text style={styles.eventName}>{event.name || 'No event name'}</Text>
                   <View style={styles.eventInfo}>
                   <View style={styles.eventDetails}>
                       <Icon name="calendar" size={16} color="#007BFF" />
-                      <Text style={styles.eventDate}>{event.selectedDate || 'No date'}</Text>
+                      <Text style={styles.eventDate}>{event.date || 'No date'}</Text>
                     </View>
                     <View style={styles.eventDetails}>
                       <Icon name="map-marker" size={16} color="#007BFF" />
                       <TouchableOpacity onPress={() => handleLocationPress(event)}>
-                        <Text style={styles.eventLocation}>{event.venue || 'No location'}</Text>
+                        <Text style={styles.eventLocation}>{event.location || 'No location'}</Text>
                       </TouchableOpacity>                    
                     </View>
                   </View>
@@ -110,27 +108,35 @@ const Event = () => {
                   </View>
 
                   {isDropdownVisible && activeEventIndex === index && ( 
-                    <View style={styles.dropdown}>
-                      <TouchableOpacity 
-                        onPress={() => setDropdownVisible(false)} 
-                        style={styles.closeButton}
-                      >
-                        <Icon name="close" size={20} color="#fff" />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => navigation.navigate('InventoryTracker')} style={styles.dropdownItem}>
-                        <Icon name="calendar-multiple-check" size={16} color="#fff" style={styles.dropdownIcon} />
-                        <Text style={styles.dropdownText}>Inventory</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => navigation.navigate('Feedback')} style={styles.dropdownItem}>
-                        <Icon name="comment-account-outline" size={16} color="#fff" style={styles.dropdownIcon} />
-                        <Text style={styles.dropdownText}>Feedback</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => navigation.navigate('Guest')} style={styles.dropdownItem}>
-                        <Icon name="account-multiple-outline" size={16} color="#fff" style={styles.dropdownIcon} />
-                        <Text style={styles.dropdownText}>Guest</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                  <View style={styles.dropdown}>
+                    <TouchableOpacity 
+                      onPress={() => setDropdownVisible(false)} 
+                      style={styles.closeButton}
+                    >
+                      <Icon name="close" size={20} color="#fff" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('InventoryTracker')} style={styles.dropdownItem}>
+                      <Icon name="calendar-multiple-check" size={16} color="#fff" style={styles.dropdownIcon} />
+                      <Text style={styles.dropdownText}>Inventory</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('Feedback')} style={styles.dropdownItem}>
+                      <Icon name="comment-account-outline" size={16} color="#fff" style={styles.dropdownIcon} />
+                      <Text style={styles.dropdownText}>Feedback</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setDropdownVisible(false);
+                        navigation.navigate('GuestList', { eventId: event.id, eventName: event.name });
+                      }}
+                      style={styles.dropdownItem}
+                    >
+                      <Icon name="account-multiple-outline" size={16} color="#fff" style={styles.dropdownIcon} />
+                      <Text style={styles.dropdownText}>Guest</Text>
+                    </TouchableOpacity>
+
+                  </View>
+                )}
+
                 </View>
               </View>
             ))

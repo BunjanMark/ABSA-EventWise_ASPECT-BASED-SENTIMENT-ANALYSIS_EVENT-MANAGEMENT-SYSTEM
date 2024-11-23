@@ -1,203 +1,183 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { Button } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
-import Icon from 'react-native-vector-icons/FontAwesome';
+// SettingsAdmin.js
+
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  ScrollView,
+  Switch,
+} from "react-native";
+import RNPickerSelect from "react-native-picker-select";
+import { TextInput } from "react-native-paper";
 import Header2 from "../elements/Header2";
-import { Divider } from "react-native-paper";
-import { FontAwesome } from "@expo/vector-icons";
 
 const Settings = () => {
-    const [language, setLanguage] = useState('English');
-    const [dateFormat, setDateFormat] = useState('MM/DD/YYYY');
-    const [timeZone, setTimeZone] = useState('GMT');
-  
-    const saveSettings = () => {
-        alert(`Settings Saved:\nLanguage: ${language}\nDate Format: ${dateFormat}\nTime Zone: ${timeZone}`);
-      };
-    
-    const handleHelpPress = () => {
-        alert('Navigate to Help & FAQs');
-      };
+  // State variables for pickers
+  const [language, setLanguage] = useState("");
+  const [timeZone, setTimeZone] = useState("");
+  const [dateFormat, setDateFormat] = useState("");
 
-    return (
-      <View style={{ flex: 1, backgroundColor: '#fff' }}>
-        <Header2 />
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Settings</Text>
+  // State variables for toggles
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [useDeviceSettings, setUseDeviceSettings] = useState(true);
+  const [isDim, setIsDim] = useState(false);
+  const [isLightsOut, setIsLightsOut] = useState(false);
+
+  return (
+    <SafeAreaView style={styles.container}>
+    <Header2 />
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Language Selection */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Language</Text>
+          <RNPickerSelect
+            onValueChange={(value) => setLanguage(value)}
+            placeholder={{ label: "Select a language...", value: null }}
+            items={[
+              { label: "English", value: "en" },
+              { label: "Spanish", value: "es" },
+              { label: "French", value: "fr" },
+              // Add more languages as needed
+            ]}
+            style={pickerSelectStyles}
+            value={language}
+          />
+        </View>
+
+        {/* Time Zone Selection */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Time Zone</Text>
+          <RNPickerSelect
+            onValueChange={(value) => setTimeZone(value)}
+            placeholder={{ label: "Select a time zone...", value: null }}
+            items={[
+              { label: "UTC-12:00", value: "UTC-12:00" },
+              { label: "UTC-11:00", value: "UTC-11:00" },
+              { label: "UTC-10:00", value: "UTC-10:00" },
+              // Add more time zones as needed
+              { label: "UTC+00:00", value: "UTC+00:00" },
+              { label: "UTC+01:00", value: "UTC+01:00" },
+              { label: "UTC+02:00", value: "UTC+02:00" },
+              // ...
+            ]}
+            style={pickerSelectStyles}
+            value={timeZone}
+          />
+        </View>
+
+        {/* Date Format Selection */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Date Format</Text>
+          <RNPickerSelect
+            onValueChange={(value) => setDateFormat(value)}
+            placeholder={{ label: "Select a date format...", value: null }}
+            items={[
+              { label: "MM/DD/YYYY", value: "MM/DD/YYYY" },
+              { label: "DD/MM/YYYY", value: "DD/MM/YYYY" },
+              { label: "YYYY/MM/DD", value: "YYYY/MM/DD" },
+              // Add more date formats as needed
+            ]}
+            style={pickerSelectStyles}
+            value={dateFormat}
+          />
+        </View>
+
+        {/* Mode Settings */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Mode</Text>
+          <View style={styles.toggleContainer}>
+            <Text style={styles.toggleLabel}>Dark Mode</Text>
+            <Switch
+              value={isDarkMode}
+              onValueChange={(value) => setIsDarkMode(value)}
+            />
           </View>
+          <View style={styles.toggleContainer}>
+            <Text style={styles.toggleLabel}>Use Device Settings</Text>
+            <Switch
+              value={useDeviceSettings}
+              onValueChange={(value) => setUseDeviceSettings(value)}
+            />
+          </View>
+        </View>
 
-          <View style={styles.set}>
-          <Text style={styles.label}>Language</Text>
-            <Picker
-                selectedValue={language}
-                style={styles.picker}
-                onValueChange={(itemValue) => setLanguage(itemValue)}
-            >
-                <Picker.Item label="English" value="English" color='black'/>
-                <Picker.Item label="Spanish" value="Spanish" color='black'/>
-                <Picker.Item label="French" value="French" color='black'/>
-                <Picker.Item label="German" value="German" color='black'/>
-            </Picker>
-
-            <Text style={styles.label}>Time Zone</Text>
-            <Picker
-                selectedValue={timeZone}
-                style={styles.picker}
-                onValueChange={(itemValue) => setTimeZone(itemValue)}
-            >
-                <Picker.Item label="GMT" value="GMT" color='black'/>
-                <Picker.Item label="CET" value="CET" color='black'/>
-                <Picker.Item label="EST" value="EST" color='black'/>
-                <Picker.Item label="PST" value="PST" color='black'/>
-            </Picker>
-            
-            <Text style={styles.label}>Date Format</Text>
-            <Picker
-                selectedValue={dateFormat}
-                style={styles.picker}
-                onValueChange={(itemValue) => setDateFormat(itemValue)}
-            >
-                <Picker.Item label="MM/DD/YYYY" value="MM/DD/YYYY" color='black' />
-                <Picker.Item label="DD/MM/YYYY" value="DD/MM/YYYY" color='black'/>
-                <Picker.Item label="YYYY/MM/DD" value="YYYY/MM/DD" color='black'/>
-            </Picker>
-
-            <Button mode="contained" onPress={saveSettings} style={styles.saveButton}>
-                Save
-            </Button>
-
-            <TouchableOpacity style={styles.helpContainer} onPress={handleHelpPress}>
-                <Icon name="question-circle" size={24} color="black" />
-                <Text style={styles.helpText}>Help & FAQs</Text>
-            </TouchableOpacity>
-
-            </View>
-
-        </ScrollView>
-    </View>
+        {/* Theme Settings */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Theme</Text>
+          <View style={styles.toggleContainer}>
+            <Text style={styles.toggleLabel}>Dim</Text>
+            <Switch value={isDim} onValueChange={(value) => setIsDim(value)} />
+          </View>
+          <View style={styles.toggleContainer}>
+            <Text style={styles.toggleLabel}>Lights Out</Text>
+            <Switch
+              value={isLightsOut}
+              onValueChange={(value) => setIsLightsOut(value)}
+            />
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
+export default Settings;
+
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginVertical: 20,
-    marginTop: 8,
-  },
-  headerText: {
-    color: 'black',
-    fontSize: 24,
-    fontWeight: 'bold',
-    fontFamily: "Poppins",
-  },
-  set: {
-    marginTop: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: "black",
-    marginBottom: -60,
-    fontFamily: "Poppins",
-  },
-  picker: {
-    width: '100%',
-    marginBottom: -50,
-  },
-  saveButton: {
-    marginTop: 60,
-    backgroundColor: '#FFC42B',
-    marginLeft: 90,
-    marginRight: 90,
-  },
-  helpContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 15,
-    alignSelf: "center",
-    marginBottom: 100,
-  },
-  helpText: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: 'black',
-    fontFamily: "Poppins",
-  },
-  accountsSection: {
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 10,
-  },
-  accDivider: {
-    height: 7,
-    width: 50,
-    backgroundColor: "#ccc",
-    alignSelf: "center",
-    marginBottom: 20,
-  },
-  accountsHeader: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#000",
-    fontFamily: "Poppins",
-  },
-  accountCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderTopWidth: 2,
-    borderTopColor: "#ccc",
-    backgroundColor: "#fff",
-    marginBottom: 15,
-    borderRadius: 8,
-  },
-  accountImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginLeft: 20,
-  },
-  accountInfo: {
     flex: 1,
-    marginLeft: 10,
+    backgroundColor: "#fff", // Change as needed
   },
-  accountName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#000",
-    fontFamily: "Poppins",
+  scrollContainer: {
+    padding: 20,
   },
-  accountType: {
-    fontSize: 16,
-    color: "#666",
-    fontFamily: "Poppins",
+  section: {
+    marginBottom: 30,
   },
-  dots: {
-    marginRight: 20,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 10,
+    color: "#333",
   },
-  logoutButton: {
-    backgroundColor: '#FFC42B',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 25,
+  toggleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    justifyContent: "center",
-    marginVertical: 35,
-    marginLeft: 80,
-    marginRight: 80,
+    marginVertical: 10,
   },
-  logoutButtonText: {
-    color: "black",
+  toggleLabel: {
     fontSize: 16,
-    fontFamily: "Poppins",
+    color: "#555",
   },
 });
 
-export default Settings;
+// Styles for RNPickerSelect
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    color: "black",
+    paddingRight: 30, // To ensure the text is never behind the icon
+    backgroundColor: "#f9f9f9",
+    marginBottom: 10,
+  },
+  inputAndroid: {
+    fontSize: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 0.5,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    color: "black",
+    paddingRight: 30, // To ensure the text is never behind the icon
+    backgroundColor: "#f9f9f9",
+    marginBottom: 10,
+  },
+});
