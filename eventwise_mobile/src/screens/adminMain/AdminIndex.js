@@ -10,11 +10,23 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Notifications from "expo-notifications"; // Import Expo notifications
+import { Audio } from "expo-av"; // Import Expo Audio
 import FlashMessage, { showMessage } from "react-native-flash-message";
 
 const AdminIndex = () => {
   const insets = useSafeAreaInsets(); // Get device-specific safe area insets
   const notificationListener = useRef(null); // Track listener
+
+  const playNotificationSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require("../../../assets/audio/sword-sound-effect-2-234986.mp3") // Add your notification sound file here
+      );
+      await sound.playAsync();
+    } catch (error) {
+      console.error("Error playing notification sound:", error);
+    }
+  };
 
   useEffect(() => {
     // Check if a listener has already been added, and only add one if not
@@ -23,6 +35,9 @@ const AdminIndex = () => {
         Notifications.addNotificationReceivedListener((notification) => {
           const { title, body } = notification.request.content;
           console.log("Foreground notification:", title, body);
+
+          // Play notification sound
+          playNotificationSound();
 
           // Show the notification using FlashMessage
           showMessage({
