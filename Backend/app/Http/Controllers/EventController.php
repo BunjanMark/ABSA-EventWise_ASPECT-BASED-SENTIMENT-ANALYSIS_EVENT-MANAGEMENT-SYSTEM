@@ -22,20 +22,6 @@ class EventController extends Controller
     // Return the events as a JSON response
     return response()->json($events);
 }
-    // public function index(){
-    //     try {
-    //         $events = Event::all(); //retrieve all events
-    //         return response()->json($packages, 200); //return with 200 status
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
-    // function to add events
- // Store a new event with package
  public function eventsForDay($date)
 {
     $events = Event::whereDate('date', $date)->get();
@@ -208,42 +194,25 @@ public function fetchEventsByDate($date)
                     ], 500);
          }
 }
-
  
+public function showEventById($eventId)
+{
+    try {
+        $event = Event::with('guests')->find($eventId);
 
-    // public function show($eventId)
-    // {
-    //     // Retrieve the event by ID
-    //     $event = Event::with('guests')->find($eventId);
-
-    //     // Check if the event exists
-    //     if (!$event) {
-    //         return response()->json(['error' => 'Event not found'], 404);
-    //     }
-
-    //     // Return the event details as a JSON response
-    //     return response()->json($event);
-    // }
-    public function showEventById($eventId)
-    {
-        try {
-            // Log::debug("Fetching event with ID: $eventId");
-            $event = Event::find($eventId);
-    
-            if (!$event) {
-                // Log::error("Event with ID $eventId not found");
-                return response()->json(['error' => 'Event not found'], 404);
-            }
-    
-            return response()->json($event);
-        } catch (\Throwable $th) {
-            // Log::error("An error occurred while fetching the event: " . $th->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred while fetching the event',
-            ], 500);
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
         }
+
+        return response()->json($event);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'An error occurred while fetching the event',
+        ], 500);
     }
+}
+
     public function getEventsByType($type)
 {
     $events = Event::where('type', $type)->get();

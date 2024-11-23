@@ -15,7 +15,8 @@ class Guests extends Model
 
     // Relationship to event
     public function event()
-    {
-        return $this->belongsTo(Event::class);
-    }
+{
+    return $this->belongsTo(Event::class, 'event_id');
+}
+
 }

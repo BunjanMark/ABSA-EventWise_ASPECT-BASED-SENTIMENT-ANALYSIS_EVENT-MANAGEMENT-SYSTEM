@@ -86,8 +86,22 @@ Route::get('/admin/events/type/{type}', [EventController::class, 'getEventsByTyp
 Route::get('/admin/events/by-date/{date}', [EventController::class, 'fetchEventsByDate']);
 Route::post('/admin/events/{id}/restore', [EventController::class, 'restoreEvent']);
 Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEventPackages']);
+
 Route::get('/guests', [GuestsController::class, 'index']);
-Route::get('/guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
+Route::get('guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
+Route::put('/guests/{id}', [GuestsController::class, 'update']);
+Route::delete('/guests/{id}', [GuestsController::class, 'destroy']);
+
+
+
+
+
+
+
+
+
+
+
 
 // service management
 Route::middleware('auth:sanctum')->group(function () {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Import useEffect
+import React, { useState, useEffect } from 'react'; // Import useState, useEffect
 import { useNavigate } from 'react-router-dom';
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -6,16 +6,33 @@ import { faArrowLeft, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons
 import proPic from './images/pro_pic.png'; // Ensure the path to the image is correct
 import event1 from './images/details.png'; // Added image for the event
 import Modal from '@mui/material/Modal'; // Import Modal from Material UI
-import axios from 'axios';
+import { getAuthToken } from './apiconfig';
+import axios from 'axios'; // Import axios for making API requests
 
 const Notification = () => {
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [modalVisibleDecline, setModalVisibleDecline] = useState(false); // State for modal visibility
+  const [overlayVisible, setOverlayVisible] = useState(false); // State for service provider details overlay visibility
+  const [selectedService, setSelectedService] = useState(null); 
   const [selectedTab, setSelectedTab] = useState('All');
-  const [selectedEvent, setSelectedEvent] = useState(null); // State for selected event details
-  const [serviceProviderRequests, setServiceProviderRequests] = useState([]); // Define state for service provider requests
+  const [serviceProviderRequests, setServiceProviderRequests] = useState([]); // State to store service provider requests
   const navigate = useNavigate();
 
+  useEffect(() => {
+    axios.get('http://localhost:8000/api/services', {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`, // Ensure correct auth token is used
+      },
+    })
+    .then(response => {
+      console.log("Service Provider Data: ", response.data);
+      setServiceProviderRequests(response.data); // Populate state with fetched data
+    })
+    .catch(error => {
+      console.error("There was an error fetching the service provider requests!", error);
+    });
+  }, []);
+  
 
   const handleAccept = () => {
     setModalVisible(true); // Show the overlay when booking an event
@@ -33,82 +50,14 @@ const Notification = () => {
     setModalVisibleDecline(false); // Close the overlay
   };
 
-  const acceptPendingUser = async (id) => {
-    try {
-        const response = await fetch(`http://127.0.0.1:8000/api/accept-pending-user/${id}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        // Attempt to parse JSON regardless of response status
-        const data = await response.json().catch(() => null); 
-
-        if (response.ok) {
-            alert('User accepted successfully!');
-            fetchServiceProviderRequests(); // Refresh the list after acceptance
-        } else {
-            console.error('Error response:', data);
-            alert('Error: ' + (data?.error || 'An unknown error occurred'));
-        }
-    } catch (error) {
-        console.error('Error accepting user:', error);
-    }
-};
-
-
-
-  // Decline pending user
-  const declinePendingUser = async (id) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/api/decline-pending-user/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('User declined successfully!');
-        fetchServiceProviderRequests(); // Refresh the list after decline
-      } else {
-        console.error(data.error);
-        alert('Error: ' + data.error);
-      }
-    } catch (error) {
-      console.error('Error declining user:', error);
-    }
+  const handleViewDetails = (service) => {
+    setSelectedService(service); // Set the selected service details
+    setOverlayVisible(true); // Show the overlay
   };
 
-  const fetchServiceProviderRequests = async () => {
-    try {
-      const response = await axios.get('http://127.0.0.1:8000/api/pending'); // Replace with your actual endpoint
-      setServiceProviderRequests(response.data); // Assuming the response data is an array
-    } catch (error) {
-      console.error('Error fetching service provider requests:', error);
-    }
+  const handleCloseOverlay = () => {
+    setOverlayVisible(false); // Close the overlay
   };
-
-  useEffect(() => {
-    fetchServiceProviderRequests(); // Fetch data when component mounts
-  }, []);
-
-  function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, options);
-  }
-
-  function capitalizeWords(str) {
-    return str
-      .toLowerCase() // Convert the entire string to lowercase
-      .split(' ') // Split the string into words
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
-      .join(' '); // Join the words back into a single string
-  }
 
   const notificationsData = {
     'This Week': [
@@ -149,12 +98,7 @@ const Notification = () => {
         daysAgo: '4d Ago',
       },
     ],
-    'Service Provider Request': serviceProviderRequests.map((request) => ({
-      id: request.id,
-      name: `${request.name} ${request.lastname}`,
-      role: capitalizeWords(request.role), // Capitalize the role here
-      daysAgo: formatDate(request.created_at), // Format the date here
-    })),
+    'Service Provider Request': serviceProviderRequests, // Dynamically use the state here
     'All': [
       {
         id: '1',
@@ -179,23 +123,33 @@ const Notification = () => {
   };
 
   const renderContent = () => {
+    if (selectedTab === 'Service Provider Request' && serviceProviderRequests.length === 0) {
+      return <p>No service provider requests available.</p>;
+    }
+  
     switch (selectedTab) {
-      case 'This Week':
-        return notificationsData['This Week'].map(notification => (
+      case 'Service Provider Request':
+        return notificationsData['Service Provider Request'].map(notification => (
           <div key={notification.id} className="notification-box">
             <div className="left-container">
-              <img src={proPic} className="profile-picture" alt="Profile" />
+              <img src={notification.image} className="profile-picture" alt="Profile" />
               <div className="notification-details">
-                <h3 className="notification-title">{notification.title}</h3>
-                <p className="notification-joined">{notification.joined}</p>
-              </div>
-            </div>
-            {notification.rightImage && (
-              <div className="right-container">
-                <img src={notification.rightImage} className="right-image" alt="Right" />
+                <h3 className="notification-name">{notification.serviceName}</h3> {/* Updated to serviceName */}
+                <p className="notification-service-category">{notification.serviceCategory}</p>
                 <p className="days-ago">{notification.daysAgo}</p>
               </div>
-            )}
+            </div>
+            <div className="buttons-container">
+              <button className="accept-button" onClick={handleAccept}>
+                <FontAwesomeIcon icon={faCheck} /> Accept
+              </button>
+              <button className="decline-button" onClick={handleDecline}>
+                <FontAwesomeIcon icon={faTimes} /> Decline
+              </button>
+              <button className="view-details-button" onClick={() => handleViewDetails(notification)}>
+                View Details
+              </button>
+            </div>
           </div>
         ));
       case 'Booking Request':
@@ -226,19 +180,22 @@ const Notification = () => {
         return notificationsData['Service Provider Request'].map(notification => (
           <div key={notification.id} className="notification-box">
             <div className="left-container">
-              <img src={proPic} className="profile-picture" alt="Profile" />
+              <img src={notification.image} className="profile-picture" alt="Profile" />
               <div className="notification-details">
-                <h3 className="notification-name">{notification.name}</h3>
-                <p className="notification-role">{notification.role}</p>
+                <h3 className="notification-name">{notification.serviceName}</h3> {/* Updated to serviceName */}
+                <p className="notification-service-category">{notification.serviceCategory}</p>
                 <p className="days-ago">{notification.daysAgo}</p>
               </div>
             </div>
             <div className="buttons-container">
-              <button className="accept-button" onClick={() => acceptPendingUser(notification.id)}>
+              <button className="accept-button" onClick={handleAccept}>
                 <FontAwesomeIcon icon={faCheck} /> Accept
               </button>
-              <button className="decline-button" onClick={() => declinePendingUser(notification.id)}>
+              <button className="decline-button" onClick={handleDecline}>
                 <FontAwesomeIcon icon={faTimes} /> Decline
+              </button>
+              <button className="view-details-button" onClick={() => handleViewDetails(notification)}>
+                View Details
               </button>
             </div>
           </div>
@@ -283,20 +240,7 @@ const Notification = () => {
         {renderContent()}
       </div>
 
-      {/* Modal for Viewing Event Details */}
-      {selectedEvent && (
-        <div className="overlay">
-          <div className="modal">
-            <h2>{selectedEvent.name}'s {selectedEvent.title}</h2>
-            <p><strong>Date:</strong> {selectedEvent.date}</p>
-            <p><strong>Address:</strong> {selectedEvent.address}</p>
-            <p><strong>Pax:</strong> {selectedEvent.pax}</p>
-            <img src={selectedEvent.image} alt="Event" className="event-image" />
-            <button className="close-button" onClick={() => setSelectedEvent(null)}>Close</button>
-          </div>
-        </div>
-      )}
-
+      {/* Modal for booking acceptance */}
       <Modal
         open={modalVisible}
         onClose={handleCloseModal}
@@ -307,8 +251,14 @@ const Notification = () => {
             &times; {/* X Button */}
           </button>
           <img src={require('./images/popup-accept.png')} alt="Popup" className="popup-image-guestpage" />
+          <h3>Event Booking Confirmed</h3>
+          <div className="modal-details">
+            <p>Enjoy your event!</p>
+          </div>
         </div>
       </Modal>
+
+      {/* Modal for Declining Event */}
       <Modal
         open={modalVisibleDecline}
         onClose={handleCloseModalDecline}
@@ -319,8 +269,26 @@ const Notification = () => {
             &times; {/* X Button */}
           </button>
           <img src={require('./images/popup-delete.png')} alt="Popup" className="popup-image-guestpage" />
+          <h3>Event Declined</h3>
+          <div className="modal-details">
+            <p>You have declined the booking.</p>
+          </div>
         </div>
       </Modal>
+
+      {/* Service provider details overlay */}
+      {overlayVisible && (
+        <div className="overlay">
+          <div className="overlay-content">
+            <h3>{selectedService?.serviceName}</h3>
+            <p>{selectedService?.serviceCategory}</p>
+            <p>{selectedService?.serviceFeatures}</p>
+            <p>{selectedService?.basePrice}</p>
+            <p>{selectedService?.requirements}</p>
+            <button onClick={handleCloseOverlay}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

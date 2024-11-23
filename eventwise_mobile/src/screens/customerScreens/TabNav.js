@@ -76,12 +76,10 @@ const TabNav = () => {
         tabBarInactiveTintColor: "black",
         tabBarStyle: {
           backgroundColor: "#fff",
-          borderTopLeftRadius: 40,
-          borderTopRightRadius: 40,
           position: "absolute",
           bottom: 0,
           padding: 5,
-          height: 60,
+          height: 70,
           zIndex: 8,
         },
         headerShown: false,
@@ -96,6 +94,7 @@ const TabNav = () => {
                 fontSize: focused ? 16 : 16,
                 fontWeight: "bold",
                 fontFamily: "Poppins",
+                marginBottom: 5,
               }}
               onMouseEnter={() => setHoveredTab(route.name)}
               onMouseLeave={() => setHoveredTab(null)}

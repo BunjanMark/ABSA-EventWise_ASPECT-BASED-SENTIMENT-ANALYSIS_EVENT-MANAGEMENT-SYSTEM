@@ -19,13 +19,11 @@ import EventPackageCard from "../../adminMain/screens/component/EventPackageCard
 // import AddPackageG from "./AddPackageGcp";
 import AddPackageG from "../../adminMain/screens/component/AddPackageGcp";
 // import { testSupabaseConnectivity } from "./testSupabaseConnectivity";
-import { testSupabaseConnectivity } from "../../adminMain/screens/component/testSupabaseConnectivity";
 // import ManualTestImage from "./ManualTestImage";
-import ManualTestImage from "../../adminMain/screens/component/ManualTestImage";
 import { TouchableOpacity } from "react-native";
 // import EventPackageDetails from "../event/EventPackageDetails";
-import EventPackageDetails from "../../adminMain/screens/event/EventPackageDetails";
 import { useNavigation } from "@react-navigation/native";
+import EventPackageDetails from "../otherScreens/EventPackageDetails";
 const PackagesList = () => {
   const {
     likedEvents,
@@ -121,3 +119,5 @@ const PackagesList = () => {
 };
 
 export default PackagesList;
+
+

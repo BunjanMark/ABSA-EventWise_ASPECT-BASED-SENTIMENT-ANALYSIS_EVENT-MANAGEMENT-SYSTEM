@@ -27,6 +27,7 @@ import { getUser } from "../../services/authServices";
 import { getAccountProfile } from "../../services/authServices";
 import useStore from "../../stateManagement/useStore";
 import { useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // forb test
 
 const Login = ({ navigation }) => {
@@ -106,6 +107,8 @@ const Login = ({ navigation }) => {
 
       const result = await signIn(username, password);
       Toast.show(result?.message, 3000);
+
+      // Store the token in AsyncStorage
 
       const user = await getUser();
       const response = await getAccountProfile();

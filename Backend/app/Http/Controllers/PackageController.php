@@ -20,6 +20,8 @@ class PackageController extends Controller
         foreach ($packages as $package) {
             $package->services = json_decode($package->services, true); // Decode JSON to an array
         }
+        $packages = Package::with('services')->get(); // eager load services
+    return response()->json($packages);
 
         return response()->json($packages, 200); // Return the updated packages with 200 status
     } catch (\Exception $e) {
@@ -107,7 +109,9 @@ public function update(Request $request, $id)
         $validatedData = $request->validate([
             'packageName' => 'required|string|max:255',
             'eventType' => 'required|string',
+            'packageType' => 'nullable|boolean',  // packageType is optional here    
             'services' => 'nullable|array', // Make services nullable
+            'services.*' => 'integer',
             'totalPrice' => 'required|numeric|min:1',
             'coverPhoto' => 'nullable|url', // Ensure it's a valid URL
  
@@ -117,15 +121,16 @@ public function update(Request $request, $id)
         if (!isset($validatedData['services'])) {
             $validatedData['services'] = []; // Default to an empty array if services are not provided
         }
+        $packageType = $validatedData['packageType'] ?? true; // Default to 'Pre-defined' if not provided
 
         // Create the package in the database
         $package = Package::create([
             'packageName' => $validatedData['packageName'],
             'eventType' => $validatedData['eventType'],
+            'packageType' => $packageType,  // Assign the correct package type
             'totalPrice' => $validatedData['totalPrice'],
             'coverPhoto' => $validatedData['coverPhoto'],
- 
-            'services' => json_encode($validatedData['services']), // Store services as JSON
+            'services' => json_encode($validatedData['services']),
         ]);
 
         // Link associated service IDs to the package

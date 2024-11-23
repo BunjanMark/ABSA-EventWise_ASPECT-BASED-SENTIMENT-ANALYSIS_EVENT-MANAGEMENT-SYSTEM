@@ -62,7 +62,7 @@ import GuestIndex from "../screens/guestScreens/GuestIndex";
 import { MyReactNativeForm } from "../screens/authentication/MyReactNativeForm";
 import ServiceCardDetails from "../screens/serviceProvidersScreen/screens/ServiceTab/ServiceCardDetails";
 const Stack = createNativeStackNavigator();
-
+import GuestList from "../screens/customerScreens/sidebarScreens/Guest";
 const AuthenticationStack = () => {
   LogBox.ignoreAllLogs();
   const { user, loading } = useContext(AuthContext);
@@ -382,8 +382,8 @@ function CustomerStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="Guest"
-        component={GuestIndex}
+        name="GuestList"
+        component={GuestList}
         options={{ headerShown: false }}
       />
       <Stack.Screen

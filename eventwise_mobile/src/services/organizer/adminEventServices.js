@@ -110,28 +110,41 @@ const createService = async (serviceData) => {
 // Function to create a package
 const createPackage = async (packageData) => {
   try {
-    console.log("Service data:", packageData);
-    let packagePhotoURL =
+    console.log("Package data:", packageData);
+
+    const packagePhotoURL =
       "https://ktmddejbdwjeremvbzbl.supabase.co/storage/v1/" +
       packageData.packagePhotoURl;
+
+    // Ensure services are passed as an array
+    const servicesArray = Array.isArray(packageData.services)
+      ? packageData.services
+      : JSON.parse(packageData.services);
+
+    console.log("SERVICES Array Before Sending:", servicesArray);
 
     const addPackageData = {
       packageName: packageData.packageName,
       eventType: packageData.eventType,
-      services: packageData.services,
+      services: servicesArray, // Pass as an array
       totalPrice: packageData.totalPrice,
       coverPhoto: packagePhotoURL, // URL from Supabase Storage
     };
-    // console.info("Adding package" + addPackageData);
+
+    console.info("Adding package", JSON.stringify(addPackageData));
 
     const response = await api.post("/admin/packages", addPackageData, {
       headers: {
         "Content-Type": "application/json",
       },
     });
+
     return response.data;
   } catch (error) {
-    console.error("Error creating package:", error);
+    console.error(
+      "Error creating package:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };

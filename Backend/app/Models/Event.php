@@ -32,9 +32,10 @@ class Event extends Model
     protected $dates = ['deleted_at']; // To track soft delete timestamps
     // Relationship to guests
     public function guests()
-    {
-        return $this->hasMany(Guests::class);
-    }
+{
+    return $this->hasMany(Guests::class, 'event_id');
+}
+
     public function package()
 {
     return $this->belongsTo(Package::class);
