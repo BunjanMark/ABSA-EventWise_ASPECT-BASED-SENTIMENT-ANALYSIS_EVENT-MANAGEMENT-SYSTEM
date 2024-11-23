@@ -14,7 +14,7 @@ class PackageSeeder extends Seeder
     {
         // Create a package
         DB::table('packages')->insert([
-            'packageName' => 'mr and malik wedding',
+            'packageName' => 'Wedding Package Special',
             'eventType' => 'Wedding',
             'packageType' => 1, //it's predefined
             'totalPrice' => 1000.00,

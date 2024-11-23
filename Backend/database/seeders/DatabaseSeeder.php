@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AccountRoleSeeder::class);
         $this->call(ServiceSeeder::class);
         $this->call(PackageSeeder::class);
+        $this->call(EventSeeder::class);
 
     }
 }

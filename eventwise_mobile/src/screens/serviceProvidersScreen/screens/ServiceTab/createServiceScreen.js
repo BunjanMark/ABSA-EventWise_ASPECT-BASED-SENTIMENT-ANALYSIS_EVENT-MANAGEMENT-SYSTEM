@@ -47,7 +47,6 @@ const CreateServiceScreen = ({ navigation }) => {
           values.servicePhoto,
           fileName
         );
-        console.log("Image uploaded successfully. URL:", servicePhotoURL);
       }
       // Use the derived category if "Other" is selected
       const serviceCategory =
