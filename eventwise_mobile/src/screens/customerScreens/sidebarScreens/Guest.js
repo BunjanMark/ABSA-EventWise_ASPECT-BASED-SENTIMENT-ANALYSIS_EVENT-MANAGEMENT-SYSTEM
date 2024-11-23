@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import API_URL from '../../../constants/constant';
 import Header2 from '../elements/Header2';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // For the 3-dot icon
 import Modal from 'react-native-modal'; // For showing modal
-import { TextInput, Button, Menu, Divider, Provider } from 'react-native-paper';
+import { TextInput, Button, Menu, Divider } from 'react-native-paper';
 
 const GuestList = () => {
   const route = useRoute();
@@ -20,8 +20,6 @@ const GuestList = () => {
   const [visible, setVisible] = useState(false); // For dropdown visibility
   const [guestForDropdown, setGuestForDropdown] = useState(null); // Track selected guest for the dropdown
   const [deleteModalVisible, setDeleteModalVisible] = useState(false); // For deletion confirmation modal
-  const [longPressedGuest, setLongPressedGuest] = useState(null); // For tracking long press selection
-  const [removeButtonVisible, setRemoveButtonVisible] = useState(false); // Show the remove button
 
   useEffect(() => {
     const fetchGuests = async () => {
@@ -35,16 +33,6 @@ const GuestList = () => {
 
     fetchGuests();
   }, [eventId]);
-
-  const handleLongPress = (guest) => {
-    if (longPressedGuest?.id === guest.id) {
-      setLongPressedGuest(null); // Deselect if the same guest is clicked
-      setRemoveButtonVisible(false); // Hide remove button
-    } else {
-      setLongPressedGuest(guest); // Select new guest
-      setRemoveButtonVisible(true); // Show remove button
-    }
-  };
 
   const handleUpdateGuest = async () => {
     try {
@@ -118,60 +106,39 @@ const GuestList = () => {
           <FlatList
             data={guests}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => {
-              const isSelected = longPressedGuest?.id === item.id;
-              return (
-                <View style={[styles.listItem, isSelected && styles.selectedItem]}>
-                  <Menu
-                    visible={visible && guestForDropdown?.id === item.id}
-                    onDismiss={() => setVisible(false)}
-                    anchor={
-                      <TouchableOpacity
-                        onPress={() => toggleDropdown(item)}
-                        style={styles.dotsContainer}
-                      >
-                        <Icon 
-                          name={isSelected ? "radio-button-checked" : "more-vert"} 
-                          size={24} 
-                          color={isSelected ? "#ffcc00" : "#333"} 
-                          style={isSelected && styles.dotsCircle} 
-                        />
-                      </TouchableOpacity>
-                    }
-                  >
-                    <View style={styles.menu}>
-                      <Menu.Item onPress={() => handleEdit(item)} title="Edit" />
-                      <Divider />
-                      <Menu.Item onPress={() => handleDelete(item)} title="Delete" />
-                    </View>
-                  </Menu>
+            renderItem={({ item }) => (
+              <View style={styles.listItem}>
+                <Menu
+                  visible={visible && guestForDropdown?.id === item.id}
+                  onDismiss={() => setVisible(false)}
+                  anchor={
+                    <TouchableOpacity
+                      onPress={() => toggleDropdown(item)}
+                      style={styles.dotsContainer}
+                    >
+                      <Icon name="more-vert" size={24} color="#333" />
+                    </TouchableOpacity>
+                  }
+                >
+                  <View style={styles.menu}>
+                    <Menu.Item onPress={() => handleEdit(item)} title="Edit" />
+                    <Divider />
+                    <Menu.Item onPress={() => handleDelete(item)} title="Delete" />
+                  </View>
+                </Menu>
 
-                  <TouchableOpacity
-                    onLongPress={() => handleLongPress(item)}
-                    style={[styles.guestContainer, isSelected && styles.selectedGuestContainer]}
-                  >
-                    <Text style={styles.guestName}>{item.GuestName}</Text>
-                    <Text style={styles.guestInfo}>Email: {item.email}</Text>
-                    <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
-                  </TouchableOpacity>
+                <View style={styles.guestContainer}>
+                  <Text style={styles.guestName}>{item.GuestName}</Text>
+                  <Text style={styles.guestInfo}>Email: {item.email}</Text>
+                  <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
                 </View>
-              );
-            }}
+              </View>
+            )}
           />
         ) : (
           <Text style={styles.noGuests}>No guests found for this event.</Text>
         )}
       </View>
-
-      {removeButtonVisible && (
-        <Button
-          mode="contained"
-          style={styles.removeButton}
-          onPress={handleConfirmDelete}
-        >
-          Remove Selected Guest
-        </Button>
-      )}
 
       {/* Modal for editing guest details */}
       <Modal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)}>
@@ -248,17 +215,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     padding: 10,
   },
-  selectedItem: {
-    backgroundColor: '#fef1c7', // Light yellow for selected item
-  },
-  dotsContainer: {
-    paddingRight: 10,
-  },
-  dotsCircle: {
-    borderRadius: 50,
-    backgroundColor: '#ffcc00',
-    padding: 5,
-  },
   guestContainer: {
     flex: 1,
     padding: 10,
@@ -313,21 +269,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     width: '100%',
   },
-  cancelButton: {
-    marginTop: 10,
-    width: '100%',
-    borderColor: 'grey',
-    borderWidth: 1,
-  },
   noGuests: {
     fontSize: 18,
     color: '#777',
     textAlign: 'center',
-  },
-  removeButton: {
-    marginTop: 20,
-    backgroundColor: '#ff0000',
-    width: '100%',
   },
 });
 
