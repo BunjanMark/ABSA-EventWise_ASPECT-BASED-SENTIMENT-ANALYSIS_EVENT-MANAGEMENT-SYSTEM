@@ -3,29 +3,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Guests;
+use App\Models\Guest;
 use App\Models\Event;  // Ensure the Event model is included
 use Illuminate\Support\Facades\DB;
 
-class GuestsController extends Controller
+class GuestController extends Controller
 {
-    // Fetch all guests for a specific event
+    
+    // Fetch all guest for a specific event
     public function getGuestByEvent($eventid)
     {
         try {
-            // Fetch guests for a specific event
-            $guests = Guests::where('event_id', $eventid)->get();
+            // Fetch guest for a specific event
+            $guest = Guest::where('event_id', $eventid)->get();
             
-            // If no guests are found, return a 404 response
-            if ($guests->isEmpty()) {
-                return response()->json(['message' => 'No guests found for this event'], 404);
+            // If no guest are found, return a 404 response
+            if ($guest->isEmpty()) {
+                return response()->json(['message' => 'No guest found for this event'], 404);
             }
 
-            return response()->json($guests, 200);  // Return guests data with 200 OK status
+            return response()->json($guest, 200);  // Return guest data with 200 OK status
         } catch (\Throwable $th) {
             // Log the error
-            \Log::error('Error fetching guests for event: ' . $th->getMessage());
-            return response()->json(['message' => 'Error fetching guests: ' . $th->getMessage()], 500);
+            \Log::error('Error fetching guest for event: ' . $th->getMessage());
+            return response()->json(['message' => 'Error fetching guest: ' . $th->getMessage()], 500);
         }
     }
 
@@ -37,20 +38,22 @@ class GuestsController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:15',
             'event_id' => 'required|exists:events,id',  // Ensure event exists before saving
+            'role' => 'required|string|max:255',  // Ensure event exists before saving
         ]);
 
-        $guest = new Guests();  // Instantiate a new Guest
+        $guest = new Guest();  // Instantiate a new Guest
         $guest->GuestName = $request->GuestName;
         $guest->email = $request->email;
         $guest->phone = $request->phone;
         $guest->event_id = $request->event_id;
+        $guest->role = $request->role;
         $guest->save();
 
         return response()->json($guest, 201);  // Return the saved guest with 201 Created status
     }
 
     // Edit an existing guest
-   // Inside GuestsController
+   // Inside GuestController
 
    public function update(Request $request, $id)
     {
@@ -59,10 +62,11 @@ class GuestsController extends Controller
             'GuestName' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:15',
+            'role' => 'required|string',    
         ]);
 
         // Find the guest by ID
-        $guest = Guests::find($id);
+        $guest = Guest::find($id);
 
         if (!$guest) {
             return response()->json(['message' => 'Guest not found'], 404);
@@ -72,6 +76,7 @@ class GuestsController extends Controller
         $guest->GuestName = $request->GuestName;
         $guest->email = $request->email;
         $guest->phone = $request->phone;
+        $guest->role = $request->role;
         $guest->save();
 
         return response()->json($guest, 200);  // Return the updated guest
@@ -83,7 +88,7 @@ class GuestsController extends Controller
     // Delete a guest
     public function destroy($id)
     {
-        $guest = Guests::find($id);
+        $guest = Guest::find($id);
 
         if (!$guest) {
             return response()->json(['message' => 'Guest not found'], 404);

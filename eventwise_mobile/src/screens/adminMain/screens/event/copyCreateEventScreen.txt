@@ -546,5 +546,5 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
-//#TODO this is the checkpooint
+ 
 export default CreateEventScreen;

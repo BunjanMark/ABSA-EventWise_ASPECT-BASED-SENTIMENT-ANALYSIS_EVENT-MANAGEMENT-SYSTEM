@@ -18,6 +18,7 @@ class UserTableSeeder extends Seeder
             "name" => "Admin",
             "email" => "admin@gmail.com",
             "password" => bcrypt("pass@admin"),
+            "phone_number" =>  "1234567890",
         ]);
 
         DB::table("users")->insert([
@@ -25,6 +26,7 @@ class UserTableSeeder extends Seeder
             "name" => "Customer",
             "email" => "customer@gmail.com",
             "password" => bcrypt("pass@customer"),
+            "phone_number" =>  "1234567890",
         ]);
 
         DB::table("users")->insert([
@@ -32,6 +34,7 @@ class UserTableSeeder extends Seeder
             "name" => "diwata",
             "email" => "diwata@gmail.com",
             "password" => bcrypt("pass@diwata"),
+            "phone_number" =>  "1234567890",
         ]);
     }
 }

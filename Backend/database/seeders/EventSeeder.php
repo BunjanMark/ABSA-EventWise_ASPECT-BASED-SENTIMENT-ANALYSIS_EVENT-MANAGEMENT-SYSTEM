@@ -22,7 +22,7 @@ class EventSeeder extends Seeder
             'date' => '2027-08-01',
             'time' => '12:00:00',
             'location' => 'New York, USA',
-            'description' => 'A wedding event with a lot of guests, nice place, etc.',
+            'description' => 'A wedding event with a lot of guest, nice place, etc.',
             'status' => 'scheduled',
             'user_id' => 3, // Assuming the user has an id attribute
             'coverPhoto' => '',

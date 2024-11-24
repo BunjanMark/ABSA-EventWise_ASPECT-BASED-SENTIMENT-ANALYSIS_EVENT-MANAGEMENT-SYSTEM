@@ -57,7 +57,7 @@ const CreateEventScreen = ({ navigation }) => {
     // coverPhoto: Yup.string()
     //   .url("Must be a valid URL")
     //   .required("Cover photo URL is required"),
-    guests: Yup.array().of(
+    guest: Yup.array().of(
       Yup.object().shape({
         GuestName: Yup.string().required("Guest name is required"),
         email: Yup.string()
@@ -131,7 +131,7 @@ const CreateEventScreen = ({ navigation }) => {
         eventTime: values.eventTime,
         eventLocation: values.eventLocation,
         description: values.description,
-        guests: values.guests,
+        guest: values.guest,
         coverPhoto: coverPhotoURL !== null ? coverPhotoURL : null,
       };
 
@@ -251,7 +251,7 @@ const CreateEventScreen = ({ navigation }) => {
             eventLocation: "",
             description: "",
             coverPhoto: "",
-            guests: [{ GuestName: "", email: "" }],
+            guest: [{ GuestName: "", email: "" }],
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { resetForm }) => {
@@ -489,30 +489,30 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.coverPhoto && errors.coverPhoto && (
                 <Text style={styles.errorText}>{errors.coverPhoto}</Text>
               )}
-              <FieldArray name="guests">
+              <FieldArray name="guest">
                 {({ remove, push }) => (
                   <View>
-                    {values.guests.map((guest, index) => (
+                    {values.guest.map((guest, index) => (
                       <View key={index} style={styles.guestContainer}>
                         <TextInput
                           style={styles.input}
                           placeholder="Guest Name"
                           value={guest.GuestName}
                           onChangeText={handleChange(
-                            `guests.${index}.GuestName`
+                            `guest.${index}.GuestName`
                           )} // Dynamically updating guest fields
                         />
                         <TextInput
                           style={styles.input}
                           placeholder="Email"
                           value={guest.email}
-                          onChangeText={handleChange(`guests.${index}.email`)} // Dynamically updating guest fields
+                          onChangeText={handleChange(`guest.${index}.email`)} // Dynamically updating guest fields
                         />
                         <TextInput
                           style={styles.input}
                           placeholder="Phone"
                           value={guest.phone}
-                          onChangeText={handleChange(`guests.${index}.phone`)} // Dynamically updating guest fields
+                          onChangeText={handleChange(`guest.${index}.phone`)} // Dynamically updating guest fields
                         />
                         <TouchableOpacity onPress={() => remove(index)}>
                           <Text style={styles.removeGuest}>Remove</Text>

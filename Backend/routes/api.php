@@ -13,7 +13,7 @@ use App\Http\Controllers\AccountManagementController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\GuestsController;
+use App\Http\Controllers\GuestController;
 use App\Http\Controllers\AccountRoleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PackageServiceController;
@@ -70,6 +70,7 @@ Route::put('/admin/packages/{id}', [PackageController::class, 'update']);
 Route::delete('/admin/packages/{id}', [PackageController::class, 'destroy']);
 // Route::get('/admin/packages/{packageId}/services',[PackageServiceController::class, 'packageService']);
 Route::get('/admin/packages/{packageId}/services',[PackageServiceController::class, 'getPackageServices']);
+Route::get('/admin/packages/{packageId}/serviceProviders', [PackageServiceController::class, 'getPackageServiceProvidersId']);
 // Admin Event Management
 Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class, 'store']);
 // Route::post('/admin/events', [EventController::class, 'store']);
@@ -86,10 +87,10 @@ Route::get('/admin/events/by-date/{date}', [EventController::class, 'fetchEvents
 Route::post('/admin/events/{id}/restore', [EventController::class, 'restoreEvent']);
 Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEventPackages']);
 
-Route::get('/guests', [GuestsController::class, 'index']);
-Route::get('guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
-Route::put('/guests/{id}', [GuestsController::class, 'update']);
-Route::delete('/guests/{id}', [GuestsController::class, 'destroy']);
+Route::get('/guest', [GuestController::class, 'index']);
+Route::get('guest/{eventid}', [GuestController::class, 'getGuestByEvent']);
+Route::put('/guest/{id}', [GuestController::class, 'update']);
+Route::delete('/guest/{id}', [GuestController::class, 'destroy']);
 
 
 // Notification handlers

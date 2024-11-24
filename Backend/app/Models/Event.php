@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Inventory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Guests;
+use App\Models\Guest;
 use App\Models\Package;
 use App\Models\User;
 use App\Models\Equipment;
@@ -30,10 +30,10 @@ class Event extends Model
         'archived', 
     ];
     protected $dates = ['deleted_at']; // To track soft delete timestamps
-    // Relationship to guests
-    public function guests()
+    // Relationship to guest
+    public function guest()
 {
-    return $this->hasMany(Guests::class, 'event_id');
+    return $this->hasMany(Guest::class, 'event_id');
 }
 
     public function package()
