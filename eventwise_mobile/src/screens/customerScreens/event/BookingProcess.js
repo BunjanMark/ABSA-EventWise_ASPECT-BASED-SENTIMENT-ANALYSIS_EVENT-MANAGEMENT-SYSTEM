@@ -175,7 +175,7 @@ const BookingProcess = ({ navigation }) => {
 
       // Notify user of success and reset the form
       Alert.alert("Success", "Event created successfully!");
-      // resetForm(); // TODO Fix this shit this back to its original
+      resetForm(); // TODO Fix this shit this back to its original
     } catch (error) {
       console.error("Error creating event:", error);
       Alert.alert(

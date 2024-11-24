@@ -92,7 +92,7 @@ Route::get('guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
 Route::put('/guests/{id}', [GuestsController::class, 'update']);
 Route::delete('/guests/{id}', [GuestsController::class, 'destroy']);
 
-
+Route::get('/admin/events/{userId}', [EventController::class, 'getEventsByUserId']);
 
 
 

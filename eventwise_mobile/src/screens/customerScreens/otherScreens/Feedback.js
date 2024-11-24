@@ -1,242 +1,470 @@
 import React, { useState } from "react";
 import {
-  SafeAreaView,
-  StyleSheet,
+  ScrollView,
+  View,
   Text,
   TouchableOpacity,
-  View,
-  Image,
-  ImageBackground,
+  StyleSheet,
   TextInput,
   Modal,
+  Image,
 } from "react-native";
 import Header2 from "../elements/Header2";
-import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 
 const Feedback = () => {
-  const navigation = useNavigation();
-  const [defaultRating, setDefaultRating] = useState(2);
-  const maxRating = [1, 2, 3, 4, 5];
-  const [feedback, setFeedback] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState("event");
+  const [feedbackData, setFeedbackData] = useState({
+    overallExperience: "",
+    eventExpectations: "",
+    expectationsDetails: "",
+    venueRating: "",
+    recommendationLikelihood: "",
+    suggestions: "",
+    serviceFeedback: "", // New field to store service feedback
+  });
+  const [showModal, setShowModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false); // Modal for the image popup
+  const [selectedService, setSelectedService] = useState(null); // To track selected service for feedback
 
-  const starImgFilled =
-    "https://raw.githubusercontent.com/tranhonghan/images/main/star_filled.png";
-  const starImgCorner =
-    "https://raw.githubusercontent.com/tranhonghan/images/main/star_corner.png";
+  // List of services
+  const services = [
+    { name: "Food Catering", category: "Food Catering" },
+    { name: "Photography", category: "Photography" },
+  ];
 
-  const CustomRatingBar = () => {
-    return (
-      <View style={styles.customRatingBar}>
-        {maxRating.map((item) => (
-          <TouchableOpacity
-            activeOpacity={0.7}
-            key={item}
-            onPress={() => setDefaultRating(item)}
-          >
-            <Image
-              style={styles.starImgStyle}
-              source={
-                item <= defaultRating
-                  ? { uri: starImgFilled }
-                  : { uri: starImgCorner }
-              }
-            />
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
+  const handleInputChange = (field, value) => {
+    setFeedbackData({ ...feedbackData, [field]: value });
   };
 
-  const backgroundImage = require("../pictures/Wallpaper.png");
-
-  const handleFeedbackSubmit = () => {
-    setModalVisible(true);
+  const handleSubmitServiceFeedback = () => {
+    console.log("Service Feedback Submitted:", feedbackData.serviceFeedback);
+    setShowModal(false); // Close service feedback modal
+    setShowImageModal(true); // Show the image modal after submitting feedback
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
-  const navigateToHomeScreen = () => {
-    navigation.navigate("HomeGuest");
+  const handleSubmit = () => {
+    setShowImageModal(true); // Show the service feedback modal
+    console.log("Feedback Data:", feedbackData);
+    // Reset the feedback form
+    setFeedbackData({
+      overallExperience: "",
+      eventExpectations: "",
+      expectationsDetails: "",
+      venueRating: "",
+      recommendationLikelihood: "",
+      suggestions: "",
+    });
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}> 
-       <Header2/>
-         <View style={styles.container}>
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.textStyle}>Please Rate Us</Text>
-        <CustomRatingBar />
-        <Text style={styles.textStylele}>
-          {defaultRating + " / " + maxRating.length}
-        </Text>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <Header2 />
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Tab Navigation */}
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "event" && styles.activeTab]}
+            onPress={() => setActiveTab("event")}
+          >
+            <Text
+              style={[styles.tabText, activeTab === "event" && styles.activeTabText]}
+            >
+              Event
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "serviceProvider" && styles.activeTab]}
+            onPress={() => setActiveTab("serviceProvider")}
+          >
+            <Text
+              style={[styles.tabText, activeTab === "serviceProvider" && styles.activeTabText]}
+            >
+              Service Provider
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-        <TextInput
-          style={styles.inputStyle}
-          placeholder="Type your feedback here"
-          placeholderTextColor="#888"
-          multiline
-          numberOfLines={4}
-          onChangeText={(text) => setFeedback(text)}
-          value={feedback}
-        />
+        {/* Content based on active tab */}
+        <View style={styles.contentContainer}>
+          {activeTab === "event" ? (
+            <View>
+              {/* Feedback Questions */}
+              <Text style={styles.question}>
+                How would you rate your overall experience at the event?
+              </Text>
+              {/* Options */}
+              <View style={styles.optionsContainer}>
+                {["Excellent", "Good", "Fair", "Poor"].map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.optionButton,
+                      feedbackData.overallExperience === option &&
+                        styles.selectedOption,
+                    ]}
+                    onPress={() =>
+                      handleInputChange("overallExperience", option)
+                    }
+                  >
+                    <Text style={styles.optionText}>{option}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
 
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={styles.buttonStyle}
-          onPress={handleFeedbackSubmit}
-        >
-          <Text style={styles.buttonText}>Submit Feedback</Text>
-        </TouchableOpacity>
+              <Text style={styles.question}>
+                Did the event meet your expectations?
+              </Text>
+              <View style={styles.optionsContainer}>
+                {["Yes", "No"].map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.optionButton,
+                      feedbackData.eventExpectations === option &&
+                        styles.selectedOption,
+                    ]}
+                    onPress={() =>
+                      handleInputChange("eventExpectations", option)
+                    }
+                  >
+                    <Text style={styles.optionText}>{option}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {feedbackData.eventExpectations === "No" && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Please provide details"
+                  placeholderTextColor="#888"
+                  value={feedbackData.expectationsDetails}
+                  onChangeText={(text) =>
+                    handleInputChange("expectationsDetails", text)
+                  }
+                />
+              )}
 
-        <Modal
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={closeModal}
-        >
-          <TouchableOpacity style={styles.modalBackground} onPress={closeModal}>
-            <View style={styles.modalContent}>
-              <Image
-                source={require("../pictures/Popf.png")}
-                style={styles.popupImage}
+              <Text style={styles.question}>
+                How would you rate the venue/location of the event?
+              </Text>
+              <View style={styles.optionsContainer}>
+                {["Excellent", "Good", "Fair", "Poor"].map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.optionButton,
+                      feedbackData.venueRating === option &&
+                        styles.selectedOption,
+                    ]}
+                    onPress={() => handleInputChange("venueRating", option)}
+                  >
+                    <Text style={styles.optionText}>{option}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.question}>
+                How likely are you to recommend this event to others?
+              </Text>
+              <View style={styles.optionsContainer}>
+                {["Very likely", "Somewhat likely", "Not likely"].map(
+                  (option) => (
+                    <TouchableOpacity
+                      key={option}
+                      style={[
+                        styles.optionButton,
+                        feedbackData.recommendationLikelihood === option &&
+                          styles.selectedOption,
+                      ]}
+                      onPress={() =>
+                        handleInputChange(
+                          "recommendationLikelihood",
+                          option
+                        )
+                      }
+                    >
+                      <Text style={styles.optionText}>{option}</Text>
+                    </TouchableOpacity>
+                  )
+                )}
+              </View>
+
+              <Text style={styles.question}>
+                How was the event overall? Any suggestions for improvement?
+              </Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Your suggestions..."
+                placeholderTextColor="#888"
+                multiline
+                numberOfLines={5}
+                value={feedbackData.suggestions}
+                onChangeText={(text) => handleInputChange("suggestions", text)}
               />
-              <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
-                <Text style={styles.modalButtonText}>X</Text>
+
+              {/* Submit Button */}
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={handleSubmit}
+              >
+                <Text style={styles.submitButtonText}>Submit</Text>
               </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-        </Modal>
-      </SafeAreaView>
-      </View>
+          ) : (
+            <View>
+              {/* Service Provider Feedback Section */}
+              <Text style={styles.sectionTitle}>Please rate our services</Text>
+              {services.map((service) => (
+                <TouchableOpacity
+                  key={service.name}
+                  style={styles.serviceContainer}
+                  onPress={() => {
+                    setSelectedService(service);
+                    setShowModal(true); // Show service feedback modal
+                  }}
+                >
+                  <Text style={styles.serviceName}>{service.name}</Text>
+                  <Text style={styles.serviceCategory}>{service.category}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Modal for Service Feedback */}
+      <Modal visible={showModal} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowModal(false)}
+            >
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+
+            {selectedService && (
+              <View>
+                <Text style={styles.modalTitle}>
+                  How do you like the {selectedService.name} service?
+                </Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  placeholder="Your feedback..."
+                  placeholderTextColor="#888"
+                  multiline
+                  numberOfLines={5}
+                  value={feedbackData.serviceFeedback}
+                  onChangeText={(text) => handleInputChange("serviceFeedback", text)}
+                />
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={handleSubmitServiceFeedback}
+                >
+                  <Text style={styles.submitButtonText}>Submit Feedback</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal for Pop-Up Image */}
+      <Modal visible={showImageModal} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowImageModal(false)}
+            >
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+            <Image
+              source={require("../pictures/Popf.png")}
+              style={styles.modalImage}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
+    padding: 20,
   },
-  background: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  textStyle: {
-    textAlign: "center",
-    fontSize: 26,
-    marginBottom: 20,
-    color: "white",
-    marginBottom: 40,
-  },
-  textStylele: {
-    textAlign: "center",
-    fontSize: 18,
-    marginTop: 15,
-    color: "white",
-    marginBottom: 20,
-  },
-  customRatingBar: {
+  tabContainer: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-around",
+    marginBottom: 20,
   },
-  starImgStyle: {
-    width: 40,
-    height: 40,
-    resizeMode: "cover",
-    marginHorizontal: 5,
-    marginBottom: 10,
-  },
-  inputStyle: {
-    width: "100%",
-    height: 70,
-    backgroundColor: "#333",
-    color: "white",
-    paddingHorizontal: 20,
+  tab: {
     paddingVertical: 10,
-    marginTop: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  activeTab: {
+    backgroundColor: "#9F7E1C",
+  },
+  tabText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  activeTabText: {
+    color: "#fff",
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  question: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: "#333",
+  },
+  optionsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 20,
+  },
+  optionButton: {
+    backgroundColor: "#f0f0f0",
+    padding: 10,
+    margin: 5,
+    borderRadius: 5,
+  },
+  selectedOption: {
+    backgroundColor: "#9F7E1C",
+  },
+  optionText: {
+    color: "#333",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
+    color: "#333",
+  },
+  textArea: {
+    height: 100,
     textAlignVertical: "top",
   },
-  buttonStyle: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 50,
-    paddingHorizontal: 30,
-    paddingVertical: 20,
+  submitButton: {
     backgroundColor: "#9F7E1C",
-    borderWidth: 1,
-    borderColor: "#000",
-    borderRadius: 16,
-    marginBottom: 130,
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
   },
-  buttonText: {
-    color: "white",
+  submitButtonText: {
+    color: "#fff",
+    fontSize: 16,
     fontWeight: "bold",
-    fontSize: 15,
   },
-  modalBackground: {
+  description: {
+    fontSize: 18,
+    textAlign: "center",
+    color: "#555",
+    marginBottom: 20,
+  },
+  modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
+    width: "65%",
+    height: "35%",
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
     alignItems: "center",
-    justifyContent: "center",
   },
-  modalButton: {
-    position: "absolute",
-    top: 25,
-    right: 20,
-    backgroundColor: "transparent",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+  closeButton: {
+    alignSelf: "flex-end",
   },
-  modalButtonText: {
+  closeButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  modalImage: {
+    width: 200,
+    height: 200,
+    resizeMode: "contain",
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  serviceContainer: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  serviceName: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "gray",
+    color: "#333",
   },
-  popupImage: {
-    width: 250,
-    height: 250,
+  serviceCategory: {
+    fontSize: 14,
+    color: "#777",
   },
-  bottomNavigation: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+  },
+  closeButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 15,
+    color: "#333",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
+    color: "#333",
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
+  },
+  submitButton: {
     backgroundColor: "#9F7E1C",
-    paddingVertical: 10,
-    borderRadius: 20,
-    width: "100%",
-    position: "absolute",
-    bottom: 0,
-    height: 90,
-  },
-  navItem: {
+    padding: 15,
+    borderRadius: 5,
     alignItems: "center",
-    marginLeft: 30,
   },
-  navText: {
-    color: "black",
-    marginTop: 3,
-  },
-  navDivider: {
-    borderTopColor: "black",
-    borderTopWidth: 4,
-    borderRadius: 3,
-    marginBottom: 7,
-    width: 75,
-    marginTop: -5,
+  submitButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

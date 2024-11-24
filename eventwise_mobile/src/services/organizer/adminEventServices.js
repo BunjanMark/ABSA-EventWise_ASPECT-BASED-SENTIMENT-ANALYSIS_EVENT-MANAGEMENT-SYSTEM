@@ -76,6 +76,18 @@ const fetchEvents = async () => {
     throw error;
   }
 };
+
+const fetchEventsByUserId = async (userId) => {
+  try {
+    const response = await api.get(`/admin/events/${userId}`); // Ensure endpoint matches
+    console.log("Fetched events by user_id: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching events by user_id:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // Function to create a new service
 const createService = async (serviceData) => {
   try {
@@ -300,4 +312,5 @@ export {
   fetchPackageServiceDetails,
   deleteEvent,
   fetchEventPackageDetails,
+  fetchEventsByUserId,
 };

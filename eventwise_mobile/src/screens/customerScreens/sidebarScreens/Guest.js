@@ -141,7 +141,13 @@ const GuestList = () => {
       </View>
 
       {/* Modal for editing guest details */}
-      <Modal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)}>
+      <Modal
+        isVisible={modalVisible}
+        onBackdropPress={() => setModalVisible(false)}
+        animationIn="fadeIn"   // Fade-in animation when opening
+        animationOut="fadeOut" // Fade-out animation when closing
+        backdropOpacity={0.7}  // Make the background slightly opaque
+      >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Edit Guest Details</Text>
           <TextInput
@@ -162,25 +168,45 @@ const GuestList = () => {
             onChangeText={setUpdatedPhone}
             style={styles.input}
           />
-          <Button mode="contained" style={styles.updateButton} onPress={handleUpdateGuest}>
+          <Button
+            mode="contained"
+            style={styles.updateButton}
+            onPress={handleUpdateGuest}
+          >
             Update Guest Details
           </Button>
         </View>
       </Modal>
 
-      {/* Modal for confirming deletion */}
-      <Modal isVisible={deleteModalVisible} onBackdropPress={() => setDeleteModalVisible(false)}>
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isVisible={deleteModalVisible}
+        onBackdropPress={() => setDeleteModalVisible(false)}
+        animationIn="fadeIn"   // Fade-in animation when opening
+        animationOut="fadeOut" // Fade-out animation when closing
+        backdropOpacity={0.7}  // Make the background slightly opaque
+      >
         <View style={styles.deleteModalContent}>
-          <Text style={styles.modalTitle}>Are you sure you want to delete the following guest?</Text>
+          <Text style={styles.modalTitle}>
+            Are you sure you want to delete the following guest?
+          </Text>
           <View style={styles.guestContainerWithBorder}>
             <Text style={styles.guestName}>{selectedGuest?.GuestName}</Text>
             <Text style={styles.guestInfo}>Email: {selectedGuest?.email}</Text>
             <Text style={styles.guestInfo}>Phone: {selectedGuest?.phone}</Text>
           </View>
-          <Button mode="contained" style={styles.deleteButton} onPress={handleConfirmDelete}>
+          <Button
+            mode="contained"
+            style={styles.deleteButton}
+            onPress={handleConfirmDelete}
+          >
             Yes, Remove
           </Button>
-          <Button mode="outlined" style={styles.cancelButton} onPress={() => setDeleteModalVisible(false)}>
+          <Button
+            mode="outlined"
+            style={styles.cancelButton}
+            onPress={() => setDeleteModalVisible(false)}
+          >
             Cancel
           </Button>
         </View>

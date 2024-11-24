@@ -4,8 +4,11 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Toast from "react-native-root-toast";
 import Header from "../elements/Header";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import {
   fetchEvents,
+  fetchEventsByUserId,
 } from "../../../services/organizer/adminEventServices";
 
 const Event = () => {
@@ -36,6 +39,38 @@ const Event = () => {
     (event.name && event.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (event.location && event.location.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+//   useEffect(() => {
+//     const loadEventsByUserId = async () => {
+//         try {
+//             const userId = await AsyncStorage.getItem("userId");
+//             console.log("User ID from AsyncStorage:", userId);
+
+//             if (!userId) {
+//                 throw new Error("User ID not found in AsyncStorage");
+//             }
+
+//             const fetchedEvents = await fetchEventsByUserId(userId);
+//             console.log("Fetched events:", fetchedEvents); // Debugging
+//             setEvents(fetchedEvents);
+//         } catch (err) {
+//             console.error("Error fetching events by user ID:", err);
+//             setError(err.message);
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+
+//     loadEventsByUserId();
+// }, []);
+
+
+
+  // const filteredEvents = events.filter(event =>
+  //   (event.name && event.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+  //   (event.location && event.location.toLowerCase().includes(searchQuery.toLowerCase()))
+  // );
+
 
   const handleDropdownToggle = (index) => {
     if (activeEventIndex === index) {
