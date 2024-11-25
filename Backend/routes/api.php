@@ -19,7 +19,10 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PackageServiceController;
 use App\Http\Controllers\EventPackageController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SmsTwilioController;
 use App\Events\NewServiceCreated;
+use App\Http\Controllers\TwilioSmsController;
+use App\Http\Controllers\NotificationUpcomingEventController;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -168,3 +171,6 @@ Route::post('/inventories', [EventController::class, 'store']);
 Route::get('/inventories/{id}', [EventController::class, 'show']);
 Route::put('/inventories/{id}', [EventController::class, 'update']);
 Route::delete('/inventories/{id}', [EventController::class, 'destroy']);
+
+
+Route::get('/send-sms', [NotificationUpcomingEventController::class, 'sendReminder']);

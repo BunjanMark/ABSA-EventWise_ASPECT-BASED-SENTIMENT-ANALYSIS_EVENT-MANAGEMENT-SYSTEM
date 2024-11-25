@@ -150,6 +150,15 @@ class User extends Authenticatable
     //     ];
     // }
 
+    public function routeNotificationForVonage()
+    {
+        // Ensure phone numbers are in the correct international format
+        return '+63' . ltrim($this->phone_number, '0');
+    }
 
-    
+    public function routeNotificationForTwilio()
+    {
+        // Ensure phone numbers are in the correct international format
+        return '+63' . ltrim($this->phone_number, '0');
+    }
 }
