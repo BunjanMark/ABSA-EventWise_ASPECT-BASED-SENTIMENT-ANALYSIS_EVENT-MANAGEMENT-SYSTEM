@@ -169,7 +169,7 @@ const BookingProcess = ({ navigation }) => {
         eventTime: values.eventTime,
         eventLocation: values.eventLocation,
         description: values.description,
-        guests: values.guests,
+        guest: values.guests,
         coverPhoto: coverPhotoURL || null,
       };
 

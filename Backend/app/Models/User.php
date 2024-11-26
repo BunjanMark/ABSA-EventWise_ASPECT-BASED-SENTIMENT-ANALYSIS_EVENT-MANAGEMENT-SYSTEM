@@ -14,9 +14,9 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
- 
- 
-
+use App\Models\ExpoToken;
+use App\Models\Notification;
+use Illuminate\Database\Eloquent\Model;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens, HasRoles;
@@ -127,5 +127,38 @@ class User extends Authenticatable
         return $this->belongsToMany(Equipment::class);
     }
 
+    public function expoTokens()
+    {
+        return $this->hasMany(ExpoToken::class);
+    }
 
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+    // public function routeNotificationForExpo($notification)
+    // {
+    //     return $this->expo_token;
+    // }
+
+    // public function routeNotificationForDatabase($notification)
+    // {
+    //     return [
+    //         'user_id' => $this->id,
+    //         'notification_type' => get_class($notification),
+    //         'data' => $notification->toArray($this),
+    //     ];
+    // }
+
+    public function routeNotificationForVonage()
+    {
+        // Ensure phone numbers are in the correct international format
+        return '+63' . ltrim($this->phone_number, '0');
+    }
+
+    public function routeNotificationForTwilio()
+    {
+        // Ensure phone numbers are in the correct international format
+        return '+63' . ltrim($this->phone_number, '0');
+    }
 }

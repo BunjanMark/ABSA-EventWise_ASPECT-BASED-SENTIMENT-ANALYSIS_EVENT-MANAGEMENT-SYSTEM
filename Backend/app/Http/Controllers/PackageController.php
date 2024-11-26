@@ -7,6 +7,7 @@ use App\Models\Package;
 use Illuminate\Support\Facades\DB;
 use App\Events\PackageCreatedNotification;
 use Illuminate\Support\Facades\Auth;
+use App\Events\PackageCreatedEvent;
 class PackageController extends Controller
 {
     // Method to fetch all packages
@@ -133,6 +134,9 @@ public function update(Request $request, $id)
             'services' => json_encode($validatedData['services']),
         ]);
 
+        event(new PackageCreatedEvent($package));
+        // $user = auth()->user(); // Get the current user
+        // event(new PackageCreatedNotification($package));
         // Link associated service IDs to the package
         if (isset($validatedData['services']) && count($validatedData['services']) > 0) {
             foreach ($validatedData['services'] as $serviceId) {
@@ -144,7 +148,7 @@ public function update(Request $request, $id)
                 ]);
             }
         }
-        event(new PackageCreatedNotification($package));
+
         DB::commit(); // Commit the transaction
 
         return response()->json($package, 201); // Return the created package with 201 status

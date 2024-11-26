@@ -14,7 +14,7 @@ use App\Http\Requests\UserStoreRequest;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmailVerification;
 use Illuminate\Support\Str;
- 
+use App\Events\SendExpoTokenEvent;
 
 class AuthenticatedSessionController extends Controller
 {   
@@ -22,30 +22,39 @@ class AuthenticatedSessionController extends Controller
         $this->model = new User();
     }
     public function loginAccount(LoginRequest $request)
-    {
+{
+    try {
+        $user = User::where('email', $request->email)->first();
 
-        try {
-            $user = User::where('email', $request->email)->first();
-            
-            $user1 = $request->user();
-            if(!$user || !Hash::check($request->password, $user->password)){
-                throw ValidationException::withMessages([
-                    'email' => ['The provided credentials are incorrect.'],
-                ]);
-            }
-
-          
-            return response()->json([
-                'message' => 'Login Successful',
-                'user' => $user,
-                'role' => $user->role_id,
-                'token' => $user->createToken('authToken')->plainTextToken
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
             ]);
-        } catch (\Throwable $th) {
-            //throw $th;
-            return response()->json(['message' => $th->getMessage()], 500);
         }
+
+        // Validate the push token
+        $request->validate([
+            'push_token' => 'nullable|string',
+        ]);
+
+        // Trigger the event to handle the push token
+        if ($request->input('push_token')) {
+            \Log::info('Push token received: ' . $request->input('push_token'));
+            event(new SendExpoTokenEvent($user, $request->input('push_token')));
+        }
+        
+
+        // Return success response
+        return response()->json([
+            'message' => 'Login Successful',
+            'user' => $user,
+            'role' => $user->role_id,
+            'token' => $user->createToken('authToken')->plainTextToken,
+        ]);
+    } catch (\Throwable $th) {
+        return response()->json(['message' => $th->getMessage()], 500);
     }
+}
     public function logout(Request $request)
 {
     if (!Auth::check()) {
@@ -115,11 +124,7 @@ class AuthenticatedSessionController extends Controller
         
     }
 
-    public function fetchNotifications()
-    {
-        $notifications = auth()->user()->notifications;  // Get all notifications for the authenticated user
-        return response()->json($notifications);
-    }
+ 
     // Send email verification code
     public function sendVerificationEmail(Request $request)
     {

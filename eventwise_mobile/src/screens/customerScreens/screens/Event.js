@@ -156,7 +156,7 @@ const Event = () => {
                       <TouchableOpacity
                         onPress={() => {
                           setDropdownVisible(false);
-                          navigation.navigate('GuestList', { eventId: event.id, eventName: event.name });
+                          navigation.navigate('GuestList', { eventid: event.id, eventName: event.name });
                         }}
                         style={styles.dropdownItem}
                       >

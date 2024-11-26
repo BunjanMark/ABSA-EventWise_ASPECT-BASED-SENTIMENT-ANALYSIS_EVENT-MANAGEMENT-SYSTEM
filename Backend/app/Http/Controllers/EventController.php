@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Event;
-use App\Models\Guests;
+use App\Models\Guest;
 use App\Models\Equipment;
 use App\Models\Package;
 use App\Models\Service;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
+use App\Events\EventCreatedEvent;
+use App\Models\AccountRole;
 class EventController extends Controller
 {
     //Add a method to fetch all events
@@ -47,15 +50,15 @@ public function store(Request $request)
             'eventStatus' => 'required|string', // e.g., Tentative, Booked, etc.
             'eventLocation' => 'required|string',
             'description' => 'required|string',
-            'coverPhoto' => 'nullable|string', // !#TODO kani ang problema oh url sja pero sa db string. c
+            'coverPhoto' => 'nullable|string', 
             'totalPrice' => 'nullable|integer',
             // 'package_id' => 'required|exists:packages,id',
             'packages' => 'nullable|array',
-            'guests' => 'required|array',
-            'guests.*.GuestName' => 'required|string|max:255',
-            'guests.*.email' => 'required|email',
-            'guests.*.phone' => 'required|string|max:15',
-            'guests.*.role' => 'required|string|max:15',
+            'guest' => 'required|array',
+            'guest.*.GuestName' => 'required|string|max:255',
+            'guest.*.email' => 'required|email',
+            'guest.*.role' => 'nullable|string|max:255',
+            'guest.*.phone' => 'required|string|max:15',
         ]);
 
         // Attach user ID to validated data
@@ -82,6 +85,7 @@ public function store(Request $request)
             'user_id' => $validatedData['user_id'], // Now user_id is explicitly set
         ]);
 
+        event(new EventCreatedEvent($event));
 
         if (isset($validatedData['packages']) && count($validatedData['packages']) > 0) {
             foreach ($validatedData['packages'] as $packageId) {
@@ -108,18 +112,71 @@ public function store(Request $request)
             }
         }
 
-        // Add guests to the event
-        foreach ($validatedData['guests'] as $guestData) {
-            Guests::create([
-                'event_id' => $event->id,
-                'GuestName' => $guestData['GuestName'],
-                'email' => $guestData['email'],
-                'phone' => $guestData['phone'],
-                'role' => $guestData['role'],
-            ]);
+       // Add guest to the event
+       $guests = [];
+       foreach ($validatedData['guest'] as $guestData) {
+           $guest = Guest::create([
+               'event_id' => $event->id,
+               'GuestName' => $guestData['GuestName'],
+               'email' => $guestData['email'],
+               'phone' => $guestData['phone'],
+               // set role default value to 'guest' role
+             'role' => $guestData['role'] ?? 'guest',
+
+           ]);
+           $guests[] = $guest;
+       }
+
+        // add service providers included in the package to the guest table
+        foreach ($validatedData['packages'] as $packageId) {
+            $package = Package::find($packageId);
+            $services = json_decode($package->services, true);
+            $serviceProviders = [];
+            foreach ($services as $service){
+                $serviceProviderData = Service::find($service);
+                $serviceProviders[] = [
+                    'user_id' => $serviceProviderData->user_id,
+                    // 'id' => $serviceProviderData->id,
+                    // 'serviceName' => $serviceProviderData->serviceName,
+                    // 'serviceFeatures' => $serviceProviderData->serviceFeatures,
+                    // 'verified' => $serviceProviderData->verified,
+                    // 'basePrice' => $serviceProviderData->basePrice,
+                    // 'pax' => $serviceProviderData->pax,
+                    // 'servicePhotoURL' => $serviceProviderData->servicePhotoURL,
+                    // 'serviceCategory' => $serviceProviderData->serviceCategory,
+                    // 'availability_status' => $serviceProviderData->availability_status,
+                ];
+               
+            }
+
+            foreach ($serviceProviders as $serviceProvider) {
+                // Fetch the AccountRole and User data
+                $AccountRoledata = AccountRole::find($serviceProvider['user_id']);
+                $UserData = User::find($serviceProvider['user_id']);
+            
+                // Determine the role name based on role_id
+                $roleName = match ($UserData->role_id) {
+                    3 => 'Service Provider',
+                    2 => 'customer', // Example: handle other roles
+                    1 => 'admin', // Example: handle other roles
+                    default => 'N/A', // Default role name if not matched
+                };
+            
+                // Create the guest record
+                Guest::create([
+                    'event_id' => $event->id,
+                    'GuestName' => $UserData->name,
+                    'email' => $UserData->email,
+                    'phone' => $UserData->phone_number,
+                    'role' => $roleName,
+                ]);
+            }
+            
+            
         }
 
-        return response()->json([$event->load('package'), $user], 201); // Include package in response
+        // Return the created event along with its associated package and user
+        return response()->json([$event->load('package'), $user,  'guests' => Guest::where('event_id', $event->id)->get(),  "my services" => $serviceProviders], 201); // Include package in response
     } catch (\Illuminate\Validation\ValidationException $e) {
         return response()->json([
             'status' => 'error',
@@ -133,7 +190,6 @@ public function store(Request $request)
         ], 500);
     }
 }
-
 
 public function fetchEventsByType(Request $request)
 {
@@ -200,7 +256,7 @@ public function fetchEventsByDate($date)
 public function showEventById($eventId)
 {
     try {
-        $event = Event::with('guests')->find($eventId);
+        $event = Event::with('guest')->find($eventId);
 
         if (!$event) {
             return response()->json(['error' => 'Event not found'], 404);

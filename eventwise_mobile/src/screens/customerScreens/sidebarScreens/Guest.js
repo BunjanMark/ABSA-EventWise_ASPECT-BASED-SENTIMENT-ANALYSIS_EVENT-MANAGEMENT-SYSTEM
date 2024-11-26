@@ -10,7 +10,7 @@ import { TextInput, Button, Menu, Divider } from 'react-native-paper';
 
 const GuestList = () => {
   const route = useRoute();
-  const { eventId, eventName } = route.params;
+  const { eventid, eventName } = route.params;
   const [guests, setGuests] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState(null);
@@ -25,20 +25,21 @@ const GuestList = () => {
   useEffect(() => {
     const fetchGuests = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/guests/${eventId}`);
+        const response = await axios.get(`${API_URL}/api/guest/${eventid}`);
         setGuests(response.data);
+        console.log('Guests:', response.data);
       } catch (error) {
         console.error('Error fetching guests:', error);
       }
     };
 
     fetchGuests();
-  }, [eventId]);
+  }, [eventid]);
 
   const handleUpdateGuest = async () => {
     try {
       const response = await axios.put(
-        `${API_URL}/api/guests/${selectedGuest.id}`,
+        `${API_URL}/api/guest/${selectedGuest.id}`,
         {
           GuestName: updatedGuestName,
           email: updatedEmail,
@@ -65,7 +66,7 @@ const GuestList = () => {
   const handleConfirmDelete = async () => {
     if (selectedGuest && selectedGuest.id) {
       try {
-        await axios.delete(`${API_URL}/api/guests/${selectedGuest.id}`);
+        await axios.delete(`${API_URL}/api/guest/${selectedGuest.id}`);
         setGuests(guests.filter(guest => guest.id !== selectedGuest.id));
         setDeleteModalVisible(false);
         window.alert('Guest deleted successfully!');

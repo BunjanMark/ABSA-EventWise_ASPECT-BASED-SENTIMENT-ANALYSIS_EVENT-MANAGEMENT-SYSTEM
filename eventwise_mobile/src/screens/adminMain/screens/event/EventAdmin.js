@@ -15,13 +15,17 @@ import EventCard from "./EventCard";
 import { fetchEvents } from "../../../../services/organizer/adminEventServices";
 import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
 import { deleteEvent } from "../../../../services/organizer/adminEventServices";
+import { useEffect } from "react";
 const EventAdmin = () => {
-  const [refreshing, setRefreshing] = useState(false);
   const { currentPackages, setCurrentPackages } = usePackageStore();
   const { currentEvents, setCurrentEvents } = useEventStore();
   const [likedPackages, setlikedPackages] = useState({});
   const [likedEvents, setlikedEvents] = useState({});
-  // console.log("packages in EventAdmin:", currentPackages);
+
+  useEffect(() => {
+    refreshEvents();
+    refreshPackages();
+  }, []);
   const toggleLike = (currentPackagesId) => {
     setlikedPackages((prevLikedPackages) => {
       const newLikedPackages = { ...prevLikedPackages };
@@ -65,8 +69,6 @@ const EventAdmin = () => {
     }
   };
 
-  // *!----- for events
-
   const handleDeleteEvent = async (id) => {
     try {
       await deleteEvent(id);
@@ -85,39 +87,43 @@ const EventAdmin = () => {
     }
   };
 
+  const [refreshingEvents, setRefreshingEvents] = useState(false);
+  const [refreshingPackages, setRefreshingPackages] = useState(false);
+
+  // Update the refreshEvents and refreshPackages functions to handle their own states
   const refreshPackages = useCallback(async () => {
-    setRefreshing(true); // Start refreshing
+    setRefreshingPackages(true);
     try {
       const updatedPackages = await fetchPackages();
-      setCurrentPackages(updatedPackages); // Update packages in store
+      setCurrentPackages(updatedPackages);
     } catch (error) {
       console.error("Failed to fetch packages", error);
     } finally {
-      setRefreshing(false); // Stop refreshing
+      setRefreshingPackages(false);
     }
   }, [setCurrentPackages]);
 
   const refreshEvents = useCallback(async () => {
-    setRefreshing(true); // Start refreshing
+    setRefreshingEvents(true);
     try {
       const updatedEvents = await fetchEvents();
-      setCurrentEvents(updatedEvents); // Update events in store
+      setCurrentEvents(updatedEvents);
     } catch (error) {
       console.error("Failed to fetch events", error);
     } finally {
-      setRefreshing(false); // Stop refreshing
+      setRefreshingEvents(false);
     }
   }, [setCurrentEvents]);
   return (
-    <SafeAreaView style={[styles.container, { paddingBottom: 100 }]}>
+    <SafeAreaView style={[{ paddingBottom: 100 }]}>
       <ScrollView
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
+            refreshing={refreshingEvents || refreshingPackages}
             onRefresh={() => {
               refreshEvents();
               refreshPackages();
-            }} // Trigger both refresh functions
+            }}
             colors={["#ff9900"]}
             tintColor="#ff9900"
           />

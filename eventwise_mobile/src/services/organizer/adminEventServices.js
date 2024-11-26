@@ -1,5 +1,3 @@
-// src/services/service/serviceServices.js
-
 import axios from "axios";
 import API_URL from "../../constants/constant";
 import AsyncStorage from "@react-native-async-storage/async-storage";

@@ -34,7 +34,7 @@ const CreateServiceScreen = ({ navigation }) => {
   });
 
   const handleCreateService = async (values, resetForm) => {
-    console.log("Values in CreateServiceScreen:", values);
+    // console.log("Values in CreateServiceScreen:", values);
     setIsLoading(true);
     try {
       let servicePhotoURL = null;
@@ -47,7 +47,6 @@ const CreateServiceScreen = ({ navigation }) => {
           values.servicePhoto,
           fileName
         );
-        console.log("Image uploaded successfully. URL:", servicePhotoURL);
       }
       // Use the derived category if "Other" is selected
       const serviceCategory =
@@ -66,7 +65,7 @@ const CreateServiceScreen = ({ navigation }) => {
         serviceCreatedDate: new Date().toISOString().split("T")[0],
       };
 
-      console.log("New service in ServiceManager:", newService);
+      // console.log("New service in ServiceManager:", newService);
       const result = await createService(newService);
 
       Alert.alert("Success", "Service added successfully!");

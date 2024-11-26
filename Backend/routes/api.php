@@ -13,12 +13,16 @@ use App\Http\Controllers\AccountManagementController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\GuestsController;
+use App\Http\Controllers\GuestController;
 use App\Http\Controllers\AccountRoleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PackageServiceController;
 use App\Http\Controllers\EventPackageController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SmsTwilioController;
 use App\Events\NewServiceCreated;
+use App\Http\Controllers\TwilioSmsController;
+use App\Http\Controllers\NotificationUpcomingEventController;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -53,8 +57,6 @@ Route::delete('/admin/account-management/{user}', [AccountManagementController::
 Route::get('/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);
 
 
-Route::get('/notifications', [AuthenticatedSessionController::class, 'fetchNotifications']);
-
 // Route::middleware(['admin'])->get('/admin', [AdminController::class, 'index']);
 // test route respond hello world
 Route::get('/hello', function () {
@@ -71,6 +73,7 @@ Route::put('/admin/packages/{id}', [PackageController::class, 'update']);
 Route::delete('/admin/packages/{id}', [PackageController::class, 'destroy']);
 // Route::get('/admin/packages/{packageId}/services',[PackageServiceController::class, 'packageService']);
 Route::get('/admin/packages/{packageId}/services',[PackageServiceController::class, 'getPackageServices']);
+Route::get('/admin/packages/{packageId}/serviceProviders', [PackageServiceController::class, 'getPackageServiceProvidersId']);
 // Admin Event Management
 Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class, 'store']);
 // Route::post('/admin/events', [EventController::class, 'store']);
@@ -87,13 +90,15 @@ Route::get('/admin/events/by-date/{date}', [EventController::class, 'fetchEvents
 Route::post('/admin/events/{id}/restore', [EventController::class, 'restoreEvent']);
 Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEventPackages']);
 
-Route::get('/guests', [GuestsController::class, 'index']);
-Route::get('guests/{eventid}', [GuestsController::class, 'getGuestByEvent']);
-Route::put('/guests/{id}', [GuestsController::class, 'update']);
-Route::delete('/guests/{id}', [GuestsController::class, 'destroy']);
+Route::get('/guest', [GuestController::class, 'index']);
+Route::get('guest/{eventid}', [GuestController::class, 'getGuestByEvent']);
+Route::put('/guest/{id}', [GuestController::class, 'update']);
+Route::delete('/guest/{id}', [GuestController::class, 'destroy']);
 
-Route::get('/admin/events/{userId}', [EventController::class, 'getEventsByUserId']);
 
+// Notification handlers
+Route::get('/notifications', [NotificationController::class, 'index']);
+Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
 
 
@@ -166,3 +171,6 @@ Route::post('/inventories', [EventController::class, 'store']);
 Route::get('/inventories/{id}', [EventController::class, 'show']);
 Route::put('/inventories/{id}', [EventController::class, 'update']);
 Route::delete('/inventories/{id}', [EventController::class, 'destroy']);
+
+
+Route::get('/send-sms', [NotificationUpcomingEventController::class, 'sendReminder']);

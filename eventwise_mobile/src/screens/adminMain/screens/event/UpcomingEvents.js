@@ -1,56 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Image, StyleSheet } from "react-native";
-import useStore from "../../../../stateManagement/useStore"; // Adjust the path as needed
-
+import { View, Text } from "react-native";
+import { StyleSheet } from "react-native";
+import React from "react";
+import { SafeAreaView } from "react-native";
+import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
+import { useState } from "react";
 const UpcomingEvents = () => {
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const { eventData } = useStore(); // Assuming eventData contains the events
-
-  useEffect(() => {
-    // Fetch upcoming events, assuming eventData is an array of events
-    const fetchUpcomingEvents = () => {
-      const today = new Date();
-      const filteredEvents = eventData.filter((event) => {
-        const eventDate = new Date(event.eventDate);
-        return eventDate >= today; // Only include events today or in the future
-      });
-      setUpcomingEvents(filteredEvents);
-    };
-
-    fetchUpcomingEvents();
-  }, [eventData]);
-
-  const renderEventItem = ({ item }) => (
-    <View style={styles.eventContainer}>
-      <Image source={{ uri: item.EventImage }} style={styles.eventImage} />
-      <Text style={styles.eventName}>{item.eventName}</Text>
-      <Text style={styles.eventDescription}>{item.eventDescription}</Text>
-      <Text
-        style={styles.eventDate}
-      >{`${item.eventDate} at ${item.eventTime}`}</Text>
-      <Text style={styles.eventLocation}>{item.eventLocation}</Text>
-      <Text
-        style={styles.eventPackage}
-      >{`Package: ${item.eventPackageName}`}</Text>
-      <Text
-        style={styles.totalPrice}
-      >{`Total Price: ₱${item.totalPrice}`}</Text>
-    </View>
-  );
-
+  const { currentEvents, setCurrentEvents } = useEventStore();
+  const [likedEvents, setlikedEvents] = useState({});
   return (
-    <View>
-      <Text style={styles.header}>Upcoming Events</Text>
-      <FlatList
-        data={upcomingEvents}
-        renderItem={renderEventItem}
-        keyExtractor={(item) => item.eventId}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+    <SafeAreaView style={[styles.container, { display: "flex", flex: 1 }]}>
+      <Text style={styles.header}>Upcoming events</Text>
+    </SafeAreaView>
   );
 };
 
+export default UpcomingEvents;
 const styles = StyleSheet.create({
   eventContainer: {
     backgroundColor: "#fff",
@@ -98,5 +62,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
 });
-
-export default UpcomingEvents;

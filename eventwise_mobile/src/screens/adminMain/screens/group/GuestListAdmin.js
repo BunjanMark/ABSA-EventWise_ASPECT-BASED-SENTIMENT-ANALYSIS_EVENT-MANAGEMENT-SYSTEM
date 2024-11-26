@@ -1,214 +1,157 @@
-// screens/GuestList.js
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-// import styles from "../../styles/styles";
-import { StyleSheet } from "react-native";
-import { useRoute } from "@react-navigation/native";
-import useStore from "../../../../stateManagement/useStore";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import { DataTable } from "react-native-paper";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { useGuestStore } from "../../../../stateManagement/admin/useGuestStore";
+import { fetchGuestEventDetails } from "../../../../services/organizer/adminGuestServices";
 
 const GuestListAdmin = () => {
   const route = useRoute();
-  const { eventData } = useStore();
-  const { eventId, totalGuests } = route.params;
+  const navigation = useNavigation();
+  const { eventId, name } = route.params;
 
-  const eventGuestData = eventData.find((event) => event.eventId === eventId);
-  const { guestData } = eventGuestData;
+  const { guests, setGuests } = useGuestStore();
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
 
-  const [showFullDetails, setShowFullDetails] = useState(false);
-  const [selectedGuest, setSelectedGuest] = useState(null);
+  const refreshGuests = useCallback(async () => {
+    setRefreshing(true);
+    setError(null);
+    try {
+      const updatedGuests = await fetchGuestEventDetails(eventId);
+      setGuests(updatedGuests);
+    } catch (err) {
+      setError("Failed to fetch guest data. Please try again later.");
+      console.error(err);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [eventId, setGuests]);
 
-  const handleLongPress = (guest) => {
-    setSelectedGuest(guest);
-    setShowFullDetails(true);
+  useEffect(() => {
+    refreshGuests();
+  }, [refreshGuests]);
+
+  const handleRowPress = (guest) => {
+    navigation.navigate("GuestDetail", { guest });
   };
 
-  const handleHoverIn = (guest) => {
-    setSelectedGuest(guest);
-    setShowFullDetails(true);
-  };
-
-  const handleHoverOut = () => {
-    setShowFullDetails(false);
-  };
-  // count length of guest data
-  console.log(typeof guestData);
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Guest List</Text>
-      <Text>Total guest: {totalGuests}</Text>
-      <DataTable>
-        <DataTable.Header>
-          <DataTable.Title>Name</DataTable.Title>
-          <DataTable.Title>Email</DataTable.Title>
-          <DataTable.Title>Phone</DataTable.Title>
-          <DataTable.Title>Role</DataTable.Title>
-        </DataTable.Header>
-        {guestData?.map((guest, index) => (
-          <DataTable.Row key={index}>
-            <DataTable.Cell
-              onPressIn={() => handleHoverIn(guest)}
-              onPressOut={handleHoverOut}
-            >
-              {showFullDetails && selectedGuest.name === guest.name ? (
-                <View>
-                  <Text style={styles.fullDetailsText}>Name: {guest.name}</Text>
-                  <Text style={styles.fullDetailsText}>
-                    Email: {guest.email}
-                  </Text>
-                  <Text style={styles.fullDetailsText}>
-                    Phone: {guest.phone}
-                  </Text>
-                  <Text style={styles.fullDetailsText}>Role: {guest.role}</Text>
-                </View>
-              ) : (
-                guest.name
-              )}
-            </DataTable.Cell>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={refreshGuests} />
+      }
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>Guest List for Event</Text>
+        <Text style={styles.eventName}>{name}</Text>
+      </View>
+      <Text style={styles.subTitle}>Total Guests: {guests.length}</Text>
 
-            <DataTable.Cell
-              onPressIn={() => handleHoverIn(guest)}
-              onPressOut={handleHoverOut}
-            >
-              {showFullDetails && selectedGuest.email === guest.email ? (
-                <View>
-                  <Text style={styles.fullDetailsText}>Name: {guest.name}</Text>
-                  <Text style={styles.fullDetailsText}>
-                    Email: {guest.email}
-                  </Text>
-                  <Text style={styles.fullDetailsText}>
-                    Phone: {guest.phone}
-                  </Text>
-                  <Text style={styles.fullDetailsText}>Role: {guest.role}</Text>
-                </View>
-              ) : (
-                guest.email
-              )}
-            </DataTable.Cell>
+      {error && <Text style={styles.errorText}>{error}</Text>}
 
-            <DataTable.Cell
-              onPressIn={() => handleHoverIn(guest)}
-              onPressOut={handleHoverOut}
-            >
-              {showFullDetails && selectedGuest.phone === guest.phone ? (
-                <View>
-                  <Text style={styles.fullDetailsText}>Name: {guest.name}</Text>
-                  <Text style={styles.fullDetailsText}>
-                    Email: {guest.email}
-                  </Text>
-                  <Text style={styles.fullDetailsText}>
-                    Phone: {guest.phone}
-                  </Text>
-                  <Text style={styles.fullDetailsText}>Role: {guest.role}</Text>
-                </View>
-              ) : (
-                guest.phone
-              )}
-            </DataTable.Cell>
+      {guests.length === 0 && !error ? (
+        <Text style={styles.emptyMessage}>No guests found for this event.</Text>
+      ) : (
+        <DataTable>
+          <DataTable.Header>
+            <DataTable.Title style={styles.tableHeaderText}>
+              Name
+            </DataTable.Title>
+            <DataTable.Title style={styles.tableHeaderText}>
+              Email
+            </DataTable.Title>
+            <DataTable.Title style={styles.tableHeaderText}>
+              Phone
+            </DataTable.Title>
+            <DataTable.Title style={styles.tableHeaderText}>
+              Role
+            </DataTable.Title>
+          </DataTable.Header>
 
-            <DataTable.Cell
-              onPressIn={() => handleHoverIn(guest)}
-              onPressOut={handleHoverOut}
+          {guests.map((guest, index) => (
+            <DataTable.Row
+              key={index}
+              onPress={() => handleRowPress(guest)}
+              style={[
+                styles.tableRow,
+                index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd,
+              ]}
             >
-              {showFullDetails && selectedGuest.role === guest.role ? (
-                <View>
-                  <Text style={styles.fullDetailsText}>Name: {guest.name}</Text>
-                  <Text style={styles.fullDetailsText}>
-                    Email: {guest.email}
-                  </Text>
-                  <Text style={styles.fullDetailsText}>
-                    Phone: {guest.phone}
-                  </Text>
-                  <Text style={styles.fullDetailsText}>Role: {guest.role}</Text>
-                </View>
-              ) : (
-                guest.role
-              )}
-            </DataTable.Cell>
-          </DataTable.Row>
-        ))}
-      </DataTable>
-      {showFullDetails && (
-        <View style={styles.fullDetailsContainer}>
-          <Text style={styles.fullDetailsTitle}>Full Details</Text>
-          <Text style={styles.fullDetailsText}>Name: {selectedGuest.name}</Text>
-          <Text style={styles.fullDetailsText}>
-            Email: {selectedGuest.email}
-          </Text>
-          <Text style={styles.fullDetailsText}>
-            Phone: {selectedGuest.phone}
-          </Text>
-          <Text style={styles.fullDetailsText}>Role: {selectedGuest.role}</Text>
-          {/* <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setShowFullDetails(false)}
-          >
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity> */}
-        </View>
+              <DataTable.Cell>{guest.GuestName}</DataTable.Cell>
+              <DataTable.Cell>{guest.email}</DataTable.Cell>
+              <DataTable.Cell>{guest.phone}</DataTable.Cell>
+              <DataTable.Cell>{guest.role}</DataTable.Cell>
+            </DataTable.Row>
+          ))}
+        </DataTable>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
+    backgroundColor: "#f8f9fa",
     padding: 20,
-    backgroundColor: "#fff",
+  },
+  header: {
+    marginBottom: 20,
+    alignItems: "center",
+    backgroundColor: "#0066cc",
+    paddingVertical: 15,
+    borderRadius: 10,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
+    color: "#ffffff",
   },
-  dataTable: {
-    marginBottom: 20,
+  eventName: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#cce7ff",
   },
-  dataTableHeader: {
-    backgroundColor: "#f7f7f7",
-  },
-  dataTableTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  dataTableRow: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-  },
-  dataTableCell: {
-    fontSize: 14,
-    padding: 10,
-  },
-  fullDetailsContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "white",
-    padding: 20,
-  },
-  fullDetailsTitle: {
+  subTitle: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
+    textAlign: "center",
+    color: "#343a40",
   },
-  fullDetailsText: {
+  errorText: {
+    color: "#ff6b6b",
     fontSize: 16,
-    marginBottom: 10,
+    textAlign: "center",
+    marginBottom: 20,
   },
-  closeButton: {
-    position: "absolute",
-    top: 20,
-    right: 20,
-    backgroundColor: "#4CAF50",
-    padding: 10,
-    borderRadius: 5,
-  },
-  closeButtonText: {
+  emptyMessage: {
     fontSize: 16,
-    color: "#fff",
+    color: "#6c757d",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  tableHeaderText: {
+    fontWeight: "bold",
+    color: "#343a40",
+  },
+  tableRow: {
+    paddingVertical: 10,
+  },
+  tableRowEven: {
+    backgroundColor: "#ffffff",
+  },
+  tableRowOdd: {
+    backgroundColor: "#f1f3f5",
   },
 });
+
 export default GuestListAdmin;
