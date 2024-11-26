@@ -57,6 +57,7 @@ public function store(Request $request)
             'guest' => 'required|array',
             'guest.*.GuestName' => 'required|string|max:255',
             'guest.*.email' => 'required|email',
+            'guest.*.role' => 'nullable|string|max:255',
             'guest.*.phone' => 'required|string|max:15',
         ]);
 
@@ -111,17 +112,20 @@ public function store(Request $request)
             }
         }
 
-        // Add guest to the event
-        foreach ($validatedData['guest'] as $guestData) {
-            Guest::create([
-                'event_id' => $event->id,
-                'GuestName' => $guestData['GuestName'],
-                'email' => $guestData['email'],
-                'phone' => $guestData['phone'],
-                // set role default value to 'guest' role
-                'role' => 'guest',
-            ]);
-        }
+       // Add guest to the event
+       $guests = [];
+       foreach ($validatedData['guest'] as $guestData) {
+           $guest = Guest::create([
+               'event_id' => $event->id,
+               'GuestName' => $guestData['GuestName'],
+               'email' => $guestData['email'],
+               'phone' => $guestData['phone'],
+               // set role default value to 'guest' role
+             'role' => $guestData['role'] ?? 'guest',
+
+           ]);
+           $guests[] = $guest;
+       }
 
         // add service providers included in the package to the guest table
         foreach ($validatedData['packages'] as $packageId) {
@@ -155,7 +159,7 @@ public function store(Request $request)
                     3 => 'Service Provider',
                     2 => 'customer', // Example: handle other roles
                     1 => 'admin', // Example: handle other roles
-                    default => 'Guest', // Default role name if not matched
+                    default => 'N/A', // Default role name if not matched
                 };
             
                 // Create the guest record
@@ -172,7 +176,7 @@ public function store(Request $request)
         }
 
         // Return the created event along with its associated package and user
-        return response()->json([$event->load('package'), $user,  "my services" => $serviceProviders], 201); // Include package in response
+        return response()->json([$event->load('package'), $user,  'guests' => Guest::where('event_id', $event->id)->get(),  "my services" => $serviceProviders], 201); // Include package in response
     } catch (\Illuminate\Validation\ValidationException $e) {
         return response()->json([
             'status' => 'error',
@@ -186,7 +190,6 @@ public function store(Request $request)
         ], 500);
     }
 }
-
 
 public function fetchEventsByType(Request $request)
 {
@@ -394,6 +397,21 @@ public function showEventById($eventId)
             ], 404);
         }
     }
+
+
+
+// In your EventController.php
+public function getEventsByUserId($userId)
+{
+    try {
+        $events = Event::where('user_id', $userId)->get(); // Use $userId directly
+        return response()->json($events, 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to fetch events'], 500);
+    }
+}
+
+
 
 
     

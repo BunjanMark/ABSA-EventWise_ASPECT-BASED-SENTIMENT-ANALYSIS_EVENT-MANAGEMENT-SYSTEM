@@ -13,10 +13,6 @@ class Guest extends Model
         'GuestName', 'email', 'phone', 'event_id', 'role',
     ];
 
-    protected $attributes = [
-    'role' => 'guest',
-    ];
-
     // Relationship to event
     public function event()
 {

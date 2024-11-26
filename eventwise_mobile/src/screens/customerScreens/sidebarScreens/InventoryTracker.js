@@ -1,61 +1,133 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Header2 from "../elements/Header2";
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import Header2 from '../elements/Header2';
+import API_URL from '../../../constants/constant';
 
 const InventoryTracker = () => {
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { eventId } = route.params;
 
+  const [inventoryData, setInventoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch equipment data
+    const fetchInventory = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/equipment?event_id=${eventId}`);
+        const data = await response.json();
+        setInventoryData(data);
+      } catch (error) {
+        console.error('Error fetching inventory:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInventory();
+  }, [eventId]);
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Complete":
+        return { color: "green" };
+      case "Missing":
+        return { color: "orange" };
+      case "Broken":
+        return { color: "red" };
+      default:
+        return { color: "black" };
+    }
+  };
+
+
+  const totalItems = inventoryData.reduce((sum, item) => sum + item.number_of_items, 0);
+  const totalBroken = inventoryData.filter(item => item.status === "Broken").length;
+  const totalMissing = inventoryData.filter(item => item.status === "Missing").length;
 
   return (
-    <View style={styles.container}>
+    <>
       <Header2 />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Inventory Tracker</Text>
-        </View>
-
-      </ScrollView>
-    </View>
+      <View style={styles.container}>
+        <ScrollView style={styles.scrollContainer}>
+          <View style={styles.headerSection}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="#FFCE00" />
+            </TouchableOpacity>
+            <Text style={styles.headerText}>
+              <Text style={styles.headerHighlight}>Inventory</Text> Tracker
+            </Text>
+          </View>
+          <View style={styles.table}>
+            <View style={styles.tableHeader}>
+              <Text style={styles.tableHeaderText}>ITEMS</Text>
+              <Text style={styles.tableHeaderText}>NO. OF ITEMS</Text>
+              <Text style={styles.tableHeaderText}>NO. OF SORT ITEMS</Text>
+              <Text style={styles.tableHeaderText}>STATUS</Text>
+            </View>
+            {inventoryData.map((item, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={styles.tableRowText}>{item.item}</Text>
+                <Text style={styles.tableRowText}>{item.number_of_items}</Text>
+                <Text style={styles.tableRowText}>{item.number_of_sort_items}</Text>
+                <Text style={[styles.tableRowText, getStatusStyle(item.status)]}>
+                  {item.status}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <View style={styles.summary}>
+            <Text style={styles.summaryText}>Total Items: {totalItems}</Text>
+            <Text style={styles.summaryText}>Total Items Broken: {totalBroken}</Text>
+            <Text style={styles.summaryText}>Total Items Missing: {totalMissing}</Text>
+          </View>
+        </ScrollView>
+      </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: 'white',
   },
   scrollContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 50,
+    flex: 1,
   },
-  header: {
+  headerSection: {
+    marginTop: 10,
+    padding: 20,
+    borderRadius: 10,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 20,
-    marginTop: 8,
   },
   headerText: {
-    color: '#e6b800',
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    color: "#eeba2b",
+    textAlign: 'center',
+    flex: 1,
+  },
+  headerHighlight: {
+    color: "#eeba2b",
+    paddingHorizontal: 5,
   },
   table: {
     margin: 20,
     padding: 10,
-    backgroundColor: '#fff',
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
   },
   tableHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#777",
   },
   tableHeaderText: {
-    color: "#000",
+    color: "black",
     flex: 1,
     textAlign: "center",
   },
@@ -65,30 +137,19 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   tableRowText: {
-    color: "#000",
+    color: "black",
     flex: 1,
     textAlign: "center",
   },
   summary: {
     margin: 20,
     padding: 10,
-    backgroundColor: '#fff',
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
   },
   summaryText: {
-    color: "#000",
+    color: "black",
     fontSize: 16,
     marginVertical: 5,
-  },
-  menuButton: {
-    alignSelf: 'center',
-    marginTop: 20,
-  },
-  text: {
-    fontSize: 16,
-    color: '#000',
   },
 });
 

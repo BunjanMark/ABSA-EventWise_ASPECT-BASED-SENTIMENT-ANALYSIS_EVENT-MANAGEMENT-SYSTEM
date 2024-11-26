@@ -5,6 +5,7 @@ import BookingProcess from "../event/BookingProcess";
 import { ScrollView } from "react-native-gesture-handler";
 import Header from "../elements/Header";
 import API_URL from "../../../constants/constant";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 // Imported event images
 import event1 from "../pictures/event1.png";
@@ -61,21 +62,24 @@ const Book = ({ navigation }) => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {currentStep === "packages" ? (
             <View>
-              <View style={styles.eventSection}>
-                <Text style={styles.eventTitle}>Event</Text>
-                <Button
-  title="Add Event"
-  onPress={() => {
-    try {
-      navigation.navigate("BookingProcess");
-    } catch (error) {
-      console.error("Navigation error:", error);
-    }
-  }}
-/>
+            <View style={styles.eventSection}>
+          <Text style={styles.eventTitle}>Event</Text>
+          <TouchableOpacity
+            style={styles.addEventButton}
+            onPress={() => {
+              try {
+                navigation.navigate("BookingProcess");
+              } catch (error) {
+                console.error("Navigation error:", error);
+              }
+            }}
+          >
+            {/* Plus icon and text */}
+            <Icon name="add" size={24} color="white" style={styles.icon} />
+            <Text style={styles.buttonText}>Add Events</Text>
+          </TouchableOpacity>
+        </View>
 
-
-              </View>
               
               <View style={styles.packagesSection}>
                 <Text style={styles.packagesTitle}>Packages</Text>
@@ -149,11 +153,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
+  addEventButton: {
+    backgroundColor: "#eeba2b",
+    padding: 10,
+    borderRadius: 25,
+    alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 20,
+    justifyContent: "center",
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "white",
+  },
   eventTitle: {
     fontSize: 24,
     fontWeight: "bold",
     color: "black",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   packagesSection: {
     marginTop: 20,
