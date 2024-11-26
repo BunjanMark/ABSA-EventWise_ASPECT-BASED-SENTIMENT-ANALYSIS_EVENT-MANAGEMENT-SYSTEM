@@ -18,6 +18,7 @@ return new class extends Migration
             // $table->string('email')->unique();
             $table->string('email');
             $table->string('phone');
+            $table->string('role');
             $table->timestamps();
         });
     }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Image, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import Header2 from "../elements/Header2";
+import Header from "../elements/Header";
 import { useNavigation } from "@react-navigation/native";
 
 import event1 from "../pictures/event1.png";
@@ -35,7 +35,7 @@ const Profile = () => {
   return (
     <>
       {/* Header */}
-      <Header2 />
+      <Header />
 
       {/* Main Profile Content */}
       <View style={styles.container}>

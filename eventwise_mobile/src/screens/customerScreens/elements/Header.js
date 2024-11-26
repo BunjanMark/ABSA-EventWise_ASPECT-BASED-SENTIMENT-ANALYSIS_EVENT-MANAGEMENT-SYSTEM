@@ -36,7 +36,7 @@ const CustomHeader = ({ onBackPress, showBackButton }) => {
             }}
             style={styles.iconMessage}
           >
-            <Icon name="chatbubble-outline" size={24} color="#333" />
+            <Icon name="chatbubble-outline" size={20} color="#333" />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
@@ -44,7 +44,7 @@ const CustomHeader = ({ onBackPress, showBackButton }) => {
             }}
             style={styles.iconButton}
           >
-            <Icon name="notifications-outline" size={24} color="#333" />
+            <Icon name="notifications-outline" size={20} color="#333" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: "100%",
     resizeMode: "contain",
+    marginLeft: 30,
   },
   line: {
     marginLeft: "auto",

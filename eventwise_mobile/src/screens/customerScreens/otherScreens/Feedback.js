@@ -369,20 +369,7 @@ const styles = StyleSheet.create({
     color: "#555",
     marginBottom: 20,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "65%",
-    height: "35%",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-    alignItems: "center",
-  },
+
   closeButton: {
     alignSelf: "flex-end",
   },
@@ -392,7 +379,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   modalImage: {
-    width: 200,
+    width: 300,
     height: 200,
     resizeMode: "contain",
   },
@@ -422,6 +409,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    
   },
   modalContent: {
     width: "80%",

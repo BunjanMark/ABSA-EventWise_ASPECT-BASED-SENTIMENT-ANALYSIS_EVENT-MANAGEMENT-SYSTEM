@@ -17,6 +17,7 @@ const GuestList = () => {
   const [updatedGuestName, setUpdatedGuestName] = useState('');
   const [updatedEmail, setUpdatedEmail] = useState('');
   const [updatedPhone, setUpdatedPhone] = useState('');
+  const [updatedRole, setUpdatedRole] = useState('');
   const [visible, setVisible] = useState(false); // For dropdown visibility
   const [guestForDropdown, setGuestForDropdown] = useState(null); // Track selected guest for the dropdown
   const [deleteModalVisible, setDeleteModalVisible] = useState(false); // For deletion confirmation modal
@@ -42,6 +43,7 @@ const GuestList = () => {
           GuestName: updatedGuestName,
           email: updatedEmail,
           phone: updatedPhone,
+          role: updatedRole,
         }
       );
 
@@ -49,7 +51,7 @@ const GuestList = () => {
         setGuests((prevGuests) =>
           prevGuests.map((guest) =>
             guest.id === selectedGuest.id
-              ? { ...guest, GuestName: updatedGuestName, email: updatedEmail, phone: updatedPhone }
+              ? { ...guest, GuestName: updatedGuestName, email: updatedEmail, phone: updatedPhone, role: updatedRole }
               : guest
           )
         );
@@ -78,6 +80,7 @@ const GuestList = () => {
     setUpdatedGuestName(guest.GuestName);
     setUpdatedEmail(guest.email);
     setUpdatedPhone(guest.phone);
+    setUpdatedRole(guest.role);
     setModalVisible(true);
     setVisible(false); // Close the dropdown when Edit is clicked
   };
@@ -131,6 +134,7 @@ const GuestList = () => {
                   <Text style={styles.guestName}>{item.GuestName}</Text>
                   <Text style={styles.guestInfo}>Email: {item.email}</Text>
                   <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
+                  <Text style={styles.guestInfo}>Role: {item.role}</Text>
                 </View>
               </View>
             )}
@@ -168,6 +172,12 @@ const GuestList = () => {
             onChangeText={setUpdatedPhone}
             style={styles.input}
           />
+          <TextInput
+            label="Role"
+            value={updatedRole}
+            onChangeText={setUpdatedRole}
+            style={styles.input}
+          />
           <Button
             mode="contained"
             style={styles.updateButton}
@@ -194,6 +204,7 @@ const GuestList = () => {
             <Text style={styles.guestName}>{selectedGuest?.GuestName}</Text>
             <Text style={styles.guestInfo}>Email: {selectedGuest?.email}</Text>
             <Text style={styles.guestInfo}>Phone: {selectedGuest?.phone}</Text>
+            <Text style={styles.guestInfo}>Role: {selectedGuest?.role}</Text>
           </View>
           <Button
             mode="contained"
@@ -229,11 +240,13 @@ const styles = StyleSheet.create({
   },
   listItem: {
     flexDirection: 'row',
+    borderColor: '#eeba2b',
+    borderWidth: 1,
     alignItems: 'center',
     marginBottom: 15,
     position: 'relative',
     borderRadius: 8,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#f8f8f8f8',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,

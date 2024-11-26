@@ -191,20 +191,6 @@ const Home = () => {
             />
           </TouchableOpacity>
         </ScrollView>
-
-        <Text style={styles.venueTitle}>Venue</Text>
-        <Image
-          source={require("../pictures/venue.png")}
-          style={styles.venueImage}
-        />
-        <Image
-          source={require("../pictures/venue.png")}
-          style={styles.venueImage}
-        />
-        <Image
-          source={require("../pictures/venue.png")}
-          style={styles.venueImage}
-        />
       </ScrollView>
     </View>
   );

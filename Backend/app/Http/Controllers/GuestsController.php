@@ -36,6 +36,7 @@ class GuestsController extends Controller
             'GuestName' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:15',
+            'role' => 'required|string|max:15',
             'event_id' => 'required|exists:events,id',  // Ensure event exists before saving
         ]);
 
@@ -43,6 +44,7 @@ class GuestsController extends Controller
         $guest->GuestName = $request->GuestName;
         $guest->email = $request->email;
         $guest->phone = $request->phone;
+        $guest->role = $request->role;
         $guest->event_id = $request->event_id;
         $guest->save();
 
@@ -59,6 +61,7 @@ class GuestsController extends Controller
             'GuestName' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:15',
+            'role' => 'required|string|max:15',
         ]);
 
         // Find the guest by ID
@@ -72,6 +75,7 @@ class GuestsController extends Controller
         $guest->GuestName = $request->GuestName;
         $guest->email = $request->email;
         $guest->phone = $request->phone;
+        $guest->role = $request->role;
         $guest->save();
 
         return response()->json($guest, 200);  // Return the updated guest

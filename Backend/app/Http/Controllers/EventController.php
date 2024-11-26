@@ -55,6 +55,7 @@ public function store(Request $request)
             'guests.*.GuestName' => 'required|string|max:255',
             'guests.*.email' => 'required|email',
             'guests.*.phone' => 'required|string|max:15',
+            'guests.*.role' => 'required|string|max:15',
         ]);
 
         // Attach user ID to validated data
@@ -114,6 +115,7 @@ public function store(Request $request)
                 'GuestName' => $guestData['GuestName'],
                 'email' => $guestData['email'],
                 'phone' => $guestData['phone'],
+                'role' => $guestData['role'],
             ]);
         }
 

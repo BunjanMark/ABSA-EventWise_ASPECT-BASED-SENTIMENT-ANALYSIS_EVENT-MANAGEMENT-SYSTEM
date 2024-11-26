@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
-import Header2 from "../elements/Header2";
+import Header from "../elements/Header";
 
 const About = () => {
   const navigator = useNavigation();
@@ -30,7 +30,7 @@ const About = () => {
 
   return (
     <View style={styles.container}>
-      <Header2 />
+      <Header />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
           <Text style={styles.headerText}>About</Text>
