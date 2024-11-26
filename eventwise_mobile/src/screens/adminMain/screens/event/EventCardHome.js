@@ -34,7 +34,7 @@ const EventCardHome = ({
     <View style={styles.container}>
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate("EventCardDetails", {
+          navigation.navigate("EventBookingDetails", {
             eventData: currentEvents,
           })
         }

@@ -57,7 +57,7 @@ const CreateEventScreen = ({ navigation }) => {
     // coverPhoto: Yup.string()
     //   .url("Must be a valid URL")
     //   .required("Cover photo URL is required"),
-    guests: Yup.array().of(
+    guest: Yup.array().of(
       Yup.object().shape({
         GuestName: Yup.string().required("Guest name is required"),
         email: Yup.string()
@@ -74,10 +74,6 @@ const CreateEventScreen = ({ navigation }) => {
     const loadPackages = async () => {
       try {
         const fetchedPackages = await fetchPackages();
-        // console.log(
-        //   "Fetched packages (eventAdmin): ",
-        //   JSON.stringify(fetchedPackages, null, 2)
-        // );
         setCurrentPackages(fetchedPackages); // Set the state
       } catch (error) {
         console.error("Error fetching packages:", error);
@@ -105,13 +101,13 @@ const CreateEventScreen = ({ navigation }) => {
     try {
       let coverPhotoURL = null;
 
-      if (values.coverPhoto) {
-        const fileName = `package_cover_${Date.now()}.jpg`;
-        coverPhotoURL = await testUploadImageToSupabase(
-          values.coverPhoto,
-          fileName
-        );
-      }
+      // if (values.coverPhoto) {  //#FIX needs to be uncommented
+      //   const fileName = `package_cover_${Date.now()}.jpg`;
+      //   coverPhotoURL = await testUploadImageToSupabase(
+      //     values.coverPhoto,
+      //     fileName
+      //   );
+      // }
       // Fetch existing events for the selected date
       const existingEvents = await fetchEventsByDate(values.eventDate);
       console.log(
@@ -135,7 +131,7 @@ const CreateEventScreen = ({ navigation }) => {
         eventTime: values.eventTime,
         eventLocation: values.eventLocation,
         description: values.description,
-        guests: values.guests,
+        guest: values.guest,
         coverPhoto: coverPhotoURL !== null ? coverPhotoURL : null,
       };
 
@@ -239,6 +235,7 @@ const CreateEventScreen = ({ navigation }) => {
   };
 
   const [selectedDate, setSelectedDate] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -254,7 +251,7 @@ const CreateEventScreen = ({ navigation }) => {
             eventLocation: "",
             description: "",
             coverPhoto: "",
-            guests: [{ GuestName: "", email: "" }],
+            guest: [{ GuestName: "", email: "" }],
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { resetForm }) => {
@@ -294,7 +291,6 @@ const CreateEventScreen = ({ navigation }) => {
                   <Text style={styles.errorText}>{errors.coverPhoto}</Text>
                 )}
               </View>
-
               <TextInput
                 style={styles.input}
                 placeholder="Event Name"
@@ -305,7 +301,6 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.eventName && errors.eventName && (
                 <Text style={styles.errorText}>{errors.eventName}</Text>
               )}
-
               <RNPickerSelect
                 onValueChange={(value) => setFieldValue("eventType", value)}
                 items={[
@@ -319,7 +314,6 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.eventType && errors.eventType && (
                 <Text style={styles.errorText}>{errors.eventType}</Text>
               )}
-
               <TextInput
                 style={styles.input}
                 placeholder="Event Pax"
@@ -331,6 +325,59 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.eventPax && errors.eventPax && (
                 <Text style={styles.errorText}>{errors.eventPax}</Text>
               )}
+              {/* // !------ */}
+              <TouchableOpacity onPress={() => setShowCalendar(true)}>
+                <Text style={styles.datePicker}>
+                  {selectedDate
+                    ? `Selected Date: ${
+                        selectedDate.toISOString().split("T")[0]
+                      }`
+                    : "Pick an Event Date"}
+                </Text>
+              </TouchableOpacity>
+              {showCalendar && (
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={showCalendar}
+                  onRequestClose={() => setShowCalendar(false)}
+                  style={styles.modalContainer}
+                >
+                  <View style={styles.modalContainer}>
+                    <CalendarPicker
+                      onDateChange={(date) => {
+                        setShowCalendar(false);
+                        setSelectedDate(date);
+                        setFieldValue(
+                          "eventDate",
+                          date.toISOString().split("T")[0]
+                        );
+                      }}
+                      disabledDates={datesWithThreeOrMoreEvents}
+                      minDate={new Date()}
+                      maxDate={
+                        new Date(
+                          new Date().getFullYear(),
+                          new Date().getMonth() + 6,
+                          new Date().getDate()
+                        )
+                      }
+                      selectedDate={selectedDate}
+                    />
+                    <Button
+                      onPress={() => setShowCalendar(false)}
+                      mode="contained"
+                      style={styles.closeButton}
+                    >
+                      Close
+                    </Button>
+                  </View>
+                </Modal>
+              )}
+              {touched.eventDate && errors.eventDate && (
+                <Text style={styles.errorText}>{errors.eventDate}</Text>
+              )}
+              {/* // !--------------------- */}
               <TouchableOpacity onPress={() => setShowTimePicker(true)}>
                 <Text style={styles.datePicker}>
                   {values.eventTime ? values.eventTime : "Select Event Time"}
@@ -360,7 +407,6 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.eventTime && errors.eventTime && (
                 <Text style={styles.errorText}>{errors.eventTime}</Text>
               )}
-
               <TextInput
                 style={styles.input}
                 placeholder="Event Location"
@@ -433,7 +479,6 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.description && errors.description && (
                 <Text style={styles.errorText}>{errors.description}</Text>
               )}
-
               <TextInput
                 style={styles.input}
                 placeholder="Cover Photo URL"
@@ -444,31 +489,30 @@ const CreateEventScreen = ({ navigation }) => {
               {touched.coverPhoto && errors.coverPhoto && (
                 <Text style={styles.errorText}>{errors.coverPhoto}</Text>
               )}
-
-              <FieldArray name="guests">
+              <FieldArray name="guest">
                 {({ remove, push }) => (
                   <View>
-                    {values.guests.map((guest, index) => (
+                    {values.guest.map((guest, index) => (
                       <View key={index} style={styles.guestContainer}>
                         <TextInput
                           style={styles.input}
                           placeholder="Guest Name"
                           value={guest.GuestName}
                           onChangeText={handleChange(
-                            `guests.${index}.GuestName`
+                            `guest.${index}.GuestName`
                           )} // Dynamically updating guest fields
                         />
                         <TextInput
                           style={styles.input}
                           placeholder="Email"
                           value={guest.email}
-                          onChangeText={handleChange(`guests.${index}.email`)} // Dynamically updating guest fields
+                          onChangeText={handleChange(`guest.${index}.email`)} // Dynamically updating guest fields
                         />
                         <TextInput
                           style={styles.input}
                           placeholder="Phone"
                           value={guest.phone}
-                          onChangeText={handleChange(`guests.${index}.phone`)} // Dynamically updating guest fields
+                          onChangeText={handleChange(`guest.${index}.phone`)} // Dynamically updating guest fields
                         />
                         <TouchableOpacity onPress={() => remove(index)}>
                           <Text style={styles.removeGuest}>Remove</Text>
@@ -485,7 +529,6 @@ const CreateEventScreen = ({ navigation }) => {
                   </View>
                 )}
               </FieldArray>
-
               <Button
                 mode="contained"
                 onPress={handleSubmit}
@@ -510,10 +553,11 @@ const styles = StyleSheet.create({
     color: "black",
   },
   modalContainer: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "#FFF",
+    top: 200,
+    height: "50%",
   },
   calendarContainer: {
     backgroundColor: "white",

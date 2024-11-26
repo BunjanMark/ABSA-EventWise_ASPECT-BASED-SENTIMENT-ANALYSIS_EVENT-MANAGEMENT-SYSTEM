@@ -23,6 +23,7 @@ import InventoryAdmin from "../screens/inventory/InventoryAdmin";
 import EventFeedbackDetails from "../screens/feedback/EventFeedbackDetails";
 import EditProfileAdmin from "../screens/profile/EditProfileAdmin";
 import AddAccountScreenAdmin from "../screens/profile/AddAccountScreenAdmin";
+import EventBookingDetails from "../screens/event/EventBookingDetails";
 import SettingsAdmin from "../screens/settings/SettingsAdmin";
 import GroupAdmin from "../screens/group/GroupAdmin";
 
@@ -46,6 +47,10 @@ const MainStackNavigator = () => {
 
       <Stack.Screen name="MessagesAdmin" component={MessagesAdmin} />
       <Stack.Screen name="NotificationAdmin" component={Notifications} />
+      <Stack.Screen
+        name="EventBookingDetails"
+        component={EventBookingDetails}
+      />
     </Stack.Navigator>
   );
 };
