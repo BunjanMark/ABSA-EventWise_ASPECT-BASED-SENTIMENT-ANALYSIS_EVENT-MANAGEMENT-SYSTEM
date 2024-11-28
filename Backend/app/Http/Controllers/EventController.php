@@ -461,6 +461,60 @@ public function getEventsByUserId($userId)
 }
 
 
+public function getServiceProviderInfoByUserId($eventId, $userId)
+{
+    try {
+        $event = Event::where('id', $eventId)->where('user_id', $userId)->first();
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
+        }
+
+        $accountRoles = AccountRole::where('user_id', $event->user_id)->get();
+
+        if ($accountRoles->isEmpty()) {
+            return response()->json(['error' => 'Account role not found'], 404);
+        }
+
+        // Find the first account with role_id = 2 or 1
+        $serviceProvider = $accountRoles->filter(function ($account) {
+            return in_array($account->role_id, [2, 1]);
+        })->first();
+
+        if (!$serviceProvider) {
+            return response()->json(['error' => 'Service provider with role_id 2 or 1 not found'], 404);
+        }
+
+        return response()->json(['service_provider_name' => $serviceProvider->service_provider_name], 200);
+
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+public function getServiceProviederName($eventId, $userId)
+{
+    try {
+        $event = Event::where('id', $eventId)->where('user_id', $userId)->first();
+
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
+        }
+
+        $accountRole = AccountRole::where('user_id', $event->user_id)->first();
+
+        if (!$accountRole) {
+            return response()->json(['error' => 'Account role not found'], 404);
+        }
+
+        return response()->json(['service_provider_name' => $accountRole->service_provider_name], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to retrieve service provider name'], 500);
+    }
+}
+
+
 
 
     

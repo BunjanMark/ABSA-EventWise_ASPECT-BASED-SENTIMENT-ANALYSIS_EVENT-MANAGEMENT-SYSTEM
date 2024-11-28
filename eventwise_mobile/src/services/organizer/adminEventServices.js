@@ -39,6 +39,18 @@ const fetchEventsByDate1 = async (date) => {
     return [];
   }
 };
+
+const fetchUserBookingEvents = async (id, userId) => {
+  try {
+    const response = await api.get(`/admin/events/${id}/user/${userId}`);
+
+    // console.log("this is the response:", response);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user booking events:", error);
+    throw error;
+  }
+};
 const fetchEventPackageDetails = async (id) => {
   try {
     const response = await api.get(`/admin/events/${id}/packages`);
@@ -306,6 +318,7 @@ export {
   fetchMyServices,
   updatePackage,
   createPackage,
+  fetchUserBookingEvents,
   deletePackage,
   fetchEventsByDate,
   fetchServices,

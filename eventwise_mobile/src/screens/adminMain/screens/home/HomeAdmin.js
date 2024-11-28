@@ -12,6 +12,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import EventPackages from "../component/EventPackages";
 import EventCalendar from "../component/EventCalendar";
 import EventFeedbackSentimentHome from "../feedback/EventFeedbackSentimentHome";
+import EventCardBookings from "../EventCardBookings";
 import styles from "../../styles/styles";
 import { useNavigation } from "@react-navigation/native";
 import TotalEventFeedback from "../component/TotalEventFeedback";
@@ -104,6 +105,8 @@ const HomeAdmin = () => {
       return newLikedEvents;
     });
   };
+
+  console.log("Current Events", JSON.stringify(currentEvents, ["status", 2]));
   return (
     <SafeAreaView>
       <ScrollView
@@ -155,7 +158,7 @@ const HomeAdmin = () => {
             accessibilityModalRoot={true}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
-              <EventCardHome
+              <EventCardBookings
                 currentEvents={item}
                 handleDeleteEvent={handleDeleteEvent}
                 likedEvent={likedEvents}

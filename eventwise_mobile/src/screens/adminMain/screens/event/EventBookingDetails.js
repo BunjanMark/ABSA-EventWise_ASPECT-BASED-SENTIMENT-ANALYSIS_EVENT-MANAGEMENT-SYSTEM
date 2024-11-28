@@ -4,13 +4,14 @@ import React from "react";
 import {
   fetchEventPackageDetails,
   fetchEvents,
+  fetchUserBookingEvents,
 } from "../../../../services/organizer/adminEventServices";
 import { useEffect } from "react";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 
 const EventBookingDetails = ({ route, navigation }) => {
-  const { eventData } = route.params;
+  const { eventData, userBookingDetails } = route.params;
   const [serviceDetails, setServiceDetails] = useState([]);
   const [packageDetails, setPackageDetails] = useState([]);
 
@@ -24,6 +25,23 @@ const EventBookingDetails = ({ route, navigation }) => {
         if (eventData) {
           const details = await fetchEventPackageDetails(eventData.id);
           setPackageDetails(details);
+          console.log(
+            "event data inside EventBooking Detials: " +
+              JSON.stringify(eventData) +
+              " this is the owner of the event" +
+              JSON.stringify(userBookingDetails)
+          );
+
+          // console.log(
+          //   "--------------------------------",
+          //   eventData.id,
+          //   eventData.user_id
+          // );
+          // const UserBookingDetails = await fetchUserBookingEvents(
+          //   eventData.id,
+          //   eventData.user_id
+          // );
+          // setUserBookingDetails(UserBookingDetails);
         }
       } catch (error) {
         console.log("something went wrong inside eventBookingDetails details.");
@@ -31,11 +49,7 @@ const EventBookingDetails = ({ route, navigation }) => {
     };
     fetchDetails();
   }, [eventData]);
-
-  console.log(
-    "event data inside EventBooking Detials: " + JSON.stringify(eventData)
-  );
-
+  // console.log("mao nani ron", userBookingDetails); //ADmin output
   return (
     <ScrollView style={styles.container}>
       <View style={styles.card}>
@@ -46,6 +60,9 @@ const EventBookingDetails = ({ route, navigation }) => {
         />
 
         <Text style={styles.title}>{eventData?.name}</Text>
+        <Text style={styles.title}>
+          Booked by: {userBookingDetails?.service_provider_name}
+        </Text>
         <Text style={styles.eventType}>Event Type: {eventData?.type}</Text>
         <Text style={styles.totalPrice}>
           {/* Total Price: ₱{eventData?.totalPrice} */}

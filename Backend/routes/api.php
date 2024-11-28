@@ -90,6 +90,7 @@ Route::get('/admin/events/type/{type}', [EventController::class, 'getEventsByTyp
 Route::get('/admin/events/by-date/{date}', [EventController::class, 'fetchEventsByDate']);
 Route::post('/admin/events/{id}/restore', [EventController::class, 'restoreEvent']);
 Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEventPackages']);
+Route::get('/admin/events/{eventId}/user/{userId}', [EventController::class, 'getServiceProviderInfoByUserId']);
 
 Route::get('/guest', [GuestController::class, 'index']);
 Route::get('guest/{eventid}', [GuestController::class, 'getGuestByEvent']);
