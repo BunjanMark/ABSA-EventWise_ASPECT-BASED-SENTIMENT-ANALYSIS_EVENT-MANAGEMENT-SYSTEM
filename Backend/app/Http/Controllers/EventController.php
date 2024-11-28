@@ -426,6 +426,7 @@ public function updateEvent(Request $request, $eventId)
         }
     }
 
+    // delete
     // Method to retrieve deleted events
     public function restoreEvent($id)
     {
@@ -514,7 +515,23 @@ public function getServiceProviederName($eventId, $userId)
     }
 }
 
+    public function updateEventStatus(Request $request, $eventId)
+    {
+        try {
+            $event = Event::find($eventId);
 
+            if (!$event) {
+                return response()->json(['error' => 'Event not found'], 404);
+            }
+
+            $event->update(['status' => 'scheduled']);
+
+            // return response()->json(['message' => 'Event status updated successfully'], 200);
+            return response()->json(['message' => 'Booking approved! Your event is now scheduled!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 
 
     

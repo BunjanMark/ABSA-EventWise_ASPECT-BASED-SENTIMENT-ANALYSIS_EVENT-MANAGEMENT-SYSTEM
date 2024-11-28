@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { TouchableOpacity } from "react-native";
 import React from "react";
 import {
+  approveBookingEvent,
   fetchEventPackageDetails,
   fetchEvents,
   fetchUserBookingEvents,
@@ -14,7 +15,7 @@ const EventBookingDetails = ({ route, navigation }) => {
   const { eventData, userBookingDetails } = route.params;
   const [serviceDetails, setServiceDetails] = useState([]);
   const [packageDetails, setPackageDetails] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(false);
   if (!eventData) {
     return <Text>Loading...</Text>;
   }
@@ -50,6 +51,18 @@ const EventBookingDetails = ({ route, navigation }) => {
     fetchDetails();
   }, [eventData]);
   // console.log("mao nani ron", userBookingDetails); //ADmin output
+  const handlingApproveButton = async (eventid) => {
+    setIsLoading(true);
+    try {
+      const response = await approveBookingEvent(eventid);
+      setIsLoading(false);
+      console.log("Approve!!" + response);
+      Alert.alert("Success", "Booking approved successfully!");
+    } catch (error) {
+      console.log("Error approving booking: ", error);
+      setIsLoading(false);
+    }
+  };
   return (
     <ScrollView style={styles.container}>
       <View style={styles.card}>
@@ -123,8 +136,7 @@ const EventBookingDetails = ({ route, navigation }) => {
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={[styles.editButton, { backgroundColor: "green" }]}
-            onPress={() => console.log("testing approve")}
-            //  #TODO sset the status to scheduled and notify the emails attached to the particular event.
+            onPress={() => handlingApproveButton(eventData.id)}
           >
             <Text style={styles.buttonText}>Approve Event</Text>
           </TouchableOpacity>

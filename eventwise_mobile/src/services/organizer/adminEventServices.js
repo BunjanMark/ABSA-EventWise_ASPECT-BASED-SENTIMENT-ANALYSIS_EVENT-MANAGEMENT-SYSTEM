@@ -312,6 +312,17 @@ const updateEvent = async (id, updateEvent) => {
   }
 };
 
+const approveBookingEvent = async (eventid) => {
+  try {
+    const response = await api.put(`admin/events/bookings/${eventid}`, {
+      status: "scheduled",
+    });
+    console.log("Event approved: ", response);
+  } catch (error) {
+    console.error("approvidngbooking event error:", error);
+    throw error;
+  }
+};
 export {
   updateEvent,
   createEvent,
@@ -328,4 +339,5 @@ export {
   deleteEvent,
   fetchEventPackageDetails,
   fetchEventsByUserId,
+  approveBookingEvent,
 };
