@@ -125,9 +125,9 @@ const HomeAdmin = () => {
         <UpcomingEvents />
         <View style={[{ padding: 20 }]}>
           <FlatList
-            data={currentEvents.filter(
-              (event) => event.status.toLowerCase() === "scheduled"
-            )}
+            data={currentEvents
+              .filter((event) => event.status.toLowerCase() === "scheduled")
+              .sort((a, b) => new Date(a.date) - new Date(b.date))} // Sort by closest date}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             contentContainerStyle={{ gap: 20 }}
