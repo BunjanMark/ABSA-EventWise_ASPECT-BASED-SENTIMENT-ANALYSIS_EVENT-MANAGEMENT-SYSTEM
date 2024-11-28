@@ -19,6 +19,15 @@ const StepTwo = ({
   errors,
   touched,
   nextStep,
+  selectedDate,
+  setSelectedDate,
+  showCalendar,
+  setShowCalendar,
+  showTimePicker,
+  setShowTimePicker,
+  time,
+  setTime,
+
   prevStep,
 }) => {
   return (
@@ -131,3 +140,14 @@ const StepTwo = ({
   );
 };
 export default StepTwo;
+
+const styles = StyleSheet.create({
+  stepContainer: { padding: 20, backgroundColor: "white" },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
+  input: { borderBottomWidth: 1, marginBottom: 15 },
+  errorText: { color: "red", fontSize: 12, marginBottom: 10 },
+  label: { fontWeight: "bold", marginTop: 20 },
+  guestRow: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
+  buttonRow: { flexDirection: "row", justifyContent: "space-between" },
+  button: { marginTop: 20 },
+});

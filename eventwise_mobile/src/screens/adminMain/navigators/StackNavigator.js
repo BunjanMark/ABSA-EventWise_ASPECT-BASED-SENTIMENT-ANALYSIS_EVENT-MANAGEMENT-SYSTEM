@@ -28,6 +28,8 @@ import SettingsAdmin from "../screens/settings/SettingsAdmin";
 import GroupAdmin from "../screens/group/GroupAdmin";
 
 import GuestListAdmin from "../screens/group/GuestListAdmin";
+import EditEventScreen from "../../adminMain/screens/event/EditEventScreen";
+
 import EventDetails from "../screens/event/EventDetails";
 import EventPackageDetails from "../screens/event/EventPackageDetails";
 import EquipmentPanelDetails from "../screens/inventory/EquipmentPanelDetails";
@@ -105,6 +107,7 @@ const EventStackNavigator = () => {
       <Stack.Screen name="PackageCardDetails" component={PackageCardDetails} />
       <Stack.Screen name="CreateEventScreen" component={CreateEventScreen} />
       <Stack.Screen name="EventCardDetails" component={EventCardDetails} />
+      <Stack.Screen name="EditEventScreen" component={EditEventScreen} />
     </Stack.Navigator>
   );
 };

@@ -10,13 +10,14 @@ import { TextInput, Button, Menu, Divider } from 'react-native-paper';
 
 const GuestList = () => {
   const route = useRoute();
-  const { eventId, eventName } = route.params;
+  const { eventid, eventName } = route.params;
   const [guests, setGuests] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [updatedGuestName, setUpdatedGuestName] = useState('');
   const [updatedEmail, setUpdatedEmail] = useState('');
   const [updatedPhone, setUpdatedPhone] = useState('');
+  const [updatedRole, setUpdatedRole] = useState('');
   const [visible, setVisible] = useState(false); // For dropdown visibility
   const [guestForDropdown, setGuestForDropdown] = useState(null); // Track selected guest for the dropdown
   const [deleteModalVisible, setDeleteModalVisible] = useState(false); // For deletion confirmation modal
@@ -24,24 +25,26 @@ const GuestList = () => {
   useEffect(() => {
     const fetchGuests = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/guests/${eventId}`);
+        const response = await axios.get(`${API_URL}/api/guest/${eventid}`);
         setGuests(response.data);
+        console.log('Guests:', response.data);
       } catch (error) {
         console.error('Error fetching guests:', error);
       }
     };
 
     fetchGuests();
-  }, [eventId]);
+  }, [eventid]);
 
   const handleUpdateGuest = async () => {
     try {
       const response = await axios.put(
-        `${API_URL}/api/guests/${selectedGuest.id}`,
+        `${API_URL}/api/guest/${selectedGuest.id}`,
         {
           GuestName: updatedGuestName,
           email: updatedEmail,
           phone: updatedPhone,
+          role: updatedRole,
         }
       );
 
@@ -49,7 +52,7 @@ const GuestList = () => {
         setGuests((prevGuests) =>
           prevGuests.map((guest) =>
             guest.id === selectedGuest.id
-              ? { ...guest, GuestName: updatedGuestName, email: updatedEmail, phone: updatedPhone }
+              ? { ...guest, GuestName: updatedGuestName, email: updatedEmail, phone: updatedPhone, role: updatedRole }
               : guest
           )
         );
@@ -63,7 +66,7 @@ const GuestList = () => {
   const handleConfirmDelete = async () => {
     if (selectedGuest && selectedGuest.id) {
       try {
-        await axios.delete(`${API_URL}/api/guests/${selectedGuest.id}`);
+        await axios.delete(`${API_URL}/api/guest/${selectedGuest.id}`);
         setGuests(guests.filter(guest => guest.id !== selectedGuest.id));
         setDeleteModalVisible(false);
         window.alert('Guest deleted successfully!');
@@ -78,6 +81,7 @@ const GuestList = () => {
     setUpdatedGuestName(guest.GuestName);
     setUpdatedEmail(guest.email);
     setUpdatedPhone(guest.phone);
+    setUpdatedRole(guest.role);
     setModalVisible(true);
     setVisible(false); // Close the dropdown when Edit is clicked
   };
@@ -131,6 +135,7 @@ const GuestList = () => {
                   <Text style={styles.guestName}>{item.GuestName}</Text>
                   <Text style={styles.guestInfo}>Email: {item.email}</Text>
                   <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
+                  <Text style={styles.guestInfo}>Role: {item.role}</Text>
                 </View>
               </View>
             )}
@@ -141,7 +146,13 @@ const GuestList = () => {
       </View>
 
       {/* Modal for editing guest details */}
-      <Modal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)}>
+      <Modal
+        isVisible={modalVisible}
+        onBackdropPress={() => setModalVisible(false)}
+        animationIn="fadeIn"   // Fade-in animation when opening
+        animationOut="fadeOut" // Fade-out animation when closing
+        backdropOpacity={0.7}  // Make the background slightly opaque
+      >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Edit Guest Details</Text>
           <TextInput
@@ -162,25 +173,52 @@ const GuestList = () => {
             onChangeText={setUpdatedPhone}
             style={styles.input}
           />
-          <Button mode="contained" style={styles.updateButton} onPress={handleUpdateGuest}>
+          <TextInput
+            label="Role"
+            value={updatedRole}
+            onChangeText={setUpdatedRole}
+            style={styles.input}
+          />
+          <Button
+            mode="contained"
+            style={styles.updateButton}
+            onPress={handleUpdateGuest}
+          >
             Update Guest Details
           </Button>
         </View>
       </Modal>
 
-      {/* Modal for confirming deletion */}
-      <Modal isVisible={deleteModalVisible} onBackdropPress={() => setDeleteModalVisible(false)}>
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isVisible={deleteModalVisible}
+        onBackdropPress={() => setDeleteModalVisible(false)}
+        animationIn="fadeIn"   // Fade-in animation when opening
+        animationOut="fadeOut" // Fade-out animation when closing
+        backdropOpacity={0.7}  // Make the background slightly opaque
+      >
         <View style={styles.deleteModalContent}>
-          <Text style={styles.modalTitle}>Are you sure you want to delete the following guest?</Text>
+          <Text style={styles.modalTitle}>
+            Are you sure you want to delete the following guest?
+          </Text>
           <View style={styles.guestContainerWithBorder}>
             <Text style={styles.guestName}>{selectedGuest?.GuestName}</Text>
             <Text style={styles.guestInfo}>Email: {selectedGuest?.email}</Text>
             <Text style={styles.guestInfo}>Phone: {selectedGuest?.phone}</Text>
+            <Text style={styles.guestInfo}>Role: {selectedGuest?.role}</Text>
           </View>
-          <Button mode="contained" style={styles.deleteButton} onPress={handleConfirmDelete}>
+          <Button
+            mode="contained"
+            style={styles.deleteButton}
+            onPress={handleConfirmDelete}
+          >
             Yes, Remove
           </Button>
-          <Button mode="outlined" style={styles.cancelButton} onPress={() => setDeleteModalVisible(false)}>
+          <Button
+            mode="outlined"
+            style={styles.cancelButton}
+            onPress={() => setDeleteModalVisible(false)}
+          >
             Cancel
           </Button>
         </View>
@@ -203,11 +241,13 @@ const styles = StyleSheet.create({
   },
   listItem: {
     flexDirection: 'row',
+    borderColor: '#eeba2b',
+    borderWidth: 1,
     alignItems: 'center',
     marginBottom: 15,
     position: 'relative',
     borderRadius: 8,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#f8f8f8f8',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,

@@ -107,6 +107,7 @@ const EventBookingDetails = ({ route, navigation }) => {
           <TouchableOpacity
             style={[styles.editButton, { backgroundColor: "green" }]}
             onPress={() => console.log("testing approve")}
+            //  #TODO sset the status to scheduled and notify the emails attached to the particular event.
           >
             <Text style={styles.buttonText}>Approve Event</Text>
           </TouchableOpacity>

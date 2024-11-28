@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { TextInput } from "react-native-paper";
-import Header2 from "../elements/Header2";
+import Header from "../elements/Header";
 
 const Settings = () => {
   // State variables for pickers
@@ -27,7 +27,7 @@ const Settings = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-    <Header2 />
+    <Header />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Language Selection */}
         <View style={styles.section}>

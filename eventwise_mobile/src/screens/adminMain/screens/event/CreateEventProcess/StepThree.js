@@ -10,7 +10,7 @@ import {
 import { Button } from "react-native-paper";
 import { MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { TextInput } from "react-native-gesture-handler";
+import { useServicesStore } from "../../../../../stateManagement/admin/useServicesStore";
 
 const StepThree = ({
   values,
@@ -30,6 +30,7 @@ const StepThree = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [currentPackageDetails, setCurrentPackageDetails] = useState(null);
   const [customizeVisible, setCustomizeVisible] = useState(false);
+  const { services, setServices } = useServicesStore();
 
   const packageData = (currentPackages || [])
     .filter((pkg) => pkg.packageName && pkg.id)
@@ -56,20 +57,6 @@ const StepThree = ({
   const showPackageDetails = (pkg) => {
     setCurrentPackageDetails(pkg);
     setModalVisible(true);
-  };
-  const [customInclusions, setCustomInclusions] = useState([]); // To track current custom inclusions
-  const [newInclusion, setNewInclusion] = useState(""); // To handle input for new inclusion
-
-  const handleAddInclusion = () => {
-    if (newInclusion.trim()) {
-      setCustomInclusions([...customInclusions, newInclusion]);
-      setNewInclusion(""); // Clear input field
-    }
-  };
-
-  const handleRemoveInclusion = (index) => {
-    const updatedInclusions = customInclusions.filter((_, i) => i !== index);
-    setCustomInclusions(updatedInclusions);
   };
 
   return (
@@ -108,6 +95,7 @@ const StepThree = ({
           </View>
         )}
       />
+
       {/* Modal for package details */}
       <Modal
         visible={modalVisible}
@@ -155,8 +143,8 @@ const StepThree = ({
           </View>
         </View>
       </Modal>
+
       {/* Modal for customizing package */}
-      // Inside Customize Package Modal
       <Modal
         visible={customizeVisible}
         animationType="slide"
@@ -165,59 +153,14 @@ const StepThree = ({
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              Customize Package:{" "}
-              {currentPackageDetails?.label || "Package Name"}
+            <Text style={styles.modalTitle}>Customize Package</Text>
+            <Text>Packages included: </Text>
+            <Text>
+              Available services: {JSON.stringify(services, ["serviceName"], 2)}
             </Text>
-
-            {/* Current inclusions */}
-            <Text style={styles.modalText}>Current Inclusions:</Text>
-            {customInclusions.length > 0 ? (
-              customInclusions.map((inclusion, index) => (
-                <View key={index} style={styles.inclusionRow}>
-                  <Text style={styles.inclusionItem}>{inclusion}</Text>
-                  <TouchableOpacity
-                    onPress={() => handleRemoveInclusion(index)}
-                  >
-                    <AntDesign name="delete" size={20} color="red" />
-                  </TouchableOpacity>
-                </View>
-              ))
-            ) : (
-              <Text style={styles.modalText}>No inclusions added yet.</Text>
-            )}
-
-            {/* Add new inclusion */}
-            <Text style={styles.modalText}>Add New Inclusion:</Text>
-            <View style={styles.addInclusionContainer}>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Enter inclusion name"
-                value={newInclusion}
-                onChangeText={setNewInclusion}
-              />
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleAddInclusion}
-              >
-                <Text style={styles.addButtonText}>Add</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Save and close buttons */}
-            <Pressable
-              style={styles.saveButton}
-              onPress={() => {
-                // Update the parent package details with the custom inclusions
-                setCurrentPackageDetails({
-                  ...currentPackageDetails,
-                  inclusions: customInclusions,
-                });
-                setCustomizeVisible(false); // Close customize modal
-              }}
-            >
-              <Text style={styles.saveButtonText}>Save</Text>
-            </Pressable>
+            <Text style={styles.modalText}>
+              Here, you can add logic for customizing the package.
+            </Text>
             <Pressable
               style={styles.closeButton}
               onPress={() => setCustomizeVisible(false)}
@@ -227,6 +170,7 @@ const StepThree = ({
           </View>
         </View>
       </Modal>
+
       <View style={styles.buttonRow}>
         <Button onPress={prevStep} style={styles.button} mode="contained">
           Back

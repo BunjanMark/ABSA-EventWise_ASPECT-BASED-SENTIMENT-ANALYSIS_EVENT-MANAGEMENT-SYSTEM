@@ -151,6 +151,7 @@ const EventAdmin = () => {
           />
         </View>
         <PackageManager />
+        {/* #TODO organize based on package type.  */}
         <View style={[]}>
           <FlatList
             data={currentPackages}

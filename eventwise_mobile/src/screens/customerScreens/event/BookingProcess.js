@@ -12,7 +12,8 @@ import {
 } from "react-native";
 import Modal from "react-native-modal"; // If using react-native-modal
 import { Button } from "react-native-paper";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt } from 'react-icons/fa';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Formik, FieldArray } from "formik";
 import * as Yup from "yup";
 import * as ImagePicker from "expo-image-picker";
@@ -52,6 +53,12 @@ const BookingProcess = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentScreen, setCurrentScreen] = useState(1);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [numberOfGuests, setNumberOfGuests] = React.useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const guestsPerPage = 20; // Maximum guests per page
+  const [focusedInput, setFocusedInput] = useState(null);
+
+
   // Validation schema
   const validationSchema = Yup.object().shape({
     eventName: Yup.string().required("Event name is required"),
@@ -183,7 +190,7 @@ const BookingProcess = ({ navigation }) => {
 
       // Notify user of success and reset the form
       Alert.alert("Success", "Event created successfully!");
-      // resetForm(); // TODO Fix this shit this back to its original
+      resetForm(); // TODO Fix this shit this back to its original
     } catch (error) {
       console.error("Error creating event:", error);
       Alert.alert(
@@ -316,46 +323,53 @@ const BookingProcess = ({ navigation }) => {
               touched,
             }) => (
               <View style={[styles.form, { paddingBottom: 100 }]}>
-                <Text style={styles.title}>Create Event</Text>
 
                 {/* Event Creation Screen */}
                 {currentScreen === 1 && (
                   <>
-                    <View style={styles.servicePhotoContainer}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          try {
-                            handleImagePicker(setFieldValue);
-                            console.log("Image URI:", imageUri);
-                          } catch (error) {}
-                        }}
-                      >
-                        <Image
-                          source={
-                            values.coverPhoto
-                              ? { uri: values.coverPhoto }
-                              : selectimage
-                          }
-                          style={styles.servicePhoto}
-                        />
-                      </TouchableOpacity>
-                      {touched.coverPhoto && errors.coverPhoto && (
-                        <Text style={styles.errorText}>
-                          {errors.coverPhoto}
-                        </Text>
-                      )}
-                    </View>
+                <Text style={styles.title}>Create Event</Text>
 
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Event Name"
-                      onChangeText={handleChange("eventName")}
-                      onBlur={handleBlur("eventName")}
-                      value={values.eventName}
-                    />
-                    {touched.eventName && errors.eventName && (
-                      <Text style={styles.errorText}>{errors.eventName}</Text>
-                    )}
+                  <View style={styles.servicePhotoContainer}>
+                <TouchableOpacity
+                  onPress={() => {
+                    try {
+                      handleImagePicker(setFieldValue);
+                      console.log("Image URI:", imageUri);
+                    } catch (error) {}
+                  }}
+                >
+                  <Image
+                    source={
+                      values.coverPhoto
+                        ? { uri: values.coverPhoto }
+                        : selectimage
+                    }
+                    style={styles.servicePhoto}
+                  />
+                </TouchableOpacity>
+                {touched.coverPhoto && errors.coverPhoto && (
+                  <Text style={styles.errorText}>{errors.coverPhoto}</Text>
+                )}
+              </View>
+
+              <TextInput
+                style={[
+                  styles.input,
+                  focusedInput === "eventName" && { borderColor: '#EEBA2B', borderWidth: 2 } // Apply yellow border when focused
+                ]}
+                placeholder="Event Name"
+                onChangeText={handleChange("eventName")}
+                onBlur={() => {
+                  handleBlur("eventName");
+                  setFocusedInput(null); // Reset focus state when the input loses focus
+                }}
+                onFocus={() => setFocusedInput("eventName")} // Set focus state when the input is focused
+                value={values.eventName}
+              />
+              {touched.eventName && errors.eventName && (
+                <Text style={styles.errorText}>{errors.eventName}</Text>
+              )}
+
 
                     <RNPickerSelect
                       onValueChange={(value) =>
@@ -374,13 +388,20 @@ const BookingProcess = ({ navigation }) => {
                     )}
 
                     <TextInput
-                      style={styles.input}
-                      placeholder="Event Pax"
-                      keyboardType="numeric"
-                      onChangeText={handleChange("eventPax")}
-                      onBlur={handleBlur("eventPax")}
-                      value={values.eventPax}
-                    />
+                  style={[
+                    styles.input,
+                    focusedInput === "eventPax" && { borderColor: '#EEBA2B', borderWidth: 2 }
+                  ]}
+                  placeholder="Event Pax"
+                  keyboardType="numeric"
+                  onChangeText={handleChange("eventPax")}
+                  onBlur={() => {
+                    handleBlur("eventPax");
+                    setFocusedInput(null);
+                  }}
+                  onFocus={() => setFocusedInput("eventPax")}
+                  value={values.eventPax}
+                />
                     {touched.eventPax && errors.eventPax && (
                       <Text style={styles.errorText}>{errors.eventPax}</Text>
                     )}
@@ -396,46 +417,45 @@ const BookingProcess = ({ navigation }) => {
                     </TouchableOpacity>
                     {showCalendar && (
                       <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={showCalendar}
-                        onRequestClose={() => setShowCalendar(false)}
-                        style={styles.modalContainerCalendar}
-                      >
-                        {/* Background Overlay */}
+                  animationType="slide"
+                  transparent={true}
+                  visible={showCalendar}
+                  onRequestClose={() => setShowCalendar(false)}
+                  style={styles.modalContainerCalendar}
+                >
+                  {/* Dark background overlay */}
+                  <View style={styles.modalOverlay} />
 
-                        {/* Modal Content */}
-                        <View style={styles.modalContainer}>
-                          <CalendarPicker
-                            onDateChange={(date) => {
-                              setShowCalendar(false);
-                              setSelectedDate(date);
-                              setFieldValue(
-                                "eventDate",
-                                date.toISOString().split("T")[0]
-                              );
-                            }}
-                            disabledDates={datesWithThreeOrMoreEvents}
-                            minDate={new Date()}
-                            maxDate={
-                              new Date(
-                                new Date().getFullYear(),
-                                new Date().getMonth() + 6,
-                                new Date().getDate()
-                              )
-                            }
-                            selectedDate={selectedDate}
-                          />
-                          <Button
-                            onPress={() => setShowCalendar(false)}
-                            mode="contained"
-                            style={styles.closeButton}
-                          >
-                            Close
-                          </Button>
-                        </View>
-                      </Modal>
-                    )}
+                  {/* Modal Content */}
+                  <View style={styles.modalContainerCal}>
+                    <CalendarPicker
+                      onDateChange={(date) => {
+                        setShowCalendar(false);
+                        setSelectedDate(date);
+                        setFieldValue("eventDate", date.toISOString().split("T")[0]);
+                      }}
+                      disabledDates={datesWithThreeOrMoreEvents}
+                      minDate={new Date()}
+                      maxDate={new Date(
+                        new Date().getFullYear(),
+                        new Date().getMonth() + 6,
+                        new Date().getDate()
+                      )}
+                      selectedDate={selectedDate}
+                    />
+                    <Button
+                      onPress={() => setShowCalendar(false)}
+                      mode="contained"
+                      style={styles.closeButton}
+                      backgroundColor="#EEBA2B"
+                    >
+                      Close
+                    </Button>
+                  </View>
+                </Modal>
+
+            )}
+
 
                     {touched.eventDate && errors.eventDate && (
                       <Text style={styles.errorText}>{errors.eventDate}</Text>
@@ -472,12 +492,19 @@ const BookingProcess = ({ navigation }) => {
                     )}
 
                     <TextInput
-                      style={styles.input}
-                      placeholder="Event Location"
-                      onChangeText={handleChange("eventLocation")}
-                      onBlur={handleBlur("eventLocation")}
-                      value={values.eventLocation}
-                    />
+                    style={[
+                      styles.input,
+                      focusedInput === "eventLocation" && { borderColor: '#EEBA2B', borderWidth: 2 } // Highlight border on focus
+                    ]}
+                    placeholder="Event Location"
+                    onChangeText={handleChange("eventLocation")}
+                    onBlur={() => {
+                      handleBlur("eventLocation");
+                      setFocusedInput(null);
+                    }}
+                    onFocus={() => setFocusedInput("eventLocation")}
+                    value={values.eventLocation}
+                  />
                     {touched.eventLocation && errors.eventLocation && (
                       <Text style={styles.errorText}>
                         {errors.eventLocation}
@@ -485,20 +512,29 @@ const BookingProcess = ({ navigation }) => {
                     )}
 
                     <TextInput
-                      style={styles.input}
-                      placeholder="Description"
-                      multiline
-                      onChangeText={handleChange("description")}
-                      onBlur={handleBlur("description")}
-                      value={values.description}
-                    />
+                    style={[
+                      styles.input,
+                      focusedInput === "description" && { borderColor: '#EEBA2B', borderWidth: 2 } // Highlight border on focus
+                    ]}
+                    placeholder="Description"
+                    multiline
+                    onChangeText={handleChange("description")}
+                    onBlur={() => {
+                      handleBlur("description");
+                      setFocusedInput(null); // Reset focus state when the input loses focus
+                    }}
+                    onFocus={() => setFocusedInput("description")} // Set the focused input to "description" on focus
+                    value={values.description}
+                  />
+
                     {touched.description && errors.description && (
                       <Text style={styles.errorText}>{errors.description}</Text>
                     )}
 
                     <Button
                       mode="contained"
-                      onPress={() => setCurrentScreen(2)} // Switch to Packages screen
+                      onPress={() => setCurrentScreen(2)}
+                      style={styles.closeButton} // Switch to Packages screen
                     >
                       Next
                     </Button>
@@ -507,106 +543,84 @@ const BookingProcess = ({ navigation }) => {
 
                 {/* Packages Screen */}
                 {currentScreen === 2 && (
-                  <>
-                    <Text style={styles.title}>Available Packages</Text>
+                  
+  <>
+      <TouchableOpacity onPress={() => setCurrentScreen(1)}>
+      <Ionicons name="arrow-back" size={24} color="#eeba2b" marginBottom={10} />
+    </TouchableOpacity>
 
-                    {currentPackages && currentPackages.length > 0 ? (
-                      <ScrollView>
-                        {currentPackages.map((pkg, index) => (
-                          <TouchableOpacity
-                            key={index}
-                            style={[
-                              styles.packageCard,
-                              selectedPackage === pkg.id &&
-                                styles.selectedPackageCard, // Compare with pkg.id
-                            ]}
-                            onPress={() => {
-                              console.log("Package clicked:", pkg.id); // Log the clicked package's ID
-                              setSelectedPackage(pkg.id); // Update the selected package
-                            }}
-                          >
-                            <Text style={styles.packageName}>Id: {pkg.id}</Text>
-                            <Text style={styles.packageName}>
-                              Name: {pkg.packageName}
-                            </Text>
-                            <Text style={styles.packageType}>
-                              Type: {pkg.eventType}
-                            </Text>
-                            <Text style={styles.packagePrice}>
-                              Price: ${pkg.totalPrice}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <Text style={styles.noPackagesText}>
-                        No packages available at the moment.
-                      </Text>
-                    )}
 
-                    <Button
-                      mode="contained"
-                      onPress={() => setCurrentScreen(1)}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      mode="contained"
-                      onPress={() => {
-                        setCurrentScreen(3);
-                        console.log(
-                          "Proceeding with package ID:",
-                          selectedPackage
-                        );
+    <Text style={styles.titlePackage}>Available Packages</Text>
 
-                        const selectedPkgDetails = currentPackages.find(
-                          (pkg) => pkg.id === selectedPackage
-                        );
-                        if (selectedPkgDetails) {
-                          console.log("Proceeding with package details:");
-                          console.log("ID:", selectedPkgDetails.id);
-                          console.log(
-                            "packageName:",
-                            selectedPkgDetails.packageName
-                          );
-                          console.log(
-                            "eventType:",
-                            selectedPkgDetails.eventType
-                          );
-                          console.log(
-                            "totalPrice:",
-                            selectedPkgDetails.totalPrice
-                          );
-                        } else {
-                          console.log(
-                            "No package selected or package details not found."
-                          );
-                        }
-                      }}
-                    >
-                      Next
-                    </Button>
-                  </>
-                )}
+    {currentPackages && currentPackages.length > 0 ? (
+  <ScrollView>
+    {currentPackages.map((pkg, index) => (
+      <TouchableOpacity
+        key={index}
+        style={[
+          styles.packageCard,
+          selectedPackage === pkg.id && styles.selectedPackageCard, // Compare with pkg.id
+        ]}
+        onPress={() => {
+          console.log("Package clicked:", pkg.id); // Log the clicked package's ID
+          setSelectedPackage(pkg.id); // Update the selected package
+        }}
+      >
+        <Text style={styles.packageName}>Package Name: {pkg.packageName}</Text>
+        <Text style={styles.packageType}>Type: {pkg.eventType}</Text>
+        <Text style={styles.packagePrice}>Price: ₱{pkg.totalPrice}</Text>
+      </TouchableOpacity>
+    ))}
+  </ScrollView>
+) : (
+  <Text style={styles.noPackagesText}>No packages available at the moment.</Text>
+)}
 
-                {currentScreen === 3 && selectedPackage !== null && (
-                  <>
-                    {/* Display the selected package details */}
-                    <Text style={styles.title}>Selected Package</Text>
 
-                    <View style={styles.packageDetails}>
-                      {selectedPkg ? (
-                        <>
-                          {/* Package Info */}
-                          <Text style={styles.packageName}>
-                            Name: {selectedPkg.packageName}
-                          </Text>
-                          <Text style={styles.packageType}>
-                            Type: {selectedPkg.eventType}
-                          </Text>
-                          <Text style={styles.packagePrice}>
-                            Price: ${selectedPkg.totalPrice}
-                          </Text>
+   
+    <Button
+  mode="contained"
+  onPress={() => {
+    setCurrentScreen(3);
+    console.log("Proceeding with package ID:", selectedPackage);
+    
+    const selectedPkgDetails = currentPackages.find(pkg => pkg.id === selectedPackage);
+    if (selectedPkgDetails) {
+      console.log("Proceeding with package details:");
+      console.log("ID:", selectedPkgDetails.id);
+      console.log("packageName:", selectedPkgDetails.packageName);
+      console.log("eventType:", selectedPkgDetails.eventType);
+      console.log("totalPrice:", selectedPkgDetails.totalPrice);
+    } else {
+      console.log("No package selected or package details not found.");
+    }
+  }}
+  style={styles.closeButton} // Switch to Packages screen
+
+>
+  Next
+</Button>
+
+  </>
+)}
+
+
+{currentScreen === 3 && selectedPackage !== null && (
+  <>
+  <TouchableOpacity onPress={() => setCurrentScreen(2)}>
+  <Ionicons name="arrow-back" size={24} color="#eeba2b" marginBottom={10} />
+  
+</TouchableOpacity>
+    {/* Display the selected package details */}
+    <Text style={styles.titlePackage}>Selected Package</Text>
+    
+    <View style={styles.packageDetails}>
+      {selectedPkg ? (
+        <>
+          {/* Package Info */}
+          <Text style={styles.packageName}>Name: {selectedPkg.packageName}</Text>
+          <Text style={styles.packageType}>Type: {selectedPkg.eventType}</Text>
+          <Text style={styles.packagePrice}>Price: ₱{selectedPkg.totalPrice}</Text>
 
                           {/* Log selected package details */}
                           {console.log("Selected Package Details:", {
@@ -617,27 +631,15 @@ const BookingProcess = ({ navigation }) => {
                             services: selectedPkg.services,
                           })}
 
-                          {/* Services for the package */}
-                          <Text style={styles.serviceInclusions}>
-                            Service Inclusions
-                          </Text>
-
-                          {selectedPkg.services &&
-                          selectedPkg.services.length > 0 ? (
-                            selectedPkg.services.map((service, index) => (
-                              <View key={index} style={styles.serviceContainer}>
-                                <Text style={styles.serviceName}>
-                                  Service Id: {service.id}
-                                </Text>
-                                <Text style={styles.serviceName}>
-                                  Service Name: {service.serviceName}
-                                </Text>
-                                <Text style={styles.serviceCategory}>
-                                  Category: {service.serviceCategory}
-                                </Text>
-                                <Text style={styles.serviceFeature}>
-                                  Feature: {service.serviceFeatures}
-                                </Text>
+          {/* Services for the package */}
+          <Text style={styles.serviceInclusions}>Service Inclusions</Text>
+          
+          {selectedPkg.services && selectedPkg.services.length > 0 ? (
+            selectedPkg.services.map((service, index) => (
+              <View key={index} style={styles.serviceContainer}>
+                <Text style={styles.serviceName}>Service Name: {service.serviceName}</Text>
+                <Text style={styles.serviceCategory}>Category: {service.serviceCategory}</Text>
+                <Text style={styles.serviceFeature}>Feature: {service.serviceFeatures}</Text>
 
                                 {/* Log each service */}
                                 {console.log("Service Details:", {
@@ -670,100 +672,93 @@ const BookingProcess = ({ navigation }) => {
                       )}
                     </View>
 
-                    {/* Add Service Button */}
-                    <Button mode="contained" onPress={openServiceModal}>
-                      Add Service
-                    </Button>
+    {/* Add Service Button */}
+    <Button mode="contained" onPress={openServiceModal}
+      style={styles.closeButton}
+      marginBottom={10}
 
-                    {/* Log service addition */}
-                    {modalVisible && (
-                      <Modal
-                        isVisible={modalVisible}
-                        onBackdropPress={closeServiceModal}
-                        onBackButtonPress={closeServiceModal}
-                        animationIn="fadeIn"
-                        animationOut="fadeOut"
-                      >
-                        <View style={styles.modalContainer}>
-                          <Text style={styles.modalTitle}>
-                            Select a Service
-                          </Text>
+    >
+    
+      Add Service
+    </Button>
 
-                          {/* Search Bar */}
-                          <TextInput
-                            style={styles.searchInput}
-                            placeholder="Search by Category..."
-                            value={searchQuery}
-                            onChangeText={(text) => setSearchQuery(text)} // Update search query as user types
-                          />
+    {/* Log service addition */}
+    {modalVisible && (
+      <Modal
+  isVisible={modalVisible}
+  onBackdropPress={closeServiceModal}
+  onBackButtonPress={closeServiceModal}
+  animationIn="fadeIn"
+  animationOut="fadeOut"
+>
+  <View style={styles.modalContainer}>
+    <Text style={styles.modalTitle}>Select a Service</Text>
 
-                          {/* Filtered List of Services */}
-                          {services && services.length > 0 ? (
-                            <ScrollView>
-                              {services
-                                .filter((service) =>
-                                  service.serviceCategory
-                                    .toLowerCase()
-                                    .includes(searchQuery.toLowerCase())
-                                )
-                                .map((service, index) => (
-                                  <TouchableOpacity
-                                    key={index}
-                                    style={styles.serviceItem}
-                                    onPress={() => {
-                                      // Ensure the selectedPkg is updated correctly without mutating the original object
-                                      const updatedServices = selectedPkg
-                                        ? [...selectedPkg.services, service]
-                                        : [service];
+    {/* Search Bar */}
+    <TextInput
+      style={styles.searchInput}
+      placeholder="Search by Category..."
+      value={searchQuery}
+      onChangeText={text => setSearchQuery(text)} // Update search query as user types
+    />
 
-                                      // Clone the currentPackages and update the selected package with new services
-                                      const updatedPackages =
-                                        currentPackages.map((pkg) =>
-                                          pkg.id === selectedPkg.id
-                                            ? {
-                                                ...pkg,
-                                                services: updatedServices,
-                                              }
-                                            : pkg
-                                        );
+    {/* Filtered List of Services */}
+    {services && services.length > 0 ? (
+      <ScrollView>
+        {services
+          .filter(service =>
+            service.serviceCategory.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          .map((service, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[styles.serviceItem, { 
+                borderColor: '#eeba2b',  // Border color
+                borderWidth: 1,  // Set the border width to make it visible on all sides
+                borderRadius: 8, // Optional: to add rounded corners
+                marginTop: 10
+              }]} 
+              onPress={() => {
+                // Ensure the selectedPkg is updated correctly without mutating the original object
+                const updatedServices = selectedPkg
+                  ? [...selectedPkg.services, service]
+                  : [service];
 
-                                      // Log the updated package details after adding a service
-                                      console.log(
-                                        "Package updated with new service:",
-                                        {
-                                          packageId: selectedPkg.id,
-                                          updatedServices: updatedServices,
-                                        }
-                                      );
+                // Clone the currentPackages and update the selected package with new services
+                const updatedPackages = currentPackages.map(pkg =>
+                  pkg.id === selectedPkg.id ? { ...pkg, services: updatedServices } : pkg
+                );
 
-                                      // Set the updated packages list
-                                      setCurrentPackages(updatedPackages);
-                                      closeServiceModal(); // Close the modal after selection
-                                    }}
-                                  >
-                                    <Text style={styles.serviceName}>
-                                      {service.serviceName}
-                                    </Text>
-                                    <Text style={styles.serviceCategory}>
-                                      {service.serviceCategory}
-                                    </Text>
-                                    <Text style={styles.servicePrice}>
-                                      Price: ${service.basePrice}
-                                    </Text>
-                                  </TouchableOpacity>
-                                ))}
-                            </ScrollView>
-                          ) : (
-                            <Text>No services available.</Text>
-                          )}
+                // Log the updated package details after adding a service
+                console.log("Package updated with new service:", {
+                  packageId: selectedPkg.id,
+                  updatedServices: updatedServices
+                });
 
-                          {/* Close Button */}
-                          <Button mode="contained" onPress={closeServiceModal}>
-                            Close
-                          </Button>
-                        </View>
-                      </Modal>
-                    )}
+                // Set the updated packages list
+                setCurrentPackages(updatedPackages);
+                closeServiceModal(); // Close the modal after selection
+              }}
+            >
+              <Text style={styles.serviceName}>{service.serviceName}</Text>
+              <Text style={styles.serviceCategory}>{service.serviceCategory}</Text>
+              <Text style={styles.servicePrice}>Price: ₱{service.basePrice}</Text>
+            </TouchableOpacity>
+          ))}
+      </ScrollView>
+    ) : (
+      <Text>No services available.</Text>
+    )}
+
+    {/* Close Button */}
+    <Button mode="contained" onPress={closeServiceModal} style={styles.closeButton} marginTop={10}>
+      Close
+    </Button>
+  </View>
+</Modal>
+
+
+    )}
 
                     {/* Remove Service Confirmation Modal */}
                     {confirmRemoveModalVisible && (
@@ -814,109 +809,177 @@ const BookingProcess = ({ navigation }) => {
                                       : pkg
                                 );
 
-                                // Update the state with the new package list
-                                setCurrentPackages(updatedPackages);
+                // Update the state with the new package list
+                setCurrentPackages(updatedPackages);
+                
+                // Close the modal after the update
+                setConfirmRemoveModalVisible(false);
+              }}
+      style={styles.closeButton}
+      marginRight={10}
 
-                                // Close the modal after the update
-                                setConfirmRemoveModalVisible(false);
-                              }}
-                            >
-                              Yes, Remove
-                            </Button>
+            >
+              Yes, Remove
+            </Button>
+            
+            <Button
+              mode="contained"
+              onPress={() => setConfirmRemoveModalVisible(false)} // Cancel action
+      style={styles.closeButton}
+            >
+              Cancel
+            </Button>
+          </View>
+        </View>
+      </Modal>
+    )}
 
-                            <Button
-                              mode="contained"
-                              onPress={() =>
-                                setConfirmRemoveModalVisible(false)
-                              } // Cancel action
-                            >
-                              Cancel
-                            </Button>
-                          </View>
-                        </View>
-                      </Modal>
-                    )}
+    {/* Navigation Buttons */}
+   
+    <Button mode="contained" onPress={() => setCurrentScreen(4)}
+      style={styles.closeButton}>
+      Next
+    </Button>
+  </>
+)}
 
-                    {/* Navigation Buttons */}
-                    <Button
-                      mode="contained"
-                      onPress={() => setCurrentScreen(2)}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      mode="contained"
-                      onPress={() => setCurrentScreen(4)}
-                    >
-                      Next
-                    </Button>
-                  </>
-                )}
 
                 {/* Guests Screen */}
                 {currentScreen === 4 && (
-                  <>
-                    <FieldArray name="guests">
-                      {({ remove, push }) => (
-                        <View>
-                          {values.guests.map((guest, index) => (
-                            <View key={index} style={styles.guestContainer}>
-                              <TextInput
-                                style={styles.input}
-                                placeholder="Guest Name"
-                                value={guest.GuestName}
-                                onChangeText={handleChange(
-                                  `guests[${index}].GuestName`
-                                )} // Corrected template string
-                              />
-                              <TextInput
-                                style={styles.input}
-                                placeholder="Email"
-                                value={guest.email}
-                                onChangeText={handleChange(
-                                  `guests[${index}].email`
-                                )} // Corrected template string
-                              />
-                              <TextInput
-                                style={styles.input}
-                                placeholder="Phone"
-                                value={guest.phone}
-                                onChangeText={handleChange(
-                                  `guests[${index}].phone`
-                                )} // Corrected template string
-                              />
-                              <TouchableOpacity onPress={() => remove(index)}>
-                                <Text style={styles.removeGuest}>Remove</Text>
-                              </TouchableOpacity>
-                            </View>
-                          ))}
-                          <Button
-                            onPress={() =>
-                              push({ GuestName: "", email: "", phone: "" })
-                            } // Adds new guest
-                          >
-                            Add Guest
-                          </Button>
-                        </View>
-                      )}
-                    </FieldArray>
+        <>
+          <TouchableOpacity onPress={() => setCurrentScreen(3)}>
+            <Ionicons name="arrow-back" size={24} color="#eeba2b" marginBottom={10} />
+          </TouchableOpacity>
+          <FieldArray name="guests">
+            {({ remove, push }) => {
+              // Pagination calculations
+              const startIndex = (currentPage - 1) * guestsPerPage;
+              const endIndex = startIndex + guestsPerPage;
+              const totalPages = Math.ceil(values.guests.length / guestsPerPage);
+              const currentGuests = values.guests.slice(startIndex, endIndex);
+
+              return (
+                <View>
+          <Text style={styles.titlePackage}>Guest List</Text>
+
+                  {/* Input for specifying number of guests to add */}
+                  <View style={styles.guestNumberContainer}>
+                    <TextInput
+                      style={styles.numberInput}
+                      placeholder="Number of Guests"
+                      value={numberOfGuests}
+                      onChangeText={(value) => setNumberOfGuests(value)}
+                      keyboardType="numeric" // Ensures numeric input
+                    />
                     <Button
-                      mode="contained"
-                      onPress={handleSubmit}
-                      loading={isLoading}
-                      disabled={isLoading}
-                      style={styles.createButton}
+                      onPress={() => {
+                        const count = parseInt(numberOfGuests, 10); // Parse input as integer
+                        if (!isNaN(count) && count > 0) {
+                          for (let i = 0; i < count; i++) {
+                            push({ GuestName: "", email: "", phone: "", role: "" }); // Adds empty containers
+                          }
+                          setNumberOfGuests(""); // Reset input field
+                        }
+                      }}
+                      style={styles.addButton}
+                      textColor="white"
                     >
-                      Submit
+                      Add
                     </Button>
-                    <Button
-                      mode="contained"
-                      onPress={() => setCurrentScreen(2)}
-                    >
-                      Back
-                    </Button>
-                  </>
-                )}
+                  </View>
+
+                  {/* List of guests for the current page */}
+                  {currentGuests.length > 0 ? (
+                    currentGuests.map((guest, index) => (
+                      <View key={startIndex + index} style={styles.guestContainer}>
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Guest Name"
+                          value={guest.GuestName}
+                          onChangeText={handleChange(`guests[${startIndex + index}].GuestName`)}
+                        />
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Email"
+                          value={guest.email}
+                          onChangeText={handleChange(`guests[${startIndex + index}].email`)}
+                        />
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Phone"
+                          value={guest.phone}
+                          onChangeText={handleChange(`guests[${startIndex + index}].phone`)}
+                        />
+                        <TextInput
+                          style={styles.input}
+                          placeholder="Role"
+                          value={guest.role}
+                          onChangeText={handleChange(`guests[${startIndex + index}].role`)}
+                        />
+                        <TouchableOpacity onPress={() => remove(startIndex + index)}>
+                          <Text style={styles.removeGuest}>Remove</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))
+                  ) : (
+                    <Text>No guests to display on this page.</Text>
+                  )}
+
+                  {/* Pagination Controls */}
+                    <View style={styles.paginationContainer}>
+                      <TouchableOpacity
+                        onPress={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1} // Disable when on the first page
+                      >
+                        <Text style={[styles.paginationArrow, currentPage === 1 && styles.disabledArrow]}>
+                          {"<"}
+                        </Text>
+                      </TouchableOpacity>
+                      <Text style={styles.pageIndicator}>
+                        {currentPage}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages} // Disable when on the last page
+                      >
+                        <Text style={[styles.paginationArrow, currentPage === totalPages && styles.disabledArrow]}>
+                          {">"}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+
+                  {/* Button to manually add one guest */}
+                  <View style={styles.buttonContainer}>
+                <Button
+                  onPress={() => push({ GuestName: "", email: "", phone: "" , role: "" })}
+                  style={styles.addButton1}
+                  textColor="white"
+                >
+                  Add Guest
+                </Button>
+              </View>
+                </View>
+              );
+            }}
+          </FieldArray>
+
+          {/* Submit and Back buttons */}
+                <View style={styles.buttonContainer}>
+              <Button
+                mode="contained"
+                onPress={handleSubmit}
+                loading={isLoading}
+                disabled={isLoading}
+                style={styles.addButton1}
+              >
+                Submit
+              </Button>
+            </View>
+        </>
+      )}
+{/* dari ra taman */}
+
               </View>
             )}
           </Formik>
@@ -927,34 +990,89 @@ const BookingProcess = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+
+  servicePhotoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  guestContainer: {
+    marginBottom: 16,
+  },
+  removeGuest: {
+    color: "red",
+    textAlign: "right",
+    marginTop: 8,
+  },
+
+  guestNumberContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  numberInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    borderRadius: 4,
+    marginRight: 10,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 5, // Adds spacing between buttons
+  },
+
+  addButton: {
+    backgroundColor: "#EEBA2B",
+    padding: 1,
+    borderRadius: 20,
+    alignItems: "center",
+  },
+  addButton1: {
+    backgroundColor: "#EEBA2B",
+    justifyContent: "center",
+    padding: 1,
+    width: "100%",
+    borderRadius: 20,
+    alignItems: "center",
+  },
+  
+  paginationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 16,
+  },
+  paginationArrow: {
+    fontSize: 20,
+    marginHorizontal: 16,
+    color: "#EEBA2B", // Arrow color
+  },
+  disabledArrow: {
+    color: "#ccc", // Lighter color for disabled arrows
+  },
+  pageIndicator: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#ccc",
+  },
+  
   selectedDateText: {
     marginTop: 20,
     fontSize: 18,
     color: "black",
   },
+  closeButton: {
+    backgroundColor: "#EEBA2B",
+  },
+
   scrollContent: {
     paddingHorizontal: 16,
     paddingBottom: 100,
   },
-  modalContainer: {
-    backgroundColor: "white", // White background for the modal
-    borderRadius: 10, // Optional: adds rounded corners
-    padding: 20, // Padding inside the modal
-    maxWidth: "80%", // Restricts the width to 80% of the screen width
-    maxHeight: "80%", // Restricts the height to 80% of the screen height
-    alignSelf: "center", // Centers the modal horizontally
-    justifyContent: "center", // Centers the content vertically
-    elevation: 10, // Adds shadow on Android
-    shadowColor: "#000", // Shadow color on iOS
-    shadowOpacity: 0.1, // Shadow opacity on iOS
-    shadowRadius: 5, // Shadow radius on iOS
-    position: "absolute", // Make sure it's on top of the screen
-    top: "10%", // Adjust the top and bottom position if necessary
-    left: "10%", // Center horizontally
-    right: "10%",
-    bottom: "10%",
-    zIndex: 9999, // Ensure the modal is always on top of other content
-  },
+ 
   modalContainerConfirm: {
     backgroundColor: "white", // White background for the modal
     borderRadius: 10, // Optional: adds rounded corners
@@ -972,28 +1090,44 @@ const styles = StyleSheet.create({
     bottom: "10%",
     zIndex: 9999, // Ensure the modal is always on top of other content
   },
-
-  modalBackdrop: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent dark background
-    position: "absolute", // Backdrop should cover the entire screen
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 999, // Ensure it's behind the modal content but in front of the background
-  },
   modalContainer: {
-    backgroundColor: "white", // White background for the modal
-    borderRadius: 10, // Optional: adds rounded corners
-    padding: 20, // Padding inside the modal
-    maxHeight: "50%",
-    width: "100%", // Restricts the height to 50% of the screen height
-    position: "absolute", // Absolute positioning to center the modal
-    top: "25%", // Centers vertically (25% from the top of the screen)
-    left: "0", // Centers horizontally (10% from the left of the screen)
-    zIndex: 999, // Makes sure the modal is above other content
+    backgroundColor: 'white',
+    borderRadius: 10, 
+    padding: 20, 
+    maxHeight: '50%',
+    width:'100%', 
+    position: 'absolute', 
+    top: '25%', 
+    left: '0', 
+    zIndex: 999, 
   },
 
+  modalOverlay: {
+    position: 'absolute',
+    top: '-10%',
+    left: "-10%",
+    right: "10%",
+    width: '120%',
+    height: '120%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    zIndex: 998, 
+  },
+  modalContainerCal: {
+    borderColor: '#eeba2b', 
+    borderWidth: 2, 
+    backgroundColor: 'white', 
+    borderRadius: 10, 
+    padding: 20,
+    maxHeight: '50%',
+    width:'110%',
+    position: 'absolute', 
+    top: '25%',
+    right: '-5%', 
+    zIndex: 999,
+  },
+  
+
+  
   calendarContainer: {
     backgroundColor: "white",
     padding: 20,
@@ -1014,9 +1148,14 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     marginBottom: 16,
+  },
+  titlePackage: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   input: {
     borderWidth: 1,
@@ -1039,16 +1178,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 8,
   },
-  guestContainer: {
-    marginBottom: 16,
-  },
-  removeGuest: {
-    color: "red",
-    textAlign: "right",
-  },
-  submitButton: {
-    marginTop: 16,
-  },
+ 
   servicePhoto: {
     width: 100,
     height: 100,
@@ -1065,8 +1195,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   selectedPackageCard: {
-    borderColor: "#007BFF", // Highlight color for selected package
-    borderWidth: 2,
+    borderColor: "#eeba2b", // Highlight color for selected package
+    borderWidth: 1,
   },
   packageName: {
     fontSize: 16,
@@ -1078,7 +1208,7 @@ const styles = StyleSheet.create({
   },
   packagePrice: {
     fontSize: 14,
-    color: "#333",
+    color: "#666",
   },
   noPackagesText: {
     textAlign: "center",
@@ -1106,8 +1236,8 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   serviceFeature: {
-    fontSize: 14,
-    fontStyle: "italic",
+    fontSize: 12,
+    color: '#666',
   },
   noServicesText: {
     fontSize: 14,
@@ -1137,14 +1267,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "red",
   },
-  title: { fontSize: 24 },
   packageDetails: { marginBottom: 20 },
   serviceContainer: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     padding: 10,
     marginBottom: 10,
-    position: "relative",
+    position: 'relative',
   },
 
   confirmRemoveModal: {

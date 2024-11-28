@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   View,
@@ -10,6 +10,7 @@ import {
 import { Button } from "react-native-paper";
 import { MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { useServicesStore } from "../../../../../stateManagement/admin/useServicesStore";
 
 const StepThree = ({
   values,
@@ -28,6 +29,9 @@ const StepThree = ({
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentPackageDetails, setCurrentPackageDetails] = useState(null);
+  const [customizeVisible, setCustomizeVisible] = useState(false);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const { services, setServices } = useServicesStore();
 
   const packageData = (currentPackages || [])
     .filter((pkg) => pkg.packageName && pkg.id)
@@ -39,24 +43,33 @@ const StepThree = ({
       value: pkg.id,
       coverPhoto: pkg.coverPhotoUrl,
       category: pkg.eventType,
-      inclusions: pkg.services.map((service, index) => service.serviceName),
-      // JSON.stringify(pkg.services.map((service) => service.serviceName)) ||
-      // "No inclusions provided", // Add inclusions field
+      inclusions: pkg.services.map((service) => service.serviceName),
     }));
 
   const handleSelectionChange = (items) => {
     setSelected(items);
     setFieldValue(
       "currentPackages",
-      items.map((item) => item.value) // Update Formik's field with selected package IDs
+      items.map((item) => item.value)
     );
-    console.log("Selected packages:", items);
   };
 
   const showPackageDetails = (pkg) => {
     setCurrentPackageDetails(pkg);
     setModalVisible(true);
   };
+
+  // Sync selected services when package selection changes
+  useEffect(() => {
+    const updatedServices = selected.reduce((acc, pkg) => {
+      const packageDetails = packageData.find((p) => p.id === pkg.value);
+      if (packageDetails) {
+        return [...acc, ...packageDetails.inclusions];
+      }
+      return acc;
+    }, []);
+    setSelectedServices([...new Set(updatedServices)]); // Remove duplicates
+  }, [selected]);
 
   return (
     <View style={styles.container}>
@@ -79,7 +92,6 @@ const StepThree = ({
           <View style={styles.selectedItemContainer}>
             <View style={styles.selectedItem}>
               <Text style={styles.selectedText}>{item.label}</Text>
-              {/* View Details Button */}
               <TouchableOpacity onPress={() => showPackageDetails(item)}>
                 <AntDesign
                   color="black"
@@ -88,7 +100,6 @@ const StepThree = ({
                   style={styles.iconSpacing}
                 />
               </TouchableOpacity>
-              {/* Delete Button */}
               <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
                 <AntDesign color="black" name="delete" size={20} />
               </TouchableOpacity>
@@ -107,32 +118,62 @@ const StepThree = ({
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>
-              {/* Package details: {JSON.stringify(currentPackageDetails, null, 2)} */}
-              {/* {currentPackageDetails?.label || "Package Details"} */}
+              Package Details: {currentPackageDetails?.label || "Package Name"}
             </Text>
             <Text style={styles.modalText}>
-              Package name: {currentPackageDetails?.label || "Package Name"}
+              Package price: {currentPackageDetails?.totalPrice || "N/A"}
             </Text>
             <Text style={styles.modalText}>
-              Package price:{" "}
-              {currentPackageDetails?.totalPrice || "Package Name"}
+              Package type: {currentPackageDetails?.category || "N/A"}
             </Text>
             <Text style={styles.modalText}>
-              Package for type of event:{" "}
-              {currentPackageDetails?.category || "Package Name"}
-            </Text>
-            <Text style={styles.modalText}>
-              Package inclusions:{" "}
-              {currentPackageDetails.inclusions.map((item, index) => (
+              Package inclusions:
+              {currentPackageDetails?.inclusions.map((item, index) => (
                 <Text key={index} style={styles.inclusionItem}>
                   {"\n"}• {item}
                 </Text>
               ))}
             </Text>
-
+            <Pressable
+              style={styles.customizeButton}
+              onPress={() => {
+                setCustomizeVisible(true);
+                setModalVisible(false);
+              }}
+            >
+              <Text style={styles.customizeButtonText}>Customize Package</Text>
+            </Pressable>
             <Pressable
               style={styles.closeButton}
               onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal for customizing package */}
+      <Modal
+        visible={customizeVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setCustomizeVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Customize Package</Text>
+            <Text style={styles.modalText}>
+              Selected Services:
+              {selectedServices.map((service, index) => (
+                <Text key={index} style={styles.inclusionItem}>
+                  {"\n"}• {service}
+                </Text>
+              ))}
+            </Text>
+            <Pressable
+              style={styles.closeButton}
+              onPress={() => setCustomizeVisible(false)}
             >
               <Text style={styles.closeButtonText}>Close</Text>
             </Pressable>
@@ -181,22 +222,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
   },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  selectedItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-    borderRadius: 5,
-    padding: 5,
-    margin: 5,
-  },
-  selectedText: {
-    marginRight: 10,
-    fontSize: 14,
-  },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -220,11 +245,26 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
+  inclusionItem: {
+    fontSize: 14,
+  },
+  customizeButton: {
+    backgroundColor: "green",
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  customizeButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
   closeButton: {
     backgroundColor: "#007BFF",
     borderRadius: 5,
     paddingVertical: 10,
     paddingHorizontal: 20,
+    marginTop: 10,
   },
   closeButtonText: {
     color: "white",

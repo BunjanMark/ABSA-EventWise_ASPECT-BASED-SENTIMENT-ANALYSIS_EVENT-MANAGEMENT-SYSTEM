@@ -191,7 +191,6 @@ public function store(Request $request)
     }
 }
 
-
 public function fetchEventsByType(Request $request)
 {
     try {
@@ -277,42 +276,91 @@ public function showEventById($eventId)
     $events = Event::where('type', $type)->get();
     return response()->json($events);
 }
-    public function updateEvent(Request $request, $eventId)
-    {
-        DB::beginTransaction();
+public function updateEvent(Request $request, $eventId)
+{
+    DB::beginTransaction();
 
-        try {
-            $event = Event::find($eventId);
+    try {
+        $event = Event::find($eventId);
 
-            if (!$event) {
-                return response()->json(['error' => 'Event not found'], 404);
-            }
-
-            $validatedData = $request->validate([
-                'status' => 'required|string',
-            ]);
-
-            $event->update($validatedData);
-
-            DB::commit();
-
-            return response()->json(['message' => 'Event status updated successfully'], 200);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed.',
-                'errors' => $e->errors(),
-            ], 422);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
         }
+
+        // Define the fields you want to update
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'time' => 'required|date_format:H:i:s',
+            'location' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|string',
+            'pax' => 'required|integer|min:1',
+            'totalPrice' => 'required|numeric|min:0',
+            'type' => 'required|string',
+            'packages' => 'nullable|string', // Ensure this matches your frontend input
+            'coverPhoto' => 'nullable|string', // Optional, can be null
+        ]);
+
+        // Update the event with the validated data
+        $event->update($validatedData);
+
+        DB::commit();
+
+        return response()->json(['message' => 'Event updated successfully'], 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Validation failed.',
+            'errors' => $e->errors(),
+        ], 422);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
     }
+}
+
+    // public function updateEvent(Request $request, $eventId)
+    // {
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $event = Event::find($eventId);
+
+    //         if (!$event) {
+    //             return response()->json(['error' => 'Event not found'], 404);
+    //         }
+
+    //         $validatedData = $request->validate([
+    //             'status' => 'required|string',
+    //         ]);
+
+    //         $event->update($validatedData);
+
+    //         DB::commit();
+
+    //         return response()->json(['message' => 'Event status updated successfully'], 200);
+
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         DB::rollBack();
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Validation failed.',
+    //             'errors' => $e->errors(),
+    //         ], 422);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
     public function archiveEvent($eventId)
     {
         DB::beginTransaction();
@@ -398,6 +446,21 @@ public function showEventById($eventId)
             ], 404);
         }
     }
+
+
+
+// In your EventController.php
+public function getEventsByUserId($userId)
+{
+    try {
+        $events = Event::where('user_id', $userId)->get(); // Use $userId directly
+        return response()->json($events, 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to fetch events'], 500);
+    }
+}
+
+
 
 
     

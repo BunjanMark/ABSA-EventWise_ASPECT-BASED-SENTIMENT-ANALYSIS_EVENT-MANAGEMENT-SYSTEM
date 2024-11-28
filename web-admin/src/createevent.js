@@ -65,7 +65,7 @@ const CreateEvent = () => {
     const [eventDate, setEventDate] = useState('');
     const [eventTime, setEventTime] = useState(''); // New state for event time
     const [pax, setPax] = useState('');
-    const [venue, setVenue] = useState('');
+    const [location, setLocation] = useState('');
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [venueOverlayOpen, setVenueOverlayOpen] = useState(false);
     const [venueDetailsOverlay, setVenueDetailsOverlay] = useState(null);
@@ -85,7 +85,7 @@ const CreateEvent = () => {
           date: eventDate,
           time: eventTime, // Include time in event data
           pax: parseInt(pax, 10),
-          venue: venue,
+          location: location,
           coverPhoto: coverPhoto // Ensure this is in the right format (e.g., URL or File)
       };
       localStorage.setItem('eventData', JSON.stringify(eventData));
@@ -106,12 +106,12 @@ const CreateEvent = () => {
         setVenueOverlayOpen(true);
     };
 
-    const selectVenue = (venue) => {
-        setVenueDetailsOverlay(venue);
+    const selectVenue = (location) => {
+        setVenueDetailsOverlay(location);
     };
 
     const confirmVenueSelection = () => {
-        setVenue(venueDetailsOverlay.venuename);
+        setLocation(venueDetailsOverlay.venuename);
         closedVenueDetailsOverlay();
     };
 
@@ -128,9 +128,9 @@ const CreateEvent = () => {
         setVenueOverlayOpen(false);
     };
 
-    const filteredVenues = venues.filter((venue) =>
-        venue.venuename.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        venue.address.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredVenues = venues.filter((location) =>
+    location.venuename.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    location.address.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleDateChange = (e) => {
@@ -160,7 +160,7 @@ const CreateEvent = () => {
             eventDate !== '' &&
             isDateValid &&
             pax.trim() !== '' &&
-            venue.trim() !== ''
+            location.trim() !== ''
         );
     };
 
@@ -260,8 +260,8 @@ const CreateEvent = () => {
                             type="text"
                             className="text-input-createevent"
                             placeholder="Choose Venue"
-                            value={venue}
-                            onChange={(e) => setVenue(e.target.value)}
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
                         />
                     </div>
                     
@@ -300,15 +300,15 @@ const CreateEvent = () => {
                             />
                         </div>
                         <div className="venue-selection-container-createevent">
-                            {filteredVenues.map((venue) => (
-                                <div key={venue.id} className="venue-item-createevent">
+                            {filteredVenues.map((location) => (
+                                <div key={location.id} className="venue-item-createevent">
                                     <div className="venue-box-createevent">
-                                        <img src={venue.image} alt={venue.venuename} className="venue-image-createevent" />
-                                        <h3 className="venue-name-createevent">{venue.venuename}</h3>
+                                        <img src={location.image} alt={location.venuename} className="venue-image-createevent" />
+                                        <h3 className="venue-name-createevent">{location.venuename}</h3>
                                         <p className="venue-address-createevent">
-                                            <FaMapMarkerAlt /> {venue.address}
+                                            <FaMapMarkerAlt /> {location.address}
                                         </p>
-                                        <button className="venue-choose-button-createevent" onClick={() => selectVenue(venue)}>
+                                        <button className="venue-choose-button-createevent" onClick={() => selectVenue(location)}>
                                             Choose
                                         </button>
                                     </div>
@@ -760,7 +760,7 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
     formData.append('name', eventData.name);
     formData.append('date', eventData.date);
     formData.append('pax', eventData.pax);
-    formData.append('venue', eventData.venue);
+    formData.append('location', eventData.location);
     formData.append('type', eventData.type);
 
 
@@ -863,7 +863,7 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
             <p>Event Name: {eventData.name}</p>
             <p>Date: {eventData.date}</p>
             <p>Pax: {eventData.pax}</p>
-            <p>Location: {eventData.venue}</p>
+            <p>Location: {eventData.location}</p>
 
             <h3>Package Details</h3>
             {selectedPackage ? (

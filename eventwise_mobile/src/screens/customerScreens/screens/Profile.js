@@ -1,25 +1,169 @@
 import React, { useState } from "react";
-import { View, Image, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { TextInput } from "react-native";
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Button,
+} from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
-import Header2 from "../elements/Header2";
+import Header from "../elements/Header";
 import { useNavigation } from "@react-navigation/native";
-
+import API_URL from "../../../constants/constant";
 import event1 from "../pictures/event1.png";
 import event2 from "../pictures/event2.png";
 import event3 from "../pictures/event3.png";
 import event4 from "../pictures/event4.png";
 import event5 from "../pictures/event5.png";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert } from "react-native";
 
+import { getUser } from "../../../services/authServices";
+import { getAccountProfile } from "../../../services/authServices";
+import useStore from "../../../stateManagement/useStore";
 const Profile = () => {
+  const [serviceName, setServiceName] = useState("");
+  const [description, setDescription] = useState("");
+  const [isFormVisible, setFormVisible] = useState(false);
+  // const { switchProfile } = useContext(ProfileContext);
+  const switchProfile = useStore((state) => state.switchProfile);
+  const profiles = useStore((state) => state.profiles);
+  const activeProfile = useStore((state) => state.activeProfile);
+  // const setProfiles = useStore((state) => state.setProfiles);
+  const setActiveProfile = useStore((state) => state.setActiveProfile);
+  const user = useStore((state) => state.user);
+  const setUser = useStore((state) => state.setUser);
+  const [loading, setLoading] = useState(true);
+  const accountProfiles = useStore((state) => state.accountProfiles);
+  const setAccountProfiles = useStore((state) => state.setAccountProfiles);
+  const api = axios.create({
+    baseURL: `${API_URL}/api`,
+    headers: {
+      Accept: "application/json",
+    },
+  });
+  // Axios interceptor to attach auth token
+  api.interceptors.request.use(
+    async (config) => {
+      const token = await AsyncStorage.getItem("authToken");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+  const handleCreateProfile = async () => {
+    try {
+      const response = await api.post("auth/createProfileServiceProvider", {
+        service_provider_name: serviceName,
+        description: description,
+      });
+      console.log(response);
+      Alert.alert("Success", "Service provider profile created successfully!");
+      setServiceName("");
+      setDescription("");
+      setFormVisible(false); // Hide form after successful submission
+    } catch (error) {
+      console.error("Error creating service provider profile:", error);
+      Alert.alert(
+        "Error",
+        error.response?.data?.message ||
+          "Failed to create service provider profile."
+      );
+    }
+  };
+  const handleSwitchProfile = (profile) => {
+    try {
+      // either of profiles will switch to SP
+      // setActiveProfile(profile);
+      // console.log("profile iD", activeProfile);
+
+      switchProfile(profile.role_id);
+      console.log("profile roleID ", profile.role_id);
+    } catch (error) {
+      console.error("Error switching profile:", error);
+    }
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchAccountProfile = async () => {
+        try {
+          const user = await getUser();
+          setUser(user);
+
+          const profileResponse = await getAccountProfile();
+          const profiles = profileResponse.data;
+          // console.log("prswtcherAdminCurrent user: ", user);
+
+          const filteredProfiles = profiles.filter(
+            (profile) => profile.user_id === user.id
+          );
+
+          setAccountProfiles(filteredProfiles);
+          // if (filteredProfiles.length > 0) {
+          //   setActiveProfile(filteredProfiles[0]);
+          // }
+
+          console.log("current profile", activeProfile);
+        } catch (error) {
+          console.error("Error fetching account profiles:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchAccountProfile();
+    }, [])
+  );
+
   const navigator = useNavigation();
 
   // Static dataset for events
   const events = [
-    { id: 1, name: "Event One", image: event1, location: "New York", date: "12/12/2024" },
-    { id: 2, name: "Event Two", image: event2, location: "Los Angeles", date: "01/01/2025" },
-    { id: 3, name: "Event Three", image: event3, location: "Chicago", date: "03/15/2025" },
-    { id: 4, name: "Event Four", image: event4, location: "Houston", date: "05/20/2025" },
-    { id: 5, name: "Event Five", image: event5, location: "Phoenix", date: "07/25/2025" },
+    {
+      id: 1,
+      name: "Event One",
+      image: event1,
+      location: "New York",
+      date: "12/12/2024",
+    },
+    {
+      id: 2,
+      name: "Event Two",
+      image: event2,
+      location: "Los Angeles",
+      date: "01/01/2025",
+    },
+    {
+      id: 3,
+      name: "Event Three",
+      image: event3,
+      location: "Chicago",
+      date: "03/15/2025",
+    },
+    {
+      id: 4,
+      name: "Event Four",
+      image: event4,
+      location: "Houston",
+      date: "05/20/2025",
+    },
+    {
+      id: 5,
+      name: "Event Five",
+      image: event5,
+      location: "Phoenix",
+      date: "07/25/2025",
+    },
   ];
 
   const [favorites, setFavorites] = useState([]); // State to track favorite events
@@ -35,7 +179,7 @@ const Profile = () => {
   return (
     <>
       {/* Header */}
-      <Header2 />
+      <Header />
 
       {/* Main Profile Content */}
       <View style={styles.container}>
@@ -60,10 +204,75 @@ const Profile = () => {
         </View>
 
         {/* Switch Profile Button */}
-        <TouchableOpacity style={styles.switchProfileButton}>
-          <Text style={styles.switchProfileText}>Switch Profile</Text>
-        </TouchableOpacity>
 
+        <Text style={styles.header}>Create a New Profile</Text>
+        {isFormVisible ? (
+          <View style={styles.formContainer}>
+            <Text style={styles.label}>Service Provider Name</Text>
+            <TextInput
+              style={styles.input}
+              value={serviceName}
+              onChangeText={setServiceName}
+              placeholder="Enter service provider name"
+            />
+            <Text style={styles.label}>Description</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Enter description"
+              multiline
+            />
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleCreateProfile}
+            >
+              <Text style={styles.submitButtonText}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.addProfileButton}
+            onPress={() => setFormVisible(true)}
+          >
+            <FontAwesome name="plus-circle" size={24} color="#fff" />
+            <Text style={styles.addProfileText}>Create New Profile</Text>
+          </TouchableOpacity>
+        )}
+
+        <SafeAreaView>
+          <View>
+            <Text>
+              {/* Current Account: {user ? user.name : "No User Data"}
+               */}
+              Current User: {user ? user.name : "No User Data"}
+            </Text>
+            <Text>
+              current profile:{" "}
+              {activeProfile && activeProfile === 1
+                ? "Admin"
+                : "Service Provider"}
+            </Text>
+            {accountProfiles.map((profile) => (
+              <Button
+                key={profile.role_id}
+                title={`Switch to ${profile.service_provider_name}`}
+                onPress={() => handleSwitchProfile(profile)}
+                // disabled={profile.id === 5} // Assuming service provider profile ID is 5
+              />
+            ))}
+            {/* {accountProfiles.map((profile) => (
+            <Button
+              key={profile.id}
+              title={`Delete ${profile.service_provider_name}`}
+              onPress={() => {
+                //  Implement delete profile functionality
+                console.log("Deleting profile:", profile.id);
+              }}
+            />
+          ))} */}
+          </View>
+        </SafeAreaView>
         {/* My Events Header */}
         <Text style={styles.header}>My Events</Text>
 
