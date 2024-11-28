@@ -38,6 +38,7 @@ Route::prefix('auth')->group(function () {
     Route::patch('update', [AuthenticatedSessionController::class, 'accountUpdate'])->middleware(['auth:sanctum']);
     Route::get('/me', [AuthenticatedSessionController::class, 'show'])->middleware(['auth:sanctum']);
     Route::post('switch-account', [AuthenticatedSessionController::class, 'switchAccount'])->middleware(['auth:sanctum']);
+    Route::post('/createProfileServiceProvider', [AuthenticatedSessionController::class, 'createServiceProvider'])->middleware(['auth:sanctum']);
 });
 // for email verification
 // Route::post('/verify-email', [AuthenticatedSessionController::class, 'sendVerificationEmail']);
@@ -80,7 +81,7 @@ Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class
 Route::get('/admin/events', [EventController::class, 'index']);
 Route::get('/admin/events/{id}', [EventController::class, 'showEventById']);
 Route::delete('/admin/events/{id}', [EventController::class, 'deleteEvent']);
-Route::patch('/admin/events/{event}', [EventController::class, 'updateEvent']);
+Route::put('/admin/events/{event}', [EventController::class, 'updateEvent']);
 Route::get('/events/active', [EventController::class, 'getActiveEvents']);
 Route::get('/events/archived', [EventController::class, 'getArchivedEvents']);
 Route::post('/events/{id}/archive', [EventController::class, 'archiveEvent']);

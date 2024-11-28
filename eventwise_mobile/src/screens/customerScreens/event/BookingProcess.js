@@ -10,7 +10,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import Modal from 'react-native-modal'; // If using react-native-modal
+import Modal from "react-native-modal"; // If using react-native-modal
 import { Button } from "react-native-paper";
 import { FaTrashAlt } from 'react-icons/fa';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -44,10 +44,11 @@ const BookingProcess = ({ navigation }) => {
   const [services, setServices] = useState([]);
   const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
   const [time, setTime] = useState(new Date());
-  const selectedPkg = currentPackages.find(pkg => pkg.id === selectedPackage);
+  const selectedPkg = currentPackages.find((pkg) => pkg.id === selectedPackage);
   const openServiceModal = () => setModalVisible(true);
   const closeServiceModal = () => setModalVisible(false);
-  const [confirmRemoveModalVisible, setConfirmRemoveModalVisible] = useState(false);
+  const [confirmRemoveModalVisible, setConfirmRemoveModalVisible] =
+    useState(false);
   const [selectedServiceToRemove, setSelectedServiceToRemove] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentScreen, setCurrentScreen] = useState(1);
@@ -96,7 +97,6 @@ const BookingProcess = ({ navigation }) => {
     loadPackages();
   }, [setCurrentPackages]);
 
-
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -110,30 +110,38 @@ const BookingProcess = ({ navigation }) => {
     loadServices();
   }, [setServices]);
 
-
   // CREATE EVENT FUNCTION
   const handleCreateEvent = async (values, resetForm) => {
     setIsLoading(true);
     try {
       let coverPhotoURL = null;
-  
+
       // Check if the cover photo exists and upload it to Supabase if it does
       if (values.coverPhoto) {
         const fileName = `package_cover_${Date.now()}.jpg`;
-        coverPhotoURL = await testUploadImageToSupabase(values.coverPhoto, fileName);
+        coverPhotoURL = await testUploadImageToSupabase(
+          values.coverPhoto,
+          fileName
+        );
       }
-  
+
       // Fetch existing events for the selected date
       const existingEvents = await fetchEventsByDate(values.eventDate);
-      console.log("Event date " + values.eventDate + " events: ", existingEvents);
-  
+      console.log(
+        "Event date " + values.eventDate + " events: ",
+        existingEvents
+      );
+
       // Check if the number of events for the selected date is less than 3
       if (existingEvents.length >= 3) {
-        Alert.alert("Event Limit Reached", `You cannot create more than 3 events on ${values.eventDate}.`);
+        Alert.alert(
+          "Event Limit Reached",
+          `You cannot create more than 3 events on ${values.eventDate}.`
+        );
         return;
       }
 
-      const formattedServices = selectedPkg.services.map(service => ({
+      const formattedServices = selectedPkg.services.map((service) => ({
         id: service.id,
         serviceName: service.serviceName,
         serviceCategory: service.serviceCategory,
@@ -141,18 +149,18 @@ const BookingProcess = ({ navigation }) => {
         pax: service.pax,
         requirements: service.requirements,
       }));
-      
-      console.log("Formatted Services: ", formattedServices);  // Log the formatted data
+
+      console.log("Formatted Services: ", formattedServices); // Log the formatted data
 
       // Send the data to MySQL
       const packageData = {
         packageName: selectedPkg.packageName,
         eventType: selectedPkg.eventType,
-        services: selectedPkg.services.map(service => service.id), // Avoid JSON.stringify if backend expects array
+        services: selectedPkg.services.map((service) => service.id), // Avoid JSON.stringify if backend expects array
         totalPrice: values.eventPax * selectedPkg.totalPrice,
         packagePhotoURl: coverPhotoURL || "",
-    };
-    console.log("Package Data to send: ", packageData);
+      };
+      console.log("Package Data to send: ", packageData);
 
       // Create the package first
       const createdPackage = await createPackage(packageData);
@@ -163,8 +171,8 @@ const BookingProcess = ({ navigation }) => {
         eventName: values.eventName,
         eventType: values.eventType,
         eventPax: values.eventPax,
-        eventStatus: "Tentative",              // Set event status as tentative initially
-        packages: [createdPackage.id],        // Use the newly created package's ID
+        eventStatus: "Tentative", // Set event status as tentative initially
+        packages: [createdPackage.id], // Use the newly created package's ID
         eventDate: values.eventDate,
         eventTime: values.eventTime,
         eventLocation: values.eventLocation,
@@ -187,14 +195,14 @@ const BookingProcess = ({ navigation }) => {
       console.error("Error creating event:", error);
       Alert.alert(
         "Error",
-        error.response?.data?.message || "An error occurred while creating the event. Please try again."
+        error.response?.data?.message ||
+          "An error occurred while creating the event. Please try again."
       );
     } finally {
       setIsLoading(false);
     }
-};
+  };
 
-  
   const [datesWithThreeOrMoreEvents, setDatesWithThreeOrMoreEvents] = useState(
     []
   );
@@ -282,38 +290,37 @@ const BookingProcess = ({ navigation }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
 
-
   return (
     <>
       <Header />
       <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
           <Formik
-             initialValues={{
-            eventName: "",
-            eventType: "",
-            eventPax: "",
-            currentPackages: [],
-            eventDate: "",
-            eventTime: "",
-            eventLocation: "",
-            description: "",
-            coverPhoto: null,
-            guests: [{ GuestName: "", email: "" }],
-          }}
-          validationSchema={validationSchema}
-          onSubmit={(values, { resetForm }) => {
-            handleCreateEvent(values, resetForm);
-          }}
-        >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            setFieldValue,
-            errors,
-            touched,
+            initialValues={{
+              eventName: "",
+              eventType: "",
+              eventPax: "",
+              currentPackages: [],
+              eventDate: "",
+              eventTime: "",
+              eventLocation: "",
+              description: "",
+              coverPhoto: null,
+              guests: [{ GuestName: "", email: "" }],
+            }}
+            validationSchema={validationSchema}
+            onSubmit={(values, { resetForm }) => {
+              handleCreateEvent(values, resetForm);
+            }}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              setFieldValue,
+              errors,
+              touched,
             }) => (
               <View style={[styles.form, { paddingBottom: 100 }]}>
 
@@ -365,7 +372,9 @@ const BookingProcess = ({ navigation }) => {
 
 
                     <RNPickerSelect
-                      onValueChange={(value) => setFieldValue("eventType", value)}
+                      onValueChange={(value) =>
+                        setFieldValue("eventType", value)
+                      }
                       items={[
                         { label: "Wedding", value: "Wedding" },
                         { label: "Birthday", value: "Birthday" },
@@ -400,7 +409,9 @@ const BookingProcess = ({ navigation }) => {
                     <TouchableOpacity onPress={() => setShowCalendar(true)}>
                       <Text style={styles.datePicker}>
                         {selectedDate
-                          ? `Selected Date: ${selectedDate.toISOString().split("T")[0]}`
+                          ? `Selected Date: ${
+                              selectedDate.toISOString().split("T")[0]
+                            }`
                           : "Pick an Event Date"}
                       </Text>
                     </TouchableOpacity>
@@ -452,7 +463,9 @@ const BookingProcess = ({ navigation }) => {
 
                     <TouchableOpacity onPress={() => setShowTimePicker(true)}>
                       <Text style={styles.datePicker}>
-                        {values.eventTime ? values.eventTime : "Select Event Time"}
+                        {values.eventTime
+                          ? values.eventTime
+                          : "Select Event Time"}
                       </Text>
                     </TouchableOpacity>
                     {showTimePicker && (
@@ -464,10 +477,11 @@ const BookingProcess = ({ navigation }) => {
                           setShowTimePicker(false);
                           if (selectedTime) {
                             setTime(selectedTime);
-                            const formattedTime = selectedTime.toLocaleTimeString("en-US", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            });
+                            const formattedTime =
+                              selectedTime.toLocaleTimeString("en-US", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              });
                             setFieldValue("eventTime", formattedTime);
                           }
                         }}
@@ -492,7 +506,9 @@ const BookingProcess = ({ navigation }) => {
                     value={values.eventLocation}
                   />
                     {touched.eventLocation && errors.eventLocation && (
-                      <Text style={styles.errorText}>{errors.eventLocation}</Text>
+                      <Text style={styles.errorText}>
+                        {errors.eventLocation}
+                      </Text>
                     )}
 
                     <TextInput
@@ -514,8 +530,6 @@ const BookingProcess = ({ navigation }) => {
                     {touched.description && errors.description && (
                       <Text style={styles.errorText}>{errors.description}</Text>
                     )}
-
-               
 
                     <Button
                       mode="contained"
@@ -608,14 +622,14 @@ const BookingProcess = ({ navigation }) => {
           <Text style={styles.packageType}>Type: {selectedPkg.eventType}</Text>
           <Text style={styles.packagePrice}>Price: ₱{selectedPkg.totalPrice}</Text>
 
-          {/* Log selected package details */}
-          {console.log("Selected Package Details:", {
-            id: selectedPkg.id,
-            name: selectedPkg.packageName,
-            type: selectedPkg.eventType,
-            price: selectedPkg.totalPrice,
-            services: selectedPkg.services
-          })}
+                          {/* Log selected package details */}
+                          {console.log("Selected Package Details:", {
+                            id: selectedPkg.id,
+                            name: selectedPkg.packageName,
+                            type: selectedPkg.eventType,
+                            price: selectedPkg.totalPrice,
+                            services: selectedPkg.services,
+                          })}
 
           {/* Services for the package */}
           <Text style={styles.serviceInclusions}>Service Inclusions</Text>
@@ -627,34 +641,36 @@ const BookingProcess = ({ navigation }) => {
                 <Text style={styles.serviceCategory}>Category: {service.serviceCategory}</Text>
                 <Text style={styles.serviceFeature}>Feature: {service.serviceFeatures}</Text>
 
-                {/* Log each service */}
-                {console.log("Service Details:", {
-                  serviceId: service.id,
-                  serviceName: service.serviceName,
-                  category: service.serviceCategory,
-                  feature: service.serviceFeatures
-                })}
+                                {/* Log each service */}
+                                {console.log("Service Details:", {
+                                  serviceId: service.id,
+                                  serviceName: service.serviceName,
+                                  category: service.serviceCategory,
+                                  feature: service.serviceFeatures,
+                                })}
 
-                {/* Remove Service Button */}
-                <TouchableOpacity
-                  onPress={() => {
-                    setSelectedServiceToRemove(service);
-                    setConfirmRemoveModalVisible(true);
-                  }}
-                  style={styles.removeButton}
-                >
-                  <Text style={styles.removeButtonText}>X</Text>
-                </TouchableOpacity>
-              </View>
-            ))
-          ) : (
-            <Text style={styles.noServicesText}>No services available for this package.</Text>
-          )}
-        </>
-      ) : (
-        <Text>Package not found.</Text>
-      )}
-    </View>
+                                {/* Remove Service Button */}
+                                <TouchableOpacity
+                                  onPress={() => {
+                                    setSelectedServiceToRemove(service);
+                                    setConfirmRemoveModalVisible(true);
+                                  }}
+                                  style={styles.removeButton}
+                                >
+                                  <Text style={styles.removeButtonText}>X</Text>
+                                </TouchableOpacity>
+                              </View>
+                            ))
+                          ) : (
+                            <Text style={styles.noServicesText}>
+                              No services available for this package.
+                            </Text>
+                          )}
+                        </>
+                      ) : (
+                        <Text>Package not found.</Text>
+                      )}
+                    </View>
 
     {/* Add Service Button */}
     <Button mode="contained" onPress={openServiceModal}
@@ -744,38 +760,54 @@ const BookingProcess = ({ navigation }) => {
 
     )}
 
-    {/* Remove Service Confirmation Modal */}
-    {confirmRemoveModalVisible && (
-      <Modal
-        isVisible={confirmRemoveModalVisible}
-        onBackdropPress={() => setConfirmRemoveModalVisible(false)}
-        onBackButtonPress={() => setConfirmRemoveModalVisible(false)}
-        animationIn="fadeIn"
-        animationOut="fadeOut"
-      >
-        <View style={styles.modalContainerConfirm}>
-          <Text style={styles.modalTitle}>Are you sure you want to remove this service?</Text>
-          <Text style={styles.serviceName}>{selectedServiceToRemove?.serviceName}</Text>
+                    {/* Remove Service Confirmation Modal */}
+                    {confirmRemoveModalVisible && (
+                      <Modal
+                        isVisible={confirmRemoveModalVisible}
+                        onBackdropPress={() =>
+                          setConfirmRemoveModalVisible(false)
+                        }
+                        onBackButtonPress={() =>
+                          setConfirmRemoveModalVisible(false)
+                        }
+                        animationIn="fadeIn"
+                        animationOut="fadeOut"
+                      >
+                        <View style={styles.modalContainerConfirm}>
+                          <Text style={styles.modalTitle}>
+                            Are you sure you want to remove this service?
+                          </Text>
+                          <Text style={styles.serviceName}>
+                            {selectedServiceToRemove?.serviceName}
+                          </Text>
 
-          <View style={styles.modalActions}>
-            <Button
-              mode="contained"
-              onPress={() => {
-                // Ensure you're filtering by ID or another unique identifier for object comparison
-                const updatedServices = selectedPkg.services.filter(
-                  service => service.id !== selectedServiceToRemove.id
-                );
+                          <View style={styles.modalActions}>
+                            <Button
+                              mode="contained"
+                              onPress={() => {
+                                // Ensure you're filtering by ID or another unique identifier for object comparison
+                                const updatedServices =
+                                  selectedPkg.services.filter(
+                                    (service) =>
+                                      service.id !== selectedServiceToRemove.id
+                                  );
 
-                // Log the updated service list after removal
-                console.log("Package updated after service removal:", {
-                  packageId: selectedPkg.id,
-                  updatedServices: updatedServices
-                });
+                                // Log the updated service list after removal
+                                console.log(
+                                  "Package updated after service removal:",
+                                  {
+                                    packageId: selectedPkg.id,
+                                    updatedServices: updatedServices,
+                                  }
+                                );
 
-                // Clone the currentPackages and update the selected package
-                const updatedPackages = currentPackages.map(pkg =>
-                  pkg.id === selectedPkg.id ? { ...pkg, services: updatedServices } : pkg
-                );
+                                // Clone the currentPackages and update the selected package
+                                const updatedPackages = currentPackages.map(
+                                  (pkg) =>
+                                    pkg.id === selectedPkg.id
+                                      ? { ...pkg, services: updatedServices }
+                                      : pkg
+                                );
 
                 // Update the state with the new package list
                 setCurrentPackages(updatedPackages);
@@ -957,7 +989,6 @@ const BookingProcess = ({ navigation }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
 
   servicePhotoContainer: {
@@ -1043,20 +1074,20 @@ const styles = StyleSheet.create({
   },
  
   modalContainerConfirm: {
-    backgroundColor: 'white', // White background for the modal
+    backgroundColor: "white", // White background for the modal
     borderRadius: 10, // Optional: adds rounded corners
     padding: 20, // Padding inside the modal
-    maxHeight: '20%', // Restricts the height to 80% of the screen height
-    justifyContent: 'center', // Centers the content vertically
+    maxHeight: "20%", // Restricts the height to 80% of the screen height
+    justifyContent: "center", // Centers the content vertically
     elevation: 10, // Adds shadow on Android
-    shadowColor: '#000', // Shadow color on iOS
+    shadowColor: "#000", // Shadow color on iOS
     shadowOpacity: 0.1, // Shadow opacity on iOS
     shadowRadius: 5, // Shadow radius on iOS
-    position: 'absolute', // Make sure it's on top of the screen
-    top: '40%',          // Adjust the top and bottom position if necessary
-    left: '10%',         // Center horizontally
-    right: '10%',
-    bottom: '10%',       
+    position: "absolute", // Make sure it's on top of the screen
+    top: "40%", // Adjust the top and bottom position if necessary
+    left: "10%", // Center horizontally
+    right: "10%",
+    bottom: "10%",
     zIndex: 9999, // Ensure the modal is always on top of other content
   },
   modalContainer: {
@@ -1187,7 +1218,7 @@ const styles = StyleSheet.create({
   },
   serviceInclusions: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: 20,
     marginBottom: 10,
   },
@@ -1202,7 +1233,7 @@ const styles = StyleSheet.create({
   },
   serviceCategory: {
     fontSize: 12,
-    color: 'gray',
+    color: "gray",
   },
   serviceFeature: {
     fontSize: 12,
@@ -1210,49 +1241,54 @@ const styles = StyleSheet.create({
   },
   noServicesText: {
     fontSize: 14,
-    color: 'gray',
+    color: "gray",
   },
+  serviceContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    marginBottom: 10,
+    position: "relative", // For positioning the remove button
+  },
+  removeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "transparent", // No background color
+    padding: 5,
+  },
+
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  trashIcon: {
+    fontSize: 20,
+    color: "red",
+  },
+  packageDetails: { marginBottom: 20 },
   serviceContainer: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
     marginBottom: 10,
-    position: 'relative',  // For positioning the remove button
+    position: 'relative',
   },
-  removeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'transparent', // No background color
-    padding: 5,
-  },
-  
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-
-  trashIcon: {
-    fontSize: 20,
-    color: 'red',
-  },
-  packageDetails: { marginBottom: 20 },
-
 
   confirmRemoveModal: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
-  serviceItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd' },
- searchInput: {
+  serviceItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: "#ddd" },
+  searchInput: {
     height: 40,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 4,
     paddingLeft: 10,
     marginTop: 10,
   },
-
 });
 
 export default BookingProcess;

@@ -115,7 +115,7 @@ const EventAdmin = () => {
     }
   }, [setCurrentEvents]);
   return (
-    <SafeAreaView style={[{ paddingBottom: 100 }]}>
+    <SafeAreaView style={[styles.container, { paddingBottom: 80 }]}>
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -151,6 +151,7 @@ const EventAdmin = () => {
           />
         </View>
         <PackageManager />
+        {/* #TODO organize based on package type.  */}
         <View style={[]}>
           <FlatList
             data={currentPackages}

@@ -21,7 +21,7 @@ import * as ImageManipulator from "expo-image-manipulator";
 import RNPickerSelect from "react-native-picker-select";
 import { MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import selectimage from "../../../../../assets/selectimage.png";
+import selectimage from "../pictures/selectimage.png";
 
 import { fetchServices } from "../../../../services/organizer/adminPackageServices";
 
@@ -30,16 +30,14 @@ import {
   createPackage,
   fetchEvents,
 } from "../../../../services/organizer/adminEventServices";
-// import { fetchPackages } from "../../../services/organizer/adminPackageServices";
-import { fetchPackages } from "../../../../services/organizer/adminPackageServices";
-// import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
+import { fetchPackages } from "../../../services/organizer/adminPackageServices";
 import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import CalendarPicker from "react-native-calendar-picker";
-
+import Header from "../elements/Header";
 import { fetchEventsByDate } from "../../../../services/organizer/adminEventServices";
 
-const CreateEventScreen = ({ navigation }) => {
+const BookingProcess = ({ navigation }) => {
   const [imageUri, setImageUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPackages, setCurrentPackages] = useState([]);
@@ -158,7 +156,7 @@ const CreateEventScreen = ({ navigation }) => {
       const packageData = {
         packageName: selectedPkg.packageName,
         eventType: selectedPkg.eventType,
-        packageType: false,
+        packageType: 0,
         services: selectedPkg.services.map((service) => service.id), // Avoid JSON.stringify if backend expects array
         totalPrice: values.eventPax * selectedPkg.totalPrice,
         packagePhotoURl: coverPhotoURL || "",
@@ -295,6 +293,7 @@ const CreateEventScreen = ({ navigation }) => {
 
   return (
     <>
+      <Header />
       <View style={styles.container}>
         <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
           <Formik
@@ -1424,4 +1423,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateEventScreen;
+export default BookingProcess;

@@ -1,6 +1,4 @@
-// src/screens/PackageCardDetailsScreen.js
-import { useState } from "react";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,25 +8,19 @@ import {
   Image,
 } from "react-native";
 import { fetchPackageServiceDetails } from "../../../../services/organizer/adminPackageServices";
-import { useEffect } from "react";
+
 const PackageCardDetails = ({ route, navigation }) => {
   const { packageData } = route.params; // Retrieve the package data passed through navigation
   const [serviceDetails, setServiceDetails] = useState([]);
+
+  console.log("packageData:", packageData);
+
+  // Handle loading state when packageData is not available
   if (!packageData) {
-    // Handle the case when packageData is undefined
     return <Text>Loading...</Text>;
   }
-  // useEffect(() => {
-  //   const fetchDetails = async () => {
-  //     if (packageData) {
-  //       const details = await fetchPackageServiceDetails(packageData.id);
-  //       setServiceDetails(details);
-  //       setLoading(false);
-  //       console.log("Service Details: ", details);
-  //     }
-  //   };
-  //   fetchDetails();
-  // }, [packageData]);
+
+  // Fetch package service details
   useEffect(() => {
     const fetchDetails = async () => {
       try {
@@ -37,7 +29,7 @@ const PackageCardDetails = ({ route, navigation }) => {
           setServiceDetails(details);
         }
       } catch (error) {
-        console.log("Error fetching package service details: ", error);
+        console.error("Error fetching package service details: ", error);
       }
     };
     fetchDetails();
@@ -52,6 +44,7 @@ const PackageCardDetails = ({ route, navigation }) => {
           style={styles.coverPhoto}
         />
 
+        {/* Displaying package details */}
         <Text style={styles.title}>{packageData?.packageName}</Text>
         <Text style={styles.eventType}>
           Event Type: {packageData?.eventType}
@@ -60,27 +53,50 @@ const PackageCardDetails = ({ route, navigation }) => {
           Total Price: ₱{packageData?.totalPrice}
         </Text>
 
+        {/* Package Services Section */}
         <Text style={styles.sectionTitle}>Package Services:</Text>
-        {serviceDetails.map((service, index) => (
-          <View key={index} style={styles.serviceContainer}>
-            <Text style={styles.serviceName}>{service.serviceName}</Text>
-            <Text style={styles.serviceCategory}>
-              Category: {service.serviceCategory}
-            </Text>
-            <Text style={styles.servicePrice}>Price: ₱{service.basePrice}</Text>
-            <Text style={styles.serviceFeatures}>
-              Features: {service.serviceFeatures.join(", ")}
-            </Text>
-          </View>
-        ))}
+        {serviceDetails.length > 0 ? (
+          serviceDetails.map((service, index) => (
+            <View key={index} style={styles.serviceContainer}>
+              <Image
+                source={{ uri: service?.servicePhotoURL }}
+                style={styles.serviceImage}
+              />
+              <Text style={styles.serviceName}>{service?.serviceName}</Text>
+              <Text style={styles.serviceCategory}>
+                Category: {service?.serviceCategory}
+              </Text>
+              <Text style={styles.servicePrice}>
+                Price: ₱{service?.basePrice}
+              </Text>
+              <Text style={styles.serviceLocation}>
+                Location: {service?.location}
+              </Text>
+              <Text style={styles.serviceRequirements}>
+                Requirements: {service?.requirements}
+              </Text>
+              <Text style={styles.serviceFeatures}>
+                Features: {service?.serviceFeatures?.join(", ")}
+              </Text>
+            </View>
+          ))
+        ) : (
+          <Text>No services available for this package.</Text>
+        )}
+
+        {/* Created At and Last Updated */}
         <Text style={styles.sectionTitle}>Created At:</Text>
         <Text style={styles.createdAt}>
-          {new Date(packageData?.created_at).toLocaleString()}
+          {packageData?.created_at
+            ? new Date(packageData?.created_at).toLocaleString()
+            : "Not available"}
         </Text>
 
         <Text style={styles.sectionTitle}>Last Updated:</Text>
         <Text style={styles.updatedAt}>
-          {new Date(packageData?.updated_at).toLocaleString()}
+          {packageData?.updated_at
+            ? new Date(packageData?.updated_at).toLocaleString()
+            : "Not available"}
         </Text>
 
         {/* Edit Button */}
@@ -137,13 +153,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#ff9900",
-    marginBottom: 10,
-  },
-  services: {
-    fontSize: 16,
-    color: "#555",
     marginBottom: 20,
-    lineHeight: 22,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
   },
   createdAt: {
     fontSize: 16,
@@ -161,7 +177,8 @@ const styles = StyleSheet.create({
   },
   editButton: {
     backgroundColor: "#ff9900",
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
     borderRadius: 5,
     marginTop: 20,
     alignItems: "center",
@@ -174,7 +191,7 @@ const styles = StyleSheet.create({
   },
   serviceContainer: {
     marginBottom: 20,
-    padding: 10,
+    padding: 15,
     backgroundColor: "#f9f9f9",
     borderRadius: 5,
     shadowColor: "#000",
@@ -187,18 +204,37 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#333",
+    marginBottom: 5,
   },
   serviceCategory: {
     fontSize: 14,
     color: "#666",
+    marginBottom: 5,
   },
   servicePrice: {
     fontSize: 14,
     color: "#666",
+    marginBottom: 5,
+  },
+  serviceLocation: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 5,
+  },
+  serviceRequirements: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 5,
   },
   serviceFeatures: {
     fontSize: 14,
     color: "#666",
+  },
+  serviceImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 10,
   },
 });
 

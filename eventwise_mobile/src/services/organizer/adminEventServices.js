@@ -81,7 +81,10 @@ const fetchEventsByUserId = async (userId) => {
     console.log("Fetched events by user_id: ", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching events by user_id:", error.response?.data || error.message);
+    console.error(
+      "Error fetching events by user_id:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
@@ -135,6 +138,7 @@ const createPackage = async (packageData) => {
 
     const addPackageData = {
       packageName: packageData.packageName,
+      packageType: packageData.packageType,
       eventType: packageData.eventType,
       services: servicesArray, // Pass as an array
       totalPrice: packageData.totalPrice,
