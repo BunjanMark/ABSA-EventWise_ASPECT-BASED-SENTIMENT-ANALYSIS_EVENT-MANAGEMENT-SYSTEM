@@ -177,6 +177,26 @@ public function store(Request $request)
             
         }
 
+        foreach ($validatedData['packages'] as $packageId) {
+            $package = Package::find($packageId);
+            $services = json_decode($package->services, true);
+        
+            foreach ($services as $serviceId) {
+                $service = Service::find($serviceId);
+                $serviceProvider = User::find($service->user_id);
+        
+                // Insert into event_services_providers table
+                DB::table('event_services_providers')->insert([
+                    'event_id' => $event->id,
+                    'package_id' => $packageId,
+                    'service_id' => $serviceId,
+                    'user_id' => $serviceProvider->id,
+                    'service_provider_name' => $serviceProvider->name,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
         // Return the created event along with its associated package and user
         return response()->json([$event->load('package'), $user,  'guests' => Guest::where('event_id', $event->id)->get(),  "my services" => $serviceProviders], 201); // Include package in response
     } catch (\Illuminate\Validation\ValidationException $e) {
