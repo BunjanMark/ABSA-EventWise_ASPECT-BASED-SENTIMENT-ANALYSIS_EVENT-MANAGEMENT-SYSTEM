@@ -24,7 +24,7 @@ const EventDetails = ({ route }) => {
       <Text style={styles.title}>{event?.title}</Text>
 
       {/* Event Type */}
-      <Text style={styles.text}>Event Type: {event?.eventType}</Text>
+      <Text style={styles.text}>Event Types: {event?.eventType}</Text>
 
       {/* Event Date and Time */}
       <Text style={styles.text}>Date: {event?.eventDate}</Text>

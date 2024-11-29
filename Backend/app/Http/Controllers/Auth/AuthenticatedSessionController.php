@@ -14,6 +14,7 @@ use App\Http\Requests\UserStoreRequest;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmailVerification;
 use Illuminate\Support\Str;
+use App\Models\AccountRole;
 use App\Events\SendExpoTokenEvent;
 
 class AuthenticatedSessionController extends Controller
@@ -21,6 +22,8 @@ class AuthenticatedSessionController extends Controller
     public function __construct(){
         $this->model = new User();
     }
+
+    
     public function loginAccount(LoginRequest $request)
 {
     try {
@@ -55,6 +58,7 @@ class AuthenticatedSessionController extends Controller
         return response()->json(['message' => $th->getMessage()], 500);
     }
 }
+
     public function logout(Request $request)
 {
     if (!Auth::check()) {
@@ -65,6 +69,37 @@ class AuthenticatedSessionController extends Controller
         $request->user()->tokens()->delete();
         Auth::logout();
         return response()->json(['message' => 'Logged out successfully']);
+    } catch (\Throwable $th) {
+        return response()->json(['message' => $th->getMessage()], 500);
+    }
+}
+public function createServiceProvider(Request $request)
+{
+    try {
+        // Get the authenticated user's ID
+        $userId = Auth::id();
+
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'service_provider_name' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        // Create a new account role record with role_id set to 3 (Service Provider)
+        $accountRole = AccountRole::create([
+            'user_id' => $userId,
+            'role_id' => 3, // Set role_id to 3 for Service Provider
+            'service_provider_name' => $validatedData['service_provider_name'],
+            'description' => $validatedData['description'],
+        ]);
+
+        // // Create a profile for the service provider
+        // $profile = ServiceProviderProfile::create([
+        //     'account_role_id' => $accountRole->id,
+        // ]);
+
+        // Return the created service provider profile
+        return response()->json($accountRole, 201);
     } catch (\Throwable $th) {
         return response()->json(['message' => $th->getMessage()], 500);
     }
