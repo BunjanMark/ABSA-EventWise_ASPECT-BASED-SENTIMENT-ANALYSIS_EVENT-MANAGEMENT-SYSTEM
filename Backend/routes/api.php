@@ -90,6 +90,9 @@ Route::get('/admin/events/by-date/{date}', [EventController::class, 'fetchEvents
 Route::post('/admin/events/{id}/restore', [EventController::class, 'restoreEvent']);
 Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEventPackages']);
 
+// Route::get('/admin/events', [EventController::class, 'getEvents']);
+
+
 Route::get('/guest', [GuestController::class, 'index']);
 Route::get('guest/{eventid}', [GuestController::class, 'getGuestByEvent']);
 Route::put('/guest/{id}', [GuestController::class, 'update']);
@@ -101,7 +104,7 @@ Route::get('/notifications', [NotificationController::class, 'index']);
 Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
 
-
+Route::get('/events-by-service/{userId}', [EventController::class, 'getEventsByService']);
 
 
 

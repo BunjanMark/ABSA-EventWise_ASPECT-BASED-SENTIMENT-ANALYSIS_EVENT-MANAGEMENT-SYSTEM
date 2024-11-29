@@ -32,6 +32,7 @@
     "dotenv": "^16.4.5",
     "eas-cli": "^13.3.0",
     "expo": "~51.0.28",
+    "expo-av": "~14.0.7",
     "expo-constants": "~16.0.2",
     "expo-device": "~6.0.2",
     "expo-image-manipulator": "^12.0.5",
@@ -41,6 +42,7 @@
     "expo-status-bar": "~1.12.1",
     "formik": "^2.4.6",
     "global": "^4.4.0",
+    "jwt-decode": "^4.0.0",
     "laravel-echo": "^1.17.0",
     "radio-buttons-react-native": "^1.0.4",
     "react": "^18.2.0",
@@ -84,8 +86,7 @@
     "redux": "^5.0.1",
     "victory-native": "^37.1.2",
     "yup": "^1.4.0",
-    "zustand": "^4.5.4",
-    "expo-av": "~14.0.7"
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

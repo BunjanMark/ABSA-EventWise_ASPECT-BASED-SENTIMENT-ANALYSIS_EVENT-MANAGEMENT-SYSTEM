@@ -398,21 +398,18 @@ public function showEventById($eventId)
         }
     }
 
-
-
-// In your EventController.php
-public function getEventsByUserId($userId)
+    public function getEvents(Request $request)
 {
-    try {
-        $events = Event::where('user_id', $userId)->get(); // Use $userId directly
-        return response()->json($events, 200);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Failed to fetch events'], 500);
+    $userId = $request->query('user_id');
+
+    if (!$userId) {
+        return response()->json(['error' => 'User ID is required'], 400);
     }
+
+    $events = Event::where('user_id', $userId)->get();
+    return response()->json($events);
 }
 
-
-
-
+    
     
 }

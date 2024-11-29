@@ -21,6 +21,13 @@ const GuestList = () => {
   const [visible, setVisible] = useState(false); // For dropdown visibility
   const [guestForDropdown, setGuestForDropdown] = useState(null); // Track selected guest for the dropdown
   const [deleteModalVisible, setDeleteModalVisible] = useState(false); // For deletion confirmation modal
+  const [newGuestName, setNewGuestName] = useState(''); // State for new guest details
+  const [addGuestModalVisible, setAddGuestModalVisible] = useState(false); // Modal for adding a guest
+  const [newEmail, setNewEmail] = useState('');
+  const [newPhone, setNewPhone] = useState('');
+  const [newRole, setNewRole] = useState('');
+
+
 
   useEffect(() => {
     const fetchGuests = async () => {
@@ -35,6 +42,29 @@ const GuestList = () => {
 
     fetchGuests();
   }, [eventid]);
+  
+  const handleAddGuest = async () => {
+    try {
+      const response = await axios.post(`${API_URL}/api/guest`, {
+        GuestName: newGuestName,
+        email: newEmail,
+        phone: newPhone,
+        role: newRole,
+        eventId: eventid,
+      });
+
+      if (response.status === 201) {
+        setGuests((prevGuests) => [...prevGuests, response.data]);
+        setAddGuestModalVisible(false);
+        setNewGuestName('');
+        setNewEmail('');
+        setNewPhone('');
+        setNewRole('');
+      }
+    } catch (error) {
+      console.error('Error adding new guest:', error);
+    }
+  };
 
   const handleUpdateGuest = async () => {
     try {
@@ -223,6 +253,57 @@ const GuestList = () => {
           </Button>
         </View>
       </Modal>
+      
+ <Button
+        mode="contained"
+        style={styles.addGuestButton}
+        onPress={() => setAddGuestModalVisible(true)}
+      >
+        Add Guest
+      </Button>
+      <Modal
+        isVisible={addGuestModalVisible}
+        onBackdropPress={() => setAddGuestModalVisible(false)}
+        animationIn="fadeIn"
+        animationOut="fadeOut"
+        backdropOpacity={0.7}
+      >
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Add New Guest</Text>
+          <TextInput
+            label="Guest Name"
+            value={newGuestName}
+            onChangeText={setNewGuestName}
+            style={styles.input}
+          />
+          <TextInput
+            label="Email"
+            value={newEmail}
+            onChangeText={setNewEmail}
+            style={styles.input}
+          />
+          <TextInput
+            label="Phone"
+            value={newPhone}
+            onChangeText={setNewPhone}
+            style={styles.input}
+          />
+          <TextInput
+            label="Role"
+            value={newRole}
+            onChangeText={setNewRole}
+            style={styles.input}
+          />
+          <Button
+            mode="contained"
+            style={styles.updateButton}
+            onPress={handleAddGuest}
+          >
+            Add Guest
+          </Button>
+        </View>
+      </Modal>
+
     </>
   );
 };
@@ -314,6 +395,11 @@ const styles = StyleSheet.create({
     color: '#777',
     textAlign: 'center',
   },
+  addGuestButton: {
+    margin: 20,
+    backgroundColor: '#eeba2b',
+  },
+  
 });
 
 export default GuestList; 

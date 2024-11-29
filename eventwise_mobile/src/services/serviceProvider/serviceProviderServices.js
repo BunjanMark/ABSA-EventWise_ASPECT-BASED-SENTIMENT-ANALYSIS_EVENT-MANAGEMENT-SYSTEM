@@ -27,6 +27,26 @@ api.interceptors.request.use(
   }
 );
 
+
+
+const fetchEventsByService = async () => {
+  try {
+    // Retrieve userId from AsyncStorage
+    const userId = await AsyncStorage.getItem('userId');
+    
+    if (!userId) {
+      throw new Error("User ID is missing.");
+    }
+
+    const response = await api.get(`/events-by-service/${userId}`);
+    console.log("Fetched events by service:", response.data);
+    return response.data; // Returning the fetched events data
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+};
+
 // Function to create a new service
 const createService = async (serviceData) => {
   try {
@@ -112,10 +132,13 @@ const fetchMyServices = async () => {
   }
 };
 
+
+
 export {
   fetchMyServices,
   createService,
   updateService,
   deleteService,
   fetchServices,
+  fetchEventsByService,
 };

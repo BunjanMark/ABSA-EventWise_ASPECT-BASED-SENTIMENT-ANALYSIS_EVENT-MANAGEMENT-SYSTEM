@@ -54,7 +54,7 @@ const BookingProcess = ({ navigation }) => {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [numberOfGuests, setNumberOfGuests] = React.useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const guestsPerPage = 20; // Maximum guests per page
+  const guestsPerPage = 5;
   const [focusedInput, setFocusedInput] = useState(null);
 
 

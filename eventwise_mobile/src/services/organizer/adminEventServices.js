@@ -24,6 +24,19 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+// function to fetch all the events
+
+const fetchEvents = async () => {
+  try {
+    const response = await api.get("/admin/events");
+    console.log("fetched events: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+};
 // function to fetch all the events based on the date
 const fetchEventsByDate1 = async (date) => {
   try {
@@ -62,18 +75,7 @@ const fetchEventsByDate = async (date) => {
   }
 };
 
-// function to fetch all the events
 
-const fetchEvents = async () => {
-  try {
-    const response = await api.get("/admin/events");
-    console.log("fetched events: ", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching events:", error);
-    throw error;
-  }
-};
 
 const fetchEventsByUserId = async (userId) => {
   try {
