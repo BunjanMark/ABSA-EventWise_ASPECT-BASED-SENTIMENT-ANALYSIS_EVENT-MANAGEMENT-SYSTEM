@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Events\EventCreatedEvent;
 use App\Models\AccountRole;
 use App\Notifications\EventScheduleNotice;
+use App\Events\EventCreatedApprovedEvent;
 class EventController extends Controller
 {
     //Add a method to fetch all events
@@ -522,9 +523,12 @@ public function getServiceProviederName($eventId, $userId)
                 return response()->json(['error' => 'Event not found'], 404);
             }
 
+            // Update the event status to 'scheduled'
             $event->update(['status' => 'scheduled']);
 
-            // return response()->json(['message' => 'Event status updated successfully'], 200);
+            // Dispatch the EventCreatedApprovedEvent
+            EventCreatedApprovedEvent::dispatch($event);
+
             return response()->json(['message' => 'Booking approved! Your event is now scheduled!'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

@@ -104,6 +104,37 @@ public function createServiceProvider(Request $request)
         return response()->json(['message' => $th->getMessage()], 500);
     }
 }
+public function createCustomer(Request $request)
+{
+    try {
+        // Get the authenticated user's ID
+        $userId = Auth::id();
+
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'service_provider_name' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        // Create a new account role record with role_id set to 3 (Service Provider)
+        $accountRole = AccountRole::create([
+            'user_id' => $userId,
+            'role_id' => 2, // Set role_id to 3 for Customer
+            'service_provider_name' => $validatedData['service_provider_name'],
+            'description' => $validatedData['description'],
+        ]);
+
+        // // Create a profile for the service provider
+        // $profile = ServiceProviderProfile::create([
+        //     'account_role_id' => $accountRole->id,
+        // ]);
+
+        // Return the created service provider profile
+        return response()->json($accountRole, 201);
+    } catch (\Throwable $th) {
+        return response()->json(['message' => $th->getMessage()], 500);
+    }
+}
     // public function logout(Request $request)
     // {
     //     try {

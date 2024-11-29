@@ -143,6 +143,11 @@ const AuthenticationStack = () => {
         component={ServiceProviderStack}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="CustomServiceProviderStack"
+        component={CustomServiceProviderStack}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
@@ -336,6 +341,65 @@ const CustomCustomerStack = () => {
     </Stack.Navigator>
   );
 };
+const CustomServiceProviderStack = () => {
+  LogBox.ignoreAllLogs();
+
+  // const { profiles, loading, activeProfile } = useContext(ProfileContext);
+  const profiles = useStore((state) => state.profiles);
+  const activeProfile = useStore((state) => state.activeProfile);
+  const loading = useStore((state) => state.loading);
+  const setProfiles = useStore((state) => state.setProfiles);
+  const setActiveProfile = useStore((state) => state.setActiveProfile);
+  const setLoading = useStore((state) => state.setLoading);
+  const navigation = useNavigation();
+  useEffect(() => {
+    // console.log("Loading:", loading, "Role ID:", profiles.id);
+
+    // console.log("active profile nav: ", activeProfile.role_id);
+    // console.log("profile: nav", profiles[0].role_id);
+    if (!loading) {
+      if (activeProfile === 3) {
+        console.log("Navigating to ServiceProviderStack");
+        navigation.navigate("ServiceProviderStack");
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "ServiceProviderStack" }],
+        });
+      } else {
+        console.log("Navigating to CustomerStack");
+        navigation.navigate("CustomerStack");
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "CustomerStack" }],
+        });
+      }
+    }
+  }, [activeProfile, loading, navigation]);
+
+  if (loading) {
+    return <ActivityIndicator />;
+  }
+
+  return (
+    <Stack.Navigator
+      initialRouteName={
+        activeProfile === 3 ? "CustomerStack" : "ServiceProviderStack"
+      }
+    >
+      <Stack.Screen
+        name="CustomerStack"
+        component={CustomerStack}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ServiceProviderStack"
+        component={ServiceProviderStack}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+
 // ServiceProvider StacK
 
 function ServiceProviderStack() {

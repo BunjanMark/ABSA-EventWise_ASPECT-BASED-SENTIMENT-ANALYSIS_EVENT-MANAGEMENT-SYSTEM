@@ -40,6 +40,7 @@ Route::prefix('auth')->group(function () {
     Route::get('/me', [AuthenticatedSessionController::class, 'show'])->middleware(['auth:sanctum']);
     Route::post('switch-account', [AuthenticatedSessionController::class, 'switchAccount'])->middleware(['auth:sanctum']);
     Route::post('/createProfileServiceProvider', [AuthenticatedSessionController::class, 'createServiceProvider'])->middleware(['auth:sanctum']);
+    Route::post('/createProfileCustomer', [AuthenticatedSessionController::class, 'createCustomer'])->middleware(['auth:sanctum']);
 });
 // for email verification
 // Route::post('/verify-email', [AuthenticatedSessionController::class, 'sendVerificationEmail']);

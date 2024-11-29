@@ -11,11 +11,10 @@ import {
 } from "react-native";
 import { formatDistanceToNow } from "date-fns";
 import * as Notifications from "expo-notifications"; // Import Expo Notifications
-
 import {
   fetchNotifications,
   markNotificationAsRead,
-} from "../../../services/organizer/adminNotificationServices";
+} from "../../../../services/organizer/adminNotificationServices";
 import { RefreshControl } from "react-native";
 
 export default NotificationsComponent = () => {
