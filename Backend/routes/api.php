@@ -99,6 +99,7 @@ Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateE
 
 
 Route::get('/guest', [GuestController::class, 'index']);
+Route::post('/guest', [GuestController::class, 'store']);
 Route::get('guest/{eventid}', [GuestController::class, 'getGuestByEvent']);
 Route::put('/guest/{id}', [GuestController::class, 'update']);
 Route::delete('/guest/{id}', [GuestController::class, 'destroy']);

@@ -13,6 +13,7 @@ import RNPickerSelect from "react-native-picker-select";
 import { TextInput } from "react-native-paper";
 import Header from "../elements/Header";
 
+
 const Settings = () => {
   // State variables for pickers
   const [language, setLanguage] = useState("");

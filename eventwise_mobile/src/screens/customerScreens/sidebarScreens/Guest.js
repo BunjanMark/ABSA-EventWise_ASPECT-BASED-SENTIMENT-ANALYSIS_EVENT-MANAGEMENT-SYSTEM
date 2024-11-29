@@ -5,8 +5,10 @@ import axios from 'axios';
 import API_URL from '../../../constants/constant';
 import Header2 from '../elements/Header2';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // For the 3-dot icon
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal'; // For showing modal
 import { TextInput, Button, Menu, Divider } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native'; // Import the hook
 
 const GuestList = () => {
   const route = useRoute();
@@ -20,12 +22,16 @@ const GuestList = () => {
   const [updatedRole, setUpdatedRole] = useState('');
   const [visible, setVisible] = useState(false); // For dropdown visibility
   const [guestForDropdown, setGuestForDropdown] = useState(null); // Track selected guest for the dropdown
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false); // For deletion confirmation modal
-  const [newGuestName, setNewGuestName] = useState(''); // State for new guest details
   const [addGuestModalVisible, setAddGuestModalVisible] = useState(false); // Modal for adding a guest
-  const [newEmail, setNewEmail] = useState('');
-  const [newPhone, setNewPhone] = useState('');
-  const [newRole, setNewRole] = useState('');
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false); // For deletion confirmation modal
+  const navigation = useNavigation(); // Initialize navigation
+  const [newGuestFields, setNewGuestFields] = useState([]);
+  const [fieldsPerPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [numberOfFields, setNumberOfFields] = useState("");
+  const [guestsData, setGuestsData] = useState([]);  // Array to hold guest data
+  // const [currentFields, setCurrentFields] = useState([]);
+ 
 
 
 
@@ -44,27 +50,48 @@ const GuestList = () => {
   }, [eventid]);
   
   const handleAddGuest = async () => {
+    // Validate guest data
+    const invalidGuest = guestsData.some(
+      (guest) =>
+        !guest.GuestName || !guest.email || !guest.phone || !guest.role
+    );
+  
+    if (invalidGuest) {
+      alert('Please fill out all fields for all guests.');
+      return;
+    }
+  
+    // Debug the guestsData
+    console.log("Guests Data to send:", guestsData);
+  
     try {
       const response = await axios.post(`${API_URL}/api/guest`, {
-        GuestName: newGuestName,
-        email: newEmail,
-        phone: newPhone,
-        role: newRole,
+        guest: guestsData,
         eventId: eventid,
       });
-
+  
       if (response.status === 201) {
-        setGuests((prevGuests) => [...prevGuests, response.data]);
-        setAddGuestModalVisible(false);
-        setNewGuestName('');
-        setNewEmail('');
-        setNewPhone('');
-        setNewRole('');
+        setGuests((prevGuests) => [...prevGuests, ...response.data]);
+        setAddGuestModalVisible(false); // Close modal
+        setGuestsData([]); // Clear guest data
+        setNumberOfFields(''); // Reset field count
       }
+      console.log('Payload:', {
+        guest: guestsData,
+        eventId: eventid,
+      });
     } catch (error) {
-      console.error('Error adding new guest:', error);
+      if (error.response) {
+        console.error('Backend error response:', error.response.data);
+      } else {
+        console.error('Error adding guests:', error);
+      }
     }
   };
+  
+  
+  
+  
 
   const handleUpdateGuest = async () => {
     try {
@@ -130,11 +157,68 @@ const GuestList = () => {
       setVisible(true);
     }
   };
+  const handleAddFields = () => {
+    const numFields = parseInt(numberOfFields, 10);
+    console.log("Number of fields:", numFields);  // Debugging line
+  
+    if (isNaN(numFields) || numFields <= 0) {
+      alert("Please enter a valid number greater than 0.");
+      return;
+    }
+  
+    const newFields = Array(numFields).fill({
+      GuestName: '',
+      email: '',
+      phone: '',
+      role: '',
+    });
+  
+    setNewGuestFields((prevFields) => {
+      const updatedFields = [...prevFields, ...newFields];
+      setGuestsData(updatedFields);  // Update guestsData as well
+      return updatedFields;
+    });
+  };
+  
+  
+  
+  
+  
+
+
+  const handleInputChange = (index, field, value) => {
+    const globalIndex = startIndex + index;
+  
+    // Update the specific field in the correct guest object
+    setNewGuestFields((prevFields) => {
+      const updatedFields = [...prevFields];
+      updatedFields[globalIndex] = {
+        ...updatedFields[globalIndex],
+        [field]: value,
+      };
+      
+      // Synchronize newGuestFields with guestsData
+      setGuestsData(updatedFields); // This line updates guestsData with the latest values
+      
+      return updatedFields;
+    });
+  };
+  
+  
+  
+
+  // Pagination calculations
+  const totalPages = Math.ceil(newGuestFields.length / fieldsPerPage);
+  const startIndex = (currentPage - 1) * fieldsPerPage;
+  const currentFields = newGuestFields.slice(startIndex, startIndex + fieldsPerPage);
 
   return (
     <>
       <Header2 />
       <View style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
+    </TouchableOpacity>
         <Text style={styles.header}>Guest List for {eventName}</Text>
         {guests.length > 0 ? (
           <FlatList
@@ -185,6 +269,13 @@ const GuestList = () => {
       >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Edit Guest Details</Text>
+          <TouchableOpacity
+            onPress={() => setModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={24} color="#333" />
+          </TouchableOpacity>
+          
           <TextInput
             label="Guest Name"
             value={updatedGuestName}
@@ -231,6 +322,12 @@ const GuestList = () => {
           <Text style={styles.modalTitle}>
             Are you sure you want to delete the following guest?
           </Text>
+          <TouchableOpacity
+            onPress={() => setDeleteModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={24} color="#333" />
+          </TouchableOpacity>
           <View style={styles.guestContainerWithBorder}>
             <Text style={styles.guestName}>{selectedGuest?.GuestName}</Text>
             <Text style={styles.guestInfo}>Email: {selectedGuest?.email}</Text>
@@ -244,13 +341,7 @@ const GuestList = () => {
           >
             Yes, Remove
           </Button>
-          <Button
-            mode="outlined"
-            style={styles.cancelButton}
-            onPress={() => setDeleteModalVisible(false)}
-          >
-            Cancel
-          </Button>
+          
         </View>
       </Modal>
       
@@ -261,48 +352,115 @@ const GuestList = () => {
       >
         Add Guest
       </Button>
+
+
       <Modal
-        isVisible={addGuestModalVisible}
-        onBackdropPress={() => setAddGuestModalVisible(false)}
-        animationIn="fadeIn"
-        animationOut="fadeOut"
-        backdropOpacity={0.7}
-      >
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Add New Guest</Text>
-          <TextInput
-            label="Guest Name"
-            value={newGuestName}
-            onChangeText={setNewGuestName}
-            style={styles.input}
-          />
-          <TextInput
-            label="Email"
-            value={newEmail}
-            onChangeText={setNewEmail}
-            style={styles.input}
-          />
-          <TextInput
-            label="Phone"
-            value={newPhone}
-            onChangeText={setNewPhone}
-            style={styles.input}
-          />
-          <TextInput
-            label="Role"
-            value={newRole}
-            onChangeText={setNewRole}
-            style={styles.input}
-          />
-          <Button
-            mode="contained"
-            style={styles.updateButton}
-            onPress={handleAddGuest}
-          >
-            Add Guest
-          </Button>
-        </View>
-      </Modal>
+  isVisible={addGuestModalVisible}
+  onBackdropPress={() => setAddGuestModalVisible(false)}
+  animationIn="fadeIn"
+  animationOut="fadeOut"
+  backdropOpacity={0.7}
+>
+  <View style={styles.modalContent}>
+    <Text style={styles.modalTitle}>Add New Guest</Text>
+    <TouchableOpacity
+      onPress={() => setAddGuestModalVisible(false)}
+      style={styles.closeButton}
+    >
+      <Icon name="close" size={24} color="#333" />
+    </TouchableOpacity>
+
+    <View style={styles.addFieldsContainer}>
+      <TextInput
+        placeholder="Number of Guests"
+        value={numberOfFields}
+        onChangeText={setNumberOfFields}
+        style={styles.numberInput}
+        keyboardType="numeric"
+      />
+      <TouchableOpacity onPress={handleAddFields} style={styles.addButton}>
+        <Text style={styles.addButtonText}>Add</Text>
+      </TouchableOpacity>
+    </View>
+
+    {/* Display current page fields */}
+    {currentFields.map((field, index) => (
+  <View key={startIndex + index} style={styles.fieldContainer}>
+    {/* Guest Name */}
+    <TextInput
+      placeholder="Guest Name"
+      value={field.GuestName || ''}
+      onChangeText={(value) => handleInputChange(index, 'GuestName', value)}
+      style={styles.input}
+    />
+
+    {/* Email */}
+    <TextInput
+      placeholder="Email"
+      value={field.email || ''}
+      onChangeText={(value) => handleInputChange(index, 'email', value)}
+      style={styles.input}
+      keyboardType="email-address"
+    />
+
+    {/* Phone */}
+    <TextInput
+      placeholder="Phone"
+      value={field.phone || ''}
+      onChangeText={(value) => handleInputChange(index, 'phone', value)}
+      style={styles.input}
+      keyboardType="phone-pad"
+    />
+
+    {/* Role */}
+    <TextInput
+      placeholder="Role"
+      value={field.role || ''}
+      onChangeText={(value) => handleInputChange(index, 'role', value)}
+      style={styles.input}
+    />
+  </View>
+))}
+
+
+    {/* Pagination controls */}
+    <View style={styles.pagination}>
+  {/* Previous Button */}
+  <Button
+    disabled={currentPage === 1}
+    onPress={() => setCurrentPage(currentPage - 1)}
+    style={styles.pageButton}
+  >
+    &lt; {/* This is the '<' symbol */}
+  </Button>
+
+  {/* Page Number */}
+  <Text style={styles.pageText}>
+    {currentPage} of {totalPages}
+  </Text>
+
+  {/* Next Button */}
+  <Button
+    disabled={currentPage === totalPages}
+    onPress={() => setCurrentPage(currentPage + 1)}
+    style={styles.pageButton}
+  >
+    &gt; {/* This is the '>' symbol */}
+  </Button>
+</View>
+
+
+    <Button
+      mode="contained"
+      style={styles.updateButton}
+      onPress={handleAddGuest}
+    >
+      Submit
+    </Button>
+  </View>
+</Modal>
+
+
 
     </>
   );
@@ -374,6 +532,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginTop: 10,
     marginBottom: 15,
     textAlign: 'center',
     color: '#333',
@@ -384,6 +543,7 @@ const styles = StyleSheet.create({
   updateButton: {
     marginTop: 20,
     width: '100%',
+    backgroundColor: '#eeba2b',
   },
   deleteButton: {
     marginTop: 10,
@@ -399,7 +559,53 @@ const styles = StyleSheet.create({
     margin: 20,
     backgroundColor: '#eeba2b',
   },
-  
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+  },
+  addFieldsContainer: {
+    flexDirection: 'row', // Align text input and button horizontally
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  numberInput: {
+    flex: 1, // Take up available space
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  addButton: {
+    backgroundColor: '#eeba2b',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  pagination: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pageButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  pageText: {
+    fontSize: 14,
+    color: '#ccc',
+    marginHorizontal: 10,
+  },
+
 });
 
 export default GuestList; 

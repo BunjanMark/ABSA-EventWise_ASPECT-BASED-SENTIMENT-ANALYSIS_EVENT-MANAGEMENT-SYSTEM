@@ -98,7 +98,7 @@ const styles = {
     height: 150,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#ff9900",
+    borderColor: "#eeba2b",
   },
   serviceCardHeader: {
     display: "flex",
@@ -118,7 +118,7 @@ const styles = {
   serviceName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#ff9900",
+    color: "#eeba2b",
     marginBottom: 10,
     marginTop: 10,
   },
@@ -134,7 +134,7 @@ const styles = {
   },
   servicePrice: {
     fontSize: 14,
-    color: "#ff9900",
+    color: "#eeba2b",
     fontWeight: "bold",
     marginBottom: 10,
   },
@@ -152,7 +152,7 @@ const styles = {
     marginTop: 10,
   },
   updateButton: {
-    backgroundColor: "#ff9900",
+    backgroundColor: "#eeba2b",
     padding: 10,
     borderRadius: 5,
   },
