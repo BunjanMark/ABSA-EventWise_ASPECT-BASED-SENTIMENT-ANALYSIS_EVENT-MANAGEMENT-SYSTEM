@@ -323,6 +323,15 @@ const approveBookingEvent = async (eventid) => {
     throw error;
   }
 };
+
+const sendEventNoticeToAllGuests = async (eventId) => {
+  try {
+    const response = await api.get(`event/${eventId}/reminder`);
+    console.log("Sent event notice to all guests: ", response);
+  } catch (error) {
+    console.error("Error sending event notice:", error);
+  }
+};
 export {
   updateEvent,
   createEvent,
@@ -340,4 +349,5 @@ export {
   fetchEventPackageDetails,
   fetchEventsByUserId,
   approveBookingEvent,
+  sendEventNoticeToAllGuests,
 };

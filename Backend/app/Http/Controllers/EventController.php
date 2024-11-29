@@ -14,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Events\EventCreatedEvent;
 use App\Models\AccountRole;
+use App\Notifications\EventScheduleNotice;
 class EventController extends Controller
 {
     //Add a method to fetch all events
@@ -533,6 +534,38 @@ public function getServiceProviederName($eventId, $userId)
         }
     }
 
+    public function sendEventScheduleNotice(Request $request, $eventId)
+{
+    try {
+        $event = Event::find($eventId);
 
+        if (!$event) {
+            return response()->json(['message' => 'Event not found'], 404);
+        }
+
+        $guests = $event->guests;
+
+        if (!$guests) {
+            return response()->json(['message' => 'No guests found for this event'], 404);
+        }
+
+        foreach ($guests as $guest) {
+            $guest->notify(new EventScheduleNotice($event, $guest));
+        }
+
+        return response()->json(['message' => 'Event schedule notice sent successfully']);
+    } catch (\Throwable $th) {
+        return response()->json(['message' => $th->getMessage()], 500);
+    }
+}
+    public function sendEventScheduleNoticeFacade(Request $request, $eventId)
+    {
+        $event = Event::find($eventId);
+        $guests = $event->guests;
+
+        Notification::send($guests, new EventScheduleNotice($event, $guests));
+
+        return response()->json(['message' => 'Event schedule notice sent successfully']);
+    }
     
 }

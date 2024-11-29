@@ -23,6 +23,7 @@ use App\Http\Controllers\SmsTwilioController;
 use App\Events\NewServiceCreated;
 use App\Http\Controllers\TwilioSmsController;
 use App\Http\Controllers\NotificationUpcomingEventController;
+ 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -177,4 +178,22 @@ Route::put('/inventories/{id}', [EventController::class, 'update']);
 Route::delete('/inventories/{id}', [EventController::class, 'destroy']);
 
 
-Route::get('/send-sms', [NotificationUpcomingEventController::class, 'sendReminder']);
+Route::get('/send-sms', [UpcomingEventController::class, 'sendReminder']);
+Route::post('event/{id}/send-schedule-notice', [EventController::class, 'sendEventScheduleNotice']);
+
+
+use Illuminate\Support\Facades\Mail;
+use App\Mail\EventReminder;
+use App\Models\Event;
+
+Route::get('/test-email', function () {
+    Mail::raw('This is a test email.', function ($message) {
+        $message->to('bunjan.mark476@gmail.com')
+                ->subject('Test Email');
+    });
+    return 'Test email sent!';
+});
+
+ 
+use App\Http\Controllers\EventReminderController;
+Route::get('event/{eventId}/reminder', [EventReminderController::class, 'sendEventReminder']);
