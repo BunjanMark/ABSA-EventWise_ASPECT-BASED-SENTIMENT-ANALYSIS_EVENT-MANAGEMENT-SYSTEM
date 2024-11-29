@@ -1,18 +1,14 @@
-import React, { useContext, useState } from "react";
-import { View, Text, Button, ActivityIndicator } from "react-native";
-import { ProfileContext } from "../../../../services/profileContextcp";
-
+import React, { useState } from "react";
+import { View, Text, ActivityIndicator, TouchableOpacity, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { getUser, getAccountProfile } from "../../../../services/authServices";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import useStore from "../../../../stateManagement/useStore";
+
 const ProfileSwitchSP = () => {
-  // const { switchProfile } = useContext(ProfileContext);
   const switchProfile = useStore((state) => state.switchProfile);
-  const profiles = useStore((state) => state.profiles);
   const activeProfile = useStore((state) => state.activeProfile);
-  // const setProfiles = useStore((state) => state.setProfiles);
   const setActiveProfile = useStore((state) => state.setActiveProfile);
   const user = useStore((state) => state.user);
   const setUser = useStore((state) => state.setUser);
@@ -20,27 +16,10 @@ const ProfileSwitchSP = () => {
   const accountProfiles = useStore((state) => state.accountProfiles);
   const setAccountProfiles = useStore((state) => state.setAccountProfiles);
   const navigation = useNavigation();
-  // const { user, accountProfiles, setUser, setAccountProfiles } = useStore();
 
-  // const handleSwitchProfile = (profile) => {
-  //   console.log("Trying to switch to profile:", profile);
-  //   try {
-  //     setActiveProfile(profile);
-  //     console.log("Active profile set to:", activeProfile);
-  //     switchProfile(profile.role_id);
-  //     console.log("Switched to role ID:", profile.role_id);
-  //     console.log("Active profile after switch:", activeProfile);
-  //   } catch (error) {
-  //     console.error("Error switching profile:", error);
-  //   }
-  // };
   const handleSwitchProfile = (profile) => {
     try {
-      // Use Zustand's setActiveProfile to ensure the active profile state updates across all instances
       setActiveProfile(profile);
-      console.log("Switched to role ID:", profile.role_id);
-      console.log("what;s the active profile:", activeProfile);
-      // Navigate based on role_id
       switch (profile.role_id) {
         case 1:
           navigation.navigate("CustomAdminStack");
@@ -60,6 +39,7 @@ const ProfileSwitchSP = () => {
       console.error("Error switching profile:", error);
     }
   };
+
   useFocusEffect(
     React.useCallback(() => {
       const fetchAccountProfile = async () => {
@@ -68,14 +48,11 @@ const ProfileSwitchSP = () => {
           setUser(fetchedUser);
           const profileResponse = await getAccountProfile();
           const profiles = profileResponse.data;
-          console.log("Fetched user:", fetchedUser);
-
-          // Filter profiles that match the current user
           const filteredProfiles = profiles.filter(
             (profile) => profile.user_id === fetchedUser.id
           );
           setAccountProfiles(filteredProfiles);
-          setActiveProfile(filteredProfiles[0] || null); // Set the first profile or null if empty
+          setActiveProfile(filteredProfiles[0] || null);
         } catch (error) {
           console.error("Error fetching account profiles:", error);
         } finally {
@@ -98,37 +75,95 @@ const ProfileSwitchSP = () => {
   if (!accountProfiles.length) {
     return <Text>No profiles available</Text>;
   }
-  // console.log("profileswitch:", accountProfiles);
-  // console.log(accountProfiles);
-  // count the number of service provider profiles
 
   return (
-    <SafeAreaView>
-      <View>
-        <Text>
-          {/* Current Account: {user ? user.name : "No User Data"}
-           */}
-          Current User: {user ? user.name : "No User Data"}
-        </Text>
-        <Text>
-          current profile:{" "}
-          {activeProfile && activeProfile === 1 ? "Admin" : "Service Provider"}
-        </Text>
+    <View style={styles.switchAccountContainer}>
+    <Text style={styles.header}>Switch Account</Text>
 
-        {accountProfiles.map((profile) => (
-          <Text key={profile.id}>{profile.service_provider_name}</Text>
-        ))}
-        {accountProfiles.map((profile) => (
-          <Button
-            key={profile.role_id}
-            title={`Switch to ${profile.service_provider_name}`}
-            onPress={() => handleSwitchProfile(profile)}
-            // disabled={profile.id === 5} // Assuming service provider profile ID is 5
-          />
-        ))}
-      </View>
-    </SafeAreaView>
+    {accountProfiles.map((profile) => (
+        <TouchableOpacity
+          key={profile.role_id}
+          style={styles.profileContainer}
+          onPress={() => handleSwitchProfile(profile)}
+        >
+          <View style={styles.row}>
+            <Text style={styles.profileName}>{profile.service_provider_name}</Text>
+            <View
+              style={[
+                styles.circle,
+                activeProfile === profile.role_id && styles.filledCircle,
+              ]}
+            />
+          </View>
+        </TouchableOpacity>
+      ))}
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: "#f8f9fa",
+  },
+  accountContainer: {
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
+    padding: 100,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  header: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  profileContainer: {
+    backgroundColor: "#f8f9fa",
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  profileName: {
+    fontSize: 13,
+    color: "#333",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center", // Ensures vertical alignment
+    justifyContent: "space-between", // Ensures spacing between name and circle
+  },
+  circle: {
+    width: 18,
+    height: 18,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#eeba2b", // Default border color
+    backgroundColor: "transparent", // Default background
+    marginLeft: 10, // Adds space between the name and circle
+  },
+  filledCircle: {
+    backgroundColor: "#eeba2b", // Fill color when selected
+  },
+  switchAccountContainer: {
+    padding: 15, // Optional, for spacing inside the container
+    elevation: 5, // Shadow for Android
+    backgroundColor: "#ffffff", // Required to make shadow visible
+    borderRadius: 10,
+  },
+});
 
 export default ProfileSwitchSP;
