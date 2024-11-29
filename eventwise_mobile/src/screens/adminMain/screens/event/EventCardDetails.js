@@ -1,14 +1,18 @@
-import { View, Text, ScrollView, Image } from "react-native";
-import { TouchableOpacity } from "react-native";
-import React from "react";
-import { fetchEvents } from "../../../../services/organizer/adminEventServices";
-import { useEffect } from "react";
-import { useState } from "react";
-import { StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { fetchEventPackageDetails } from "../../../../services/organizer/adminEventServices";
+
 const EventCardDetails = ({ route, navigation }) => {
   const { eventData } = route.params;
-  const [serviceDetails, setServiceDetails] = useState([]);
   const [packageDetails, setPackageDetails] = useState([]);
+
   if (!eventData) {
     return <Text>Loading...</Text>;
   }
@@ -21,46 +25,59 @@ const EventCardDetails = ({ route, navigation }) => {
           setPackageDetails(details);
         }
       } catch (error) {
-        console.log("something went wrong inside admincard details.");
+        console.log("Error fetching event package details: ", error);
       }
     };
     fetchDetails();
   }, [eventData]);
 
   console.log(
-    "event data inside eventCard Detials: " + JSON.stringify(eventData)
+    "Event data inside EventCardDetails: ",
+    JSON.stringify(eventData)
   );
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.card}>
         {/* Displaying package cover photo */}
         <Image
-          source={{ uri: eventData?.coverPhoto }}
+          source={
+            eventData.coverPhoto
+              ? { uri: eventData.coverPhoto }
+              : require("../../../../../assets/event2.png")
+          }
           style={styles.coverPhoto}
         />
 
         <Text style={styles.title}>{eventData?.name}</Text>
         <Text style={styles.eventType}>Event Type: {eventData?.type}</Text>
         <Text style={styles.totalPrice}>
-          {/* Total Price: ₱{eventData?.totalPrice} */}
-          Total Price: N/a
+          Total Price:{" "}
+          {eventData?.totalPrice ? `₱${eventData?.totalPrice}` : "N/A"}
         </Text>
 
         <Text style={styles.sectionTitle}>Package Services:</Text>
-        {packageDetails.map((currentPackage, index) => (
-          <View key={index} style={styles.serviceContainer}>
-            <Text style={styles.serviceName}>{currentPackage.packageName}</Text>
-            <Text style={styles.serviceCategory}>
-              Category: {currentPackage.serviceCategory}
-            </Text>
-            <Text style={styles.servicePrice}>
-              Price: ₱{currentPackage.basePrice}
-            </Text>
-            <Text style={styles.serviceFeatures}>
-              Features: {currentPackage.serviceFeatures.join(", ")}
-            </Text>
-          </View>
-        ))}
+        {packageDetails.length > 0 ? (
+          packageDetails.map((currentPackage, index) => (
+            <View key={index} style={styles.serviceContainer}>
+              <Text style={styles.serviceName}>
+                {currentPackage.packageName}
+              </Text>
+              <Text style={styles.serviceCategory}>
+                Category: {currentPackage.serviceCategory}
+              </Text>
+              <Text style={styles.servicePrice}>
+                Price: ₱{currentPackage.basePrice}
+              </Text>
+              <Text style={styles.serviceFeatures}>
+                Features: {currentPackage?.serviceFeatures.join(", ")}
+              </Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.noPackages}>No package details available.</Text>
+        )}
+
         <Text style={styles.sectionTitle}>Created At:</Text>
         <Text style={styles.createdAt}>
           {new Date(eventData?.created_at).toLocaleString()}
@@ -76,7 +93,7 @@ const EventCardDetails = ({ route, navigation }) => {
           <TouchableOpacity
             style={styles.editButton}
             onPress={() =>
-              navigation.navigate("EditPackageScreen", { eventData })
+              navigation.navigate("EditEventScreen", { eventData })
             }
           >
             <Text style={styles.buttonText}>Edit Event</Text>
@@ -127,38 +144,11 @@ const styles = StyleSheet.create({
     color: "#ff9900",
     marginBottom: 10,
   },
-  services: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 20,
-    lineHeight: 22,
-  },
-  createdAt: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 20,
-  },
-  updatedAt: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 20,
-  },
-  buttonsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  editButton: {
-    backgroundColor: "#ff9900",
-    padding: 12,
-    borderRadius: 5,
-    marginTop: 20,
-    alignItems: "center",
-    width: "100%",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: "bold",
+    color: "#333",
+    marginVertical: 10,
   },
   serviceContainer: {
     marginBottom: 20,
@@ -187,6 +177,38 @@ const styles = StyleSheet.create({
   serviceFeatures: {
     fontSize: 14,
     color: "#666",
+  },
+  createdAt: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 10,
+  },
+  updatedAt: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 10,
+  },
+  noPackages: {
+    fontSize: 16,
+    color: "#999",
+    marginTop: 10,
+  },
+  buttonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  editButton: {
+    backgroundColor: "#ff9900",
+    padding: 12,
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+    width: "100%",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

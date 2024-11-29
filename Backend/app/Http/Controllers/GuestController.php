@@ -31,26 +31,40 @@ class GuestController extends Controller
     }
 
     // Store a new guest
-    public function store(Request $request)
-    {
-        $request->validate([
-            'GuestName' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:15',
-            'event_id' => 'required|exists:events,id',  // Ensure event exists before saving
-            'role' => 'required|string|max:255',  // Ensure event exists before saving
-        ]);
+   public function store(Request $request)
+{ 
+    // Validate the request data for multiple guests
+    $request->validate([
+        'guest' => 'required|array',
+        'guest.*.GuestName' => 'required|string|max:255',
+        'guest.*.email' => 'required|email|max:255',
+        'guest.*.phone' => 'required|string|max:15',
+        'guest.*.role' => 'required|string|max:255',
+        'eventId' => 'required|exists:events,id', // Ensure event exists
+    ]);
 
-        $guest = new Guest();  // Instantiate a new Guest
-        $guest->GuestName = $request->GuestName;
-        $guest->email = $request->email;
-        $guest->phone = $request->phone;
-        $guest->event_id = $request->event_id;
-        $guest->role = $request->role;
+    // Retrieve the event ID
+    $eventId = $request->input('eventId');
+
+    // Process each guest
+    $guests = [];
+    foreach ($request->input('guest') as $guestData) {
+        $guest = new Guest();
+        $guest->GuestName = $guestData['GuestName'];
+        $guest->email = $guestData['email'];
+        $guest->phone = $guestData['phone'];
+        $guest->event_id = $eventId;
+        $guest->role = $guestData['role'];
         $guest->save();
 
-        return response()->json($guest, 201);  // Return the saved guest with 201 Created status
+        $guests[] = $guest; // Add saved guest to the response array
     }
+
+    // Return all saved guests with a 201 Created status
+    return response()->json($guests, 201);
+}
+
+
 
     // Edit an existing guest
    // Inside GuestController

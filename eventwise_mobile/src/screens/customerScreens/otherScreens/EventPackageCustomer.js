@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/FontAwesome";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import SearchBar from "../elements/SearchBAr";
 import Svg, { LinearGradient, Stop, Rect, Defs } from "react-native-svg";
@@ -58,6 +59,14 @@ const EventPackageCustomer = () => {
       <View style={styles.container}>
         <SafeAreaView style={styles.safeArea}>
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color="#eeba2b"
+              style={{ marginLeft: 20 }} // Increase this value to move it to the right
+            />
+          </TouchableOpacity>
             <Text style={styles.debutText}>Wedding Package</Text>
             <View style={styles.pack}>
               {packageData.map((item, index) => (

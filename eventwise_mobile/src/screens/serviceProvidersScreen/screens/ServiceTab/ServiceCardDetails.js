@@ -24,7 +24,7 @@ const ServiceCardDetails = ({ route, navigation }) => {
 
         <Text style={styles.title}>{service.serviceName}</Text>
         <Text style={styles.category}>Category: {service.serviceCategory}</Text>
-        <Text style={styles.price}>Price: ${service.basePrice}</Text>
+        <Text style={styles.price}>Price: ₱{service.basePrice}</Text>
         <Text style={styles.pax}>Max Pax: {service.pax}</Text>
         <Text style={styles.requirements}>
           Requirements: {service.requirements}
