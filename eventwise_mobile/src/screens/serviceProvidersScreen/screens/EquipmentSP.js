@@ -128,6 +128,10 @@ const EquipmentSP = () => {
             <Ionicons name="remove-circle-outline" size={24} color="white" />
             <Text style={styles.removeButtonText}>Remove Item</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.removeButton} onPress={() => setRemoveMode(!removeMode)}>
+            <Ionicons name="remove-circle-outline" size={24} color="white" />
+            <Text style={styles.removeButtonText}>Save Item</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.summary}>
           <Text style={styles.summaryText}>Total Items: {totalItems}</Text>

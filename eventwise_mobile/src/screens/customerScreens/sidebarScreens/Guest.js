@@ -5,8 +5,10 @@ import axios from 'axios';
 import API_URL from '../../../constants/constant';
 import Header2 from '../elements/Header2';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // For the 3-dot icon
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal'; // For showing modal
 import { TextInput, Button, Menu, Divider } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native'; // Import the hook
 
 const GuestList = () => {
   const route = useRoute();
@@ -26,6 +28,12 @@ const GuestList = () => {
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newRole, setNewRole] = useState('');
+  const navigation = useNavigation(); // Initialize navigation
+  const [newGuestFields, setNewGuestFields] = useState([]);
+  const [fieldsPerPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [numberOfFields, setNumberOfFields] = useState("");
+ 
 
 
 
@@ -130,11 +138,35 @@ const GuestList = () => {
       setVisible(true);
     }
   };
+  const handleAddFields = () => {
+    const num = parseInt(numberOfFields, 10);
+    if (!isNaN(num) && num > 0) {
+      const newFields = Array(num).fill({ name: "", email: "", phone: "", role: "" });
+      setNewGuestFields([...newGuestFields, ...newFields]);
+      setNumberOfFields(""); // Reset the number input
+      setCurrentPage(totalPages); // Go to the next page after adding the fields
+    }
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(newGuestFields.length / fieldsPerPage);
+  const startIndex = (currentPage - 1) * fieldsPerPage;
+  const currentFields = newGuestFields.slice(startIndex, startIndex + fieldsPerPage);
+
+  // Update a specific field
+  const updateField = (index, key, value) => {
+    const updatedFields = [...newGuestFields];
+    updatedFields[startIndex + index][key] = value;
+    setNewGuestFields(updatedFields);
+  };
 
   return (
     <>
       <Header2 />
       <View style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
+    </TouchableOpacity>
         <Text style={styles.header}>Guest List for {eventName}</Text>
         {guests.length > 0 ? (
           <FlatList
@@ -185,6 +217,13 @@ const GuestList = () => {
       >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Edit Guest Details</Text>
+          <TouchableOpacity
+            onPress={() => setModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={24} color="#333" />
+          </TouchableOpacity>
+          
           <TextInput
             label="Guest Name"
             value={updatedGuestName}
@@ -231,6 +270,12 @@ const GuestList = () => {
           <Text style={styles.modalTitle}>
             Are you sure you want to delete the following guest?
           </Text>
+          <TouchableOpacity
+            onPress={() => setDeleteModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={24} color="#333" />
+          </TouchableOpacity>
           <View style={styles.guestContainerWithBorder}>
             <Text style={styles.guestName}>{selectedGuest?.GuestName}</Text>
             <Text style={styles.guestInfo}>Email: {selectedGuest?.email}</Text>
@@ -244,13 +289,7 @@ const GuestList = () => {
           >
             Yes, Remove
           </Button>
-          <Button
-            mode="outlined"
-            style={styles.cancelButton}
-            onPress={() => setDeleteModalVisible(false)}
-          >
-            Cancel
-          </Button>
+          
         </View>
       </Modal>
       
@@ -261,48 +300,105 @@ const GuestList = () => {
       >
         Add Guest
       </Button>
+
+
       <Modal
-        isVisible={addGuestModalVisible}
-        onBackdropPress={() => setAddGuestModalVisible(false)}
-        animationIn="fadeIn"
-        animationOut="fadeOut"
-        backdropOpacity={0.7}
-      >
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Add New Guest</Text>
-          <TextInput
-            label="Guest Name"
-            value={newGuestName}
-            onChangeText={setNewGuestName}
-            style={styles.input}
-          />
-          <TextInput
-            label="Email"
-            value={newEmail}
-            onChangeText={setNewEmail}
-            style={styles.input}
-          />
-          <TextInput
-            label="Phone"
-            value={newPhone}
-            onChangeText={setNewPhone}
-            style={styles.input}
-          />
-          <TextInput
-            label="Role"
-            value={newRole}
-            onChangeText={setNewRole}
-            style={styles.input}
-          />
-          <Button
-            mode="contained"
-            style={styles.updateButton}
-            onPress={handleAddGuest}
-          >
-            Add Guest
-          </Button>
-        </View>
-      </Modal>
+  isVisible={addGuestModalVisible}
+  onBackdropPress={() => setAddGuestModalVisible(false)}
+  animationIn="fadeIn"
+  animationOut="fadeOut"
+  backdropOpacity={0.7}
+>
+  <View style={styles.modalContent}>
+    <Text style={styles.modalTitle}>Add New Guest</Text>
+    <TouchableOpacity
+      onPress={() => setAddGuestModalVisible(false)}
+      style={styles.closeButton}
+    >
+      <Icon name="close" size={24} color="#333" />
+    </TouchableOpacity>
+
+    <View style={styles.addFieldsContainer}>
+      <TextInput
+        placeholder="Number of Guests"
+        value={numberOfFields}
+        onChangeText={setNumberOfFields}
+        style={styles.numberInput}
+        keyboardType="numeric"
+      />
+      <TouchableOpacity onPress={handleAddFields} style={styles.addButton}>
+        <Text style={styles.addButtonText}>Add</Text>
+      </TouchableOpacity>
+    </View>
+
+    {/* Display current page fields */}
+    {currentFields.map((field, index) => (
+      <View key={startIndex + index} style={styles.fieldContainer}>
+        <TextInput
+          label="Guest Name"
+          value={field.name}
+          onChangeText={(text) => updateField(index, 'name', text)}
+          style={[styles.input, styles.fieldSize]} // Adjusted size
+        />
+        <TextInput
+          label="Email"
+          value={field.email}
+          onChangeText={(text) => updateField(index, 'email', text)}
+          style={[styles.input, styles.fieldSize]} // Adjusted size
+        />
+        <TextInput
+          label="Phone"
+          value={field.phone}
+          onChangeText={(text) => updateField(index, 'phone', text)}
+          style={[styles.input, styles.fieldSize]} // Adjusted size
+        />
+        <TextInput
+          label="Role"
+          value={field.role}
+          onChangeText={(text) => updateField(index, 'role', text)}
+          style={[styles.input, styles.fieldSize]} // Adjusted size
+        />
+      </View>
+    ))}
+
+    {/* Pagination controls */}
+    <View style={styles.pagination}>
+  {/* Previous Button */}
+  <Button
+    disabled={currentPage === 1}
+    onPress={() => setCurrentPage(currentPage - 1)}
+    style={styles.pageButton}
+  >
+    &lt; {/* This is the '<' symbol */}
+  </Button>
+
+  {/* Page Number */}
+  <Text style={styles.pageText}>
+    {currentPage} of {totalPages}
+  </Text>
+
+  {/* Next Button */}
+  <Button
+    disabled={currentPage === totalPages}
+    onPress={() => setCurrentPage(currentPage + 1)}
+    style={styles.pageButton}
+  >
+    &gt; {/* This is the '>' symbol */}
+  </Button>
+</View>
+
+
+    <Button
+      mode="contained"
+      style={styles.updateButton}
+      onPress={handleAddGuest}
+    >
+      Submit
+    </Button>
+  </View>
+</Modal>
+
+
 
     </>
   );
@@ -374,6 +470,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginTop: 10,
     marginBottom: 15,
     textAlign: 'center',
     color: '#333',
@@ -384,6 +481,7 @@ const styles = StyleSheet.create({
   updateButton: {
     marginTop: 20,
     width: '100%',
+    backgroundColor: '#eeba2b',
   },
   deleteButton: {
     marginTop: 10,
@@ -399,7 +497,53 @@ const styles = StyleSheet.create({
     margin: 20,
     backgroundColor: '#eeba2b',
   },
-  
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+  },
+  addFieldsContainer: {
+    flexDirection: 'row', // Align text input and button horizontally
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  numberInput: {
+    flex: 1, // Take up available space
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  addButton: {
+    backgroundColor: '#eeba2b',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  pagination: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pageButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  pageText: {
+    fontSize: 14,
+    color: '#ccc',
+    marginHorizontal: 10,
+  },
+
 });
 
 export default GuestList; 

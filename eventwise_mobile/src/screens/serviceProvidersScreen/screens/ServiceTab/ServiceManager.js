@@ -206,10 +206,15 @@ const ServiceManager = () => {
           mode="contained"
           onPress={() => navigation.navigate("CreateService")}
           loading={isLoading}
-          disable={isLoading}
+          disabled={isLoading} // corrected `disable` to `disabled`
           style={styles.createButton}
         >
-          <FontAwesome6 name="plus" size={16} color="#fff" />
+          <FontAwesome6 
+            name="plus" 
+            size={16} 
+            color="#fff" 
+            style={{ marginRight: 10 }}  // Applying margin to the icon
+          />
           <Text style={styles.createButtonText}>Create Services</Text>
         </Button>
       </View>
@@ -663,6 +668,7 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: "white",
     fontSize: 16,
+    marginLeft: 20,
   },
   servicePhotoContainer: {
     justifyContent: "center",
