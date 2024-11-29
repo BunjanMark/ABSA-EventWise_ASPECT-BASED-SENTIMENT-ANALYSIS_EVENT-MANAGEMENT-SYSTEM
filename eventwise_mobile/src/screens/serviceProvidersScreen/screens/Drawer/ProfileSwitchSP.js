@@ -45,8 +45,11 @@ const ProfileSwitchSP = () => {
         case 1:
           navigation.navigate("CustomAdminStack");
           break;
+        case 2:
+          navigation.navigate("CustomCustomerStack");
+          break;
         case 3:
-          navigation.navigate("CustomAdminStack");
+          navigation.navigate("CustomServiceProviderStack");
           break;
         default:
           console.error("Invalid role_id:", profile.role_id);

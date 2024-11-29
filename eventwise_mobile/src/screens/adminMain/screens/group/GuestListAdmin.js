@@ -10,16 +10,38 @@ import { DataTable } from "react-native-paper";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useGuestStore } from "../../../../stateManagement/admin/useGuestStore";
 import { fetchGuestEventDetails } from "../../../../services/organizer/adminGuestServices";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { sendEventNoticeToAllGuests } from "../../../../services/organizer/adminEventServices";
 
 const GuestListAdmin = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { eventId, name } = route.params;
+  const { eventId, name, pax, description, status, dime, date } = route.params;
 
   const { guests, setGuests } = useGuestStore();
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
+  // Prepare array of guest emails and names
+  const [emailList, setEmailList] = useState([]);
+
+  useEffect(() => {
+    const emailList = guests.map((guest) => ({
+      email: guest.email,
+      name: guest.GuestName,
+    }));
+    setEmailList(emailList);
+  }, [guests]);
+  const handleSendNotifications = async (eventId) => {
+    console.log("This is the idss", eventId);
+    try {
+      const response = await sendEventNoticeToAllGuests(eventId);
+      console.log("response: ", response);
+      console.log("send notification list: ", emailList);
+    } catch (error) {
+      console.log("error sending email notifications: ", error);
+    }
+  };
   const refreshGuests = useCallback(async () => {
     setRefreshing(true);
     setError(null);
@@ -53,8 +75,16 @@ const GuestListAdmin = () => {
         <Text style={styles.title}>Guest List for Event</Text>
         <Text style={styles.eventName}>{name}</Text>
       </View>
-      <Text style={styles.subTitle}>Total Guests: {guests.length}</Text>
-
+      <Text style={styles.subTitle}>
+        Total Guests listed: {guests.length} / {pax}
+      </Text>
+      <TouchableOpacity
+        onPress={() => {
+          handleSendNotifications(eventId);
+        }}
+      >
+        <Text>handleSendNotifications</Text>
+      </TouchableOpacity>
       {error && <Text style={styles.errorText}>{error}</Text>}
 
       {guests.length === 0 && !error ? (

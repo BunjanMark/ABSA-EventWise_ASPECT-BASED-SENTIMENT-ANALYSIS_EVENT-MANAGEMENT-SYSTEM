@@ -70,7 +70,7 @@ const EventCardDetails = ({ route, navigation }) => {
                 Price: ₱{currentPackage.basePrice}
               </Text>
               <Text style={styles.serviceFeatures}>
-                Features: {currentPackage?.serviceFeatures.join(", ")}
+                Features: {currentPackage?.serviceFeatures}
               </Text>
             </View>
           ))

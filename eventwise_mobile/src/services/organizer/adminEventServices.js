@@ -52,6 +52,18 @@ const fetchEventsByDate1 = async (date) => {
     return [];
   }
 };
+
+const fetchUserBookingEvents = async (id, userId) => {
+  try {
+    const response = await api.get(`/admin/events/${id}/user/${userId}`);
+
+    // console.log("this is the response:", response);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user booking events:", error);
+    throw error;
+  }
+};
 const fetchEventPackageDetails = async (id) => {
   try {
     const response = await api.get(`/admin/events/${id}/packages`);
@@ -302,12 +314,33 @@ const updateEvent = async (id, updateEvent) => {
   }
 };
 
+const approveBookingEvent = async (eventid) => {
+  try {
+    const response = await api.put(`admin/events/bookings/${eventid}`, {
+      status: "scheduled",
+    });
+    console.log("Event approved: ", response);
+  } catch (error) {
+    console.error("approvidngbooking event error:", error);
+    throw error;
+  }
+};
+
+const sendEventNoticeToAllGuests = async (eventId) => {
+  try {
+    const response = await api.get(`event/${eventId}/reminder`);
+    console.log("Sent event notice to all guests: ", response);
+  } catch (error) {
+    console.error("Error sending event notice:", error);
+  }
+};
 export {
   updateEvent,
   createEvent,
   fetchMyServices,
   updatePackage,
   createPackage,
+  fetchUserBookingEvents,
   deletePackage,
   fetchEventsByDate,
   fetchServices,
@@ -317,4 +350,6 @@ export {
   deleteEvent,
   fetchEventPackageDetails,
   fetchEventsByUserId,
+  approveBookingEvent,
+  sendEventNoticeToAllGuests,
 };

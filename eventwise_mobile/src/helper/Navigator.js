@@ -79,7 +79,7 @@ const AuthenticationStack = () => {
         user
           ? user.role_id === 2
             ? "CustomCustomerStack"
-            : "OrganizerStack"
+            : "CustomAdminStack"
           : "Landing"
       }
     >

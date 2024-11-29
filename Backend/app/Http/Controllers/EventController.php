@@ -14,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Events\EventCreatedEvent;
 use App\Models\AccountRole;
+use App\Notifications\EventScheduleNotice;
 class EventController extends Controller
 {
     //Add a method to fetch all events
@@ -426,6 +427,7 @@ public function updateEvent(Request $request, $eventId)
         }
     }
 
+    // delete
     // Method to retrieve deleted events
     public function restoreEvent($id)
     {
@@ -449,16 +451,118 @@ public function updateEvent(Request $request, $eventId)
 
     public function getEvents(Request $request)
 {
-    $userId = $request->query('user_id');
-
-    if (!$userId) {
-        return response()->json(['error' => 'User ID is required'], 400);
+    try {
+        $events = Event::where('user_id', $userId)->get(); // Use $userId directly
+        return response()->json($events, 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to fetch events'], 500);
     }
-
-    $events = Event::where('user_id', $userId)->get();
-    return response()->json($events);
 }
 
-    
+
+public function getServiceProviderInfoByUserId($eventId, $userId)
+{
+    try {
+        $event = Event::where('id', $eventId)->where('user_id', $userId)->first();
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
+        }
+
+        $accountRoles = AccountRole::where('user_id', $event->user_id)->get();
+
+        if ($accountRoles->isEmpty()) {
+            return response()->json(['error' => 'Account role not found'], 404);
+        }
+
+        // Find the first account with role_id = 2 or 1
+        $serviceProvider = $accountRoles->filter(function ($account) {
+            return in_array($account->role_id, [2, 1]);
+        })->first();
+
+        if (!$serviceProvider) {
+            return response()->json(['error' => 'Service provider with role_id 2 or 1 not found'], 404);
+        }
+
+        return response()->json(['service_provider_name' => $serviceProvider->service_provider_name], 200);
+
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+public function getServiceProviederName($eventId, $userId)
+{
+    try {
+        $event = Event::where('id', $eventId)->where('user_id', $userId)->first();
+
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
+        }
+
+        $accountRole = AccountRole::where('user_id', $event->user_id)->first();
+
+        if (!$accountRole) {
+            return response()->json(['error' => 'Account role not found'], 404);
+        }
+
+        return response()->json(['service_provider_name' => $accountRole->service_provider_name], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to retrieve service provider name'], 500);
+    }
+}
+
+    public function updateEventStatus(Request $request, $eventId)
+    {
+        try {
+            $event = Event::find($eventId);
+
+            if (!$event) {
+                return response()->json(['error' => 'Event not found'], 404);
+            }
+
+            $event->update(['status' => 'scheduled']);
+
+            // return response()->json(['message' => 'Event status updated successfully'], 200);
+            return response()->json(['message' => 'Booking approved! Your event is now scheduled!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function sendEventScheduleNotice(Request $request, $eventId)
+{
+    try {
+        $event = Event::find($eventId);
+
+        if (!$event) {
+            return response()->json(['message' => 'Event not found'], 404);
+        }
+
+        $guests = $event->guests;
+
+        if (!$guests) {
+            return response()->json(['message' => 'No guests found for this event'], 404);
+        }
+
+        foreach ($guests as $guest) {
+            $guest->notify(new EventScheduleNotice($event, $guest));
+        }
+
+        return response()->json(['message' => 'Event schedule notice sent successfully']);
+    } catch (\Throwable $th) {
+        return response()->json(['message' => $th->getMessage()], 500);
+    }
+}
+    public function sendEventScheduleNoticeFacade(Request $request, $eventId)
+    {
+        $event = Event::find($eventId);
+        $guests = $event->guests;
+
+        Notification::send($guests, new EventScheduleNotice($event, $guests));
+
+        return response()->json(['message' => 'Event schedule notice sent successfully']);
+    }
     
 }
