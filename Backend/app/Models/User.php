@@ -88,7 +88,7 @@ class User extends Authenticatable
             $accountRole = new AccountRole();
             $accountRole->user_id = $user->id;
             $accountRole->role_id = $user->role_id; // Assuming the user has a role_id attribute
-            $accountRole->service_provider_name = 'Default Service Provider';
+            $accountRole->service_provider_name = $user->name;
             $accountRole->description = 'Default description';
 
             $accountRole->save();

@@ -23,10 +23,13 @@ import InventoryAdmin from "../screens/inventory/InventoryAdmin";
 import EventFeedbackDetails from "../screens/feedback/EventFeedbackDetails";
 import EditProfileAdmin from "../screens/profile/EditProfileAdmin";
 import AddAccountScreenAdmin from "../screens/profile/AddAccountScreenAdmin";
+import EventBookingDetails from "../screens/event/EventBookingDetails";
 import SettingsAdmin from "../screens/settings/SettingsAdmin";
 import GroupAdmin from "../screens/group/GroupAdmin";
 
 import GuestListAdmin from "../screens/group/GuestListAdmin";
+import EditEventScreen from "../../adminMain/screens/event/EditEventScreen";
+
 import EventDetails from "../screens/event/EventDetails";
 import EventPackageDetails from "../screens/event/EventPackageDetails";
 import EquipmentPanelDetails from "../screens/inventory/EquipmentPanelDetails";
@@ -46,6 +49,10 @@ const MainStackNavigator = () => {
 
       <Stack.Screen name="MessagesAdmin" component={MessagesAdmin} />
       <Stack.Screen name="NotificationAdmin" component={Notifications} />
+      <Stack.Screen
+        name="EventBookingDetails"
+        component={EventBookingDetails}
+      />
     </Stack.Navigator>
   );
 };
@@ -100,6 +107,7 @@ const EventStackNavigator = () => {
       <Stack.Screen name="PackageCardDetails" component={PackageCardDetails} />
       <Stack.Screen name="CreateEventScreen" component={CreateEventScreen} />
       <Stack.Screen name="EventCardDetails" component={EventCardDetails} />
+      <Stack.Screen name="EditEventScreen" component={EditEventScreen} />
     </Stack.Navigator>
   );
 };

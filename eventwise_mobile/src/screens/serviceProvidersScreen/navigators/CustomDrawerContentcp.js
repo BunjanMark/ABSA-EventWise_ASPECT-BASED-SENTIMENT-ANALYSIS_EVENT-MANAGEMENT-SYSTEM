@@ -7,9 +7,59 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "react-native";
 import logoWhite from "../assets/logoWhite.png";
 import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
+import { getUser } from "../../../services/authServices";
+import { getAccountProfile } from "../../../services/authServices";
+import useStore from "../../../stateManagement/useStore";
 const CustomDrawerContent = (props) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const navigation = useNavigation();
+  const [profile, setProfile] = useState([]);
+  // const { switchProfile } = useContext(ProfileContext);
+  const switchProfile = useStore((state) => state.switchProfile);
+
+  const activeProfile = useStore((state) => state.activeProfile);
+  // const setProfiles = useStore((state) => state.setProfiles);
+  const setActiveProfile = useStore((state) => state.setActiveProfile);
+  const user = useStore((state) => state.user);
+  const setUser = useStore((state) => state.setUser);
+  const [loading, setLoading] = useState(true);
+  const accountProfiles = useStore((state) => state.accountProfiles);
+  const setAccountProfiles = useStore((state) => state.setAccountProfiles);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchAccountProfile = async () => {
+        try {
+          const user = await getUser();
+          setUser(user);
+
+          const profileResponse = await getAccountProfile();
+          const profiles = profileResponse.data;
+          // console.log("prswtcherAdminCurrent user: ", user);
+
+          // console.log(profiles);
+          setProfile(profiles);
+
+          const filteredProfiles = profiles.filter(
+            (profile) => profile.user_id === user.id
+          );
+
+          setAccountProfiles(filteredProfiles);
+          // if (filteredProfiles.length > 0) {
+          //   setActiveProfile(filteredProfiles[0]);
+          // }
+
+          console.log("current profile", activeProfile);
+        } catch (error) {
+          console.error("Error fetching account profiles:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchAccountProfile();
+    }, [])
+  );
   const DropdownItem = ({ icon, label, onPress }) => (
     <TouchableOpacity style={styles.dropdownItem} onPress={onPress}>
       <Ionicons
@@ -73,7 +123,9 @@ const CustomDrawerContent = (props) => {
           style={styles.userInfo}
           onPress={() => setDropdownVisible(!dropdownVisible)}
         >
-          <Text style={styles.userName}>Avril Carasco</Text>
+          <Text style={styles.userName}>
+            {profile[1]?.service_provider_name}
+          </Text>
           <Ionicons
             name="chevron-down"
             size={20}
