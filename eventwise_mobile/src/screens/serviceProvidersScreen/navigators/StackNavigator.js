@@ -29,6 +29,7 @@ import SetSchedSP from "../screens/SetschedSP";
 import ServiceCardDetails from "../screens/ServiceTab/ServiceCardDetails";
 import ServiceDetails from "../screens/ServiceTab/ServiceCardDetails";
 import EditServiceScreen from "../screens/ServiceTab/editServiceScreen";
+import GuestList from "../screens/GuestSP";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -57,6 +58,8 @@ const MainStackNavigator = () => {
       <Stack.Screen name="CustomHeader" component={CustomHeader} />
       <Stack.Screen name="EventsSP" component={EventsSP} />
       <Stack.Screen name="SetSchedSP" component={SetSchedSP} />
+      <Stack.Screen name="GuestSP" component={GuestList} />
+      
     </Stack.Navigator>
   );
 };
