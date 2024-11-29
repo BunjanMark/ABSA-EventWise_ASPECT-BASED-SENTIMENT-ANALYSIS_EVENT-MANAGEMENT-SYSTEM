@@ -6,6 +6,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import Header from "../elements/Header";
 import API_URL from "../../../constants/constant";
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 
 // Imported event images
 import event1 from "../pictures/event1.png";
@@ -108,9 +110,9 @@ const Book = ({ navigation }) => {
           ) : (
             <View style={styles.packageDetails}>
               <TouchableOpacity onPress={() => setCurrentStep("packages")}>
-                <Text style={styles.backButton}>Back to Packages</Text>
+              <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
               </TouchableOpacity>
-              <Text style={styles.packageName}>{selectedPackage.packageName}</Text>
+              <Text style={styles.packageName1}>{selectedPackage.packageName}</Text>
               {selectedPackage.coverPhoto && (
                 <Image source={selectedPackage.coverPhoto} style={styles.coverPhoto} />
               )}
@@ -205,28 +207,33 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   packageName: {
-    fontSize: 16,
+    fontSize: 14,
+    paddingBottom: 10,
     fontWeight: "bold",
     marginTop: 10,
   },
+  packageName1: {
+    fontSize: 20,
+    paddingBottom: 10,
+    fontWeight: "bold",
+    marginTop: 10,
+    textAlign: "center",  
+  },
   totalPrice: {
     fontSize: 14,
-    color: "green",
+    color: "#eeba2b",
     marginTop: 5,
+    textAlign: "center",
   },
   eventType: {
     fontSize: 12,
     color: "gray",
     marginTop: 5,
+    textAlign: "center",
   },
   packageDetails: {
     padding: 20,
-    alignItems: "center",
-  },
-  backButton: {
-    fontSize: 18,
-    color: "blue",
-    marginBottom: 20,
+    // alignItems: "center",
   },
   servicesSection: {
     marginTop: 20,
@@ -251,6 +258,7 @@ const styles = StyleSheet.create({
   serviceName: {
     fontSize: 16,
     fontWeight: "bold",
+    color: "#eeba2b",
   },
 });
 
