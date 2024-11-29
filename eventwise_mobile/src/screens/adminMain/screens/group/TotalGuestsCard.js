@@ -17,6 +17,7 @@ const TotalGuestsCard = ({ event, navigation }) => {
       description: event.description,
       status: event.status,
       image: event.image,
+      pax: event.pax,
     });
   };
 

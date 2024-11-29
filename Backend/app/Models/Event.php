@@ -56,4 +56,10 @@ class Event extends Model
     {
         return $this->belongsToMany(Inventory::class);
     }
+
+
+    public function guests()
+    {
+        return $this->hasMany(Guest::class, 'event_id');
+    }
 }

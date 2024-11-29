@@ -2,18 +2,25 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { fetchUserBookingEvents } from "../../../services/organizer/adminEventServices";
 
-const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
+const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
   const navigation = useNavigation();
   const [eventDetails, setEventDetails] = useState([]);
-
+  const [userBookingDetails, setUserBookingDetails] = useState([]);
   useEffect(() => {
     const fetchDetails = async () => {
       try {
         if (currentEvents) {
           // Assuming fetchEventDetails is implemented elsewhere
-          const details = await fetchEventDetails(currentEvents.id);
-          setEventDetails(details);
+          // const details = await fetchEventDetails(currentEvents.id);
+          // setEventDetails(details);
+          const userDetails = await fetchUserBookingEvents(
+            currentEvents.id,
+            currentEvents.user_id
+          );
+          console.log("userDetails", userDetails);
+          setUserBookingDetails(userDetails);
         }
       } catch (error) {
         console.log("Error fetching event details: ", error);
@@ -26,8 +33,9 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
     <View style={styles.card}>
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate("EventCardDetails", {
+          navigation.navigate("EventBookingDetails", {
             eventData: currentEvents,
+            userBookingDetails: userBookingDetails,
           })
         }
       >
@@ -38,6 +46,7 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
             }}
             style={styles.image}
           />
+
           <TouchableOpacity
             style={styles.heartIcon}
             onPress={() => toggleLike(currentEvents?.id)}
@@ -50,6 +59,11 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
               size={25}
             />
           </TouchableOpacity>
+          <View>
+            <Text>
+              Booked by: {userBookingDetails?.service_provider_name || "N/a"}{" "}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.details}>
@@ -72,9 +86,9 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
               size={16}
               color="#888"
             />
-            <Text style={styles.infoText}>{`Guests: ${
-              currentEvents?.pax || 0
-            }`}</Text>
+            <Text style={styles.infoText}>
+              {`Guests: ${currentEvents?.pax || 0}`}ss
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="clock" size={16} color="#888" />
@@ -187,4 +201,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventCardHome;
+export default EventCardBookings;

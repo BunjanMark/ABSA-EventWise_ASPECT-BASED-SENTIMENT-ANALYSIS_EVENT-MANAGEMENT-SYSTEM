@@ -3,7 +3,7 @@
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
-
+use App\Console\Commands\SendEventReminders;
 class Kernel extends HttpKernel
 {
     /**
@@ -38,4 +38,11 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'cors' => \Fruitcake\Cors\HandleCors::class, // This line is for route middleware
     ];
+   
+
+    protected function schedule(Schedule $schedule)
+    {
+        // Schedule the SendEventReminders command to run daily
+        $schedule->command(SendEventReminders::class)->dailyAt('09:00'); // Set the time as needed
+    }
 }

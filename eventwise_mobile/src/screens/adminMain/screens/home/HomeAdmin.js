@@ -12,6 +12,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import EventPackages from "../component/EventPackages";
 import EventCalendar from "../component/EventCalendar";
 import EventFeedbackSentimentHome from "../feedback/EventFeedbackSentimentHome";
+import EventCardBookings from "../EventCardBookings";
 import styles from "../../styles/styles";
 import { useNavigation } from "@react-navigation/native";
 import TotalEventFeedback from "../component/TotalEventFeedback";
@@ -104,6 +105,8 @@ const HomeAdmin = () => {
       return newLikedEvents;
     });
   };
+
+  console.log("Current Events", JSON.stringify(currentEvents, ["status", 2]));
   return (
     <SafeAreaView>
       <ScrollView
@@ -122,9 +125,9 @@ const HomeAdmin = () => {
         <UpcomingEvents />
         <View style={[{ padding: 20 }]}>
           <FlatList
-            data={currentEvents.filter(
-              (event) => event.status.toLowerCase() === "scheduled"
-            )}
+            data={currentEvents
+              .filter((event) => event.status.toLowerCase() === "scheduled")
+              .sort((a, b) => new Date(a.date) - new Date(b.date))} // Sort by closest date}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             contentContainerStyle={{ gap: 20 }}
@@ -155,7 +158,7 @@ const HomeAdmin = () => {
             accessibilityModalRoot={true}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
-              <EventCardHome
+              <EventCardBookings
                 currentEvents={item}
                 handleDeleteEvent={handleDeleteEvent}
                 likedEvent={likedEvents}

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('role');
             $table->timestamps();
+            $table->boolean('notifiable')->default(true);
         });
     }
 
