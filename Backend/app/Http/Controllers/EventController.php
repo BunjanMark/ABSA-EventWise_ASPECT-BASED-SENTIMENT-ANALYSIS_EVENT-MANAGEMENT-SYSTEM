@@ -30,6 +30,7 @@ class EventController extends Controller
     $events = Event::whereDate('date', $date)->get();
     return response()->json($events);
 }
+
 public function store(Request $request)
 {
     try {
@@ -558,6 +559,12 @@ public function getServiceProviederName($eventId, $userId)
         return response()->json(['error' => 'Failed to retrieve service provider name'], 500);
     }
 }
+    public function getEventsByUserId(Request $request)
+    {
+        $userId = Auth::id();
+        $events = Event::where('user_id', $userId)->get();
+        return response()->json($events);
+    }
 
     public function updateEventStatus(Request $request, $eventId)
     {
@@ -613,5 +620,21 @@ public function getServiceProviederName($eventId, $userId)
 
         return response()->json(['message' => 'Event schedule notice sent successfully']);
     }
- 
+
+
+    public function getUserBookingEvents($eventId)
+{
+    $userId = Auth::id();
+
+    $events = Event::where('id', $eventId)
+        ->where('user_id', $userId)
+        ->first();
+
+    if (!$events) {
+        return response()->json(['error' => 'Event not found'], 404);
+    }
+
+    return response()->json($events);
+}
+    
 }

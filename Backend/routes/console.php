@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Artisan;
 use App\Console\Commands\RefreshDatabaseAndSeed;
 use App\Console\Commands\ExampleCommand;
 use App\Console\Commands\ServeProject;
+use Illuminate\Console\Scheduling\Schedule;
+use App\Console\Commands\SendEventReminders;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
@@ -23,4 +25,12 @@ Artisan::command('serve-project {host?} {port?}', function ($host = 'localhost',
     // Call ServeProject with host and port parameters
     $this->call(ServeProject::class, ['host' => $host, 'port' => $port]);
 })->purpose('Serve project at specified host and port');
- 
+
+
+
+$schedule = app(Schedule::class);
+
+// Schedule the SendEventReminders command to run daily at midnight
+$schedule->command('event:send-reminders')->everyMinute(); // This will run every minute
+$schedule->command('event:send-reminders-10-hours')->everyMinute(); // This will run every minute
+$schedule->command('event:send-reminders-1-day')->everyMinute(); // This will run every minute
