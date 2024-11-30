@@ -118,7 +118,7 @@ const Event = () => {
                   </View>
                   <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                      onPress={() => navigation.navigate('EventDetails', { event })}
+                      onPress={() => navigation.navigate('EventDetails',  { eventId: event.id })}
                     >
                       <Text style={styles.viewAllButton}>View All</Text>
                     </TouchableOpacity>

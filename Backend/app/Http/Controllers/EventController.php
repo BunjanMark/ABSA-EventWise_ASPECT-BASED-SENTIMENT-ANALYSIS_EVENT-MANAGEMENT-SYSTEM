@@ -564,5 +564,5 @@ public function getServiceProviederName($eventId, $userId)
 
         return response()->json(['message' => 'Event schedule notice sent successfully']);
     }
-    
+ 
 }
