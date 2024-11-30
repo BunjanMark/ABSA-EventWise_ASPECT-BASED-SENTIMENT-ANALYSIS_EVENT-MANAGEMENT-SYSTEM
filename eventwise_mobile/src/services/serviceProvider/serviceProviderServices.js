@@ -26,14 +26,23 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-
-
+const fetchMyEquipments = async (eventId) => {
+  try {
+    const response = await api.get(`my-equipment`, {
+      params: { event_id: eventId },
+    });
+    console.log("Fetched my equipment: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching my equipment:", error);
+    throw error;
+  }
+};
 const fetchEventsByService = async () => {
   try {
     // Retrieve userId from AsyncStorage
-    const userId = await AsyncStorage.getItem('userId');
-    
+    const userId = await AsyncStorage.getItem("userId");
+
     if (!userId) {
       throw new Error("User ID is missing.");
     }
@@ -132,8 +141,6 @@ const fetchMyServices = async () => {
   }
 };
 
-
-
 export {
   fetchMyServices,
   createService,
@@ -141,4 +148,5 @@ export {
   deleteService,
   fetchServices,
   fetchEventsByService,
+  fetchMyEquipments,
 };

@@ -29,6 +29,7 @@ import SetSchedSP from "../screens/SetschedSP";
 import ServiceCardDetails from "../screens/ServiceTab/ServiceCardDetails";
 import ServiceDetails from "../screens/ServiceTab/ServiceCardDetails";
 import EditServiceScreen from "../screens/ServiceTab/editServiceScreen";
+import EquipmentSPDataTable from "../screens/EquipmentSPDataTable";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -48,6 +49,10 @@ const MainStackNavigator = () => {
       <Stack.Screen name="NotificationSP" component={NotificationSP} />
       <Stack.Screen name="InventorySP" component={InventorySP} />
       <Stack.Screen name="EquipmentSP" component={EquipmentSP} />
+      <Stack.Screen
+        name="EquipmentSPDataTable"
+        component={EquipmentSPDataTable}
+      />
       <Stack.Screen name="ProfileSP" component={ProfileSP} />
       <Stack.Screen name="EditProfileSP" component={EditProfileSP} />
       <Stack.Screen name="AddAnotherAccSP" component={AddAnotherAccSP} />

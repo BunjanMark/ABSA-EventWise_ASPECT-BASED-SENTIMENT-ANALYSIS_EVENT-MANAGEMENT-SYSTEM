@@ -1,16 +1,12 @@
 import React, { useState } from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  ImageBackground,
-} from "react-native";
+import { SafeAreaView, StyleSheet, ImageBackground } from "react-native";
 import { Provider as PaperProvider, Text, Button } from "react-native-paper";
 import { FormStyle } from "../customerScreens/Styles/FormStyle";
 import {
   widthPercentageToDP,
   heightPercentageToDP,
 } from "react-native-responsive-screen";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TextInput } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
@@ -34,7 +30,7 @@ const AccountRecovery = () => {
   const toggleSecureEntry = () => {
     setHideEntry(!HideEntry);
   };
-  
+
   const handleSendCode = async () => {
     try {
       setLoading(!loading);
@@ -43,7 +39,7 @@ const AccountRecovery = () => {
         setIsError(true);
         return false;
       }
-      
+
       const data = {
         email,
       };
@@ -69,67 +65,71 @@ const AccountRecovery = () => {
         source={require("../customerScreens/pictures/authbg.png")}
         style={styles.backgroundImage}
       >
-        <SafeAreaView style={FormStyle.formContainer}>
-            <Text
-              variant="headlineLarge"
-              style={{
-                top: 70,
-                fontWeight: "bold",
-                fontSize: widthPercentageToDP("8%"),
-                color: "#fff"
-              }}
-            >
-              Forgot 
-            </Text>
-            <Text
-              variant="headlineLarge"
-              style={{
-                top: 70,
-                fontWeight: "bold",
-                fontSize: widthPercentageToDP("8%"),
-                color: "#fff"
-              }}
-            >
-               Password
-            </Text>
-            <TextInput
-              style={{ ...styles.inputStyle }}
-              mode="contained-tonal"
-              label="Email"
-              placeholder="Enter your email"
-              inputMode="email"
-              value={email}
-              error={isError}
-              onChangeText={(text) => setEmail(text)}
-              theme={{
-                colors: {
-                  primary: "#000",
-                  text: "#000",
-                  placeholder: "#000",
-                  background: "#000",
-                },
-              }}
-              left={<TextInput.Icon icon={() => <CustomIcon name="email" size={24} color="black" />} />}
-            />
-            <Button
-              loading={loading}
-              disabled={loading}
-              style={{ ...styles.buttonStyle, backgroundColor: "#EEBA2B" }}
-              mode="contained-tonal"
-              onPress={handleSendCode}
-              labelStyle={{ color: "white", fontWeight: "bold" }}
-              >
-              Send 
-            </Button>
-            <Button
-              style={{ ...styles.goback }}
-              labelStyle={{ color: "#A97E00" }}
-              onPress={() => {
-                navigator.goBack();
-              }}
-            >
-              Go Back
-            </Button>
+        <SafeAreaView style={[FormStyle.formContainer, { paddingTop: 100 }]}>
+          <Text
+            variant="headlineLarge"
+            style={{
+              top: 70,
+              fontWeight: "bold",
+              fontSize: widthPercentageToDP("8%"),
+              color: "#fff",
+            }}
+          >
+            Forgot
+          </Text>
+          <Text
+            variant="headlineLarge"
+            style={{
+              top: 70,
+              fontWeight: "bold",
+              fontSize: widthPercentageToDP("8%"),
+              color: "#fff",
+            }}
+          >
+            Password
+          </Text>
+          <TextInput
+            style={{ ...styles.inputStyle }}
+            mode="contained-tonal"
+            label="Email"
+            placeholder="Enter your email"
+            inputMode="email"
+            value={email}
+            error={isError}
+            onChangeText={(text) => setEmail(text)}
+            theme={{
+              colors: {
+                primary: "#000",
+                text: "#000",
+                placeholder: "#000",
+                background: "#000",
+              },
+            }}
+            left={
+              <TextInput.Icon
+                icon={() => <CustomIcon name="email" size={24} color="black" />}
+              />
+            }
+          />
+          <Button
+            loading={loading}
+            disabled={loading}
+            style={{ ...styles.buttonStyle, backgroundColor: "#EEBA2B" }}
+            mode="contained-tonal"
+            onPress={handleSendCode}
+            labelStyle={{ color: "white", fontWeight: "bold" }}
+          >
+            Send
+          </Button>
+          <Button
+            style={{ ...styles.goback }}
+            labelStyle={{ color: "#A97E00" }}
+            onPress={() => {
+              navigator.goBack();
+            }}
+          >
+            Go Back
+          </Button>
         </SafeAreaView>
       </ImageBackground>
     </PaperProvider>
