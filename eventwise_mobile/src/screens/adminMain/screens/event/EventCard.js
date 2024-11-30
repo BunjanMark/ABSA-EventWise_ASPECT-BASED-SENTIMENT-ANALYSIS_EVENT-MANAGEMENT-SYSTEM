@@ -57,11 +57,11 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
             {currentEvents?.name || "Default Event"}
           </Text>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="calendar" size={16} color="#888" />
+            <MaterialCommunityIcons name="calendar" size={16} color="#eeba2b" />
             <Text style={styles.infoText}>{currentEvents?.date || "N/A"}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="map-marker" size={16} color="#888" />
+            <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
             <Text style={styles.infoText}>
               {currentEvents?.location || "N/A"}
             </Text>
@@ -70,20 +70,20 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
             <MaterialCommunityIcons
               name="account-group"
               size={16}
-              color="#888"
+              color="#eeba2b"
             />
             <Text style={styles.infoText}>{`Guests: ${
               currentEvents?.pax || 0
             }`}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="clock" size={16} color="#888" />
+            <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
             <Text style={styles.infoText}>{`Time: ${
               currentEvents?.time || "N/A"
             }`}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="tag" size={16} color="#888" />
+            <MaterialCommunityIcons name="tag" size={16} color="#eeba2b" />
             <Text style={styles.infoText}>{`Type: ${
               currentEvents?.type || "N/A"
             }`}</Text>
@@ -121,12 +121,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   updateButton: {
-    backgroundColor: "#ff9900",
+    backgroundColor: "#eeba2b",
     padding: 10,
     borderRadius: 5,
   },
   deleteButton: {
-    backgroundColor: "#ccc",
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
@@ -168,9 +168,9 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
+    color: "#eeba2b",
     marginBottom: 10,
   },
   infoRow: {
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
+    color: "white",
   },
   footer: {
     padding: 10,

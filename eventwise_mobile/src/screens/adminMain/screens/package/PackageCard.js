@@ -38,16 +38,7 @@ const PackageCard = ({
           })
         }
       >
-        <Image
-          source={{
-            uri: currentPackages.coverPhoto,
-          }}
-          style={styles.image}
-        />
-
-        <View style={styles.serviceCardHeader}>
-          <Text style={styles.serviceName}>{currentPackages.packageName}</Text>
-          <TouchableOpacity
+      <TouchableOpacity
             onPress={() => toggleLike(currentPackages.id)}
             style={styles.heartIcon}
           >
@@ -59,6 +50,16 @@ const PackageCard = ({
               size={25}
             />
           </TouchableOpacity>
+        <Image
+          source={{
+            uri: currentPackages.coverPhoto,
+          }}
+          style={styles.image}
+        />
+
+        <View style={styles.serviceCardHeader}>
+          <Text style={styles.serviceName}>{currentPackages.packageName}</Text>
+         
         </View>
         <View style={styles.serviceDetails}>
           <View>
@@ -138,14 +139,14 @@ const styles = {
     // position: "absolute",
     // top: 220,
     // right: 30,
-    // top: 10,
+    // top: 50,
     // right: 10,
     // backgroundColor: "red",
   },
   serviceName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#ff9900",
+    color: "#eeba2b", 
     marginBottom: 10,
     marginTop: 10,
   },
@@ -161,7 +162,7 @@ const styles = {
   },
   servicePrice: {
     fontSize: 14,
-    color: "#ff9900",
+    color: "#eeba2b",
     fontWeight: "bold",
     marginBottom: 10,
   },
@@ -179,12 +180,12 @@ const styles = {
     marginTop: 10,
   },
   updateButton: {
-    backgroundColor: "#ff9900",
+    backgroundColor: "#eeba2b",
     padding: 10,
     borderRadius: 5,
   },
   deleteButton: {
-    backgroundColor: "#ccc",
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },

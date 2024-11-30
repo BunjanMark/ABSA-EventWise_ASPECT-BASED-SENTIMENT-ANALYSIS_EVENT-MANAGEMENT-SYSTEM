@@ -23,7 +23,6 @@ const AboutAnA = () => {
           flexDirection: "column",
           gap: 20,
           flex: 1,
-          //   backgroundColor: "red",
           paddingBottom: 50,
         },
       ]}
@@ -87,12 +86,15 @@ const AboutAnA = () => {
                   { textAlign: "center", marginBottom: 20 },
                 ]}
               >
-                A&A Events is committed to providing the best possible
-                experience for both customers and service providers. I am
-                Dedicated to creating a welcoming inclusive atmosphere that
-                celebrates diversity & promotes cultural exchange. With
-                continuing to set the standard for event organization and
-                curation in the world event community
+                A&A Creations is a DTI and BIR registered event organizing team from Cagayan de Oro City. Founded by a married couple, Mr. Arvil and Ms. Alysa, thus the name A&A, of the year 2018.
+
+                {"\n\n"}
+
+                A&A Creations is now a growing team offering event needs and services. Nevertheless, its team is composed of equipped individuals ready to cater to its clients' needs. Even before the team was created, Mr. Arvil and most of his company partners were involved in event planning and coordination.
+
+                {"\n\n"}
+
+                A&A Creations aims to make the clients' plans into reality. The company also believes that a tight budget is not a hindrance to making memories to treasure, with the ones close to our hearts.
               </Text>
             </View>
           ) : (
