@@ -60,9 +60,7 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
             />
           </TouchableOpacity>
           <View>
-            <Text>
-              Booked by: {userBookingDetails?.service_provider_name || "N/a"}{" "}
-            </Text>
+            
           </View>
         </View>
 
@@ -71,11 +69,11 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
             {currentEvents?.name || "Default Event"}
           </Text>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="calendar" size={16} color="#888" />
+            <MaterialCommunityIcons name="calendar" size={16} color="#eeba2b" />
             <Text style={styles.infoText}>{currentEvents?.date || "N/A"}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="map-marker" size={16} color="#888" />
+            <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
             <Text style={styles.infoText}>
               {currentEvents?.location || "N/A"}
             </Text>
@@ -84,20 +82,20 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
             <MaterialCommunityIcons
               name="account-group"
               size={16}
-              color="#888"
+              color="#eeba2b"
             />
             <Text style={styles.infoText}>
               {`Guests: ${currentEvents?.pax || 0}`}ss
             </Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="clock" size={16} color="#888" />
+            <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
             <Text style={styles.infoText}>{`Time: ${
               currentEvents?.time || "N/A"
             }`}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="tag" size={16} color="#888" />
+            <MaterialCommunityIcons name="tag" size={16} color="#eeba2b" />
             <Text style={styles.infoText}>{`Type: ${
               currentEvents?.type || "N/A"
             }`}</Text>
@@ -145,7 +143,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
+    color: "#eeba2b",
     marginBottom: 10,
   },
   infoRow: {
