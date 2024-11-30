@@ -16,6 +16,7 @@ use App\Events\EventCreatedEvent;
 use App\Models\AccountRole;
 use App\Notifications\EventScheduleNotice;
 use App\Events\EventCreatedApprovedEvent;
+
 class EventController extends Controller
 {
     //Add a method to fetch all events
@@ -100,16 +101,43 @@ public function store(Request $request)
             }
         }
         // Create equipment records for the event
+        // foreach ($validatedData['packages'] as $packageId) {
+        //     $package = Package::find($packageId);
+        //     $services = json_decode($package->services, true);
+        
+        //     foreach ($services as $serviceId) {
+        //         $service = Service::find($serviceId);
+        //         $equipment = Equipment::create([
+        //             'event_id' => $event->id,
+        //             'service_id' => $serviceId,
+        //             'user_id' => $service->user_id,
+        //         ]);
+        
+        //         // Fetch the AccountRole and User data
+        //         $AccountRoledata = AccountRole::where('user_id', $service->user_id)
+        //                                       ->where('role_id', 3) // Ensure the role_id is 3
+        //                                       ->first();
+                
+        //         if ($AccountRoledata) {
+        //             $equipment->account_role_id = $AccountRoledata->id;
+        //         }
+        
+        //         $equipment->save();
+        //     }
+        // }
         foreach ($validatedData['packages'] as $packageId) {
             $package = Package::find($packageId);
             $services = json_decode($package->services, true);
-
+        
             foreach ($services as $serviceId) {
                 $service = Service::find($serviceId);
+                $AccountRoledata = AccountRole::where('user_id', $service->user_id)->first();
+        
                 $equipment = Equipment::create([
                     'event_id' => $event->id,
                     'service_id' => $serviceId,
                     'user_id' => $service->user_id,
+                    'account_role_id' => $AccountRoledata ? $AccountRoledata->id : null,
                 ]);
             }
         }

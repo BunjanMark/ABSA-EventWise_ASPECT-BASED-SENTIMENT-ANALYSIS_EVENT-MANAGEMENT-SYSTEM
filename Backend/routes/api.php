@@ -127,6 +127,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/services/{id}', [ServiceController::class, 'update']);   // Update a specific service
     Route::delete('/services/{id}', [ServiceController::class, 'destroy']); // Delete a specific service
     // Route::post('/services/myservice', [ServiceController::class, 'storeOwnService']);
+
+    // equipment
+    Route::get('/my-equipment', [EquipmentController::class, 'myEquipment']);
+
+
+
+
+
 });
 Route::get('/trigger-event', function () {
     $newService = Service::find(1); // Or create a new service for testing
@@ -157,6 +165,7 @@ Route::post('equipment', [EquipmentController::class, 'store']);
 Route::put('equipment/{id}', [EquipmentController::class, 'update']);
 Route::delete('equipment/{id}', [EquipmentController::class, 'destroy']);
 Route::get('/event/{eventId}/equipment', [EquipmentController::class, 'getEquipmentForEvent']);
+Route::get('/event/{eventId}/equipment/{userId}', [EquipmentController::class, 'getEquipmentForEventForUserId']);
 
 Route::get('pending', [PendingUserController::class, 'index']);
 Route::post('/pending', [PendingUserController::class, 'register']);
@@ -183,7 +192,7 @@ Route::put('/inventories/{id}', [EventController::class, 'update']);
 Route::delete('/inventories/{id}', [EventController::class, 'destroy']);
 
 
-Route::get('/send-sms', [UpcomingEventController::class, 'sendReminder']);
+Route::get('/send-sms', [NotificationUpcomingEventController::class, 'sendReminder']);
 Route::post('event/{id}/send-schedule-notice', [EventController::class, 'sendEventScheduleNotice']);
 
 

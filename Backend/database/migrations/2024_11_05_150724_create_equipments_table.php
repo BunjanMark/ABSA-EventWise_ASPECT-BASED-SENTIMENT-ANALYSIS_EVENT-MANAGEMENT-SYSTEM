@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade'); // Foreign key to events table
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
             $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
+            $table->foreignId('account_role_id')->constrained('account_roles')->onDelete('cascade');
             $table->string('item')->nullable();
             $table->integer('number_of_items')->nullable();
             $table->integer('number_of_sort_items')->nullable();

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,30 +9,112 @@ import {
   TextInput,
   Animated,
   ScrollView,
-} from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-
+} from "react-native";
+import { RefreshControl } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useEventStore } from "../../../stateManagement/admin/useEventStore";
+import { fetchEvents } from "../../../services/organizer/adminEventServices";
+import { useCallback } from "react";
 const eventsData = [
-  { id: '1', title: 'Mr. & Mrs. Malik Wedding', image: require('../assets/event1.png'), date: '2024-07-01', address: 'CDO' },
-  { id: '2', title: 'Elizabeth Birthday', image: require('../assets/event2.png'), date: '2024-08-12', address: 'CDO' },
-  { id: '3', title: 'Class of 1979 Reunion', image: require('../assets/event3.png'), date: '2024-09-25', address: 'CDO' },
-  { id: '4', title: 'Corporate Party', image: require('../assets/event1.png'), date: '2024-10-30', address: 'CDO' },
-  { id: '5', title: 'Annual Gala', image: require('../assets/event2.png'), date: '2024-11-15', address: 'CDO' },
-  { id: '6', title: 'New Year Celebration', image: require('../assets/event3.png'), date: '2024-12-31', address: 'CDO' },
-  { id: '7', title: 'Music Festival', image: require('../assets/event1.png'), date: '2024-06-22', address: 'CDO' },
-  { id: '8', title: 'Art Exhibition', image: require('../assets/event2.png'), date: '2024-07-05', address: 'CDO' },
+  {
+    id: "1",
+    title: "Mr. & Mrs. Malik Weddings",
+    image: require("../assets/event1.png"),
+    date: "2024-07-01",
+    address: "CDO",
+  },
+  {
+    id: "2",
+    title: "Elizabeth Birthday",
+    image: require("../assets/event2.png"),
+    date: "2024-08-12",
+    address: "CDO",
+  },
+  {
+    id: "3",
+    title: "Class of 1979 Reunion",
+    image: require("../assets/event3.png"),
+    date: "2024-09-25",
+    address: "CDO",
+  },
+  {
+    id: "4",
+    title: "Corporate Party",
+    image: require("../assets/event1.png"),
+    date: "2024-10-30",
+    address: "CDO",
+  },
+  {
+    id: "5",
+    title: "Annual Gala",
+    image: require("../assets/event2.png"),
+    date: "2024-11-15",
+    address: "CDO",
+  },
+  {
+    id: "6",
+    title: "New Year Celebration",
+    image: require("../assets/event3.png"),
+    date: "2024-12-31",
+    address: "CDO",
+  },
+  {
+    id: "7",
+    title: "Music Festival",
+    image: require("../assets/event1.png"),
+    date: "2024-06-22",
+    address: "CDO",
+  },
+  {
+    id: "8",
+    title: "Art Exhibition",
+    image: require("../assets/event2.png"),
+    date: "2024-07-05",
+    address: "CDO",
+  },
 ];
 
 const EventsSP = ({ navigation }) => {
-  const [search, setSearch] = useState('');
+  const { currentEvents, setCurrentEvents } = useEventStore();
+  const [likedEvents, setlikedEvents] = useState({});
+  const [search, setSearch] = useState("");
   const [filteredEvents, setFilteredEvents] = useState(eventsData);
   const [overlayVisible, setOverlayVisible] = useState({});
+  useEffect(() => {
+    refreshEvents();
+  }, []);
+  const toggleLikeEvent = (currentEventsID) => {
+    setlikedEvents((prevLikedPackages) => {
+      const newLikedEvents = { ...prevLikedPackages };
+      if (newLikedEvents[currentEventsID]) {
+        delete newLikedEvents[currentEventsID];
+      } else {
+        newLikedEvents[currentEventsID] = true;
+      }
+      return newLikedEvents;
+    });
+  };
+  const [refreshingEvents, setRefreshingEvents] = useState(false);
+  const [refreshingPackages, setRefreshingPackages] = useState(false);
 
+  const refreshEvents = useCallback(async () => {
+    setRefreshingEvents(true);
+    try {
+      const updatedEvents = await fetchEvents();
+      setCurrentEvents(updatedEvents);
+    } catch (error) {
+      console.error("Failed to fetch events", error);
+    } finally {
+      setRefreshingEvents(false);
+    }
+  }, [setCurrentEvents]);
   const handleSearch = (text) => {
     setSearch(text);
     if (text) {
       const newData = eventsData.filter((item) => {
-        const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
+        const itemData = item.title
+          ? item.title.toUpperCase()
+          : "".toUpperCase();
         const textData = text.toUpperCase();
         return itemData.indexOf(textData) > -1;
       });
@@ -52,7 +134,7 @@ const EventsSP = ({ navigation }) => {
   const renderEventItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <Image source={item.image} style={styles.image} />
-      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.title}>{JSON.stringify(item)}</Text>
       <View style={styles.detailContainer}>
         <View style={styles.detailRow}>
           <MaterialCommunityIcons name="calendar" size={16} color="#2A93D5" />
@@ -78,19 +160,36 @@ const EventsSP = ({ navigation }) => {
           <TouchableOpacity
             style={styles.overlayItem}
             onPress={() => {
-              navigation.navigate('InventorySP');
+              navigation.navigate("InventorySP");
               toggleOverlay(item.id);
             }}
           >
-            <MaterialCommunityIcons name="checkbox-marked-outline" size={20} color="#fff" />
+            <MaterialCommunityIcons
+              name="checkbox-marked-outline"
+              size={20}
+              color="#fff"
+            />
             <Text style={styles.overlayText}>Inventory</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.overlayItem}
             onPress={() => {
-              navigation.navigate('EquipmentSP');
-              toggleOverlay(item.id);
+              navigation.navigate("EquipmentSPDataTable", {
+                eventId: item.id,
+                eventName: item.title,
+                eventDate: item.date,
+                eventAddress: item.address,
+              });
             }}
+            //   () => {
+            //   navigation.navigate("EquipmentSP", {
+            //     eventId: item.id,
+            //     eventName: item.title,
+            //     eventDate: item.date,
+            //     eventAddress: item.address,
+            //   });
+            //   toggleOverlay(item.id);
+            // }}
           >
             <MaterialCommunityIcons name="archive" size={20} color="#fff" />
             <Text style={styles.overlayText}>Equipment</Text>
@@ -98,11 +197,15 @@ const EventsSP = ({ navigation }) => {
           <TouchableOpacity
             style={styles.overlayItem}
             onPress={() => {
-              navigation.navigate('FeedbackSP');
+              navigation.navigate("FeedbackSP");
               toggleOverlay(item.id);
             }}
           >
-            <MaterialCommunityIcons name="message-text" size={20} color="#fff" />
+            <MaterialCommunityIcons
+              name="message-text"
+              size={20}
+              color="#fff"
+            />
             <Text style={styles.overlayText}>Feedback</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -125,7 +228,7 @@ const EventsSP = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         <FlatList
-          data={filteredEvents}
+          data={currentEvents}
           renderItem={renderEventItem}
           keyExtractor={(item) => item.id}
           scrollEnabled={false} // Disable FlatList scrolling
@@ -141,16 +244,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
   },
   searchContainer: {
     marginBottom: 10,
   },
   searchInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     padding: 10,
     borderRadius: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -160,66 +263,66 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   itemContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 10,
     padding: 10,
     marginBottom: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 2,
-    position: 'relative',
+    position: "relative",
   },
   image: {
-    width: '100%',
+    width: "100%",
     height: 150,
     borderRadius: 10,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 5,
   },
   detailContainer: {
     marginVertical: 10,
   },
   detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 5,
   },
   detailText: {
     marginLeft: 5,
-    color: '#666',
+    color: "#666",
   },
   dotsIcon: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 10,
     right: 10,
   },
   overlay: {
-    position: 'absolute',
-    backgroundColor: '#EEBA2B',
+    position: "absolute",
+    backgroundColor: "#EEBA2B",
     borderRadius: 8,
     padding: 10,
     bottom: 50, // Adjusted to show below the dots icon
     right: 10,
     zIndex: 9999, // Higher zIndex to appear in front
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
     width: 150, // Set a width for the overlay for better visibility
   },
   overlayItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 5,
   },
   overlayText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     marginLeft: 10,
     fontSize: 16,
   },
