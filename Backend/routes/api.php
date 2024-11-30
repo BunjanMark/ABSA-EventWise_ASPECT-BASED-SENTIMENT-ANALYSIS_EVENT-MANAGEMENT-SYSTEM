@@ -157,6 +157,9 @@ Route::put('equipment/{id}', [EquipmentController::class, 'update']);
 Route::delete('equipment/{id}', [EquipmentController::class, 'destroy']);
 Route::get('/event/{eventId}/equipment', [EquipmentController::class, 'getEquipmentForEvent']);
 
+Route::post('/equipment/{eventId}', [EquipmentController::class, 'store']);
+
+
 Route::get('pending', [PendingUserController::class, 'index']);
 Route::post('/pending', [PendingUserController::class, 'register']);
 

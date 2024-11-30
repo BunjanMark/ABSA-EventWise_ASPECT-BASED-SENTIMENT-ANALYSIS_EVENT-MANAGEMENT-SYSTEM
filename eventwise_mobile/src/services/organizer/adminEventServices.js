@@ -37,6 +37,8 @@ const fetchEvents = async () => {
     throw error;
   }
 };
+
+
 // function to fetch all the events based on the date
 const fetchEventsByDate1 = async (date) => {
   try {

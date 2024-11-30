@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,34 +11,50 @@ import {
   ScrollView,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-const eventsData = [
-  { id: '1', title: 'Mr. & Mrs. Malik Wedding', image: require('../assets/event1.png'), date: '2024-07-01', address: 'CDO' },
-  { id: '2', title: 'Elizabeth Birthday', image: require('../assets/event2.png'), date: '2024-08-12', address: 'CDO' },
-  { id: '3', title: 'Class of 1979 Reunion', image: require('../assets/event3.png'), date: '2024-09-25', address: 'CDO' },
-  { id: '4', title: 'Corporate Party', image: require('../assets/event1.png'), date: '2024-10-30', address: 'CDO' },
-  { id: '5', title: 'Annual Gala', image: require('../assets/event2.png'), date: '2024-11-15', address: 'CDO' },
-  { id: '6', title: 'New Year Celebration', image: require('../assets/event3.png'), date: '2024-12-31', address: 'CDO' },
-  { id: '7', title: 'Music Festival', image: require('../assets/event1.png'), date: '2024-06-22', address: 'CDO' },
-  { id: '8', title: 'Art Exhibition', image: require('../assets/event2.png'), date: '2024-07-05', address: 'CDO' },
-];
+import { fetchEvents } from '../../../services/organizer/adminEventServices';
+import event1 from '../assets/event1.png';
+import event2 from '../assets/event2.png';
+import event3 from '../assets/event3.png';
 
 const EventsSP = ({ navigation }) => {
+  const [events, setEvents] = useState([]);
   const [search, setSearch] = useState('');
-  const [filteredEvents, setFilteredEvents] = useState(eventsData);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [overlayVisible, setOverlayVisible] = useState({});
+
+  const coverPhotos = [event1, event2, event3];
+
+  // Fetch events on component mount
+  useEffect(() => {
+    const fetchAllEvents = async () => {
+      try {
+        const data = await fetchEvents();
+        // Assign cover photos in a circular fashion
+        const eventsWithImages = data.map((event, index) => ({
+          ...event,
+          image: coverPhotos[index % coverPhotos.length],
+        }));
+        setEvents(eventsWithImages);
+        setFilteredEvents(eventsWithImages);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+      }
+    };
+
+    fetchAllEvents();
+  }, []);
 
   const handleSearch = (text) => {
     setSearch(text);
     if (text) {
-      const newData = eventsData.filter((item) => {
+      const newData = events.filter((item) => {
         const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
         const textData = text.toUpperCase();
         return itemData.indexOf(textData) > -1;
       });
       setFilteredEvents(newData);
     } else {
-      setFilteredEvents(eventsData);
+      setFilteredEvents(events);
     }
   };
 
@@ -52,7 +68,7 @@ const EventsSP = ({ navigation }) => {
   const renderEventItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <Image source={item.image} style={styles.image} />
-      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.title}>{item.name}</Text>
       <View style={styles.detailContainer}>
         <View style={styles.detailRow}>
           <MaterialCommunityIcons name="calendar" size={16} color="#2A93D5" />
@@ -60,11 +76,10 @@ const EventsSP = ({ navigation }) => {
         </View>
         <View style={styles.detailRow}>
           <MaterialCommunityIcons name="map-marker" size={16} color="#2A93D5" />
-          <Text style={styles.detailText}>{item.address}</Text>
+          <Text style={styles.detailText}>{item.location}</Text>
         </View>
       </View>
 
-      {/* 3-dots icon at the bottom-right corner */}
       <TouchableOpacity
         style={styles.dotsIcon}
         onPress={() => toggleOverlay(item.id)}
@@ -72,41 +87,46 @@ const EventsSP = ({ navigation }) => {
         <MaterialCommunityIcons name="dots-vertical" size={24} color="#888" />
       </TouchableOpacity>
 
-      {/* Overlay */}
       {overlayVisible[item.id] && (
-        <Animated.View style={styles.overlay}>
-          <TouchableOpacity
-            style={styles.overlayItem}
-            onPress={() => {
-              navigation.navigate('InventorySP');
-              toggleOverlay(item.id);
-            }}
-          >
-            <MaterialCommunityIcons name="checkbox-marked-outline" size={20} color="#fff" />
-            <Text style={styles.overlayText}>Inventory</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.overlayItem}
-            onPress={() => {
-              navigation.navigate('EquipmentSP');
-              toggleOverlay(item.id);
-            }}
-          >
-            <MaterialCommunityIcons name="archive" size={20} color="#fff" />
-            <Text style={styles.overlayText}>Equipment</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.overlayItem}
-            onPress={() => {
-              navigation.navigate('FeedbackSP');
-              toggleOverlay(item.id);
-            }}
-          >
-            <MaterialCommunityIcons name="message-text" size={20} color="#fff" />
-            <Text style={styles.overlayText}>Feedback</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      )}
+  <Animated.View style={styles.overlay}>
+    <TouchableOpacity
+      style={styles.overlayItem}
+      onPress={() => navigation.navigate('InventorySP', { eventId: item.id })}
+    >
+      <MaterialCommunityIcons name="checkbox-marked-outline" size={20} color="#fff" />
+      <Text style={styles.overlayText}>Inventory</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+      style={styles.overlayItem}
+      onPress={() => navigation.navigate('EquipmentSP', { eventId: item.id })}
+    >
+      <MaterialCommunityIcons name="archive" size={20} color="#fff" />
+      <Text style={styles.overlayText}>Equipment</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+      style={styles.overlayItem}
+      onPress={() => {
+        navigation.navigate('FeedbackSP');
+        toggleOverlay(item.id);
+      }}
+    >
+      <MaterialCommunityIcons name="message-text" size={20} color="#fff" />
+      <Text style={styles.overlayText}>Feedback</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+  style={styles.overlayItem}
+  onPress={() => {
+    console.log('Navigating to GuestSP', { eventId: item.id, eventName: item.name });
+    navigation.navigate('GuestSP', { eventId: item.id, eventName: item.name });
+  }}
+>
+  <MaterialCommunityIcons name="account-group" size={20} color="#fff" />
+  <Text style={styles.overlayText}>Guest</Text>
+</TouchableOpacity>
+
+  </Animated.View>
+)}
+
     </View>
   );
 
@@ -127,10 +147,9 @@ const EventsSP = ({ navigation }) => {
         <FlatList
           data={filteredEvents}
           renderItem={renderEventItem}
-          keyExtractor={(item) => item.id}
-          scrollEnabled={false} // Disable FlatList scrolling
+          keyExtractor={(item) => item.id.toString()}
+          scrollEnabled={false}
         />
-        {/* Add padding to the bottom of the ScrollView */}
         <View style={styles.paddingBottom} />
       </ScrollView>
     </View>
