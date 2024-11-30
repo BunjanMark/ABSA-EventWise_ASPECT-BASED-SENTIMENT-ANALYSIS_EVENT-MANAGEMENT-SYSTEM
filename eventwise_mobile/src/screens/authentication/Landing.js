@@ -64,7 +64,7 @@ export default Landing = () => {
             }}
             style={{
               backgroundColor: "#A97E00",
-              borderWidth: 2,
+              borderWidth: 4,
               width: widthPercentageToDP("50%"),
               height: heightPercentageToDP("6%"),
             }}

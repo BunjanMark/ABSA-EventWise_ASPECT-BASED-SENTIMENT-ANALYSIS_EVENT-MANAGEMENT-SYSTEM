@@ -10,6 +10,9 @@ import {
   Animated,
   ScrollView,
 } from 'react-native';
+import { RefreshControl } from "react-native";
+import { useEventStore } from "../../../stateManagement/admin/useEventStore";
+import { useCallback } from "react";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchEvents } from '../../../services/organizer/adminEventServices';
 import event1 from '../assets/event1.png';
@@ -97,12 +100,20 @@ const EventsSP = ({ navigation }) => {
       <Text style={styles.overlayText}>Inventory</Text>
     </TouchableOpacity>
     <TouchableOpacity
-      style={styles.overlayItem}
-      onPress={() => navigation.navigate('EquipmentSP', { eventId: item.id })}
-    >
-      <MaterialCommunityIcons name="archive" size={20} color="#fff" />
-      <Text style={styles.overlayText}>Equipment</Text>
-    </TouchableOpacity>
+            style={styles.overlayItem}
+            onPress={() => {
+              navigation.navigate("EquipmentSPDataTable", {
+                eventId: item.id,
+                eventName: item.title,
+                eventDate: item.date,
+                eventAddress: item.address,
+              });
+            }}
+          >
+            <MaterialCommunityIcons name="archive" size={20} color="#fff" />
+            <Text style={styles.overlayText}>Equipment</Text>
+          </TouchableOpacity>
+
     <TouchableOpacity
       style={styles.overlayItem}
       onPress={() => {

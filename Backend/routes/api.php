@@ -40,6 +40,7 @@ Route::prefix('auth')->group(function () {
     Route::get('/me', [AuthenticatedSessionController::class, 'show'])->middleware(['auth:sanctum']);
     Route::post('switch-account', [AuthenticatedSessionController::class, 'switchAccount'])->middleware(['auth:sanctum']);
     Route::post('/createProfileServiceProvider', [AuthenticatedSessionController::class, 'createServiceProvider'])->middleware(['auth:sanctum']);
+    Route::post('/createProfileCustomer', [AuthenticatedSessionController::class, 'createCustomer'])->middleware(['auth:sanctum']);
 });
 // for email verification
 // Route::post('/verify-email', [AuthenticatedSessionController::class, 'sendVerificationEmail']);
@@ -127,6 +128,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/services/{id}', [ServiceController::class, 'update']);   // Update a specific service
     Route::delete('/services/{id}', [ServiceController::class, 'destroy']); // Delete a specific service
     // Route::post('/services/myservice', [ServiceController::class, 'storeOwnService']);
+
+    // equipment
+    Route::get('/my-equipment', [EquipmentController::class, 'myEquipment']);
+
+
+
+
+
 });
 Route::get('/trigger-event', function () {
     $newService = Service::find(1); // Or create a new service for testing
@@ -157,6 +166,7 @@ Route::post('equipment', [EquipmentController::class, 'store']);
 Route::put('equipment/{id}', [EquipmentController::class, 'update']);
 Route::delete('equipment/{id}', [EquipmentController::class, 'destroy']);
 Route::get('/event/{eventId}/equipment', [EquipmentController::class, 'getEquipmentForEvent']);
+Route::get('/event/{eventId}/equipment/{userId}', [EquipmentController::class, 'getEquipmentForEventForUserId']);
 
 Route::post('/equipment/{eventId}', [EquipmentController::class, 'store']);
 
@@ -186,7 +196,7 @@ Route::put('/inventories/{id}', [EventController::class, 'update']);
 Route::delete('/inventories/{id}', [EventController::class, 'destroy']);
 
 
-Route::get('/send-sms', [UpcomingEventController::class, 'sendReminder']);
+Route::get('/send-sms', [NotificationUpcomingEventController::class, 'sendReminder']);
 Route::post('event/{id}/send-schedule-notice', [EventController::class, 'sendEventScheduleNotice']);
 
 

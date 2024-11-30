@@ -9,9 +9,10 @@ import {
   Text,
 } from "react-native";
 import { DataTable } from "react-native-paper";
-import { fetchEquipment } from "../../../../services/organizer/adminEquipmentServices";
+import { fetchEquipment } from "../../../services/organizer/adminEquipmentServices";
+import { fetchMyEquipments } from "../../../services/serviceProvider/serviceProviderServices";
 
-const EquipmentPanelDetails = ({ route }) => {
+const EquipmentSPDataTable = ({ route }) => {
   const { eventId } = route.params;
   const [page, setPage] = useState(0);
   const [numberOfItemsPerPageList] = useState([2, 4, 8, 20]);
@@ -32,15 +33,27 @@ const EquipmentPanelDetails = ({ route }) => {
     const fetchEquipmentData = async () => {
       try {
         console.log("Event ID:", eventId);
-        const response = await fetchEquipment(eventId);
+        const response = await fetchMyEquipments(eventId);
         console.log("Equipment data:", response);
-        setItems(response);
+
+        // Map the response data to the desired format
+        const formattedItems = response.map((item) => ({
+          key: item.id, // Assuming 'id' exists in the backend response
+          name: item.name,
+          NumItems: item.quantity, // Adjust to match your backend field name
+          NumItemsSort: item.sortedQuantity, // Adjust to match your backend field name
+          Status: item.status,
+        }));
+
+        setItems(formattedItems); // Set the transformed data
       } catch (error) {
         console.error("Error fetching equipment data:", error);
       }
     };
+
     fetchEquipmentData();
   }, [eventId]);
+
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, items.length);
 
@@ -221,4 +234,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EquipmentPanelDetails;
+export default EquipmentSPDataTable;

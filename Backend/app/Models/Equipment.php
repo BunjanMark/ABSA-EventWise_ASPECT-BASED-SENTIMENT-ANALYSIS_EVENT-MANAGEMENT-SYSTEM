@@ -18,6 +18,7 @@ class Equipment extends Model
         'event_id',
         'user_id',
         'service_id',
+        'account_role_id',
         'item',
         'number_of_items',
         'number_of_sort_items',
@@ -42,5 +43,12 @@ class Equipment extends Model
     {
         return $this->belongsToMany(User::class, 'equipment_user');
     }
+
+   
+
+        public function accountRole()
+        {
+            return $this->belongsTo(AccountRole::class, 'account_role_id', 'id');
+        }
 }
 
