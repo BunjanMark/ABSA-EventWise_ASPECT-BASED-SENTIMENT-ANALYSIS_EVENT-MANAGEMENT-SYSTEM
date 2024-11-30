@@ -6,6 +6,7 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  FlatList
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import axios from 'axios';
@@ -23,7 +24,6 @@ const GuestListAdmin = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const { eventId, name, pax } = route.params;
-
   const { guests, setGuests } = useGuestStore();
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
@@ -36,9 +36,15 @@ const GuestListAdmin = () => {
   const [updatedPhone, setUpdatedPhone] = useState('');
   const [updatedRole, setUpdatedRole] = useState('');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false); // For deletion confirmation modal
-
-
-
+  const [newGuestFields, setNewGuestFields] = useState([]);
+  const [fieldsPerPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [numberOfFields, setNumberOfFields] = useState("");
+  const [guestsData, setGuestsData] = useState([]);  // Array to hold guest data
+  const totalPages = Math.ceil(newGuestFields.length / fieldsPerPage);
+  const startIndex = (currentPage - 1) * fieldsPerPage;
+  const currentFields = newGuestFields.slice(startIndex, startIndex + fieldsPerPage);
+  const [addGuestModalVisible, setAddGuestModalVisible] = useState(false); // Modal for adding a guest
 
   const refreshGuests = useCallback(async () => {
     setRefreshing(true);
@@ -66,6 +72,88 @@ const GuestListAdmin = () => {
       console.error("Error sending notifications:", error);
     }
   };
+
+  const handleAddGuest = async () => {
+    // Validate guest data
+    const invalidGuest = guestsData.some(
+      (guest) =>
+        !guest.GuestName || !guest.email || !guest.phone || !guest.role
+    );
+  
+    if (invalidGuest) {
+      alert('Please fill out all fields for all guests.');
+      return;
+    }
+  
+    // Debug the guestsData
+    console.log("Guests Data to send:", guestsData);
+  
+    try {
+      const response = await axios.post(`${API_URL}/api/guest`, {
+        guest: guestsData,
+        eventId: eventId,
+      });
+  
+      if (response.status === 201) {
+        setGuests((prevGuests) => [...prevGuests, ...response.data]);
+        setAddGuestModalVisible(false); // Close modal
+        setGuestsData([]); // Clear guest data
+        setNumberOfFields(''); // Reset field count
+      }
+      console.log('Payload:', {
+        guest: guestsData,
+        eventId: eventId,
+      });
+    } catch (error) {
+      if (error.response) {
+        console.error('Backend error response:', error.response.data);
+      } else {
+        console.error('Error adding guests:', error);
+      }
+    }
+  };
+
+  const handleAddFields = () => {
+    const numFields = parseInt(numberOfFields, 10);
+    console.log("Number of fields:", numFields);  // Debugging line
+  
+    if (isNaN(numFields) || numFields <= 0) {
+      alert("Please enter a valid number greater than 0.");
+      return;
+    }
+  
+    const newFields = Array(numFields).fill({
+      GuestName: '',
+      email: '',
+      phone: '',
+      role: '',
+    });
+  
+    setNewGuestFields((prevFields) => {
+      const updatedFields = [...prevFields, ...newFields];
+      setGuestsData(updatedFields);  // Update guestsData as well
+      return updatedFields;
+    });
+  };
+
+  const handleInputChange = (index, field, value) => {
+    const globalIndex = startIndex + index;
+  
+    // Update the specific field in the correct guest object
+    setNewGuestFields((prevFields) => {
+      const updatedFields = [...prevFields];
+      updatedFields[globalIndex] = {
+        ...updatedFields[globalIndex],
+        [field]: value,
+      };
+      
+      // Synchronize newGuestFields with guestsData
+      setGuestsData(updatedFields); // This line updates guestsData with the latest values
+      
+      return updatedFields;
+    });
+  };
+
   const handleEdit = (guest) => {
     setSelectedGuest(guest);
     setUpdatedGuestName(guest.GuestName);
@@ -107,6 +195,18 @@ const GuestListAdmin = () => {
     setDeleteModalVisible(true);
     setVisible(false); // Close the dropdown when Delete is clicked
   };
+  const handleConfirmDelete = async () => {
+    if (selectedGuest && selectedGuest.id) {
+      try {
+        await axios.delete(`${API_URL}/api/guest/${selectedGuest.id}`);
+        setGuests(guests.filter(guest => guest.id !== selectedGuest.id));
+        setDeleteModalVisible(false);
+        window.alert('Guest deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting guest:', error);
+      }
+    }
+  };
   const toggleDropdown = (guest) => {
     if (guestForDropdown?.id === guest.id) {
       setVisible(!visible); // Toggle dropdown if clicked on the same guest
@@ -136,7 +236,7 @@ const GuestListAdmin = () => {
       onPress={() => setModalVisible(false)}
       style={styles.closeButton}
     >
-      <Icon name="close" size={24} color="#333" />
+      <Icon name="close" size={30} color="red" />
     </TouchableOpacity>
     <Text style={styles.modalTitle}>Edit Guest Details</Text>
     <TextInput
@@ -172,6 +272,148 @@ const GuestListAdmin = () => {
     </Button>
   </View>
 </Modal>
+
+<Modal
+        isVisible={deleteModalVisible}
+        onBackdropPress={() => setDeleteModalVisible(false)}
+        animationIn="fadeIn"   // Fade-in animation when opening
+        animationOut="fadeOut" // Fade-out animation when closing
+        backdropOpacity={0.7}  // Make the background slightly opaque
+      >
+        <View style={styles.deleteModalContent}>
+          <Text style={styles.modalTitle}>
+            Are you sure you want to delete the following guest?
+          </Text>
+          <TouchableOpacity
+            onPress={() => setDeleteModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={30} color="red" />
+          </TouchableOpacity>
+          <View style={styles.guestContainerWithBorder}>
+            <Text style={styles.guestName}>{selectedGuest?.GuestName}</Text>
+            <Text style={styles.guestInfo}>Email: {selectedGuest?.email}</Text>
+            <Text style={styles.guestInfo}>Phone: {selectedGuest?.phone}</Text>
+            <Text style={styles.guestInfo}>Role: {selectedGuest?.role}</Text>
+          </View>
+          <Button
+            mode="contained"
+            style={styles.deleteButton}
+            onPress={handleConfirmDelete}
+          >
+            Yes, Remove
+          </Button>
+          
+        </View>
+      </Modal>
+
+      {/* MODAL FOR ADDING GUEST  */}
+      <Modal
+          isVisible={addGuestModalVisible}
+          onBackdropPress={() => setAddGuestModalVisible(false)}
+          animationIn="fadeIn"
+          animationOut="fadeOut"
+          backdropOpacity={0.7}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add New Guest</Text>
+            <TouchableOpacity
+              onPress={() => setAddGuestModalVisible(false)}
+              style={styles.closeButton}
+            >
+              <Icon name="close" size={24} color="#333" />
+            </TouchableOpacity>
+
+            <View style={styles.addFieldsContainer}>
+              <TextInput
+                placeholder="Number of Guests"
+                value={numberOfFields}
+                onChangeText={setNumberOfFields}
+                style={styles.numberInput}
+                keyboardType="numeric"
+              />
+              <TouchableOpacity onPress={handleAddFields} style={styles.addButton}>
+                <Text style={styles.addButtonText}>Add</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Display current page fields */}
+            {currentFields.map((field, index) => (
+          <View key={startIndex + index} style={styles.fieldContainer}>
+            {/* Guest Name */}
+            <TextInput
+              placeholder="Guest Name"
+              value={field.GuestName || ''}
+              onChangeText={(value) => handleInputChange(index, 'GuestName', value)}
+              style={styles.input}
+            />
+
+            {/* Email */}
+            <TextInput
+              placeholder="Email"
+              value={field.email || ''}
+              onChangeText={(value) => handleInputChange(index, 'email', value)}
+              style={styles.input}
+              keyboardType="email-address"
+            />
+
+            {/* Phone */}
+            <TextInput
+              placeholder="Phone"
+              value={field.phone || ''}
+              onChangeText={(value) => handleInputChange(index, 'phone', value)}
+              style={styles.input}
+              keyboardType="phone-pad"
+            />
+
+            {/* Role */}
+            <TextInput
+              placeholder="Role"
+              value={field.role || ''}
+              onChangeText={(value) => handleInputChange(index, 'role', value)}
+              style={styles.input}
+            />
+          </View>
+        ))}
+
+
+            {/* Pagination controls */}
+            <View style={styles.pagination}>
+          {/* Previous Button */}
+          <Button
+            disabled={currentPage === 1}
+            onPress={() => setCurrentPage(currentPage - 1)}
+            style={styles.pageButton}
+          >
+            &lt; {/* This is the '<' symbol */}
+          </Button>
+
+          {/* Page Number */}
+          <Text style={styles.pageText}>
+            {currentPage} of {totalPages}
+          </Text>
+
+          {/* Next Button */}
+          <Button
+            disabled={currentPage === totalPages}
+            onPress={() => setCurrentPage(currentPage + 1)}
+            style={styles.pageButton}
+          >
+            &gt; {/* This is the '>' symbol */}
+          </Button>
+        </View>
+
+
+            <Button
+              mode="contained"
+              style={styles.updateButton}
+              onPress={handleAddGuest}
+            >
+              Submit
+            </Button>
+          </View>
+        </Modal>
+
       <View style={styles.header}>
         <Text style={styles.title}>
           Guest List for Event <Text style={styles.eventName}>{name}</Text>
@@ -188,11 +430,17 @@ const GuestListAdmin = () => {
       </View>
       {error && <Text style={styles.errorText}>{error}</Text>}
 
-      {guests.length === 0 && !error ? (
-        <Text style={styles.emptyMessage}>No guests found for this event.</Text>
-      ) : (
-        guests.map((item, index) => (
-          <View style={styles.listItem}>
+      {guests.length > 0 ? (
+          <FlatList
+          data={guests}
+          keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
+          renderItem={({ item }) => {
+            if (!item) {
+              console.error('Undefined item in FlatList:', item);
+              return null;
+            }
+            return (
+              <View style={styles.listItem}>
                 <Menu
                   visible={visible && guestForDropdown?.id === item.id}
                   onDismiss={() => setVisible(false)}
@@ -211,7 +459,7 @@ const GuestListAdmin = () => {
                     <Menu.Item onPress={() => handleDelete(item)} title="Delete" />
                   </View>
                 </Menu>
-
+        
                 <View style={styles.guestContainer}>
                   <Text style={styles.guestName}>{item.GuestName}</Text>
                   <Text style={styles.guestInfo}>Email: {item.email}</Text>
@@ -219,10 +467,22 @@ const GuestListAdmin = () => {
                   <Text style={styles.guestInfo}>Role: {item.role}</Text>
                 </View>
               </View>
-          
-        ))
-      )}
+            );
+          }}
+        />
+        
+        ) : (
+          <Text style={styles.noGuests}>No guests found for this event.</Text>
+        )}
+        <Button
+        mode="contained"
+        style={styles.addGuestButton}
+        onPress={() => setAddGuestModalVisible(true)}
+      >
+        Add Guest
+      </Button>
     </ScrollView>
+    
   );
 };
 
@@ -249,7 +509,6 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 5,
     color: "#343a40",
   },
   errorText: {
@@ -312,7 +571,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 15,
     marginBottom: 15,
     textAlign: 'center',
     color: '#333',
@@ -348,6 +607,80 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "bold",
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+  },
+  input: {
+    marginBottom: 15,
+    backgroundColor:"white",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    shadowColor: '#000',      // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset
+    shadowOpacity: 0.1,       // Shadow opacity
+    shadowRadius: 4,          // Shadow blur radius
+    elevation: 2,
+  },
+  deleteButton: {
+    marginTop: 10,
+    backgroundColor: 'red',
+    width: '100%',
+  },
+  addFieldsContainer: {
+    flexDirection: 'row', // Align text input and button horizontally
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  addButton: {
+    backgroundColor: '#eeba2b',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  numberInput: {
+    flex: 1, // Take up available space
+    height: 50,
+    borderColor: "#ccc",
+    backgroundColor:"white",
+    borderWidth: 1,
+    borderRadius: 5,
+    shadowColor: '#000',      // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset
+    shadowOpacity: 0.1,       // Shadow opacity
+    shadowRadius: 4,          // Shadow blur radius
+    elevation: 2,
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  pagination: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pageButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  pageText: {
+    fontSize: 14,
+    color: '#ccc',
+    marginHorizontal: 10,
+  },
+  addGuestButton: {
+    margin: 20,
+    backgroundColor: '#eeba2b',
   },
 });
 

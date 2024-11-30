@@ -89,10 +89,6 @@ const GuestList = () => {
     }
   };
   
-  
-  
-  
-
   const handleUpdateGuest = async () => {
     try {
       const response = await axios.put(
@@ -180,11 +176,6 @@ const GuestList = () => {
     });
   };
   
-  
-  
-  
-  
-
 
   const handleInputChange = (index, field, value) => {
     const globalIndex = startIndex + index;
@@ -203,10 +194,7 @@ const GuestList = () => {
       return updatedFields;
     });
   };
-  
-  
-  
-
+ 
   // Pagination calculations
   const totalPages = Math.ceil(newGuestFields.length / fieldsPerPage);
   const startIndex = (currentPage - 1) * fieldsPerPage;
