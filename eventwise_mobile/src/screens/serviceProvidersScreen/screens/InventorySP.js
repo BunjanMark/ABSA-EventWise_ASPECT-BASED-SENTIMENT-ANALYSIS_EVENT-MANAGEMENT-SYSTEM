@@ -52,7 +52,7 @@ const InventoryTracker = () => {
       <View style={styles.container}>
         <ScrollView style={styles.scrollContainer}>
           <View style={styles.headerSection}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity onPress={() => navigation.navigate("EventsSP")}>
               <Ionicons name="arrow-back" size={24} color="#FFCE00" />
             </TouchableOpacity>
             <Text style={styles.headerText}>

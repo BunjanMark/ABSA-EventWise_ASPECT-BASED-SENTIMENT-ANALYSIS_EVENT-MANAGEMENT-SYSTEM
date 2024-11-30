@@ -116,11 +116,11 @@ const ProfileSP = () => {
       <Text style={styles.title}>{item.title}</Text>
       <View style={styles.detailContainer}>
         <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="calendar" size={16} color="#2A93D5" />
+          <MaterialCommunityIcons name="calendar" size={16} color="#eeba2b" />
           <Text style={styles.detailText}>{item.date}</Text>
         </View>
         <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="map-marker" size={16} color="#2A93D5" />
+          <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
           <Text style={styles.detailText}>{item.address}</Text>
         </View>
       </View>
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: "#000",
+    color: "#eeba2b",
     fontWeight: "bold",
     marginTop: 10,
   },
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   detailText: {
-    color: "#2A93D5",
+    color: "black",
     marginLeft: 5,
   },
   eventsListContainer: {

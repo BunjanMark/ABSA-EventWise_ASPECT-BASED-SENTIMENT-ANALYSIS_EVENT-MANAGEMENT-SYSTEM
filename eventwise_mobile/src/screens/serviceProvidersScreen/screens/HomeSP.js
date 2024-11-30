@@ -154,7 +154,7 @@ const HomeSP = () => {
                   <MaterialCommunityIcons
                     name="calendar"
                     size={16}
-                    color="#2A93D5"
+                    color="#eeba2b"
                   />
                   <Text style={styles.modalDetailText}>
                     {selectedEvent.date}
@@ -164,7 +164,7 @@ const HomeSP = () => {
                   <MaterialCommunityIcons
                     name="map-marker"
                     size={16}
-                    color="#2A93D5"
+                    color="#eeba2b"
                   />
                   <Text style={styles.modalDetailText}>
                     {selectedEvent.address}
@@ -309,6 +309,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
+    color: "#eeba2b",
   },
   modalDetailRow: {
     flexDirection: "row",
@@ -316,7 +317,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   modalDetailText: {
-    color: "#2A93D5",
+    color: "black",
     marginLeft: 5,
   },
 });

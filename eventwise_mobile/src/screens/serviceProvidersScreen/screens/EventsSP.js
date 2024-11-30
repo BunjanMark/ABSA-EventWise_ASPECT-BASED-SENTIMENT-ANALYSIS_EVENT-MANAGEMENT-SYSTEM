@@ -71,11 +71,11 @@ const EventsSP = ({ navigation }) => {
       <Text style={styles.title}>{item.name}</Text>
       <View style={styles.detailContainer}>
         <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="calendar" size={16} color="#2A93D5" />
+          <MaterialCommunityIcons name="calendar" size={16} color="#eeba2b" />
           <Text style={styles.detailText}>{item.date}</Text>
         </View>
         <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="map-marker" size={16} color="#2A93D5" />
+          <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
           <Text style={styles.detailText}>{item.location}</Text>
         </View>
       </View>
@@ -196,9 +196,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     marginVertical: 5,
+    color: '#eeba2b',
+    
   },
   detailContainer: {
     marginVertical: 10,
