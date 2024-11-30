@@ -95,6 +95,7 @@ Route::get('/admin/events/{eventId}/user/{userId}', [EventController::class, 'ge
 Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateEventStatus']);
 
 
+
 // Route::get('/admin/events', [EventController::class, 'getEvents']);
 
 
