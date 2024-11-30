@@ -1,7 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Modal,
+  TextInput,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import EquipmentSPDataTable from "./EquipmentSPDataTable";
 
 const EquipmentSP = () => {
   const navigation = useNavigation();
@@ -21,20 +30,39 @@ const EquipmentSP = () => {
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case "Complete": return { color: "green" };
-      case "Missing": return { color: "orange" };
-      case "Broken": return { color: "red" };
-      default: return { color: "black" };
+      case "Complete":
+        return { color: "green" };
+      case "Missing":
+        return { color: "orange" };
+      case "Broken":
+        return { color: "red" };
+      default:
+        return { color: "black" };
     }
   };
 
-  const totalItems = inventoryData.reduce((sum, item) => sum + item.noOfItems, 0);
-  const totalBroken = inventoryData.filter(item => item.status === "Broken").length;
-  const totalMissing = inventoryData.filter(item => item.status === "Missing").length;
+  const totalItems = inventoryData.reduce(
+    (sum, item) => sum + item.noOfItems,
+    0
+  );
+  const totalBroken = inventoryData.filter(
+    (item) => item.status === "Broken"
+  ).length;
+  const totalMissing = inventoryData.filter(
+    (item) => item.status === "Missing"
+  ).length;
 
   const handleAddItem = () => {
     if (newItem && newItemCount) {
-      const newInventory = [...inventoryData, { item: newItem, noOfItems: parseInt(newItemCount), noOfSortItems: 0, status: "" }];
+      const newInventory = [
+        ...inventoryData,
+        {
+          item: newItem,
+          noOfItems: parseInt(newItemCount),
+          noOfSortItems: 0,
+          status: "",
+        },
+      ];
       setInventoryData(newInventory);
       setNewItem("");
       setNewItemCount("");
@@ -50,7 +78,10 @@ const EquipmentSP = () => {
 
   const handleSortItemsChange = (index, change) => {
     const newInventory = [...inventoryData];
-    newInventory[index].noOfSortItems = Math.max(0, newInventory[index].noOfSortItems + change);
+    newInventory[index].noOfSortItems = Math.max(
+      0,
+      newInventory[index].noOfSortItems + change
+    );
     setInventoryData(newInventory);
   };
 
@@ -67,9 +98,13 @@ const EquipmentSP = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+      <EquipmentSPDataTable />
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.headerSection}>
-          <TouchableOpacity onPress={() => navigation.navigate('EventsSP')}>
+          <TouchableOpacity onPress={() => navigation.navigate("EventsSP")}>
             <Ionicons name="arrow-back" size={24} color="#FFCE00" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Equipment</Text>
@@ -85,58 +120,95 @@ const EquipmentSP = () => {
             <View key={index} style={styles.tableRow}>
               {removeMode && (
                 <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                  <Ionicons name="remove-circle-outline" size={24} color="red" style={styles.removeIcon} />
+                  <Ionicons
+                    name="remove-circle-outline"
+                    size={24}
+                    color="red"
+                    style={styles.removeIcon}
+                  />
                 </TouchableOpacity>
               )}
               <Text style={styles.tableRowText}>{item.item}</Text>
               <Text style={styles.tableRowText}>{item.noOfItems}</Text>
               <View style={styles.sortItemsContainer}>
-                <TouchableOpacity onPress={() => handleSortItemsChange(index, -1)}>
-                  <Ionicons name="remove-circle-outline" size={20} color="red" />
+                <TouchableOpacity
+                  onPress={() => handleSortItemsChange(index, -1)}
+                >
+                  <Ionicons
+                    name="remove-circle-outline"
+                    size={20}
+                    color="red"
+                  />
                 </TouchableOpacity>
                 <Text style={styles.sortItemsText}>{item.noOfSortItems}</Text>
-                <TouchableOpacity onPress={() => handleSortItemsChange(index, 1)}>
+                <TouchableOpacity
+                  onPress={() => handleSortItemsChange(index, 1)}
+                >
                   <Ionicons name="add-circle-outline" size={20} color="green" />
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={() => toggleDropdown(index)} style={styles.statusContainer}>
-                <Text style={[styles.tableRowText, getStatusStyle(item.status)]}>
+              <TouchableOpacity
+                onPress={() => toggleDropdown(index)}
+                style={styles.statusContainer}
+              >
+                <Text
+                  style={[styles.tableRowText, getStatusStyle(item.status)]}
+                >
                   {item.status || "Set Status"}
                 </Text>
                 <Ionicons name="chevron-down-outline" size={20} color="gray" />
               </TouchableOpacity>
               {selectedStatusIndex === index && (
                 <View style={styles.statusDropdown}>
-                  <TouchableOpacity onPress={() => handleStatusChange(index, "Complete")}>
-                    <Text style={{ color: 'green' }}>Complete</Text>
+                  <TouchableOpacity
+                    onPress={() => handleStatusChange(index, "Complete")}
+                  >
+                    <Text style={{ color: "green" }}>Complete</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleStatusChange(index, "Missing")}>
-                    <Text style={{ color: 'orange' }}>Missing</Text>
+                  <TouchableOpacity
+                    onPress={() => handleStatusChange(index, "Missing")}
+                  >
+                    <Text style={{ color: "orange" }}>Missing</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleStatusChange(index, "Broken")}>
-                    <Text style={{ color: 'red' }}>Broken</Text>
+                  <TouchableOpacity
+                    onPress={() => handleStatusChange(index, "Broken")}
+                  >
+                    <Text style={{ color: "red" }}>Broken</Text>
                   </TouchableOpacity>
                 </View>
               )}
             </View>
           ))}
-          <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setModalVisible(true)}
+          >
             <Ionicons name="add-circle-outline" size={24} color="white" />
             <Text style={styles.addButtonText}>Add Item</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.removeButton} onPress={() => setRemoveMode(!removeMode)}>
+          <TouchableOpacity
+            style={styles.removeButton}
+            onPress={() => setRemoveMode(!removeMode)}
+          >
             <Ionicons name="remove-circle-outline" size={24} color="white" />
             <Text style={styles.removeButtonText}>Remove Item</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.removeButton} onPress={() => setRemoveMode(!removeMode)}>
+          <TouchableOpacity
+            style={styles.removeButton}
+            onPress={() => setRemoveMode(!removeMode)}
+          >
             <Ionicons name="remove-circle-outline" size={24} color="white" />
             <Text style={styles.removeButtonText}>Save Item</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.summary}>
           <Text style={styles.summaryText}>Total Items: {totalItems}</Text>
-          <Text style={styles.summaryText}>Total Items Broken: {totalBroken}</Text>
-          <Text style={styles.summaryText}>Total Items Missing: {totalMissing}</Text>
+          <Text style={styles.summaryText}>
+            Total Items Broken: {totalBroken}
+          </Text>
+          <Text style={styles.summaryText}>
+            Total Items Missing: {totalMissing}
+          </Text>
         </View>
         <View style={{ height: 20 }} />
       </ScrollView>
@@ -148,7 +220,10 @@ const EquipmentSP = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
               <Ionicons name="close" size={24} color="black" />
             </TouchableOpacity>
             <Text style={styles.modalText}>Name of Item</Text>
@@ -168,7 +243,10 @@ const EquipmentSP = () => {
               placeholderTextColor="#999"
               keyboardType="numeric"
             />
-            <TouchableOpacity style={styles.modalButton} onPress={handleAddItem}>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleAddItem}
+            >
               <Text style={styles.modalButtonText}>Add Item</Text>
             </TouchableOpacity>
           </View>
@@ -181,7 +259,7 @@ const EquipmentSP = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   scrollContainer: {
     flex: 1,
@@ -191,8 +269,8 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
   },
   headerSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 10,
     padding: 20,
     backgroundColor: "transparent",
@@ -222,7 +300,7 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: "row",
-    alignItems: 'center',
+    alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 10,
   },
@@ -305,7 +383,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 10,
     right: 10,
   },

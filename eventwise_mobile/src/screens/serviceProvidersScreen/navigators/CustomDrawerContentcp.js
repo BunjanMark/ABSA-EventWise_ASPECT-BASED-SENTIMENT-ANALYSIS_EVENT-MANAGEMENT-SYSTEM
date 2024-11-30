@@ -124,7 +124,8 @@ const CustomDrawerContent = (props) => {
           onPress={() => setDropdownVisible(!dropdownVisible)}
         >
           <Text style={styles.userName}>
-            {profile[1]?.service_provider_name}
+            {profile[1]?.service_provider_name ||
+              profile[0]?.service_provider_name}
           </Text>
           <Ionicons
             name="chevron-down"

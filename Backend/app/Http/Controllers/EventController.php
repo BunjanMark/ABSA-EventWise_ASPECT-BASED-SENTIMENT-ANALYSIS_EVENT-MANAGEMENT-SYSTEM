@@ -15,6 +15,8 @@ use App\Models\User;
 use App\Events\EventCreatedEvent;
 use App\Models\AccountRole;
 use App\Notifications\EventScheduleNotice;
+use App\Events\EventCreatedApprovedEvent;
+
 class EventController extends Controller
 {
     //Add a method to fetch all events
@@ -99,16 +101,43 @@ public function store(Request $request)
             }
         }
         // Create equipment records for the event
+        // foreach ($validatedData['packages'] as $packageId) {
+        //     $package = Package::find($packageId);
+        //     $services = json_decode($package->services, true);
+        
+        //     foreach ($services as $serviceId) {
+        //         $service = Service::find($serviceId);
+        //         $equipment = Equipment::create([
+        //             'event_id' => $event->id,
+        //             'service_id' => $serviceId,
+        //             'user_id' => $service->user_id,
+        //         ]);
+        
+        //         // Fetch the AccountRole and User data
+        //         $AccountRoledata = AccountRole::where('user_id', $service->user_id)
+        //                                       ->where('role_id', 3) // Ensure the role_id is 3
+        //                                       ->first();
+                
+        //         if ($AccountRoledata) {
+        //             $equipment->account_role_id = $AccountRoledata->id;
+        //         }
+        
+        //         $equipment->save();
+        //     }
+        // }
         foreach ($validatedData['packages'] as $packageId) {
             $package = Package::find($packageId);
             $services = json_decode($package->services, true);
-
+        
             foreach ($services as $serviceId) {
                 $service = Service::find($serviceId);
+                $AccountRoledata = AccountRole::where('user_id', $service->user_id)->first();
+        
                 $equipment = Equipment::create([
                     'event_id' => $event->id,
                     'service_id' => $serviceId,
                     'user_id' => $service->user_id,
+                    'account_role_id' => $AccountRoledata ? $AccountRoledata->id : null,
                 ]);
             }
         }
@@ -176,6 +205,26 @@ public function store(Request $request)
             
         }
 
+        foreach ($validatedData['packages'] as $packageId) {
+            $package = Package::find($packageId);
+            $services = json_decode($package->services, true);
+        
+            foreach ($services as $serviceId) {
+                $service = Service::find($serviceId);
+                $serviceProvider = User::find($service->user_id);
+        
+                // Insert into event_services_providers table
+                DB::table('event_services_providers')->insert([
+                    'event_id' => $event->id,
+                    'package_id' => $packageId,
+                    'service_id' => $serviceId,
+                    'user_id' => $serviceProvider->id,
+                    'service_provider_name' => $serviceProvider->name,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
         // Return the created event along with its associated package and user
         return response()->json([$event->load('package'), $user,  'guests' => Guest::where('event_id', $event->id)->get(),  "my services" => $serviceProviders], 201); // Include package in response
     } catch (\Illuminate\Validation\ValidationException $e) {
@@ -522,9 +571,12 @@ public function getServiceProviederName($eventId, $userId)
                 return response()->json(['error' => 'Event not found'], 404);
             }
 
+            // Update the event status to 'scheduled'
             $event->update(['status' => 'scheduled']);
 
-            // return response()->json(['message' => 'Event status updated successfully'], 200);
+            // Dispatch the EventCreatedApprovedEvent
+            EventCreatedApprovedEvent::dispatch($event);
+
             return response()->json(['message' => 'Booking approved! Your event is now scheduled!'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
