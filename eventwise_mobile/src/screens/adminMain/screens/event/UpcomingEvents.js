@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginTop: 10,
     paddingHorizontal: 15,
   },
 });

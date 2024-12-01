@@ -120,6 +120,7 @@ const styles = {
     shadowRadius: 5,
     elevation: 5,
     width: 250,
+    marginBottom: 20,
   },
   image: {
     width: 200,

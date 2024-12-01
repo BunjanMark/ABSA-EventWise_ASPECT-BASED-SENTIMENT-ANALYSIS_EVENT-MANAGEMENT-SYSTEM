@@ -57,8 +57,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: "100%",
     resizeMode: "contain",
-    marginLeft: "auto",
-    marginRight: "auto",
+    marginLeft: "15%",
     width: 100,
   },
   // Add photo

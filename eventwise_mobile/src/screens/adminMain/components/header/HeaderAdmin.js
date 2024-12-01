@@ -26,7 +26,7 @@ const HeaderAdmin = ({
             name={
               activeTab === "messages" ? "chatbubble" : "chatbubble-outline"
             }
-            size={24}
+            size={20}
             color="#333"
           />
         </TouchableOpacity>
@@ -41,7 +41,7 @@ const HeaderAdmin = ({
                 ? "notifications"
                 : "notifications-outline"
             }
-            size={24}
+            size={20}
             color="#333"
           />
         </TouchableOpacity>
