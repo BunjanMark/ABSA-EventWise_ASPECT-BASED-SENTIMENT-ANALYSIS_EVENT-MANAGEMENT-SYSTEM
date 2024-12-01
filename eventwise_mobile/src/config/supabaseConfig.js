@@ -8,4 +8,3 @@ export const supabase = createClient(EXPO_SUPABASE_URL, EXPO_SUPABASE_KEY, {
     detectSessionInUrl: false,
   },
 });
-// hide test
