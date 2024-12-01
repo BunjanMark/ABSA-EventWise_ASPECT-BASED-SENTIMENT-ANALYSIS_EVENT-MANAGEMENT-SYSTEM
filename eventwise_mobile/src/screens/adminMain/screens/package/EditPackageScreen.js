@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { updatePackage } from "../../../../services/organizer/adminPackageServices";
 
 const EditPackageScreen = ({ route, navigation }) => {
@@ -45,6 +46,9 @@ const EditPackageScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
+    <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10}  />
+            </TouchableOpacity>
       <Text style={styles.header}>Edit Package</Text>
 
       <TextInput
@@ -99,7 +103,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#ff9900",
+    color: "#eeba2b",
     marginBottom: 20,
   },
   input: {
@@ -115,7 +119,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "top", // Align text to the top for multiline
   },
   updateButton: {
-    backgroundColor: "#ff9900",
+    backgroundColor: "#eeba2b",
     padding: 10,
     borderRadius: 5,
     alignItems: "center",

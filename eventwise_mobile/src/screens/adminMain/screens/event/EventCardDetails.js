@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
 import { fetchEventPackageDetails } from "../../../../services/organizer/adminEventServices";
 
 const EventCardDetails = ({ route, navigation }) => {
@@ -38,6 +39,9 @@ const EventCardDetails = ({ route, navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
+     <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10}/>
+            </TouchableOpacity>
       <View style={styles.card}>
         {/* Displaying package cover photo */}
         <Image
@@ -141,7 +145,7 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#ff9900",
+    color: "#eeba2b",
     marginBottom: 10,
   },
   sectionTitle: {
@@ -198,7 +202,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   editButton: {
-    backgroundColor: "#ff9900",
+    backgroundColor: "#eeba2b",
     padding: 12,
     borderRadius: 5,
     marginTop: 20,

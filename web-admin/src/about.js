@@ -6,8 +6,17 @@ const About = () => {
   const [fade, setFade] = useState(false); // State to handle fade animation
 
   const descriptions = {
-    'A&A Events': 'A&A Events is committed to providing the best possible experience for both customers and service providers. I am Dedicated to creating a welcoming inclusive atmosphere that celebrates diversity & promotes cultural exchange. With continuing to set the standard for event organization and curation in the world event community.',
-    'EventWise': 'EventWise is committed to providing the best possible experience for both customers and service providers. I am Dedicated to creating a welcoming inclusive atmosphere that celebrates diversity & promotes cultural exchange. With continuing to set the standard for event organization and curation in the world event community.'
+    'A&A Events': `
+      A&A Creations is a DTI and BIR registered event organizing team from Cagayan de Oro City.\n\n
+      Founded by a married couple, Mr. Arvil and Ms. Alysa, thus the name A&A, of the year 2018.\n\n
+      A&A Creations is now a growing team offering event needs and services. Nevertheless, its team is composed of equipped individuals ready to cater to its clients' needs. Even before the team was created, Mr. Arvil and most of his company partners were involved in event planning and coordination.\n\n
+      A&A Creations aims to make the clients' plans into reality. The company also believes that a tight budget is not a hindrance in making memories to treasure, with the ones close to our hearts.
+    `,
+    'EventWise': `
+      EventWise is committed to providing the best possible experience for both customers and service providers.\n\n
+      Dedicated to creating a welcoming inclusive atmosphere that celebrates diversity & promotes cultural exchange.\n\n
+      Continuing to set the standard for event organization and curation in the world event community.
+    `,
   };
 
   const handleEventChange = (event) => {
@@ -36,9 +45,14 @@ const About = () => {
         </button>
       </div>
       <div className={`description-container-about ${fade ? 'fade-out-about' : 'fade-in-about'}`}>
-        <p className="description-text-about">
-          {descriptions[selectedEvent]}
-        </p>
+        {descriptions[selectedEvent]
+          .trim()
+          .split('\n\n')
+          .map((paragraph, index) => (
+            <p key={index} className="description-text-about">
+              {paragraph}
+            </p>
+          ))}
       </div>
     </div>
   );

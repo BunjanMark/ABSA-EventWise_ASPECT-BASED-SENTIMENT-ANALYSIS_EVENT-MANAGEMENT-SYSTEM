@@ -11,7 +11,7 @@ import {
 import RNPickerSelect from "react-native-picker-select";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { updateEvent } from "../../../../services/organizer/adminEventServices";
-
+import {Ionicons} from '@expo/vector-icons';
 const EditEventScreen = ({ route, navigation }) => {
   const { eventData } = route.params;
 
@@ -70,9 +70,13 @@ const EditEventScreen = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, paddingBottom: 100 }}>
+   
       <ScrollView
         style={[styles.container, { height: "100%", paddingBottom: 200 }]}
-      >
+      > 
+       <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10}/>
+            </TouchableOpacity>
         <Text style={styles.heading}>Edit Event</Text>
 
         {/* Event Name */}
@@ -220,6 +224,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     marginTop: 20,
+    marginBottom: 30,
     alignItems: "center",
   },
   buttonText: {

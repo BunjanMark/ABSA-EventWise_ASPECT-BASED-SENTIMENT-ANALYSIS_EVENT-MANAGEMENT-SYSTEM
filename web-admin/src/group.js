@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './App.css';
 import { IoLocationSharp } from "react-icons/io5";
 import { FaCalendar } from "react-icons/fa";
+import API_URL from './apiconfig';
 
 const Group = () => {
   const [events, setEvents] = useState([]);
@@ -13,7 +14,7 @@ const Group = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/events'); // Replace with your API endpoint
+        const response = await axios.get(`${API_URL}/api/events`); // Replace with your API endpoint
         setEvents(response.data);
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -43,11 +44,11 @@ const Group = () => {
                 </p>
                 <div className="event-location-group">
                 <IoLocationSharp className="icon-group" />
-                  <p className="event-address-group">{event.venue}</p>
+                  <p className="event-address-group">{event.location}</p>
                 </div>
               </div>
               <div className="attendance-container-group">
-                <p className="attendance-text-group">{event.guests_count || 0} Attendees</p>
+                <p className="attendance-text-group">{event.guest_count || 0} Attendees</p>
               </div>
             </div>
           ))}
@@ -66,11 +67,11 @@ const Group = () => {
                 </p>
                 <div className="event-location-group">
                 <IoLocationSharp className="icon-group" />
-                  <p className="event-address-group">{event.venue}</p>
+                  <p className="event-address-group">{event.location}</p>
                 </div>
               </div>
               <div className="attendance-container-group">
-                <p className="attendance-text-group">{event.guests_count || 0} Attendees</p>
+                <p className="attendance-text-group">{event.guest_count || 0} Attendees</p>
               </div>
             </div>
           ))}

@@ -16,7 +16,7 @@ import { testUploadImageToSupabase } from "../../../../services/organizer/testUp
 import { createService } from "../../../../services/serviceProvider/serviceProviderServices";
 import { Alert } from "react-native";
 import { TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import {Ionicons} from '@expo/vector-icons';
 const CreateServiceScreen = ({ navigation }) => {
   const [serviceCategoryOther, setServiceCategoryOther] = useState("");
   const [serviceCategory, setServiceCategory] = useState("");
@@ -128,6 +128,7 @@ const CreateServiceScreen = ({ navigation }) => {
     }
   };
   return (
+    <ScrollView style={{ paddingBottom: 100, marginBottom: 20 }}>
     <View style={styles.container}>
       <ScrollView style={[{ width: "100%" }]}>
         <Formik
@@ -156,17 +157,9 @@ const CreateServiceScreen = ({ navigation }) => {
             touched,
           }) => (
             <View style={styles.form}>
-              <Button
-                mode="contained"
-                onPress={() => {
-                  navigation.goBack();
-                }}
-                loading={isLoading}
-                disable={isLoading}
-                style={[styles.createButton, styles.closeButton]}
-              >
-                <MaterialCommunityIcons name="close" size={25} color="red" />
-              </Button>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 20, top: 20 }}>
+                <Ionicons name="arrow-back" size={25} color="#eeba2b" />
+              </TouchableOpacity>
               <Text style={styles.title}>Create Service</Text>
               <View style={styles.servicePhotoContainer}>
                 <TouchableOpacity
@@ -319,6 +312,7 @@ const CreateServiceScreen = ({ navigation }) => {
         </Formik>
       </ScrollView>
     </View>
+    </ScrollView>
   );
 };
 
@@ -380,14 +374,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: 200,
   },
-  closeButton: {
-    position: "absolute",
-    backgroundColor: "transparent",
-    top: 20,
-    right: 20,
-    width: 80,
-    borderRadius: 100,
-  },
+
+  
 });
 
 export default CreateServiceScreen;

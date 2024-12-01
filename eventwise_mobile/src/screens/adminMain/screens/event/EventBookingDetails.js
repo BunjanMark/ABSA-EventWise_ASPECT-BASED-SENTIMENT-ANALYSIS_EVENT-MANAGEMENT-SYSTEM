@@ -10,6 +10,8 @@ import {
 import { useEffect } from "react";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+
 
 const EventBookingDetails = ({ route, navigation }) => {
   const { eventData, userBookingDetails } = route.params;
@@ -65,6 +67,9 @@ const EventBookingDetails = ({ route, navigation }) => {
   };
   return (
     <ScrollView style={styles.container}>
+     <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10} />
+            </TouchableOpacity>
       <View style={styles.card}>
         {/* Displaying package cover photo */}
         <Image
@@ -191,7 +196,7 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#ff9900",
+    color: "#eeba2b",
     marginBottom: 10,
   },
   sectionTitle: {

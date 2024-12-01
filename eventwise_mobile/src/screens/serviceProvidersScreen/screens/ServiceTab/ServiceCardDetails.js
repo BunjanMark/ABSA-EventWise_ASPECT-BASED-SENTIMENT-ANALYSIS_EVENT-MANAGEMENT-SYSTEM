@@ -9,12 +9,16 @@ import {
   ScrollView,
   Image,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 const ServiceCardDetails = ({ route, navigation }) => {
   const { service } = route.params; // Retrieve the service data passed through navigation
 
   return (
     <ScrollView style={styles.container}>
+     <TouchableOpacity onPress={() => navigation.goBack()}>
+      <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
+    </TouchableOpacity>
       <View style={styles.card}>
         {/* Displaying service photo */}
         <Image
@@ -76,7 +80,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
-    paddingBottom: 200,
+    paddingBottom: 100,
   },
   servicePhoto: {
     width: "100%",
@@ -98,7 +102,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#ff9900",
+    color: "#eeba2b",
     marginBottom: 10,
   },
   pax: {
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   editButton: {
-    backgroundColor: "#ff9900",
+    backgroundColor: "#eeba2b",
     padding: 12,
     borderRadius: 5,
     marginTop: 20,

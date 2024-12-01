@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { fetchPackageServiceDetails } from "../../../../services/organizer/adminPackageServices";
 
 const PackageCardDetails = ({ route, navigation }) => {
@@ -37,6 +38,9 @@ const PackageCardDetails = ({ route, navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
+     <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10} />
+            </TouchableOpacity>
       <View style={styles.card}>
         {/* Displaying package cover photo */}
         <Image
@@ -152,7 +156,7 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#ff9900",
+    color: "#eeba2b",
     marginBottom: 20,
   },
   sectionTitle: {
@@ -176,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   editButton: {
-    backgroundColor: "#ff9900",
+    backgroundColor: "#eeba2b",
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 5,
