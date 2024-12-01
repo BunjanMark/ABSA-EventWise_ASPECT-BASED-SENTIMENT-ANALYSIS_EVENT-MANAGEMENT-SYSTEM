@@ -15,6 +15,7 @@ import package1Image from './images/package1.png';
 import package2Image from './images/package2.png';
 import package3Image from './images/package3.png';
 import package4Image from './images/package4.png';
+import API_URL from './apiconfig';
 
 
 
@@ -349,7 +350,7 @@ const ChoosePackage = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/admin/packages');
+        const response = await axios.get(`${API_URL}/api/admin/packages`);
         const data = response.data.map((pkg) => {
           // Don't recalculate totalPrice here, use the one from the database
           const description = pkg.description || randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)];
@@ -497,7 +498,7 @@ const ChooseServiceProv = () => {
 
   useEffect(() => {
     // Fetch services from the API
-    axios.get('http://localhost:8000/api/services', {
+    axios.get(`${API_URL}/api/services`, {
       headers: {
         Authorization: `Bearer ${getAuthToken()}`, // Replace with your auth token function
       },
@@ -801,7 +802,7 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
     try {
       // Send package data to the backend
       if (selectedPackage) {
-        const packageResponse = await axios.post('http://localhost:8000/api/admin/packages', formData, {
+        const packageResponse = await axios.post(`${API_URL}/api/admin/packages`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${token}`,
@@ -827,7 +828,7 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
       formData.append('package_id', selectedPackage.id);
   
       // Send event data to the backend
-      const eventResponse = await axios.post('http://localhost:8000/api/events', formData, {
+      const eventResponse = await axios.post(`${API_URL}/api/events`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,

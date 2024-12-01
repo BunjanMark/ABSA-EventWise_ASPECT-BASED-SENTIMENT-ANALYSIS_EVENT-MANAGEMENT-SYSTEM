@@ -1,8 +1,8 @@
 
 export const getAuthToken = () => {
-    return localStorage.getItem('token') || '3|35QyvM9Ro0j5OrcQyJqfAdRjYTDngV8ABg2IKQgg1cf9412d'; // Replace with your default token
+    return localStorage.getItem('token') || '5|1hg9pSYI6JQpE8ZzfJsmiNiiqHuE8ewHSJ6CKf4jafc93d11';
 };
 
-const API_URL = "http://192.168.254.126:8000";
+const API_URL = "http://192.168.100.11:8000";
 
 export default API_URL;
