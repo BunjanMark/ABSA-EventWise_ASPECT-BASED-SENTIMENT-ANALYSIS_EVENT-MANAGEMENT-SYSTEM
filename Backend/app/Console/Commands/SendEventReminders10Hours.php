@@ -16,19 +16,17 @@ class SendEventReminders10Hours extends Command
     public function handle()
     {
         try {
-            // Get the current datetime using Carbon
-            $now = Carbon::now();
-            $tenHoursLater = Carbon::now()->addHours(10);
+            $now = Carbon::now()->format('Y-m-d H:i:s');
+            $tenHoursLater = Carbon::now()->addHours(10)->format('Y-m-d H:i:s');
 
-            // Log the datetime for debugging purposes
-            $this->info('Now: ' . $now->format('Y-m-d H:i:s'));
-            $this->info('Ten Hours Later: ' . $tenHoursLater->format('Y-m-d H:i:s'));
+            $this->info('Now: ' . $now);
+            $this->info('Ten Hours Later: ' . $tenHoursLater);
 
-            // Get events where the event's date + time is within the next 10 hours
             $events = Event::where(function ($query) use ($now, $tenHoursLater) {
-                $query->whereRaw('CONCAT(date, " ", time) >= ?', [$now->format('Y-m-d H:i')])
-                      ->whereRaw('CONCAT(date, " ", time) <= ?', [$tenHoursLater->format('Y-m-d H:i')]);
+                $query->whereRaw('CONCAT(date, " ", time) >= ?', [$now])
+                      ->whereRaw('CONCAT(date, " ", time) <= ?', [$tenHoursLater]);
             })->get();
+
 
             if ($events->isEmpty()) {
                 $this->info("No events scheduled within the next 10 hours.");

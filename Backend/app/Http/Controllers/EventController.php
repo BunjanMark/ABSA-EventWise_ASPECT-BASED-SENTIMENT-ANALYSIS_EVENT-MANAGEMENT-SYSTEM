@@ -16,7 +16,7 @@ use App\Events\EventCreatedEvent;
 use App\Models\AccountRole;
 use App\Notifications\EventScheduleNotice;
 use App\Events\EventCreatedApprovedEvent;
-
+use Carbon\Carbon;
 class EventController extends Controller
 {
     //Add a method to fetch all events
@@ -85,7 +85,9 @@ public function store(Request $request)
             'packages' => json_encode($validatedData['packages']), // Store packages as JSON
             'user_id' => $validatedData['user_id'], // Now user_id is explicitly set
         ]);
-
+        // In your Event model or controller when creating or updating an event
+        $event->event_datetime = Carbon::parse($event->date . ' ' . $event->time);
+        $event->save();
         event(new EventCreatedEvent($event));
 
         if (isset($validatedData['packages']) && count($validatedData['packages']) > 0) {

@@ -34,7 +34,7 @@ class SendEventReminders1Day extends Command
     {
         try {
             // Calculate the date 3 days from today
-            $reminderDate = now()->addDays(2)->format('Y-m-d');
+            $reminderDate = now()->addDays(1)->format('Y-m-d');
 
             // Fetch all events scheduled for 3 days from today
             $events = Event::where('date', $reminderDate)->get();
