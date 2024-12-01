@@ -57,11 +57,11 @@ const HomeSP = () => {
       <Text style={styles.title}>{item.title}</Text>
       <View style={styles.detailContainer}>
         <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="calendar" size={16} color="#2A93D5" />
+          <MaterialCommunityIcons name="calendar" size={16} color="#eeba2b" />
           <Text style={styles.detailText}>{item.date}</Text>
         </View>
         <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="map-marker" size={16} color="#2A93D5" />
+          <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
           <Text style={styles.detailText}>{item.address}</Text>
         </View>
       </View>
@@ -93,7 +93,7 @@ const HomeSP = () => {
               <Text style={styles.nameText}>Service Provider</Text>
             </View>
             <View style={styles.locationContainer}>
-              <MaterialIcons name="location-on" size={24} color="black" />
+              <MaterialIcons name="location-on" size={24} color="#eeba2b" />
               <Text style={styles.locationText}>Cagayan de Oro City</Text>
             </View>
           </View>
@@ -154,7 +154,7 @@ const HomeSP = () => {
                   <MaterialCommunityIcons
                     name="calendar"
                     size={16}
-                    color="#2A93D5"
+                    color="#eeba2b"
                   />
                   <Text style={styles.modalDetailText}>
                     {selectedEvent.date}
@@ -164,7 +164,7 @@ const HomeSP = () => {
                   <MaterialCommunityIcons
                     name="map-marker"
                     size={16}
-                    color="#2A93D5"
+                    color="#eeba2b"
                   />
                   <Text style={styles.modalDetailText}>
                     {selectedEvent.address}
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: "black",
+    color: "#eeba2b",
     fontWeight: "bold",
     marginTop: 10,
   },
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   detailText: {
-    color: "#2A93D5",
+    color: "black",
     marginLeft: 5,
   },
   eventsListContainer: {
@@ -309,6 +309,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
+    color: "#eeba2b",
   },
   modalDetailRow: {
     flexDirection: "row",
@@ -316,7 +317,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   modalDetailText: {
-    color: "#2A93D5",
+    color: "black",
     marginLeft: 5,
   },
 });

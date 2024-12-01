@@ -96,6 +96,7 @@ Route::get('/admin/events/{eventId}/user/{userId}', [EventController::class, 'ge
 Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateEventStatus']);
 
 
+
 // Route::get('/admin/events', [EventController::class, 'getEvents']);
 
 
@@ -166,6 +167,9 @@ Route::put('equipment/{id}', [EquipmentController::class, 'update']);
 Route::delete('equipment/{id}', [EquipmentController::class, 'destroy']);
 Route::get('/event/{eventId}/equipment', [EquipmentController::class, 'getEquipmentForEvent']);
 Route::get('/event/{eventId}/equipment/{userId}', [EquipmentController::class, 'getEquipmentForEventForUserId']);
+
+Route::post('/equipment/{eventId}', [EquipmentController::class, 'store']);
+
 
 Route::get('pending', [PendingUserController::class, 'index']);
 Route::post('/pending', [PendingUserController::class, 'register']);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -14,6 +14,8 @@ import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ProfileSwitchSP from "./Drawer/ProfileSwitchSP";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getUser} from "../../../services/authServices";
+
 
 const eventsData = [
   {
@@ -86,6 +88,21 @@ const ProfileSP = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [user, setUser] = useState(null);
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await getUser();  // Assuming this function returns user data
+        setUser(userData);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const renderEventItem = ({ item }) => (
     <TouchableOpacity
@@ -99,16 +116,20 @@ const ProfileSP = () => {
       <Text style={styles.title}>{item.title}</Text>
       <View style={styles.detailContainer}>
         <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="calendar" size={16} color="#2A93D5" />
+          <MaterialCommunityIcons name="calendar" size={16} color="#eeba2b" />
           <Text style={styles.detailText}>{item.date}</Text>
         </View>
         <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="map-marker" size={16} color="#2A93D5" />
+          <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
           <Text style={styles.detailText}>{item.address}</Text>
         </View>
       </View>
     </TouchableOpacity>
   );
+
+  if (!user) {
+    return <Text>Loading...</Text>;  // Display loading until user data is fetched
+  }
 
   return (
     <ScrollView
@@ -121,8 +142,13 @@ const ProfileSP = () => {
           source={require("../assets/pro_pic.png")}
           style={styles.profilePicture}
         />
-        <Text style={styles.nameText}>Organizer</Text>
-        <Text style={styles.addressText}>Service Provider Address</Text>
+        {/* Display user's name here */}
+        <Text style={styles.nameText}>{user.name}</Text>
+
+        {/* Display user type (service provider or other role) */}
+        <Text style={styles.addressText}>
+          {user.role === 1 ? "Admin" : "Service Provider"}
+        </Text>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -134,9 +160,11 @@ const ProfileSP = () => {
           </TouchableOpacity>
         </View>
       </View>
+
       <SafeAreaView style={styles.headerContainer}>
         <ProfileSwitchSP />
       </SafeAreaView>
+
       <Text style={styles.popularEventText}>Popular Events</Text>
 
       <FlatList
@@ -201,6 +229,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     marginTop: 20,
+    marginBottom:30,
     width: "100%",
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
@@ -272,7 +301,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: "#000",
+    color: "#eeba2b",
     fontWeight: "bold",
     marginTop: 10,
   },
@@ -285,7 +314,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   detailText: {
-    color: "#2A93D5",
+    color: "black",
     marginLeft: 5,
   },
   eventsListContainer: {

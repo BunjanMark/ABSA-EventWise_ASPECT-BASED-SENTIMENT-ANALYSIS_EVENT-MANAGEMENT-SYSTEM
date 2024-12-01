@@ -1,27 +1,41 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import Header2 from '../elements/Header2';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import Header from "../elements/Header";
+import axios from 'axios';
+import API_URL from '../../../constants/constant';
 
 const EventDetails = () => {
-  const eventData = {
-    eventType: "Wedding",
-    eventName: "John & Jane's Wedding",
-    location: "Grand Ballroom, City Center",
-    date: "2025-06-20",
-    selectedPackage: "Gold Package",
-    guests: [
-      { name: "Alice Smith", email: "alice@example.com" },
-      { name: "Bob Johnson", email: "bob@example.com" },
-    ],
-  };
-
+  const route = useRoute();
   const navigation = useNavigation();
+  const { eventId } = route.params;
+  const [eventData, setEventData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+  .get(`${API_URL}/api/admin/events/${eventId}`)
+  .then((response) => {
+    console.log('Event data with everything:', response.data);
+    setEventData(response.data);
+    setLoading(false);
+  })
+  .catch((error) => {
+    console.error('Error fetching event data:', error);
+    setLoading(false);
+  });
+
+  }, [eventId]);
+  
+  
+  if (loading) {
+    return <ActivityIndicator size="large" color="#eeba2b" />;
+  }
 
   return (
-    <View style={{ flex: 1 }}>
-      <Header2 />
+    <>
+      <Header />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
@@ -31,41 +45,61 @@ const EventDetails = () => {
         </View>
 
         <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Event Type:</Text>
-          <Text style={styles.detailValue}>{eventData.eventType}</Text>
-        </View>
-
-        <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Event Name:</Text>
-          <Text style={styles.detailValue}>{eventData.eventName}</Text>
-        </View>
-
-        <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Location:</Text>
-          <Text style={styles.detailValue}>{eventData.location}</Text>
-        </View>
-
-        <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Date:</Text>
-          <Text style={styles.detailValue}>{eventData.date}</Text>
-        </View>
-
-        <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Selected Package:</Text>
-          <Text style={styles.detailValue}>{eventData.selectedPackage}</Text>
-        </View>
-
-        <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Guests:</Text>
-          {eventData.guests.map((guest, index) => (
-            <View key={index} style={styles.guestItem}>
-              <Text style={styles.guestName}>{guest.name}</Text>
-              <Text style={styles.guestEmail}>{guest.email}</Text>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
+    <Text style={styles.detailLabel}>Event Name:</Text>
+    <View style={styles.detailContainer}>
+      <Text style={styles.detailValue}>{eventData.name}</Text>
     </View>
+  </View>
+  <View style={styles.detailGroup}>
+    <Text style={styles.detailLabel}>Date:</Text>
+    <View style={styles.detailContainer}>
+      <Text style={styles.detailValue}>{eventData.date}</Text>
+    </View>
+  </View>
+  <View style={styles.detailGroup}>
+    <Text style={styles.detailLabel}>Location:</Text>
+    <View style={styles.detailContainer}>
+      <Text style={styles.detailValue}>{eventData.location}</Text>
+    </View>
+  </View>
+  <View style={styles.detailGroup}>
+  <Text style={styles.detailLabel}>Guests:</Text>
+  <View style={styles.detailContainer}>
+    {eventData.guest && eventData.guest.length > 0 ? (
+      eventData.guest.map((guest, index) => (
+        <Text key={index} style={styles.detailValue}>
+          {guest.GuestName} - {guest.email}
+        </Text>
+      ))
+    ) : (
+      <Text style={styles.detailValue}>No guests available.</Text>
+    )}
+  </View>
+</View>
+
+  <View style={styles.detailGroup}>
+    <Text style={styles.detailLabel}>Packages:</Text>
+    {Array.isArray(eventData.packages) && eventData.packages.length > 0 ? (
+      eventData.packages.map((packageItem, index) => (
+        <View key={index} style={styles.detailContainer}>
+          <Text style={styles.detailValue}>
+            {packageItem.name} - {packageItem.price} USD
+          </Text>
+        </View>
+      ))
+    ) : (
+      <View style={styles.detailContainer}>
+        <Text style={styles.detailValue}>No packages available.</Text>
+      </View>
+    )}
+  </View>
+
+
+
+
+
+      </ScrollView>
+    </>
   );
 };
 
@@ -90,25 +124,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  detailValue: {
-    fontSize: 14,
-    color: '#555',
-    backgroundColor: '#ccc',
+  detailContainer: {
+    backgroundColor: "#f9f9f9",
     padding: 10,
     borderRadius: 5,
-    marginTop: 5,
+    marginVertical: 5,
+    // Shadow for iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    // Shadow for Android
+    elevation: 4,
   },
-  guestItem: {
-    marginTop: 5,
-  },
-  guestName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  guestEmail: {
+  detailValue: {
     fontSize: 14,
-    color: '#777',
+    color: "#333",
   },
 });
 

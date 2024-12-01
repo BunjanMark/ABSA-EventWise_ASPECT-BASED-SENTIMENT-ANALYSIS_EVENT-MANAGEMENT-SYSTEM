@@ -15,12 +15,11 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: "100%",
     resizeMode: "contain",
-    marginLeft: "auto",
-    marginRight: "auto",
+    marginLeft:50
   },
   // For header
   headerContainer: {
-    height: 100,
+    height:90,
     backgroundColor: "#fff",
     flexDirection: "row",
     alignItems: "center",

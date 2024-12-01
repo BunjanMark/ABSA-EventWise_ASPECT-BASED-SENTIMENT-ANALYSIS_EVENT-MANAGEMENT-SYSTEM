@@ -157,7 +157,7 @@ const styles = {
     borderRadius: 5,
   },
   deleteButton: {
-    backgroundColor: "#ccc",
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },

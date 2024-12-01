@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import API_URL from '../../../constants/constant';
-import Header2 from '../elements/Header2';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // For the 3-dot icon
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal'; // For showing modal
@@ -12,7 +11,7 @@ import { useNavigation } from '@react-navigation/native'; // Import the hook
 
 const GuestList = () => {
   const route = useRoute();
-  const { eventid, eventName } = route.params;
+  const { eventId, eventName } = route.params;
   const [guests, setGuests] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState(null);
@@ -32,13 +31,14 @@ const GuestList = () => {
   const [guestsData, setGuestsData] = useState([]);  // Array to hold guest data
   // const [currentFields, setCurrentFields] = useState([]);
  
-
+  console.log('Event ID:', eventId);  // Check if the eventId and eventName are available
+  console.log('Event Name:', eventName);
 
 
   useEffect(() => {
     const fetchGuests = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/guest/${eventid}`);
+        const response = await axios.get(`${API_URL}/api/guest/${eventId}`);
         setGuests(response.data);
         console.log('Guests:', response.data);
       } catch (error) {
@@ -47,7 +47,7 @@ const GuestList = () => {
     };
 
     fetchGuests();
-  }, [eventid]);
+  }, [eventId]);
   
   const handleAddGuest = async () => {
     // Validate guest data
@@ -67,7 +67,7 @@ const GuestList = () => {
     try {
       const response = await axios.post(`${API_URL}/api/guest`, {
         guest: guestsData,
-        eventId: eventid,
+        eventId: eventId,
       });
   
       if (response.status === 201) {
@@ -78,7 +78,7 @@ const GuestList = () => {
       }
       console.log('Payload:', {
         guest: guestsData,
-        eventId: eventid,
+        eventId: eventId,
       });
     } catch (error) {
       if (error.response) {
@@ -176,6 +176,11 @@ const GuestList = () => {
     });
   };
   
+  
+  
+  
+  
+
 
   const handleInputChange = (index, field, value) => {
     const globalIndex = startIndex + index;
@@ -194,7 +199,10 @@ const GuestList = () => {
       return updatedFields;
     });
   };
- 
+  
+  
+  
+
   // Pagination calculations
   const totalPages = Math.ceil(newGuestFields.length / fieldsPerPage);
   const startIndex = (currentPage - 1) * fieldsPerPage;
@@ -202,7 +210,6 @@ const GuestList = () => {
 
   return (
     <>
-      <Header2 />
       <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
       <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
@@ -214,29 +221,10 @@ const GuestList = () => {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.listItem}>
-                <Menu
-                  visible={visible && guestForDropdown?.id === item.id}
-                  onDismiss={() => setVisible(false)}
-                  anchor={
-                    <TouchableOpacity
-                      onPress={() => toggleDropdown(item)}
-                      style={styles.dotsContainer}
-                    >
-                      <Icon name="more-vert" size={24} color="#333" />
-                    </TouchableOpacity>
-                  }
-                >
-                  <View style={styles.menu}>
-                    <Menu.Item onPress={() => handleEdit(item)} title="Edit" />
-                    <Divider />
-                    <Menu.Item onPress={() => handleDelete(item)} title="Delete" />
-                  </View>
-                </Menu>
+            
 
                 <View style={styles.guestContainer}>
                   <Text style={styles.guestName}>{item.GuestName}</Text>
-                  <Text style={styles.guestInfo}>Email: {item.email}</Text>
-                  <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
                   <Text style={styles.guestInfo}>Role: {item.role}</Text>
                 </View>
               </View>
