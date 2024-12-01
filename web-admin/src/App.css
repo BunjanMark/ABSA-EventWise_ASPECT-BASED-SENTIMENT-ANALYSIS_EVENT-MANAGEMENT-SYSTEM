@@ -1,3 +1,5 @@
+
+
 /* Import Poppins font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
 
@@ -295,17 +297,33 @@ body, html, #root {
 
 .event-card-dashboard {
   background: rgba(255, 255, 255, 0.8);
-  border: 2px solid #d0d0d0; /* Border around the card */
+  border: 2px solid #d0d0d0;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  overflow: hidden; /* Prevent overflow from the image */
-  text-align: center; /* Center text in the card */
-  transition: transform 0.2s; /* Add transition for hover effect */
+  overflow: hidden;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.5s; /* Add transition for border color */
 }
 
 .event-card-dashboard:hover {
   transform: scale(1.02); /* Slightly enlarge on hover */
+  border-color: #eeba2b; /* Change border color on hover */
+  animation: border-glow 1.5s infinite linear; /* Apply animation */
 }
+
+/* Keyframes for border animation */
+@keyframes border-glow {
+  0% {
+    box-shadow: 0 0 5px #eeba2b;
+  }
+  50% {
+    box-shadow: 0 0 20px #eeba2b;
+  }
+  100% {
+    box-shadow: 0 0 5px #eeba2b;
+  }
+}
+
 
 .event-cover-dashboard {
   width: 95%; /* Full width for the cover photo */
@@ -1128,10 +1146,57 @@ button:hover {
   padding: 10px;
   position: relative;
   box-sizing: border-box;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add a subtle shadow */
-  transition: box-shadow 0.3s ease;
-  width: 100%; /* Ensure item-container takes full width available in the grid */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  width: 100%;
+  margin-bottom: 1rem;
 }
+
+.item-container-events:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+  border: 2px solid #eeba2b;
+}
+
+.heart-icon-events {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.heart-liked-events {
+  transform: scale(1.3);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .item-container-events {
+    width: 100%;
+    padding: 5px;
+  }
+}
+@media (max-width: 500px) {
+  .menu-item-events {
+    font-size: 14px;
+  }
+}
+
+
+
 
 .image-events {
   width: 100%;
@@ -1142,8 +1207,8 @@ button:hover {
 
 .title-events {
   margin-top: 10px;
-  font-size: 16px;
-  color: #000;
+  font-size: 18px;
+  color: #eeba2b;
   text-align: center;
 }
 
@@ -1238,6 +1303,7 @@ button:hover {
   border-radius: 5px;
   z-index: 10; /* Ensure it's on top */
   padding: 10px;
+  animation: fadeIn 0.3s ease;
 }
 
 .menu-item-events {
@@ -1246,7 +1312,7 @@ button:hover {
   display: flex;
   align-items: center;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.4s ease;
 }
 
 .menu-item-events:hover {
@@ -4421,6 +4487,7 @@ textarea.text-input-addrole {
   display: flex;
   justify-content: center;
   align-items: center;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 /* Modal Content */
@@ -4437,10 +4504,10 @@ textarea.text-input-addrole {
 
 /* Modal Title */
 .modalTitle-groupattendee {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
   margin-bottom: 20px;
-  color: #333333; /* Darker text color for better readability */
+  color: #eeba2b; /* Darker text color for better readability */
 }
 
 /* Input Fields */
@@ -4495,6 +4562,27 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.action-icon {
+  font-size: 24px; /* Increase the icon size */
+  color: #eeba2b; /* Set the color */
+  cursor: pointer; /* Make the icons clickable */
+  margin-right: 10px; /* Add space between the icons */
+}
+
+.action-icon:last-child {
+  margin-right: 0; /* Remove the margin on the last icon */
+}
+
+.done-groupattendee, .cancel-groupattendee, .cancel, .confirm {
+  background-color: #FFC42B;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 10px; /* Space between buttons */
+}
 
 /* MESSAGES */
 

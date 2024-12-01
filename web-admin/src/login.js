@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // Make sure you have axios installed with `npm install axios`
 import './App.css';
 import { FaUser, FaLock } from "react-icons/fa";
+import API_URL from './apiconfig';
 
 // Function to get the token from localStorage or use a default value
 const getAuthToken = () => {
@@ -20,7 +21,7 @@ const Login = () => {
         setError(''); // Clear previous errors
 
         try {
-            const response = await axios.post('http://localhost:8000/api/auth/login', {
+            const response = await axios.post(`${API_URL}/api/auth/login`, {
                 email: email,
                 password: password
             });

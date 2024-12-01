@@ -4,6 +4,7 @@ import axios from 'axios';
 import './App.css';
 import { IoArrowBack } from 'react-icons/io5';
 import { IoMdAddCircle, IoMdRemoveCircle, IoIosDoneAll, IoIosArrowDown } from 'react-icons/io';
+import API_URL from './apiconfig';
 
 const Equipment = () => {
   const location = useLocation();
@@ -25,7 +26,7 @@ const Equipment = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8000/api/equipments?event_id=${eventId}`);
+      const response = await axios.get(`${API_URL}/api/equipment?event_id=${eventId}`);
       setInventoryData(response.data);
       
       const initialSortItems = response.data.reduce((acc, item) => {
@@ -45,7 +46,7 @@ const Equipment = () => {
   const handleAddItem = async () => {
     if (newItem.trim() && newItemCount > 0 && eventId) {
       try {
-        await axios.post('http://localhost:8000/api/equipments', {
+        await axios.post(`${API_URL}/api/equipment`, {
           item: newItem.trim(),
           number_of_items: parseInt(newItemCount),
           number_of_sort_items: 0,
@@ -106,7 +107,7 @@ const Equipment = () => {
       // Save sorted item counts
       await Promise.all(
         Object.keys(sortItems).map(async (id) => {
-          await axios.put(`http://localhost:8000/api/equipments/${id}`, {
+          await axios.put(`${API_URL}/api/equipment/${id}`, {
             number_of_sort_items: sortItems[id],
             event_id: eventId
           });
@@ -116,7 +117,7 @@ const Equipment = () => {
       // Save updated statuses
       await Promise.all(
         inventoryData.map(async (item) => {
-          await axios.put(`http://localhost:8000/api/equipments/${item.id}`, {
+          await axios.put(`${API_URL}/api/equipment/${item.id}`, {
             status: item.status, // Send the updated status for each item
             event_id: eventId
           });

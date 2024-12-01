@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 import './App.css';
+import API_URL from './apiconfig';
 
 const Inventory = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Inventory = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8000/api/equipments?event_id=${eventId}`);
+        const response = await fetch(`${API_URL}/api/equipment?event_id=${eventId}`);
         const data = await response.json();
         console.log('Fetched Inventory Data:', data); // Log the fetched data
         setInventory(data); // Update the inventory state with fetched data
@@ -38,7 +39,7 @@ const Inventory = () => {
   const getStatusStyle = (status) => {
     const statusColors = {
       Complete: 'green',
-      Missing: 'yellow',
+      Missing: '#eeba2b',
       Broken: 'red',
     };
     return { color: statusColors[status] || 'black' }; // Default to black if no status

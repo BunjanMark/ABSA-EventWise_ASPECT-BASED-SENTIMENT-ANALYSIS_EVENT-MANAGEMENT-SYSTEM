@@ -4,6 +4,11 @@ import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faMapMarker, faHeart, faSearch, faChevronDown, faEllipsisV, faUser, faBox, faCommentDots, faUserFriends } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { IoTime, IoLocationSharp } from "react-icons/io5";
+import { FaCalendar } from "react-icons/fa";
+
+
+import API_URL from './apiconfig';
 
 function Events() {
   const [search, setSearch] = useState('');
@@ -14,12 +19,24 @@ function Events() {
   const [showMenu, setShowMenu] = useState({});
   const navigate = useNavigate();
 
+  function formatTime(timeString) {
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(hours, minutes);
+  
+    // Use toLocaleTimeString to format as 3:48 PM
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  }
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/events');
+        const response = await axios.get(`${API_URL}/api/events`);
         setEvents(response.data);
-      } catch (error) {
+      } catch (error) { 
         console.error('Error fetching events data:', error);
       } finally {
         setLoading(false);
@@ -90,51 +107,59 @@ const handleGuestClick = (eventId) => {
     const coverPhotoUrl = item.cover_photo; // Assuming your API response has a `cover_photo` field
 
     return (
-        <div key={item.id} className="item-container-events">
-            {/* Display the cover photo stored in the database */}
-            <img src={coverPhotoUrl} alt={item.name} className="image-events" />
-            <h3 className="title-events">{item.name}</h3>
-            <div className="detail-container-events">
-                <div className="detail-row-events">
-                    <FontAwesomeIcon icon={faCalendar} size="lg" color="#2A93D5" />
-                    <span className="detail-text-events">{item.date}</span>
-                </div>
-                <div className="detail-row-events">
-                    <FontAwesomeIcon icon={faMapMarker} size="lg" color="#2A93D5" />
-                    <span className="detail-text-events">{item.venue}</span>
-                </div>
-            </div>
-            <button
-                className={`heart-icon-events ${likedEvents[item.id] ? 'heart-liked-events' : ''}`}
-                onClick={() => toggleLike(item.id)}
-            >
-                <FontAwesomeIcon icon={faHeart} size="lg" />
-            </button>
-
-            {/* Three Dots Menu for each event */}
-            <div className="dots-container-events" onClick={() => toggleMenu(item.id)}>
-                <FontAwesomeIcon icon={faEllipsisV} size="lg" />
-            </div>
-            {showMenu[item.id] && (
-                <div className="menu-overlay-events">
-                    <div className="menu-item-events" onClick={() => navigate('/attendees')}>
-                        <FontAwesomeIcon icon={faUser} /> Attendee
-                    </div>
-                    <div className="menu-item-events" onClick={() => handleInventoryClick(item.id)}>
-                        <FontAwesomeIcon icon={faBox} /> Inventory
-                    </div>
-                    <div className="menu-item-events" onClick={() => handleEquipmentClick(item.id)}>
-                        <FontAwesomeIcon icon={faBox} /> Equipment
-                    </div>
-                    <div className="menu-item-events" onClick={() => navigate('/feedback/feedback-events')}>
-                        <FontAwesomeIcon icon={faCommentDots} /> Feedback
-                    </div>
-                    <div className="menu-item-events" onClick={() => handleGuestClick(item.id)}>
-                        <FontAwesomeIcon icon={faUserFriends} /> Guest
-                    </div>
-                </div>
-            )}
+      <div key={item.id} className="item-container-events">
+      <img src={coverPhotoUrl} alt={item.name} className="image-events" />
+      <h3 className="title-events">{item.name}</h3>
+      <div className="detail-container-events">
+        <div className="event-detail-dashboard">
+          <FaCalendar className="event-icon-dashboard" />
+          <p className="event-date-dashboard">
+            {new Date(item.date).toLocaleDateString('default', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </p>
         </div>
+        <div className="event-detail-dashboard">
+          <IoLocationSharp className="event-icon-dashboard" />
+          <p className="event-venue-dashboard">{item.location}</p>
+        </div>
+        <div className="event-detail-dashboard">
+          <IoTime className="event-icon-dashboard" />
+          <p className="event-venue-dashboard">{formatTime(item.time)}</p>
+        </div>
+      </div>
+      <button
+        className={`heart-icon-events ${likedEvents[item.id] ? 'heart-liked-events' : ''}`}
+        onClick={() => toggleLike(item.id)}
+      >
+        <FontAwesomeIcon icon={faHeart} size="lg" />
+      </button>
+      <div className="dots-container-events" onClick={() => toggleMenu(item.id)}>
+        <FontAwesomeIcon icon={faEllipsisV} size="lg" />
+      </div>
+      {showMenu[item.id] && (
+        <div className="menu-overlay-events">
+          <div className="menu-item-events" onClick={() => navigate('/attendees')}>
+            <FontAwesomeIcon icon={faUser} /> Attendee
+          </div>
+          <div className="menu-item-events" onClick={() => handleInventoryClick(item.id)}>
+            <FontAwesomeIcon icon={faBox} /> Inventory
+          </div>
+          <div className="menu-item-events" onClick={() => handleEquipmentClick(item.id)}>
+            <FontAwesomeIcon icon={faBox} /> Equipment
+          </div>
+          <div className="menu-item-events" onClick={() => navigate('/feedback/feedback-events')}>
+            <FontAwesomeIcon icon={faCommentDots} /> Feedback
+          </div>
+          <div className="menu-item-events" onClick={() => handleGuestClick(item.id)}>
+            <FontAwesomeIcon icon={faUserFriends} /> Guest
+          </div>
+        </div>
+      )}
+    </div>
+    
     );
 };
 

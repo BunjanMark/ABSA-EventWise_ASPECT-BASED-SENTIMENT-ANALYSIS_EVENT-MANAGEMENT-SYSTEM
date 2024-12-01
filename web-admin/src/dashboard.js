@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
-import { IoLocationSharp } from "react-icons/io5";
+import { IoLocationSharp, IoTime } from "react-icons/io5";
 import { FaCalendar } from "react-icons/fa";
+import API_URL from './apiconfig';
 
 // Packages data
 const packageImages = [
@@ -33,8 +34,27 @@ function Dashboard() {
   const [packageToDelete, setPackageToDelete] = useState(null); // Track the selected package to delete
   const navigate = useNavigate();
 
+  function formatTime(timeString) {
+    if (!timeString) return ''; // Handle undefined or empty input early
+
+    // Split timeString to extract hours and minutes
+    const [hours, minutes] = timeString.split(':');
+
+    // Create a Date object with the extracted time
+    const date = new Date();
+    date.setHours(hours, minutes);
+
+    // Format the time as '3:48 PM'
+    return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+    });
+}
+
+  
+
   useEffect(() => {
-    axios.get('http://localhost:8000/api/admin/packages')
+    axios.get(`${API_URL}/api/admin/packages`)
       .then((response) => {
         // Randomly assign images and descriptions to the fetched packages
         const updatedPackages = response.data.map((pkg) => ({
@@ -49,7 +69,7 @@ function Dashboard() {
         console.error('Error fetching packages:', error);
       });
 
-    axios.get('http://localhost:8000/api/events')
+    axios.get(`${API_URL}/api/events`)
       .then((response) => {
         const today = new Date();
         const currentMonthIndex = today.getMonth();
@@ -73,7 +93,7 @@ function Dashboard() {
     // Format the date for the selected day in the current month and year
     const selectedDate = new Date(currentYear, currentMonth, day);
   
-    axios.get('http://localhost:8000/api/events', { params: { date: selectedDate.toISOString().split('T')[0] } })
+    axios.get(`${API_URL}/api/events`, { params: { date: selectedDate.toISOString().split('T')[0] } })
       .then((response) => {
         // Filter events that match the exact date, not just the day of the month
         const filteredEvents = response.data.filter((event) => {
@@ -101,11 +121,6 @@ function Dashboard() {
     setSelectedDay(day)
   };
 
-  const handleEventClick = (event) => {
-    setSelectedEvent(event);
-    setShowDetailsOverlay(true);
-  };
-
   const handleCloseOverlay = () => {
     setShowDetailsOverlay(false);
     setSelectedEvent(null);
@@ -126,7 +141,7 @@ function Dashboard() {
   };
   const handleConfirmDelete = async (packageToDelete) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/packages/${packageToDelete.id}`, {
+      const response = await fetch(`${API_URL}/api/admin/packages/${packageToDelete.id}`, {
         method: 'DELETE',
       });
   
@@ -183,7 +198,7 @@ function Dashboard() {
       <div className="events-list-container-dashboard-left">
         {selectedDayEvents.map((event, index) => (
           <div className="event-card-dashboard" key={index}>
-            <img src={event.cover_photo} alt="Event Cover" className="event-cover-dashboard" />
+            <img src={event.coverPhoto} alt="Event Cover" className="event-cover-dashboard" />
             <div className="event-info-dashboard">
               <p className="event-name-dashboard">{event.name.charAt(0).toUpperCase() + event.name.slice(1)}</p>
               <div className="event-detail-dashboard">
@@ -194,8 +209,12 @@ function Dashboard() {
               </div>
               <div className="event-detail-dashboard">
                 <IoLocationSharp className="event-icon-dashboard" />
-                <p className="event-venue-dashboard">{event.venue}</p>
+                <p className="event-venue-dashboard">{event.location}</p>
               </div>
+              <div className="event-detail-dashboard">
+            <IoTime className="event-icon-dashboard" />
+            <p className="event-venue-dashboard">{formatTime(event.time)}</p>
+          </div>
             </div>
           </div>
         ))}
