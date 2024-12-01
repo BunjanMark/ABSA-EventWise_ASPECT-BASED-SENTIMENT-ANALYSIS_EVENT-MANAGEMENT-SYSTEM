@@ -37,8 +37,16 @@ const fetchEvents = async () => {
     throw error;
   }
 };
-
-
+const myEvents = async () => {
+  try {
+    const response = await api.get("/my-events");
+    console.log("fetched events: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+};
 // function to fetch all the events based on the date
 const fetchEventsByDate1 = async (date) => {
   try {
@@ -58,6 +66,26 @@ const fetchEventsByDate1 = async (date) => {
 const fetchUserBookingEvents = async (id, userId) => {
   try {
     const response = await api.get(`/admin/events/${id}/user/${userId}`);
+
+    // console.log("this is the response:", response);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user booking events:", error);
+    throw error;
+  }
+};
+const myBookEvents = async () => {
+  try {
+    const response = await api.get(`/my-events`);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    throw new Error();
+  }
+};
+const fetchUserBookingEvents2 = async (id) => {
+  try {
+    const response = await api.get(`/admin/events/bookings/${eventId}`);
 
     // console.log("this is the response:", response);
     return response.data;
@@ -88,8 +116,6 @@ const fetchEventsByDate = async (date) => {
     throw error;
   }
 };
-
-
 
 const fetchEventsByUserId = async (userId) => {
   try {
@@ -354,4 +380,6 @@ export {
   fetchEventsByUserId,
   approveBookingEvent,
   sendEventNoticeToAllGuests,
+  myEvents,
+  myBookEvents,
 };

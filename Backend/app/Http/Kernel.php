@@ -4,6 +4,8 @@ namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use App\Console\Commands\SendEventReminders;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Console\Scheduling\Schedule;
 class Kernel extends HttpKernel
 {
     /**
@@ -40,9 +42,16 @@ class Kernel extends HttpKernel
     ];
    
 
-    protected function schedule(Schedule $schedule)
-    {
-        // Schedule the SendEventReminders command to run daily
-        $schedule->command(SendEventReminders::class)->dailyAt('09:00'); // Set the time as needed
-    }
+
+    // protected function schedule(Schedule $schedule)
+    // {
+    //     // Run the reminder command every minute
+    //     $schedule->command('event:send-reminders')->everyTenSeconds();;
+    // }
+
+    // protected function schedulepre(Schedule $schedule)
+    // {
+    //     // Schedule the SendEventReminders command to run daily
+    //     $schedule->command(SendEventReminders::class)->dailyAt('09:00'); // Set the time as needed
+    // }
 }
