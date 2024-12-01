@@ -22,10 +22,7 @@ class EventController extends Controller
     //Add a method to fetch all events
     public function index()
 {
-    // Fetch all events
-    $events = Event::all();
-
-    // Return the events as a JSON response
+    $events = Event::withCount('guest')->get();
     return response()->json($events);
 }
  public function eventsForDay($date)
