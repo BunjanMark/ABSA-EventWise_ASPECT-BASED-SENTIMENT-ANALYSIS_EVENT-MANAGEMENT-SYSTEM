@@ -102,7 +102,7 @@ const EventsSP = ({ navigation }) => {
     <TouchableOpacity
             style={styles.overlayItem}
             onPress={() => {
-              navigation.navigate("EquipmentSPDataTable", {
+              navigation.navigate("EquipmentSP", {
                 eventId: item.id,
                 eventName: item.title,
                 eventDate: item.date,

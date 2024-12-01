@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,24 +10,21 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import EquipmentSPDataTable from "./EquipmentSPDataTable";
+import { DataTable } from "react-native-paper";
+import { fetchEquipment } from "../../../services/organizer/adminEquipmentServices";
+import { fetchMyEquipments } from "../../../services/serviceProvider/serviceProviderServices";
 
-const EquipmentSP = () => {
+const EquipmentSP = ({ route }) => {
+  const { eventId } = route.params;
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [newItem, setNewItem] = useState("");
   const [newItemCount, setNewItemCount] = useState("");
   const [removeMode, setRemoveMode] = useState(false);
+  const [inventoryData, setInventoryData] = useState([]);
   const [selectedStatusIndex, setSelectedStatusIndex] = useState(null);
-  const [inventoryData, setInventoryData] = useState([
-    { item: "Spoon", noOfItems: 20, noOfSortItems: 0, status: "" },
-    { item: "Fork", noOfItems: 40, noOfSortItems: 0, status: "" },
-    { item: "Glass", noOfItems: 16, noOfSortItems: 0, status: "" },
-    { item: "Plates", noOfItems: 50, noOfSortItems: 0, status: "" },
-    { item: "Mug", noOfItems: 35, noOfSortItems: 0, status: "" },
-    { item: "Knife", noOfItems: 45, noOfSortItems: 0, status: "" },
-  ]);
 
+  // Status Style Mapping
   const getStatusStyle = (status) => {
     switch (status) {
       case "Complete":
@@ -41,17 +38,33 @@ const EquipmentSP = () => {
     }
   };
 
-  const totalItems = inventoryData.reduce(
-    (sum, item) => sum + item.noOfItems,
-    0
-  );
-  const totalBroken = inventoryData.filter(
-    (item) => item.status === "Broken"
-  ).length;
-  const totalMissing = inventoryData.filter(
-    (item) => item.status === "Missing"
-  ).length;
+  // Total count calculation
+  const totalItems = inventoryData.reduce((sum, item) => sum + item.noOfItems, 0);
+  const totalBroken = inventoryData.filter(item => item.status === "Broken").length;
+  const totalMissing = inventoryData.filter(item => item.status === "Missing").length;
 
+  // Fetch equipment data
+  useEffect(() => {
+    const fetchEquipmentData = async () => {
+      try {
+        const response = await fetchMyEquipments(eventId);
+        const formattedItems = response.map(item => ({
+          key: item.id,
+          item: item.name,
+          noOfItems: item.quantity,
+          noOfSortItems: item.sortedQuantity,
+          status: item.status,
+        }));
+        setInventoryData(formattedItems);
+      } catch (error) {
+        console.error("Error fetching equipment data:", error);
+      }
+    };
+
+    fetchEquipmentData();
+  }, [eventId]);
+
+  // Add item handler
   const handleAddItem = () => {
     if (newItem && newItemCount) {
       const newInventory = [
@@ -70,21 +83,21 @@ const EquipmentSP = () => {
     }
   };
 
+  // Remove item handler
   const handleRemoveItem = (index) => {
     const newInventory = inventoryData.filter((_, i) => i !== index);
     setInventoryData(newInventory);
     setRemoveMode(false);
   };
 
+  // Sort items handler
   const handleSortItemsChange = (index, change) => {
     const newInventory = [...inventoryData];
-    newInventory[index].noOfSortItems = Math.max(
-      0,
-      newInventory[index].noOfSortItems + change
-    );
+    newInventory[index].noOfSortItems = Math.max(0, newInventory[index].noOfSortItems + change);
     setInventoryData(newInventory);
   };
 
+  // Status change handler
   const handleStatusChange = (index, status) => {
     const newInventory = [...inventoryData];
     newInventory[index].status = status;
@@ -92,126 +105,86 @@ const EquipmentSP = () => {
     setSelectedStatusIndex(null);
   };
 
+  // Toggle dropdown visibility
   const toggleDropdown = (index) => {
     setSelectedStatusIndex(selectedStatusIndex === index ? null : index);
   };
 
   return (
     <View style={styles.container}>
-      <EquipmentSPDataTable />
-      <ScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView style={styles.scrollContainer}>
         <View style={styles.headerSection}>
-          <TouchableOpacity onPress={() => navigation.navigate("EventsSP")}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color="#FFCE00" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Equipment</Text>
         </View>
+
         <View style={styles.table}>
           <View style={styles.tableHeader}>
-            <Text style={styles.tableHeaderText}>ITEMS</Text>
+            <Text style={styles.tableHeaderText}>ITEM</Text>
             <Text style={styles.tableHeaderText}>NO. OF ITEMS</Text>
             <Text style={styles.tableHeaderText}>NO. OF SORT ITEMS</Text>
             <Text style={styles.tableHeaderText}>STATUS</Text>
           </View>
+
           {inventoryData.map((item, index) => (
             <View key={index} style={styles.tableRow}>
               {removeMode && (
                 <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                  <Ionicons
-                    name="remove-circle-outline"
-                    size={24}
-                    color="red"
-                    style={styles.removeIcon}
-                  />
+                  <Ionicons name="remove-circle-outline" size={24} color="red" style={styles.removeIcon} />
                 </TouchableOpacity>
               )}
               <Text style={styles.tableRowText}>{item.item}</Text>
               <Text style={styles.tableRowText}>{item.noOfItems}</Text>
               <View style={styles.sortItemsContainer}>
-                <TouchableOpacity
-                  onPress={() => handleSortItemsChange(index, -1)}
-                >
-                  <Ionicons
-                    name="remove-circle-outline"
-                    size={20}
-                    color="red"
-                  />
+                <TouchableOpacity onPress={() => handleSortItemsChange(index, -1)}>
+                  <Ionicons name="remove-circle-outline" size={20} color="red" />
                 </TouchableOpacity>
                 <Text style={styles.sortItemsText}>{item.noOfSortItems}</Text>
-                <TouchableOpacity
-                  onPress={() => handleSortItemsChange(index, 1)}
-                >
+                <TouchableOpacity onPress={() => handleSortItemsChange(index, 1)}>
                   <Ionicons name="add-circle-outline" size={20} color="green" />
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                onPress={() => toggleDropdown(index)}
-                style={styles.statusContainer}
-              >
-                <Text
-                  style={[styles.tableRowText, getStatusStyle(item.status)]}
-                >
+              <TouchableOpacity onPress={() => toggleDropdown(index)} style={styles.statusContainer}>
+                <Text style={[styles.tableRowText, getStatusStyle(item.status)]}>
                   {item.status || "Set Status"}
                 </Text>
                 <Ionicons name="chevron-down-outline" size={20} color="gray" />
               </TouchableOpacity>
               {selectedStatusIndex === index && (
                 <View style={styles.statusDropdown}>
-                  <TouchableOpacity
-                    onPress={() => handleStatusChange(index, "Complete")}
-                  >
-                    <Text style={{ color: "green" }}>Complete</Text>
+                  <TouchableOpacity onPress={() => handleStatusChange(index, "Complete")}>
+                    <Text style={{ color: "green", marginBottom:5 }}>Complete</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleStatusChange(index, "Missing")}
-                  >
-                    <Text style={{ color: "orange" }}>Missing</Text>
+                  <TouchableOpacity onPress={() => handleStatusChange(index, "Missing")}>
+                    <Text style={{ color: "orange", marginBottom:5 }}>Missing</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleStatusChange(index, "Broken")}
-                  >
-                    <Text style={{ color: "red" }}>Broken</Text>
+                  <TouchableOpacity onPress={() => handleStatusChange(index, "Broken")}>
+                    <Text style={{ color: "red", marginBottom:5 }}>Broken</Text>
                   </TouchableOpacity>
                 </View>
               )}
             </View>
           ))}
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Ionicons name="add-circle-outline" size={24} color="white" />
-            <Text style={styles.addButtonText}>Add Item</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.removeButton}
-            onPress={() => setRemoveMode(!removeMode)}
-          >
-            <Ionicons name="remove-circle-outline" size={24} color="white" />
-            <Text style={styles.removeButtonText}>Remove Item</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.removeButton}
-            onPress={() => setRemoveMode(!removeMode)}
-          >
-            <Ionicons name="remove-circle-outline" size={24} color="white" />
-            <Text style={styles.removeButtonText}>Save Item</Text>
-          </TouchableOpacity>
         </View>
+
+        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+          <Ionicons name="add-circle-outline" size={24} color="white" />
+          <Text style={styles.addButtonText}>Add Item</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.removeButton} onPress={() => setRemoveMode(!removeMode)}>
+          <Ionicons name="remove-circle-outline" size={24} color="white" />
+          <Text style={styles.removeButtonText}>Remove Item</Text>
+        </TouchableOpacity>
+
         <View style={styles.summary}>
           <Text style={styles.summaryText}>Total Items: {totalItems}</Text>
-          <Text style={styles.summaryText}>
-            Total Items Broken: {totalBroken}
-          </Text>
-          <Text style={styles.summaryText}>
-            Total Items Missing: {totalMissing}
-          </Text>
+          <Text style={styles.summaryText}>Broken: {totalBroken}</Text>
+          <Text style={styles.summaryText}>Missing: {totalMissing}</Text>
         </View>
-        <View style={{ height: 20 }} />
       </ScrollView>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -255,6 +228,7 @@ const EquipmentSP = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -325,7 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#28a745",
     paddingVertical: 10,
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: 80,
   },
   addButtonText: {
     color: "white",
@@ -359,8 +333,8 @@ const styles = StyleSheet.create({
   },
   statusDropdown: {
     position: "absolute",
-    top: 40,
-    left: 250,
+    top: 30,
+    left: 240,
     right: 0,
     backgroundColor: "white",
     borderRadius: 5,
@@ -368,6 +342,8 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 1,
     width: "30%",
+    alignItems:"center",
+    justifyContent:"center"
   },
   modalContainer: {
     flex: 1,
