@@ -48,6 +48,7 @@ import BookingContinuation3 from "../screens/customerScreens/otherScreens/Bookin
 import BookingContinuation4 from "../screens/customerScreens/otherScreens/BookingContinuation4";
 import Attendee from "../screens/customerScreens/otherScreens/Attendee";
 import Feedback from "../screens/customerScreens/otherScreens/Feedback";
+import FeedbackInputs from "../screens/customerScreens/otherScreens/FeedbackInputs";
 // import Feedback from "../screens/customerScreens/otherScreens/Feedback";
 
 // Service Provider Stack here
@@ -294,6 +295,7 @@ const CustomCustomerStack = () => {
   const setActiveProfile = useStore((state) => state.setActiveProfile);
   const setLoading = useStore((state) => state.setLoading);
   const navigation = useNavigation();
+
   useEffect(() => {
     // console.log("Loading:", loading, "Role ID:", profiles.id);
 
@@ -553,6 +555,11 @@ function CustomerStack() {
       <Stack.Screen
         name="Feedback"
         component={Feedback}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="FeedbackInputs"
+        component={FeedbackInputs}
         options={{ headerShown: false }}
       />
       <Stack.Screen

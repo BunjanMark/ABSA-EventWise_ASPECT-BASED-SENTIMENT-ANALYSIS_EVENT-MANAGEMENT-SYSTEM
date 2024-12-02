@@ -10,9 +10,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { DataTable } from "react-native-paper";
-import { fetchEquipment } from "../../../services/organizer/adminEquipmentServices";
-import { fetchMyEquipments } from "../../../services/serviceProvider/serviceProviderServices";
 
 const EquipmentSP = ({ route }) => {
   const { eventId } = route.params;
@@ -22,40 +19,47 @@ const EquipmentSP = ({ route }) => {
   const [newItemCount, setNewItemCount] = useState("");
   const [removeMode, setRemoveMode] = useState(false);
   const [inventoryData, setInventoryData] = useState([]);
+  const [inventoryData2, setInventoryData2] = useState([]);
   const [selectedStatusIndex, setSelectedStatusIndex] = useState(null);
-
-  // Status Style Mapping
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case "Complete":
-        return { color: "green" };
-      case "Missing":
-        return { color: "orange" };
-      case "Broken":
-        return { color: "red" };
-      default:
-        return { color: "black" };
-    }
-  };
-
-  // Total count calculation
-  const totalItems = inventoryData.reduce((sum, item) => sum + item.noOfItems, 0);
-  const totalBroken = inventoryData.filter(item => item.status === "Broken").length;
-  const totalMissing = inventoryData.filter(item => item.status === "Missing").length;
 
   // Fetch equipment data
   useEffect(() => {
     const fetchEquipmentData = async () => {
       try {
-        const response = await fetchMyEquipments(eventId);
-        const formattedItems = response.map(item => ({
+        // Simulating data fetch
+        const response = [
+          {
+            id: 1,
+            item: "Camera",
+            number_of_items: 5,
+            number_of_sort_items: 0,
+            status: "",
+          },
+          {
+            id: 2,
+            item: "Tripod",
+            number_of_items: 3,
+            number_of_sort_items: 0,
+            status: "",
+          },
+        ]; // Replace this with `fetchMyEquipments(eventId)`
+        const formattedItems = response.map((item) => ({
           key: item.id,
-          item: item.name,
-          noOfItems: item.quantity,
-          noOfSortItems: item.sortedQuantity,
+          item: item.item,
+          noOfItems: item.number_of_items,
+          noOfSortItems: item.number_of_sort_items,
+          status: item.status,
+        }));
+        const response2 = await fetchMyEquipments(eventId);
+        const formattedItems2 = response2.map((item) => ({
+          key: item.id,
+          item: item.item,
+          noOfItems: item.number_of_items,
+          noOfSortItems: item.number_of_sort_items,
           status: item.status,
         }));
         setInventoryData(formattedItems);
+        setInventoryData2(formattedItems2);
       } catch (error) {
         console.error("Error fetching equipment data:", error);
       }
@@ -70,8 +74,9 @@ const EquipmentSP = ({ route }) => {
       const newInventory = [
         ...inventoryData,
         {
+          key: Date.now().toString(),
           item: newItem,
-          noOfItems: parseInt(newItemCount),
+          noOfItems: parseInt(newItemCount, 10),
           noOfSortItems: 0,
           status: "",
         },
@@ -87,13 +92,15 @@ const EquipmentSP = ({ route }) => {
   const handleRemoveItem = (index) => {
     const newInventory = inventoryData.filter((_, i) => i !== index);
     setInventoryData(newInventory);
-    setRemoveMode(false);
   };
 
   // Sort items handler
   const handleSortItemsChange = (index, change) => {
     const newInventory = [...inventoryData];
-    newInventory[index].noOfSortItems = Math.max(0, newInventory[index].noOfSortItems + change);
+    newInventory[index].noOfSortItems = Math.max(
+      0,
+      newInventory[index].noOfSortItems + change
+    );
     setInventoryData(newInventory);
   };
 
@@ -108,6 +115,13 @@ const EquipmentSP = ({ route }) => {
   // Toggle dropdown visibility
   const toggleDropdown = (index) => {
     setSelectedStatusIndex(selectedStatusIndex === index ? null : index);
+  };
+
+  // Save handler
+  const handleSave = () => {
+    console.log("Updated Inventory Data:", inventoryData);
+    alert("Inventory data saved successfully!");
+    navigation.goBack();
   };
 
   return (
@@ -132,36 +146,57 @@ const EquipmentSP = ({ route }) => {
             <View key={index} style={styles.tableRow}>
               {removeMode && (
                 <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                  <Ionicons name="remove-circle-outline" size={24} color="red" style={styles.removeIcon} />
+                  <Ionicons
+                    name="remove-circle-outline"
+                    size={24}
+                    color="red"
+                  />
                 </TouchableOpacity>
               )}
               <Text style={styles.tableRowText}>{item.item}</Text>
               <Text style={styles.tableRowText}>{item.noOfItems}</Text>
               <View style={styles.sortItemsContainer}>
-                <TouchableOpacity onPress={() => handleSortItemsChange(index, -1)}>
-                  <Ionicons name="remove-circle-outline" size={20} color="red" />
+                <TouchableOpacity
+                  onPress={() => handleSortItemsChange(index, -1)}
+                >
+                  <Ionicons
+                    name="remove-circle-outline"
+                    size={20}
+                    color="red"
+                  />
                 </TouchableOpacity>
                 <Text style={styles.sortItemsText}>{item.noOfSortItems}</Text>
-                <TouchableOpacity onPress={() => handleSortItemsChange(index, 1)}>
+                <TouchableOpacity
+                  onPress={() => handleSortItemsChange(index, 1)}
+                >
                   <Ionicons name="add-circle-outline" size={20} color="green" />
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={() => toggleDropdown(index)} style={styles.statusContainer}>
-                <Text style={[styles.tableRowText, getStatusStyle(item.status)]}>
+              <TouchableOpacity
+                onPress={() => toggleDropdown(index)}
+                style={styles.statusContainer}
+              >
+                <Text style={{ color: item.status ? "black" : "gray" }}>
                   {item.status || "Set Status"}
                 </Text>
                 <Ionicons name="chevron-down-outline" size={20} color="gray" />
               </TouchableOpacity>
               {selectedStatusIndex === index && (
                 <View style={styles.statusDropdown}>
-                  <TouchableOpacity onPress={() => handleStatusChange(index, "Complete")}>
-                    <Text style={{ color: "green", marginBottom:5 }}>Complete</Text>
+                  <TouchableOpacity
+                    onPress={() => handleStatusChange(index, "Complete")}
+                  >
+                    <Text style={{ color: "green" }}>Complete</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleStatusChange(index, "Missing")}>
-                    <Text style={{ color: "orange", marginBottom:5 }}>Missing</Text>
+                  <TouchableOpacity
+                    onPress={() => handleStatusChange(index, "Missing")}
+                  >
+                    <Text style={{ color: "orange" }}>Missing</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleStatusChange(index, "Broken")}>
-                    <Text style={{ color: "red", marginBottom:5 }}>Broken</Text>
+                  <TouchableOpacity
+                    onPress={() => handleStatusChange(index, "Broken")}
+                  >
+                    <Text style={{ color: "red" }}>Broken</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -169,58 +204,50 @@ const EquipmentSP = ({ route }) => {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setModalVisible(true)}
+        >
           <Ionicons name="add-circle-outline" size={24} color="white" />
           <Text style={styles.addButtonText}>Add Item</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.removeButton} onPress={() => setRemoveMode(!removeMode)}>
+
+        <TouchableOpacity
+          style={styles.removeButton}
+          onPress={() => setRemoveMode(!removeMode)}
+        >
           <Ionicons name="remove-circle-outline" size={24} color="white" />
           <Text style={styles.removeButtonText}>Remove Item</Text>
         </TouchableOpacity>
 
-        <View style={styles.summary}>
-          <Text style={styles.summaryText}>Total Items: {totalItems}</Text>
-          <Text style={styles.summaryText}>Broken: {totalBroken}</Text>
-          <Text style={styles.summaryText}>Missing: {totalMissing}</Text>
-        </View>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.saveButtonText}>Save</Text>
+        </TouchableOpacity>
       </ScrollView>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={modalVisible} transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Ionicons name="close" size={24} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.modalText}>Name of Item</Text>
+            <Text>Name of Item</Text>
             <TextInput
               style={styles.input}
+              placeholder="Enter item name"
               value={newItem}
               onChangeText={setNewItem}
-              placeholder="Enter item name"
-              placeholderTextColor="#999"
             />
-            <Text style={styles.modalText}>No. of Items</Text>
+            <Text>No. of Items</Text>
             <TextInput
               style={styles.input}
+              placeholder="Enter count"
+              keyboardType="numeric"
               value={newItemCount}
               onChangeText={setNewItemCount}
-              placeholder="Enter number of items"
-              placeholderTextColor="#999"
-              keyboardType="numeric"
             />
             <TouchableOpacity
               style={styles.modalButton}
               onPress={handleAddItem}
             >
-              <Text style={styles.modalButtonText}>Add Item</Text>
+              <Text>Add</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -229,8 +256,20 @@ const EquipmentSP = ({ route }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
+  saveButton: {
+    backgroundColor: "#FFCE00",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    margin: 20,
+  },
+  saveButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
   container: {
     flex: 1,
     backgroundColor: "white",
@@ -342,8 +381,8 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 1,
     width: "30%",
-    alignItems:"center",
-    justifyContent:"center"
+    alignItems: "center",
+    justifyContent: "center",
   },
   modalContainer: {
     flex: 1,
