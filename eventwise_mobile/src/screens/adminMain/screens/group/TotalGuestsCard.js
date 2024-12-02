@@ -1,11 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons"; // Install expo/vector-icons if not already installed.
-import { useGuestStore } from "../../../../stateManagement/admin/useGuestStore";
+import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
+
 const TotalGuestsCard = ({ event, navigation }) => {
   const handlePress = () => {
-    // function to get all guests particular to the event
-
     // Navigate to the guest list screen
     navigation.navigate("GuestListAdmin", {
       eventId: event.id,
@@ -17,7 +16,6 @@ const TotalGuestsCard = ({ event, navigation }) => {
       description: event.description,
       status: event.status,
       image: event.image,
-      pax: event.pax,
     });
   };
 
@@ -43,9 +41,18 @@ const TotalGuestsCard = ({ event, navigation }) => {
           {event.status}
         </Text>
       </View>
-      <Text style={styles.eventDetails}>
-        📍 {event.location} | 🕒 {event.date} {event.time}
-      </Text>
+      <View style={styles.eventDetailsRow}>
+        <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
+        <Text style={styles.eventDetails}>{event.location}</Text>
+      </View>
+      <View style={styles.eventDetailsRow}>
+        <MaterialCommunityIcons name="calendar" size={16} color="#eeba2b" />
+        <Text style={styles.eventDetails}>{event.date}</Text>
+      </View>
+      <View style={styles.eventDetailsRow}>
+        <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
+        <Text style={styles.eventDetails}>{event.time}</Text>
+      </View>
       <Text style={styles.eventDescription} numberOfLines={2}>
         {event.description}
       </Text>
@@ -70,7 +77,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3, // For Android shadow
+    elevation: 3,
   },
   cardHeader: {
     flexDirection: "row",
@@ -79,7 +86,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   eventName: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#333",
   },
@@ -87,10 +94,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  eventDetailsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
   eventDetails: {
     fontSize: 14,
     color: "#555",
-    marginBottom: 5,
+    marginLeft: 5,
   },
   eventDescription: {
     fontSize: 13,

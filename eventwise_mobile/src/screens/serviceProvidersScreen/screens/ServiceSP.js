@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     width: "100%",
     // backgroundColor: "green",
     // margin: 5,
+    marginBottom: 50,
   },
   scrollViewContent: {
     paddingBottom: 60,

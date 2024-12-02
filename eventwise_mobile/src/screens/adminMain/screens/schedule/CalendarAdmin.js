@@ -4,6 +4,7 @@ import { Calendar } from "react-native-calendars";
 import styles from "../../styles/styles";
 import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
 import { fetchEvents } from "../../../../services/organizer/adminEventServices";
+import { ScrollView } from "react-native-gesture-handler";
 
 const ScheduleScreen = ({ refreshing, onRefresh }) => {
   const [selectedDate, setSelectedDate] = useState("");
@@ -54,6 +55,10 @@ const ScheduleScreen = ({ refreshing, onRefresh }) => {
 
   return (
     <View style={styles.container}>
+    <ScrollView 
+      contentContainerStyle={styles.scrollContainer}
+      showsVerticalScrollIndicator={false} // Optional: hides the scrollbar
+    >
       <Calendar
         onDayPress={handleDayPress}
         markedDates={{
@@ -64,18 +69,19 @@ const ScheduleScreen = ({ refreshing, onRefresh }) => {
             selectedColor: "blue",
           },
         }}
-        markingType="multi-dot" // Allows multiple dots per day
+        markingType="multi-dot"
         theme={{
           selectedDayBackgroundColor: "blue",
           todayTextColor: "red",
           arrowColor: "blue",
         }}
       />
+  
       <View style={styles.agendaContainer}>
         <Text style={styles.selectedDateText}>
           {selectedDate || "Select a date to view schedule"}
         </Text>
-
+  
         {eventsForSelectedDate.length > 0 ? (
           eventsForSelectedDate.map((event) => (
             <TouchableOpacity
@@ -104,7 +110,9 @@ const ScheduleScreen = ({ refreshing, onRefresh }) => {
           <Text style={styles.noEventsText}>No events for this date.</Text>
         )}
       </View>
-    </View>
+    </ScrollView>
+  </View>
+  
   );
 };
 
