@@ -59,7 +59,7 @@
     <div class="email-container">
         <div class="header">
             <img src="{{ $event->eventCoverPhoto }}" alt="Event Image">
-            <h1>{{ $event->name }}</h1>
+            <h1>{{ $event->name }} Starts in 1 Day</h1>
         </div>
 
         <div class="event-details">
