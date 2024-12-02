@@ -36,6 +36,7 @@ import { fetchPackages } from "../../../../services/organizer/adminPackageServic
 import { testUploadImageToSupabase } from "../../../../services/organizer/testUploadSupabaseService/testUploadSupabaseService";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import CalendarPicker from "react-native-calendar-picker";
+import { useNavigation } from "@react-navigation/native";
 
 import { fetchEventsByDate } from "../../../../services/organizer/adminEventServices";
 
@@ -193,7 +194,9 @@ const CreateEventScreen = ({ navigation }) => {
 
       // Notify user of success and reset the form
       Alert.alert("Success", "Event created successfully!");
-      resetForm(); // TODO Fix this shit this back to its original
+      resetForm(); // Reset the form
+  
+      // Navigate to the Event Screen
     } catch (error) {
       console.error("Error creating event:", error);
       Alert.alert(
@@ -205,7 +208,6 @@ const CreateEventScreen = ({ navigation }) => {
       setIsLoading(false);
     }
   };
-
   const [datesWithThreeOrMoreEvents, setDatesWithThreeOrMoreEvents] = useState(
     []
   );
@@ -328,6 +330,9 @@ const CreateEventScreen = ({ navigation }) => {
                 {/* Event Creation Screen */}
                 {currentScreen === 1 && (
                   <>
+                  <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10}/>
+            </TouchableOpacity>
                     <Text style={styles.title}>Create Event</Text>
 
                     <View style={styles.servicePhotoContainer}>
@@ -1110,15 +1115,19 @@ const CreateEventScreen = ({ navigation }) => {
 
                     {/* Submit and Back buttons */}
                     <View style={styles.buttonContainer}>
-                      <Button
-                        mode="contained"
-                        onPress={handleSubmit}
-                        loading={isLoading}
-                        disabled={isLoading}
-                        style={styles.addButton1}
-                      >
-                        Submit
-                      </Button>
+                    <Button
+                      mode="contained"
+                      onPress={() => {
+                        handleSubmit(); // Call your submit function
+                        navigation.navigate("EventAdmin"); // Navigate to the desired screen
+                      }}
+                      loading={isLoading}
+                      disabled={isLoading}
+                      style={styles.addButton1}
+                    >
+                      Submit
+                    </Button>
+
                     </View>
                   </>
                 )}

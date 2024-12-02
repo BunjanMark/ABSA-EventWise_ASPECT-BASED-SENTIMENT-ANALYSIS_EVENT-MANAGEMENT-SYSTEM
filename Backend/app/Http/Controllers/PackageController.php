@@ -34,10 +34,9 @@ class PackageController extends Controller
 }
 public function update(Request $request, $id)
 {
-    DB::beginTransaction(); // Start the transaction
+    DB::beginTransaction();
 
     try {
-        // Find the package to update
         $package = Package::find($id);
 
         if (!$package) {
@@ -47,29 +46,24 @@ public function update(Request $request, $id)
             ], 404);
         }
 
-        // Validate the incoming data
         $validatedData = $request->validate([
             'packageName' => 'nullable|string|max:255',
             'eventType' => 'nullable|string',
-            'services' => 'nullable|array', // Make services nullable
+            'services' => 'nullable|array',
+            'services.*' => 'integer', // Ensure each service is an integer
             'totalPrice' => 'nullable|numeric|min:1',
-            'coverPhoto' => 'nullable|url', // Ensure it's a valid URL
+            'coverPhoto' => 'nullable|url',
         ]);
 
-        // Update the package with the validated data
-        $package->update($validatedData);
+        $package->update([
+            'packageName' => $validatedData['packageName'] ?? $package->packageName,
+            'eventType' => $validatedData['eventType'] ?? $package->eventType,
+            'totalPrice' => $validatedData['totalPrice'] ?? $package->totalPrice,
+            'coverPhoto' => $validatedData['coverPhoto'] ?? $package->coverPhoto,
+        ]);
 
-        // Update the 'services' JSON field if provided
         if (isset($validatedData['services'])) {
-            $package->services = json_encode($validatedData['services']);
-            $package->save();
-        }
-
-        // Link associated service IDs to the package
-        if (isset($validatedData['services']) && count($validatedData['services']) > 0) {
-            // Delete existing package services
-            DB::table('package_services')->where('package_id', $id)->delete();
-
+            DB::table('package_services')->where('package_id', $package->id)->delete();
             foreach ($validatedData['services'] as $serviceId) {
                 DB::table('package_services')->insert([
                     'package_id' => $package->id,
@@ -80,25 +74,25 @@ public function update(Request $request, $id)
             }
         }
 
-        DB::commit(); // Commit the transaction
+        DB::commit();
 
-        return response()->json($package, 200); // Return the updated package with 200 status
-
+        return response()->json($package, 200);
     } catch (\Illuminate\Validation\ValidationException $e) {
-        DB::rollBack(); // Rollback the transaction in case of validation failure
+        DB::rollBack();
         return response()->json([
             'status' => 'error',
             'message' => 'Validation failed.',
             'errors' => $e->errors(),
         ], 422);
     } catch (\Throwable $th) {
-        DB::rollBack(); // Rollback the transaction in case of other errors
+        DB::rollBack();
         return response()->json([
-            "status" => "error",
-            "message" => $th->getMessage()
+            'status' => 'error',
+            'message' => $th->getMessage(),
         ], 500);
     }
 }
+
 
     // Method to store a new package
     public function store(Request $request)
