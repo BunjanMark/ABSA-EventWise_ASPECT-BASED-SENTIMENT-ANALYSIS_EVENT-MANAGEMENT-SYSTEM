@@ -5,6 +5,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../../styles/styles";
 import logo from "../../../../../assets/logo.png";
 
+import EMS_LOGO_FINAL from "../../../../../assets/EMS_LOGO_FINAL.png";
+
 const HeaderAdmin = ({
   title,
   onMessagePress,
@@ -18,7 +20,7 @@ const HeaderAdmin = ({
         <Ionicons name="menu-outline" size={24} color="#333" />
       </TouchableOpacity>
       <Text style={styles.titleText}>{title}</Text>
-      <Image source={logo} style={styles.logo} />
+      <Image source={EMS_LOGO_FINAL} style={styles.logo} />
       <View style={styles.iconContainer}>
         <TouchableOpacity onPress={onMessagePress} style={styles.headerButton}>
           {/* Conditionally render the icon: filled when "messages" tab is active, otherwise outline */}

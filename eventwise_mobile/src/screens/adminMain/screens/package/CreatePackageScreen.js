@@ -6,7 +6,7 @@ import { Platform, Image } from "react-native";
 import React, { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
-import {Ionicons} from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -41,7 +41,6 @@ const CreatePackageScreen = ({ navigation }) => {
     totalPrice: Yup.number()
       .required("Total price is required")
       .min(1, "Price must be at least 1"),
-    // coverPhoto: Yup.string().nullable().url("Must be a valid URL"),
   });
   // Fetch services on mount
   useEffect(() => {
@@ -73,7 +72,6 @@ const CreatePackageScreen = ({ navigation }) => {
           values.coverPhoto,
           fileName
         );
-        console.log("Image uploaded successfully. URL:", coverPhotoURL);
       }
 
       const newPackage = {
@@ -193,7 +191,10 @@ const CreatePackageScreen = ({ navigation }) => {
             touched,
           }) => (
             <View style={styles.form}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 20, top: 20 }}>
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ position: "absolute", left: 20, top: 20 }}
+              >
                 <Ionicons name="arrow-back" size={25} color="#eeba2b" />
               </TouchableOpacity>
               <Text style={styles.title}>Create Package</Text>
@@ -383,7 +384,8 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     width: 80,
     borderRadius: 100,
-    left : -120, },
+    left: -120,
+  },
   dropdown: {
     height: 40,
     backgroundColor: "white",

@@ -181,11 +181,18 @@ const CreateEventScreen = ({ navigation }) => {
         eventLocation: values.eventLocation,
         description: values.description,
         guest: values.guests,
-        coverPhoto: coverPhotoURL || null,
+        coverPhoto:
+          "https://ktmddejbdwjeremvbzbl.supabase.co/storage/v1/" +
+            coverPhotoURL || null,
       };
 
       // Log the new event data for debugging
-      console.log("New event data:", newEvent);
+      console.log(
+        "New event data:",
+        newEvent,
+        "\n\n this is the coverPhotoURL===========",
+        coverPhotoURL
+      );
 
       // Create the event using the API
       const result = await createEvent(newEvent);

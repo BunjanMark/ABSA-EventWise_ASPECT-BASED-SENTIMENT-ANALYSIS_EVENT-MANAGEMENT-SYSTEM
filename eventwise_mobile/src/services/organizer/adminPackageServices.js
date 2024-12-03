@@ -65,7 +65,7 @@ const createPackage = async (packageData) => {
     console.log("Service data:", packageData);
     let packagePhotoURL =
       "https://ktmddejbdwjeremvbzbl.supabase.co/storage/v1/" +
-      packageData.packagePhotoURl;
+      packageData.coverPhotoURL;
 
     const addPackageData = {
       packageName: packageData.packageName,
