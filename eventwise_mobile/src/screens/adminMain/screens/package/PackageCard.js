@@ -12,7 +12,7 @@ const PackageCard = ({
   handleDeletePackage,
   handleEditService,
 }) => {
-  // console.log("service pasesed: ", service);
+  console.log("package passed: ", currentPackages);
   const navigation = useNavigation();
   const [serviceDetails, setServiceDetails] = useState([]);
   useEffect(() => {
@@ -38,18 +38,16 @@ const PackageCard = ({
           })
         }
       >
-      <TouchableOpacity
-            onPress={() => toggleLike(currentPackages.id)}
-            style={styles.heartIcon}
-          >
-            <MaterialCommunityIcons
-              name={
-                likedPackages[currentPackages.id] ? "heart" : "heart-outline"
-              }
-              color={likedPackages[currentPackages.id] ? "#FF0000" : "#888"}
-              size={25}
-            />
-          </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleLike(currentPackages.id)}
+          style={styles.heartIcon}
+        >
+          <MaterialCommunityIcons
+            name={likedPackages[currentPackages.id] ? "heart" : "heart-outline"}
+            color={likedPackages[currentPackages.id] ? "#FF0000" : "#888"}
+            size={25}
+          />
+        </TouchableOpacity>
         <Image
           source={{
             uri: currentPackages.coverPhoto,
@@ -59,12 +57,11 @@ const PackageCard = ({
 
         <View style={styles.serviceCardHeader}>
           <Text style={styles.serviceName}>{currentPackages.packageName}</Text>
-         
         </View>
         <View style={styles.serviceDetails}>
           <View>
             <Text style={styles.serviceCategory}>
-              Package Type: {currentPackages.eventType}
+              Package Types: {currentPackages.eventType}
             </Text>
           </View>
         </View>
@@ -147,7 +144,7 @@ const styles = {
   serviceName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#eeba2b", 
+    color: "#eeba2b",
     marginBottom: 10,
     marginTop: 10,
   },

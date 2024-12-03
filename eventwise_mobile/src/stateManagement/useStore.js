@@ -545,6 +545,8 @@ const useStore = create((set) => ({
   setNavigation: (navigation) => set({ navigation }),
 
   // Fetch and set user and account profiles
+  userId: null, // Holds the authenticated user's ID
+  setUserId: (userId) => set({ userId }), // Setter for userId
   user: null,
   // setUser: (user) => set({ user }),
   setUser: (userData) => set({ user: userData }),

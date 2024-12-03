@@ -40,10 +40,10 @@ const Login = ({ navigation }) => {
   const { signIn } = useContext(AuthContext);
   const profiles = useStore((state) => state.profiles);
   const activeProfile = useStore((state) => state.activeProfile);
-
+  const setUserId = useStore((state) => state.setUserId);
   const setProfiles = useStore((state) => state.setProfiles);
   const setActiveProfile = useStore((state) => state.setActiveProfile);
-
+  const setUser = useStore((state) => state.setUser);
   const CustomIcon = ({ name, size, color }) => {
     return <Icon name={name} size={size} color={color} />;
   };
@@ -111,6 +111,7 @@ const Login = ({ navigation }) => {
       // Store the token in AsyncStorage
 
       const user = await getUser();
+      setUserId(user.id); // Set the user ID globally
       const response = await getAccountProfile();
       const userProfiles = response.data.filter(
         (profile) => profile.user_id === user.id
@@ -120,9 +121,37 @@ const Login = ({ navigation }) => {
       // console.log("Login response: " + JSON.stringify(response));
       // console.log(Boolean(response));
 
-      setActiveProfile(userProfiles[0].role_id);
-      // Navigate based on the role directly
-      navigateBasedOnRole(userProfiles[0].role_id);
+      // setActiveProfile(userProfiles[0].role_id);
+      // // Navigate based on the role directly
+      // navigateBasedOnRole(userProfiles[0].role_id);
+      // setUser(
+      //   userProfiles[0].role_id === 2
+      //     ? setUser(userProfiles[0].service_provider_name)
+      //     : setUser(userProfiles[1].service_provider_name)
+      // );
+
+      // #TODO for user customer feedback
+      if (userProfiles.length > 0) {
+        // Set the active profile and navigate based on role
+        const activeProfile = userProfiles[0]; // Assuming the first profile is the active one
+        setActiveProfile(activeProfile.role_id);
+        setUserId(user.id); // `setUserId` updates the global state with the current user ID
+
+        navigateBasedOnRole(activeProfile.role_id);
+
+        // Set user based on role_id
+        if (activeProfile.role_id === 2) {
+          setUser(activeProfile.service_provider_name); // For role 2, set the user to service provider name
+        } else if (userProfiles.length > 1) {
+          setUser(userProfiles[1].service_provider_name); // For other roles, use the second profile if available
+        } else {
+          // Default or fallback, you can handle cases where there’s no valid profile
+          setUser("Default User Name");
+        }
+      } else {
+        console.error("No profiles found for this user.");
+        // Handle the case where no profiles are found (maybe show an error message)
+      }
     } catch (error) {
       console.error("Login error:", error);
       Toast.show("An error occured during Login", 3000);
