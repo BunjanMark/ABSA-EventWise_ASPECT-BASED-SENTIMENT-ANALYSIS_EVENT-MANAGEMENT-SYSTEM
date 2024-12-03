@@ -239,7 +239,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingVertical: 14,
-    padding: 12,
     borderRadius: 8,
     paddingTop: 10,
     height: "100%",
@@ -347,6 +346,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: "#fff",
+    marginBottom: 10,
   },
   selectedDateText: {
     fontSize: 18,
@@ -899,6 +899,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 2.3,
     gap: 15,
+  },
+  scrollContainer: {
+    flexGrow: 1, // Ensures the ScrollView can scroll
+    padding: 16,
+    marginBottom: 60,
   },
 });
 

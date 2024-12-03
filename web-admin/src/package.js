@@ -8,6 +8,7 @@ import image2 from './images/event2.png';
 import image3 from './images/event3.png';
 import axios from 'axios';
 import { getAuthToken } from './apiconfig';
+import API_URL from './apiconfig';
 
 const Package = () => {
   const navigate = useNavigate();
@@ -46,15 +47,16 @@ const handleUpdatePackage = () => {
     return;
   }
 
+  // Prepare data
   const updatedPackageData = {
-    packageName,
-    eventType,
-    services,
-    totalPrice,
-    coverPhoto,
+    packageName: packageName || location.state.packageDetails.packageName,
+    eventType: eventType || location.state.packageDetails.eventType,
+    services: services.map((service) => service.id), // Ensure this is an array of IDs
+    totalPrice: totalPrice || location.state.packageDetails.totalPrice,
+    coverPhoto: coverPhoto || location.state.packageDetails.coverPhoto,
   };
 
-  axios.put(`http://localhost:8000/api/admin/packages/${location.state.packageDetails.id}`, updatedPackageData, {
+  axios.put(`${API_URL}/api/admin/packages/${location.state.packageDetails.id}`, updatedPackageData, {
     headers: {
       Authorization: `Bearer ${getAuthToken()}`,
       'Content-Type': 'application/json',
@@ -63,11 +65,16 @@ const handleUpdatePackage = () => {
     .then((response) => {
       console.log('Package updated successfully:', response.data);
       alert('Package updated successfully!');
-      navigate('/profile'); // Redirect to a suitable page after update
+      navigate('/profile'); // Redirect to profile or another relevant page
     })
     .catch((error) => {
-      console.error('Error updating package:', error);
-      alert('Failed to update package. Please try again.');
+      console.error('Error updating package:', error.response?.data || error.message);
+      const errors = error.response?.data?.errors || {};
+      alert(
+        `Failed to update package. ${
+          Object.keys(errors).length ? Object.values(errors).join(', ') : 'Please try again.'
+        }`
+      );
     });
 };
 
@@ -76,7 +83,7 @@ const handleUpdatePackage = () => {
 
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/services', {
+    axios.get(`${API_URL}/api/services`, {
       headers: {
         Authorization: `Bearer ${getAuthToken()}`,
       },
@@ -151,33 +158,43 @@ const handleUpdatePackage = () => {
       return;
     }
   
+    // Map services array to extract only service IDs
+    const serviceIds = services.map(service => service.id);
+  
     const packageData = {
       packageName,
       eventType,
-      packageType: 'Pre-defined', // You can adjust this depending on how you want to categorize the package
-      services, // An array of selected services
+      packageType: true, // Default value for packageType
+      services: serviceIds, // Send only IDs
       totalPrice,
-      coverPhoto, // Cover photo URL or base64 encoded image string
-      packageCreatedDate: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+      coverPhoto,
+      packageCreatedDate: new Date().toISOString().split('T')[0],
     };
   
-    axios.post('http://localhost:8000/api/admin/packages', packageData, {
-      headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
-        'Content-Type': 'application/json',
-      },
-    })
-    .then((response) => {
-      console.log('Package created successfully:', response.data);
-      alert('Package created successfully!');
-      // Optionally clear the form after success
-      resetForm();
-    })
-    .catch((error) => {
-      console.error('Error creating package:', error);
-      alert('Failed to create package. Please try again.');
-    });
+    axios
+      .post(`${API_URL}/api/admin/packages`, packageData, {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((response) => {
+        console.log('Package created successfully:', response.data);
+        alert('Package created successfully!');
+        resetForm(); // Clear form fields after success
+      })
+      .catch((error) => {
+        console.error('Error creating package:', error);
+        const status = error.response?.status;
+        if (status === 422) {
+          alert('Validation error: ' + JSON.stringify(error.response.data.errors));
+        } else {
+          alert('Failed to create package. Please try again.');
+        }
+      });
   };
+  
+  
   
   const resetForm = () => {
     setPackageName('');

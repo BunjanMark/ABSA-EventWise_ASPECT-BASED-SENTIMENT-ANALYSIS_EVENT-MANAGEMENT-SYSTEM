@@ -17,6 +17,8 @@ import { sendEventNoticeToAllGuests } from "../../../../services/organizer/admin
 import { TextInput, Button, Menu, Divider } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // For the 3-dot icon
 import Modal from 'react-native-modal'; // For showing modal
+import Ionicons from "react-native-vector-icons/Ionicons";
+
 
 
 
@@ -222,7 +224,9 @@ const GuestListAdmin = () => {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={refreshGuests} />
       }
-    >
+    ><TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10}/>
+            </TouchableOpacity>
     <Modal
   isVisible={modalVisible}
   onBackdropPress={() => setModalVisible(false)}

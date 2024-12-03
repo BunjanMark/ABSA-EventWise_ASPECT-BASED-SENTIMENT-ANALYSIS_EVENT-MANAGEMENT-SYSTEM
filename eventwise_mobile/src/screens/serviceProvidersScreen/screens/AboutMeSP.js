@@ -28,7 +28,7 @@ Founded by a married couple, Mr. Arvil and Ms. Alysa, thus the name A&A, of the 
 A&A Creations is now a growing team offering event needs and services. Nevertheless, its team is composed of equipped individuals ready to cater to its clients' needs. Even before the team was created, Mr. Arvil and most of his company partners were involved in event planning and coordination.
 
 A&A Creations aims to make the clients' plans into reality. The company also believes that a tight budget is not a hindrance in making memories to treasure, with the ones close to our hearts.`,
-    EMS: `EMS is a premier service provider specializing in equipment and logistics for large-scale events. 
+    EMS: `EventWise is a premier service provider specializing in equipment and logistics for large-scale events. 
 
 Our solutions ensure seamless execution and support, making EMS the preferred choice for organizations looking for reliable event services.`,
   };
