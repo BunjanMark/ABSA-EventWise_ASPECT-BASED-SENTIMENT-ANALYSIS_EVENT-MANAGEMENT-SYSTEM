@@ -105,8 +105,9 @@ const AboutAnA = () => {
                 { textAlign: "center", marginBottom: 20 },
               ]}
             >
-              EventWise is lorem ipsum dolor sit amet, consectetuer adipiscing
-              elit. Aenean commodo ligula eget dolor.
+              EventWise is a premier service provider specializing in equipment and logistics for large-scale events. 
+
+Our solutions ensure seamless execution and support, making EMS the preferred choice for organizations looking for reliable event services.
             </Text>
           )}
         </View>
