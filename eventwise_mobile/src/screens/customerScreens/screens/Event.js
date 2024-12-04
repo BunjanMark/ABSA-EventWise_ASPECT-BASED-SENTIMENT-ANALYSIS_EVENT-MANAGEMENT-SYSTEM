@@ -110,7 +110,11 @@ const Event = () => {
             filteredEvents.map((event, index) => (
               <View key={index} style={styles.eventFolder}>
                 <Image
-                  source={require("../pictures/bookpic.png")}
+                  source={{
+                    uri: event?.coverPhoto
+                      ? event.coverPhoto
+                      : require("../pictures/bookpic.png"),
+                  }}
                   style={styles.eventImage}
                   resizeMode="cover"
                 />
@@ -181,7 +185,11 @@ const Event = () => {
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        onPress={() => navigation.navigate("Feedback")}
+                        onPress={() =>
+                          navigation.navigate("FeedbackInputs", {
+                            eventId: event.id,
+                          })
+                        }
                         style={styles.dropdownItem}
                       >
                         <Icon

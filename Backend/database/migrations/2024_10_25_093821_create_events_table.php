@@ -22,7 +22,7 @@ return new class extends Migration
             $table->time('time');
             $table->string('location');
             $table->text('description');
-            $table->string('coverPhoto')->nullable();
+            $table->longText('coverPhoto')->nullable();
             $table->json('packages');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');  
             $table->timestamps();

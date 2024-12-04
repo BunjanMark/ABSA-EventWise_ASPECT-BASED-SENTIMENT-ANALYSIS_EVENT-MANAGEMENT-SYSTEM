@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     flex: 1,
-    height: "100%",
+    height: "120%",
     resizeMode: "contain",
   },
   line: {
