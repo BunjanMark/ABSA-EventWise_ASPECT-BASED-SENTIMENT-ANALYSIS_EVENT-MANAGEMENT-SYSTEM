@@ -86,6 +86,7 @@ const CreatePackageScreen = ({ navigation }) => {
       const result = await createPackage(newPackage);
 
       Alert.alert("Success", "Package created successfully!");
+      navigation.goBack();
       console.log("Server response:", result);
       resetForm();
     } catch (error) {

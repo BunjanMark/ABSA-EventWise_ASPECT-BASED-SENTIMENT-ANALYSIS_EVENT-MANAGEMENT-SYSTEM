@@ -143,7 +143,11 @@ const ProfileSP = () => {
           style={styles.profilePicture}
         />
         {/* Display user's name here */}
+        <Text style={styles.nameText}>{user.id}</Text>
         <Text style={styles.nameText}>{user.name}</Text>
+        <Text style={styles.nameText}>{user.email}</Text>
+        <Text style={styles.nameText}>{user.username}</Text>
+        <Text style={styles.nameText}>{user.phone_number}</Text>
 
         {/* Display user type (service provider or other role) */}
         <Text style={styles.addressText}>

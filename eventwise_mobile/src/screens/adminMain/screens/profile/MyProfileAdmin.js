@@ -1,14 +1,32 @@
 import { View, Text, Image } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import styles from "../../styles/styles";
-import useStore from "../../../../stateManagement/useStore";
 import { useNavigation } from "@react-navigation/native";
+import { getUser} from "../../../../services/authServices";
+
 const MyProfileAdmin = () => {
   const navigation = useNavigation();
-  const { userName, userEmail } = useStore();
+  const [user, setUser] = useState(null);
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await getUser();  // Assuming this function returns user data
+        setUser(userData);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+
+
   return (
     <SafeAreaView
       style={[
@@ -19,10 +37,8 @@ const MyProfileAdmin = () => {
           borderRadius: 20,
           borderWidth: 1,
           borderColor: "#C2B067",
-          // top: 60,
           marginTop: 60,
           display: "flex",
-
           flexDirection: "column",
           padding: 20,
           justifyContent: "space-between",
@@ -34,12 +50,10 @@ const MyProfileAdmin = () => {
       <View
         style={{
           display: "flex",
-
           flexDirection: "column",
           padding: 20,
           justifyContent: "space-between",
           alignItems: "center",
-
           bottom: 90,
         }}
       >
@@ -64,40 +78,41 @@ const MyProfileAdmin = () => {
           bottom: 10,
         }}
       >
-        <Text style={styles.title}>{userName}</Text>
-        <Text style={styles.title}>{userEmail}</Text>
+        {/* Only render user data if user is available */}
+        {user ? (
+          <>
+            <Text style={styles.title}>{user.name}</Text>
+            <Text style={styles.title}>{user.email}</Text>
+          </>
+        ) : (
+          // Show loading indicator or placeholder
+          <Text>Loading...</Text>
+        )}
       </View>
       <View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("EditProfileAdmin")}
-        >
+        <TouchableOpacity onPress={() => navigation.navigate("EditProfileAdmin")}>
           <View
-            style={[
-              {
-                backgroundColor: "gold",
-                borderRadius: "15",
-                width: 130,
-                height: 30,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "row",
-                gap: 15,
-                borderRadius: 15,
-              },
-            ]}
+            style={{
+              backgroundColor: "gold",
+              borderRadius: 15,
+              width: 130,
+              height: 30,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "row",
+              gap: 15,
+              borderRadius: 15,
+            }}
           >
-            <MaterialCommunityIcons
-              name="account-edit"
-              size={23}
-              color="white"
-            />
+            <MaterialCommunityIcons name="account-edit" size={23} color="white" />
             <Text style={{ color: "white" }}>Edit Profile</Text>
           </View>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
+  
 };
 
 export default MyProfileAdmin;

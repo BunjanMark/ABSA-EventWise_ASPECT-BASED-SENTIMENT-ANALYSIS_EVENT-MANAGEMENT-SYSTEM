@@ -88,7 +88,7 @@ const SidebarMenu = ({ visible, onClose }) => {
         </View>
 
 
-          {["Home", "Profile", "Settings", "About", "Logout"].map(
+          {["Profile", "Settings", "About", "Logout"].map(
             (item, index) => (
               <TouchableOpacity
                 key={index}
@@ -158,8 +158,6 @@ const SidebarMenu = ({ visible, onClose }) => {
 
 const getIconName = (item) => {
   switch (item) {
-    case "Home":
-      return "home-outline";
     case "Profile":
       return "person";
     case "Settings":
