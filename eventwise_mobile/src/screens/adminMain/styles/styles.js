@@ -55,9 +55,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     flex: 1,
-    height: "100%",
+    height: "80%",
     resizeMode: "contain",
-    marginLeft: "15%",
+    marginLeft: "20%",
     width: 100,
   },
   // Add photo
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     display: "flex",
     // flex: 1,
-    height: 80,
+    height: 60,
     // paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0, // Handle status bar overlap on Android
     backgroundColor: "#fff",
     flexDirection: "row",

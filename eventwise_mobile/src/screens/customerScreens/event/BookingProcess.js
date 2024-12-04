@@ -132,13 +132,11 @@ const BookingProcess = ({ navigation }) => {
     try {
       let coverPhotoURL = null;
   
-      // Upload the cover photo if provided
       if (values.coverPhoto) {
         const fileName = `package_cover_${Date.now()}.jpg`;
         coverPhotoURL = await testUploadImageToSupabase(values.coverPhoto, fileName);
       }
   
-      // Fetch existing events for the selected date
       const existingEvents = await fetchEventsByDate(values.eventDate);
       if (existingEvents.length >= 3) {
         Alert.alert(
@@ -148,23 +146,6 @@ const BookingProcess = ({ navigation }) => {
         return;
       }
   
-       // Calculate the dynamic total price of the package
-    let dynamicTotalPrice = parseFloat(selectedPkg.totalPrice) || 0;
-
-    // Iterate over the selected package services to adjust the price
-    selectedPkg.services.forEach((service) => {
-      if (service.removed) {
-        dynamicTotalPrice -= parseFloat(service.basePrice) || 0; // Ensure basePrice is a number
-      }
-      if (service.added) {
-        dynamicTotalPrice += parseFloat(service.basePrice) || 0; // Ensure basePrice is a number
-      }
-    });
-
-    dynamicTotalPrice = parseFloat(dynamicTotalPrice.toFixed(2)); // Format to two decimal places
-    console.log("Dynamic Total Price: ", dynamicTotalPrice);
-  
-      // Format services for the package
       const formattedServices = selectedPkg.services
         .filter((service) => !service.removed) // Exclude removed services
         .map((service) => ({
@@ -176,12 +157,11 @@ const BookingProcess = ({ navigation }) => {
           requirements: service.requirements,
         }));
   
-      // Create the package
       const packageData = {
         packageName: selectedPkg.packageName,
         eventType: selectedPkg.eventType,
         services: formattedServices.map((service) => service.id),
-        totalPrice: dynamicTotalPrice,
+        totalPrice: selectedPkg.totalPrice,
         packagePhotoURl: coverPhotoURL || "",
       };
   
@@ -675,7 +655,7 @@ const BookingProcess = ({ navigation }) => {
       </>
     )}
 
-                {currentScreen === 3 && selectedPackage !== null && (
+    {currentScreen === 3 && selectedPackage !== null && (
                   <>
                     <TouchableOpacity onPress={() => setCurrentScreen(2)}>
                       <Ionicons
@@ -814,33 +794,36 @@ const BookingProcess = ({ navigation }) => {
                                         marginTop: 10,
                                       },
                                     ]}
-                                    // Inside your Add Service Button onPress handler
-onPress={() => {
-  // Ensure the selectedPkg is updated correctly without mutating the original object
-  const updatedServices = selectedPkg ? [...selectedPkg.services, service] : [service];
+                                    onPress={() => {
+                                      // Ensure the selectedPkg is updated correctly without mutating the original object
+                                      const updatedServices = selectedPkg
+                                        ? [...selectedPkg.services, service]
+                                        : [service];
 
-  // Calculate the new totalPrice by adding the basePrice of the new service
-  const updatedTotalPrice = selectedPkg.totalPrice + service.basePrice;
+                                      // Clone the currentPackages and update the selected package with new services
+                                      const updatedPackages =
+                                        currentPackages.map((pkg) =>
+                                          pkg.id === selectedPkg.id
+                                            ? {
+                                                ...pkg,
+                                                services: updatedServices,
+                                              }
+                                            : pkg
+                                        );
 
-  // Clone the currentPackages and update the selected package with new services and the updated price
-  const updatedPackages = currentPackages.map((pkg) =>
-    pkg.id === selectedPkg.id
-      ? { ...pkg, services: updatedServices, totalPrice: updatedTotalPrice } // Update the total price here
-      : pkg
-  );
+                                      // Log the updated package details after adding a service
+                                      console.log(
+                                        "Package updated with new service:",
+                                        {
+                                          packageId: selectedPkg.id,
+                                          updatedServices: updatedServices,
+                                        }
+                                      );
 
-  // Log the updated package details after adding a service
-  console.log("Package updated with new service:", {
-    packageId: selectedPkg.id,
-    updatedServices: updatedServices,
-    updatedTotalPrice: updatedTotalPrice,
-  });
-
-  // Set the updated packages list
-  setCurrentPackages(updatedPackages);
-  closeServiceModal(); // Close the modal after selection
-}}
-
+                                      // Set the updated packages list
+                                      setCurrentPackages(updatedPackages);
+                                      closeServiceModal(); // Close the modal after selection
+                                    }}
                                   >
                                     <Text style={styles.serviceName}>
                                       {service.serviceName}
@@ -895,37 +878,37 @@ onPress={() => {
                           <View style={styles.modalActions}>
                             <Button
                               mode="contained"
-                              // Inside the Remove Service Confirmation modal onPress handler (Yes, Remove button)
-onPress={() => {
-  // Filter the removed service from the package's services
-  const updatedServices = selectedPkg.services.filter(
-    (service) => service.id !== selectedServiceToRemove.id
-  );
+                              onPress={() => {
+                                // Ensure you're filtering by ID or another unique identifier for object comparison
+                                const updatedServices =
+                                  selectedPkg.services.filter(
+                                    (service) =>
+                                      service.id !== selectedServiceToRemove.id
+                                  );
 
-  // Calculate the new totalPrice by subtracting the basePrice of the removed service
-  const updatedTotalPrice = selectedPkg.totalPrice - selectedServiceToRemove.basePrice;
+                                // Log the updated service list after removal
+                                console.log(
+                                  "Package updated after service removal:",
+                                  {
+                                    packageId: selectedPkg.id,
+                                    updatedServices: updatedServices,
+                                  }
+                                );
 
-  // Clone the currentPackages and update the selected package with the updated services and price
-  const updatedPackages = currentPackages.map((pkg) =>
-    pkg.id === selectedPkg.id
-      ? { ...pkg, services: updatedServices, totalPrice: updatedTotalPrice } // Update the total price here
-      : pkg
-  );
+                                // Clone the currentPackages and update the selected package
+                                const updatedPackages = currentPackages.map(
+                                  (pkg) =>
+                                    pkg.id === selectedPkg.id
+                                      ? { ...pkg, services: updatedServices }
+                                      : pkg
+                                );
 
-  // Log the updated package details after removing a service
-  console.log("Package updated after service removal:", {
-    packageId: selectedPkg.id,
-    updatedServices: updatedServices,
-    updatedTotalPrice: updatedTotalPrice,
-  });
+                                // Update the state with the new package list
+                                setCurrentPackages(updatedPackages);
 
-  // Update the state with the new package list
-  setCurrentPackages(updatedPackages);
-
-  // Close the confirmation modal after the update
-  setConfirmRemoveModalVisible(false);
-}}
-
+                                // Close the modal after the update
+                                setConfirmRemoveModalVisible(false);
+                              }}
                               style={styles.closeButton}
                               marginRight={10}
                             >

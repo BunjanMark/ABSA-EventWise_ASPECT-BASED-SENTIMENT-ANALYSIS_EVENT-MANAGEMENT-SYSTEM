@@ -116,7 +116,7 @@ const EventCardHome = ({
           style={styles.deleteButton}
           onPress={() => handleDeleteEvent(currentEvents?.id)} // Now using the prop
         >
-          <Text style={styles.buttonText}>Delete</Text>
+          <Text style={styles.buttonText}>Disable</Text>
         </TouchableOpacity>
       </View>
     </View>

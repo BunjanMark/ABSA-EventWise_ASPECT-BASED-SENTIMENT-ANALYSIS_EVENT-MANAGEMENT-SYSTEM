@@ -13,13 +13,14 @@ export const styles = StyleSheet.create({
   // For logo
   logo: {
     flex: 1,
-    height: "100%",
+    height: "110%",
     resizeMode: "contain",
-    marginLeft:50
+    marginLeft:50,
+    marginBottom: 20,
   },
   // For header
   headerContainer: {
-    height:90,
+    height: 85,
     backgroundColor: "#fff",
     flexDirection: "row",
     alignItems: "center",
@@ -35,6 +36,7 @@ export const styles = StyleSheet.create({
   iconContainer: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom  : 10,
   },
   headerButton: {
     marginLeft: 20,
