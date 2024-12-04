@@ -58,6 +58,8 @@ Route::get('/admin/account-management/{user}', [AccountManagementController::cla
 Route::patch('/admin/account-management/{user}', [AccountManagementController::class, 'update']);
 Route::delete('/admin/account-management/{user}', [AccountManagementController::class, 'destroy']);
 Route::get('/account-management', [AccountManagementController::class, 'getProfile'])->middleware(['auth:sanctum']);
+Route::put('/auth/update', [AccountManagementController::class, 'update'])->middleware(['auth:sanctum']);
+
 
 
 // Route::middleware(['admin'])->get('/admin', [AdminController::class, 'index']);
@@ -131,6 +133,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // equipment
     Route::get('/my-equipment', [EquipmentController::class, 'myEquipment']);
+    Route::middleware('auth:api')->post('/equipment', [EquipmentController::class, 'store']);
+
 
 
 

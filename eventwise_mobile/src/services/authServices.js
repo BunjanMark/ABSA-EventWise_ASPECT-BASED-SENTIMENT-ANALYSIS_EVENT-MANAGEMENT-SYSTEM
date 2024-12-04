@@ -117,15 +117,6 @@ export const logout = async () => {
     throw error;
   }
 };
-// export const logout = async () => {
-//   try {
-//     await api.post("/user/logout");
-//     await AsyncStorage.removeItem("authToken");
-//   } catch (error) {
-//     console.error("Logout error:", error);
-//     throw error;
-//   }
-// };
 
 export const getUser = async () => {
   try {
@@ -136,6 +127,17 @@ export const getUser = async () => {
     throw error;
   }
 };
+
+export const updateUser = async (updatedData) => {
+  try {
+    const response = await api.put("/auth/update", updatedData); // Adjust endpoint as needed
+    return response.data;
+  } catch (error) {
+    console.error("Update user error:", error);
+    throw error;
+  }
+};
+
 
 export const getParticipants = async () => {
   try {
@@ -157,3 +159,18 @@ export const getAccountProfile = async () => {
     throw error;
   }
 };
+
+export const addEquipment = async (equipmentData) => {
+  try {
+    const response = await api.post("/equipment", equipmentData); 
+    return response.data; 
+  } catch (error) {
+    if (error.response) {
+      console.error("Add equipment error response:", error.response.data);
+    } else {
+      console.error("Add equipment error:", error.message);
+    }
+    throw error;
+  }
+};
+

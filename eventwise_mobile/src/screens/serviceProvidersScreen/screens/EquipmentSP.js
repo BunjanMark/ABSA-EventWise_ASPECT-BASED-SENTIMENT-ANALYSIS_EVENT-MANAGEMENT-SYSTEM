@@ -13,6 +13,8 @@ import { useNavigation } from "@react-navigation/native";
 import { DataTable } from "react-native-paper";
 import { fetchEquipment } from "../../../services/organizer/adminEquipmentServices";
 import { fetchMyEquipments } from "../../../services/serviceProvider/serviceProviderServices";
+import { addEquipment } from "../../../services/authServices"; 
+
 
 const EquipmentSP = ({ route }) => {
   const { eventId } = route.params;
@@ -65,21 +67,42 @@ const EquipmentSP = ({ route }) => {
   }, [eventId]);
 
   // Add item handler
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     if (newItem && newItemCount) {
-      const newInventory = [
-        ...inventoryData,
-        {
+      try {
+        // Prepare the equipment data
+        const equipmentData = {
           item: newItem,
-          noOfItems: parseInt(newItemCount),
-          noOfSortItems: 0,
-          status: "",
-        },
-      ];
-      setInventoryData(newInventory);
-      setNewItem("");
-      setNewItemCount("");
-      setModalVisible(false);
+          number_of_items: newItemCount,
+          number_of_sort_items: 0, // Default value
+          status: "", // Default status
+          event_id: eventId, // Ensure eventId is available
+        };
+  
+        // Call the backend integration function
+        const responseData = await addEquipment(equipmentData);
+  
+        // Update inventory data with the new item
+        setInventoryData((prevInventory) => [
+          ...prevInventory,
+          {
+            item: responseData.item,
+            noOfItems: responseData.number_of_items,
+            noOfSortItems: responseData.number_of_sort_items,
+            status: responseData.status,
+          },
+        ]);
+  
+        // Clear inputs and close modal
+        setNewItem("");
+        setNewItemCount("");
+        setModalVisible(false);
+      } catch (error) {
+        console.error("Error adding item:", error);
+        alert("Failed to add item. Please try again.");
+      }
+    } else {
+      alert("Please fill in all fields.");
     }
   };
 

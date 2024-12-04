@@ -1,350 +1,249 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Image,
-  Text,
   StyleSheet,
-  ScrollView,
+  View,
+  Text,
   TouchableOpacity,
-  Platform,
-  KeyboardAvoidingView,
-  SafeAreaView,
+  ScrollView,
+  Image,
   TextInput,
-  ActivityIndicator,
   Alert,
-  Modal,
 } from "react-native";
-import {
-  Ionicons,
-  FontAwesome,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { Button } from "react-native-paper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as ImagePicker from "expo-image-picker";
-import Header2 from "../elements/Header2";
+import { Ionicons } from "@expo/vector-icons";
+import { getUser, updateUser } from "../../../services/authServices"; // Add updateUser function
 
-const EditProfile = () => {
-  const navigator = useNavigation();
+const EditProfileSP = () => {
   const navigation = useNavigation();
-  const [editableUsername, setEditableUsername] = useState("");
-  const [editableEmail, setEditableEmail] = useState("");
-  const [editablePhoneNumber, setEditablePhoneNumber] = useState("");
-  const [editablePassword, setEditablePassword] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [profilePicture, setProfilePicture] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+
+  // States for user data
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone_number, setPhoneNumber] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUserData = async () => {
       try {
-        const storedUsername = await AsyncStorage.getItem("username");
-        const storedEmail = await AsyncStorage.getItem("email");
-        const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber");
-        const storedProfilePicture = await AsyncStorage.getItem(
-          "profilePicture"
-        );
-
-        setEditableUsername(storedUsername || "");
-        setEditableEmail(storedEmail || "");
-        setEditablePhoneNumber(storedPhoneNumber || "");
-
-        if (storedProfilePicture) {
-          setProfilePicture(storedProfilePicture);
-        }
+        const userData = await getUser();
+        setEmail(userData.email || "");
+        setUsername(userData.username || "");
+        setPhoneNumber(userData.phone_number || "");
+        setLoading(false);
       } catch (error) {
-        console.error("Error loading data from AsyncStorage:", error);
+        console.error("Error fetching user data:", error);
+        setLoading(false);
       }
     };
 
-    fetchData();
+    fetchUserData();
   }, []);
 
-  const handleEditProfilePicture = async () => {
+  const handleSubmit = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        const selectedImage = result.assets[0];
-        setProfilePicture(selectedImage.uri);
-
-        await AsyncStorage.setItem("profilePicture", selectedImage.uri);
-
-        const formData = new FormData();
-        formData.append("profilePicture", {
-          uri: selectedImage.uri,
-          type: selectedImage.type || "image/jpeg",
-          name: "profilePicture.jpg",
-        });
-
-        const response = await fetch(
-          "http://192.168.254.110:8000/uploadProfilePicture",
-          {
-            method: "POST",
-            body: formData,
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: "Bearer YOUR_ACCESS_TOKEN",
-              "Custom-Header": "Custom-Value",
-            },
-          }
-        );
-
-        const data = await response.json();
-        console.log("Image uploaded successfully:", data);
-      } else {
-        console.warn("Image selection canceled by user.");
-      }
+      const updatedData = { email, username, password, phone_number };
+      await updateUser(updatedData); // Call the update API
+      Alert.alert("Success", "Profile updated successfully");
+      navigation.navigate("Profile"); // Navigate back to the profile page
     } catch (error) {
-      console.error("Error picking image:", error);
+      Alert.alert("Error", "Failed to update profile. Please try again.");
+      console.error("Update error:", error);
     }
   };
 
-  const handleSaveProfile = async () => {
-    try {
-      await AsyncStorage.setItem("username", editableUsername);
-      await AsyncStorage.setItem("email", editableEmail);
-      await AsyncStorage.setItem("phoneNumber", editablePhoneNumber);
-      await AsyncStorage.setItem("password", editablePassword);
-
-      setModalVisible(true);
-    } catch (error) {
-      console.error("Error saving profile to AsyncStorage:", error);
-    }
-  };
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
-      <Header2 />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.userProfile}>
-            <View style={styles.userAvatar}>
-              <Image
-                source={
-                  profilePicture
-                    ? { uri: profilePicture }
-                    : require("../pictures/user.png")
-                }
-                style={styles.avatarImage}
-              />
-            </View>
-            <TouchableOpacity
-              onPress={handleEditProfilePicture}
-              style={styles.editProfileIcon}
-            >
-              {loading && <ActivityIndicator size="large" color="#3498db" />}
-              <Ionicons name="camera" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.accDet}>Account Details</Text>
-          <View style={styles.accountDetails}>
-            <Text style={styles.inputText}>Edit Username</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your Username"
-              value={editableUsername}
-              onChangeText={setEditableUsername}
-            />
-            <Text style={styles.inputText}>Edit Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your Email"
-              value={editableEmail}
-              onChangeText={setEditableEmail}
-              keyboardType="email-address"
-            />
-            <Text style={styles.inputText}>Edit Contact Number</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your Phone Number"
-              value={editablePhoneNumber}
-              onChangeText={setEditablePhoneNumber}
-              keyboardType="phone-pad"
-            />
-            <Text style={styles.inputText}>Change Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your New Password"
-              value={editablePassword}
-              onChangeText={setEditablePassword}
-              secureTextEntry
-            />
-          </View>
+    <ScrollView
+      contentContainerStyle={styles.scrollViewContent}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.container}>
+        <View style={styles.headerContainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.navigate("ProfileSP")}
+          >
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Edit Profile</Text>
+        </View>
 
-          <Button
-            style={{ ...styles.buttonStyle, backgroundColor: "#FFC42B" }}
-            mode="contained-tonal"
-            labelStyle={{ color: "black", fontWeight: "bold" }}
-            onPress={handleSaveProfile}
-          >
-            Save
-          </Button>
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-              setModalVisible(!modalVisible);
-            }}
-          >
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
-                  style={styles.closeIcon}
-                >
-                  <Ionicons name="close" size={30} color="#6B6B6B" />
-                </TouchableOpacity>
-                <Image
-                  source={require("../pictures/success.png")}
-                  style={styles.modalImage}
-                />
-              </View>
-            </View>
-          </Modal>
+        <View style={styles.profileContainer}>
+          <Image
+            source={require("../pictures/user.png")}
+            style={styles.profileImage}
+          />
+          <View style={styles.profileTextContainer}>
+            <Text style={styles.profileName}>{username}</Text>
+            <Text style={styles.profileEmail}>{email}</Text>
+          </View>
+        </View>
+        <View style={styles.line} />
+
+        <Text style={styles.settingText}>Account Details</Text>
+        <View style={styles.content}>
+          <Text style={styles.settingsText}>Edit Email</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Enter your Email"
+            placeholderTextColor="white"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Text style={styles.settingsText}>Username</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Enter your Username"
+            placeholderTextColor="white"
+            value={username}
+            onChangeText={setUsername}
+          />
+          <Text style={styles.settingsText}>Change Password</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Enter new Password"
+            placeholderTextColor="white"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          <Text style={styles.settingsText}>Phone Number</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Enter your Phone Number"
+            placeholderTextColor="white"
+            value={phone_number}
+            onChangeText={setPhoneNumber}
+          />
 
           <TouchableOpacity
-            onPress={() => navigator.navigate("CreateAnotherAccount")}
+            style={[styles.button, styles.submitButton]}
+            onPress={handleSubmit}
           >
-            <View style={styles.createButton}>
-              <FontAwesome name="user-plus" size={24} color={"black"} />
-              <Text style={styles.createButtonText}>
-                Create Another Account
-              </Text>
-            </View>
+            <Text style={styles.buttonText}>Save</Text>
           </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: 20,
+  scrollViewContent: {
+    flexGrow: 1, // Ensure scrollability
+    padding: 20,
+    backgroundColor: '#FFFFFF', // Set background color to white
   },
-  header: {
-    alignItems: "center",
-    marginVertical: 20,
-    marginTop: 8,
+  container: {
+    padding: 20,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20, // Space below the header
+  },
+  backButton: {
+    marginRight: 10, // Space between button and text
   },
   headerText: {
-    color: "#e6b800",
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
+    color: '#000000', // Set text color to black
+    flex: 1, // Take remaining space to center
+    textAlign: 'center', // Center the text
   },
-  accDet: {
-    color: "#000",
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 20,
-  },
-  inputText: {
-    color: "#000",
-    fontSize: 14,
-  },
-  userProfile: {
-    alignItems: "center",
-    marginTop: 5,
-  },
-  userAvatar: {
-    position: "relative",
-    width: 120,
-    height: 110,
-    borderRadius: 60,
-    overflow: "hidden",
-    borderWidth: 3,
-    borderColor: "#000",
-  },
-  editProfileIcon: {
-    justifyContent: "center",
-    alignItems: "center",
-    top: 75,
-    left: 210,
-    borderRadius: 50,
-    width: 40,
-    height: 40,
-    backgroundColor: "darkgray",
-    position: "absolute",
-  },
-  avatarImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-  },
-  accountDetails: {
-    marginTop: 20,
-  },
-  input: {
-    backgroundColor: "#C2B067",
-    padding: 15,
-    borderRadius: 15,
-    marginVertical: 5,
-  },
-  buttonStyle: {
+  line: {
+    width: '100%',
+    height: 2,
     marginVertical: 20,
-    marginLeft: 90,
-    marginRight: 90,
+    backgroundColor: '#FFFFFF', // White fading effect
   },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
+  content: {
+    paddingBottom: 100, // Adds extra padding to ensure scrolling past the bottom buttons
   },
-  modalView: {
-    margin: 20,
-    borderRadius: 20,
-    padding: 5,
-    alignItems: "center",
-    shadowColor: "#000",
+  settingsText: {
+    fontSize: 15,
+    color: '#000000', // Set text color to black
+    marginVertical: 10,
+  },
+  settingText: {
+    fontSize: 20,
+    color: '#000000', // Set text color to black
+    marginVertical: 10,
+  },
+  textInput: {
+    backgroundColor: '#c2b067',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    height: 50,
+    color: 'white', // Set text color to white
+    fontSize: 16,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#B0B0B0',
+    shadowColor: '#000000', // Add shadow for visibility
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 5,
-    position: "relative",
+    elevation: 3,
   },
-  modalImage: {
-    width: 300,
-    height: 300,
-    resizeMode: "contain",
-  },
-  closeIcon: {
-    position: "absolute",
-    top: 10,
-    right: 15,
-    zIndex: 1,
-  },
-  createButton: {
-    backgroundColor: "#FFC42B",
+  profileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
     paddingVertical: 10,
-    paddingHorizontal: 30,
-    alignItems: "center",
-    alignSelf: "center",
-    borderRadius: 15,
-    marginTop: 5,
-    marginBottom: 200,
-    position: "relative",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: 290,
+    paddingHorizontal: 15,
+    backgroundColor: 'transparent',
+    borderRadius: 10,
   },
-  createButtonText: {
-    color: "black",
+  profileImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+  },
+  profileTextContainer: {
+    marginLeft: 15,
+  },
+  profileName: {
     fontSize: 18,
+    color: '#000000', // Set text color to black
+    fontWeight: 'bold',
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: '#000000', // Set text color to black
+  },
+  submitButton: {
+    backgroundColor: '#FFC42B',
+    paddingVertical: 15,
+    alignItems: 'center',
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  createPortfolioButton: {
+    backgroundColor: '#FFC42B',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  createPortfolioText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
     marginLeft: 10,
   },
 });
 
-export default EditProfile;
+export default EditProfileSP;
