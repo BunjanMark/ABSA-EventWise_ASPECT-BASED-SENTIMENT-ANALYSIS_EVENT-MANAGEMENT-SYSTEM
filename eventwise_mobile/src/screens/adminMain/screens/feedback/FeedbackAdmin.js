@@ -8,6 +8,8 @@ import { useFeedbackStore } from "../../../../stateManagement/admin/useFeedbackS
 const FeedbackAdmin = () => {
   const { eventData, sliceColor } = useStore(); // Using your state store
   const { currentFeedbacks, setCurrentFeedbacks } = useFeedbackStore();
+
+  console.log("This is the current feedbacks: ", currentFeedbacks);
   return (
     <SafeAreaView style={[styles.container]}>
       <View style={[styles.header, {}]}>
@@ -24,7 +26,7 @@ const FeedbackAdmin = () => {
             },
           ]}
         >
-          Event Feedbacks
+          Event Feedbacksxx
         </Text>
       </View>
       {/* Components */}

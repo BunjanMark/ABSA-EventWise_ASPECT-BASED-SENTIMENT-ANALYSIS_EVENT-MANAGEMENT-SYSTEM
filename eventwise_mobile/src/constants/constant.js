@@ -1,5 +1,4 @@
 // Change with your IP
- 
-const API_URL = "http://172.22.76.32:8000";
+import { API_URL } from "react-native-dotenv";
 
 export default API_URL;

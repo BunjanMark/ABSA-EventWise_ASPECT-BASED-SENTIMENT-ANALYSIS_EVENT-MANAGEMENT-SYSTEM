@@ -241,6 +241,7 @@ public function store(Request $request)
     }
 }
 
+
 public function fetchEventsByType(Request $request)
 {
     try {
@@ -265,6 +266,7 @@ public function fetchEventsByType(Request $request)
     }
 }
 
+
 public function getEventsWithMyServices(Request $request)
 {
     $userId = Auth::id();
@@ -277,6 +279,14 @@ public function getEventsWithMyServices(Request $request)
     })->get();
 
     return response()->json($events);
+}
+
+public function getEventServices(Request $request, $eventId)
+{
+    $eventServices = DB::table('event_services_providers')->where('event_id', $eventId)->pluck('service_id');
+    $services = Service::whereIn('id', $eventServices)->get();
+
+    return response()->json($services);
 }
 
 public function fetchEventsByDate($date)

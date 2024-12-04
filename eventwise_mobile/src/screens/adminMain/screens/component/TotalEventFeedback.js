@@ -5,13 +5,14 @@ import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
+
 const TotalEventFeedback = ({ eventFeedback, sliceColor }) => {
   const navigation = useNavigation();
   const handleGoToButtonPress = () => {
     console.log("Go to FeedbackAdmin");
     navigation.navigate("Feedback");
-    // FeedbackEventDetails
   };
+
   // Aggregate data for pie chart
   const aggregateFeedback = () => {
     let positive = 0,
@@ -72,14 +73,13 @@ const TotalEventFeedback = ({ eventFeedback, sliceColor }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Display Pie Chart */}
       <View style={styles.feedbackContainer}>
         <Text style={styles.chartTitle}>Total Feedback </Text>
         <TouchableOpacity onPress={handleGoToButtonPress}>
-          <Text style={styles.subtitle}>go to</Text>
+          <Text style={styles.subtitle}>Go to Feedback</Text>
           <AntDesign name="swapright" size={24} color="black" />
         </TouchableOpacity>
-        {feedbackAggregatedData.length > 0 && (
+        {feedbackAggregatedData.length > 0 ? (
           <PieChart
             data={feedbackAggregatedData}
             width={Dimensions.get("window").width - 40}
@@ -92,32 +92,14 @@ const TotalEventFeedback = ({ eventFeedback, sliceColor }) => {
             backgroundColor="transparent"
             paddingLeft="15"
           />
-        )}
-      </View>
-
-      {/* Display Detailed Feedbacks
-      <ScrollView style={styles.feedbackList}>
-        <Text style={styles.feedbackListTitle}>Detailed Feedback</Text>
-        {eventFeedback.map((feedback, index) => (
-          <View key={index} style={styles.feedbackItem}>
-            <Text style={styles.feedbackDate}>
-              {new Date(feedback.timestamp).toLocaleString()}
-            </Text>
-            <Text style={styles.feedbackText}>
-              Event: {feedback.event_feedback}
-            </Text>
-            <Text style={styles.feedbackText}>
-              Venue: {feedback.venue_feedback}
-            </Text>
-            <Text style={styles.feedbackText}>
-              Catering: {feedback.catering_feedback}
-            </Text>
-            <Text style={styles.feedbackText}>
-              Decoration: {feedback.decoration_feedback}
+        ) : (
+          <View style={styles.noFeedback}>
+            <Text style={styles.noFeedbackText}>
+              No feedback data available yet.
             </Text>
           </View>
-        ))}
-      </ScrollView> */}
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -145,16 +127,15 @@ const styles = StyleSheet.create({
   },
   chartSection: { alignItems: "center", marginBottom: 20 },
   chartTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
-  feedbackList: { marginTop: 10 },
-  feedbackListTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },
-  feedbackItem: {
-    backgroundColor: "#F5F5F5",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+  noFeedback: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 20,
   },
-  feedbackDate: { fontSize: 12, color: "#555", marginBottom: 5 },
-  feedbackText: { fontSize: 14, marginBottom: 5 },
+  noFeedbackText: {
+    fontSize: 16,
+    color: "#888",
+  },
 });
 
 export default TotalEventFeedback;
