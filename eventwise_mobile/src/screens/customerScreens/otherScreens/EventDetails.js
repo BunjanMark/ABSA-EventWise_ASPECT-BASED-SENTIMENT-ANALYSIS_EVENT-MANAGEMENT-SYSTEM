@@ -5,6 +5,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import Header from "../elements/Header";
 import axios from 'axios';
 import API_URL from '../../../constants/constant';
+import { fetchEventPackageDetails } from "../../../services/organizer/adminEventServices";
 
 const EventDetails = () => {
   const route = useRoute();
@@ -14,21 +15,27 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-  .get(`${API_URL}/api/admin/events/${eventId}`)
-  .then((response) => {
-    console.log('Event data with everything:', response.data);
-    setEventData(response.data);
-    setLoading(false);
-  })
-  .catch((error) => {
-    console.error('Error fetching event data:', error);
-    setLoading(false);
-  });
+    const fetchEventData = async () => {
+      try {
+        // Fetch event data
+        const eventResponse = await axios.get(`${API_URL}/api/admin/events/${eventId}`);
+        const eventDetails = eventResponse.data;
 
+        // Fetch package details
+        const packageDetails = await fetchEventPackageDetails(eventId);
+
+        // Combine event and package details
+        setEventData({ ...eventDetails, packages: packageDetails });
+      } catch (error) {
+        console.error("Error fetching event or package data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEventData();
   }, [eventId]);
-  
-  
+
   if (loading) {
     return <ActivityIndicator size="large" color="#eeba2b" />;
   }
@@ -44,60 +51,57 @@ const EventDetails = () => {
           <Text style={styles.headerText}>Event Details</Text>
         </View>
 
+        {/* Event Details */}
         <View style={styles.detailGroup}>
-    <Text style={styles.detailLabel}>Event Name:</Text>
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailValue}>{eventData.name}</Text>
-    </View>
-  </View>
-  <View style={styles.detailGroup}>
-    <Text style={styles.detailLabel}>Date:</Text>
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailValue}>{eventData.date}</Text>
-    </View>
-  </View>
-  <View style={styles.detailGroup}>
-    <Text style={styles.detailLabel}>Location:</Text>
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailValue}>{eventData.location}</Text>
-    </View>
-  </View>
-  <View style={styles.detailGroup}>
-  <Text style={styles.detailLabel}>Guests:</Text>
-  <View style={styles.detailContainer}>
-    {eventData.guest && eventData.guest.length > 0 ? (
-      eventData.guest.map((guest, index) => (
-        <Text key={index} style={styles.detailValue}>
-          {guest.GuestName} - {guest.email}
-        </Text>
-      ))
-    ) : (
-      <Text style={styles.detailValue}>No guests available.</Text>
-    )}
-  </View>
-</View>
-
-  <View style={styles.detailGroup}>
-    <Text style={styles.detailLabel}>Packages:</Text>
-    {Array.isArray(eventData.packages) && eventData.packages.length > 0 ? (
-      eventData.packages.map((packageItem, index) => (
-        <View key={index} style={styles.detailContainer}>
-          <Text style={styles.detailValue}>
-            {packageItem.name} - {packageItem.price} USD
-          </Text>
+          <Text style={styles.detailLabel}>Event Name:</Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.detailValue}>{eventData.name}</Text>
+          </View>
         </View>
-      ))
-    ) : (
-      <View style={styles.detailContainer}>
-        <Text style={styles.detailValue}>No packages available.</Text>
-      </View>
-    )}
-  </View>
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Date:</Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.detailValue}>{eventData.date}</Text>
+          </View>
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Location:</Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.detailValue}>{eventData.location}</Text>
+          </View>
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Guests:</Text>
+          <View style={styles.detailContainer}>
+            {eventData.guest && eventData.guest.length > 0 ? (
+              eventData.guest.map((guest, index) => (
+                <Text key={index} style={styles.detailValue}>
+                  {guest.GuestName} - {guest.email}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.detailValue}>No guests available.</Text>
+            )}
+          </View>
+        </View>
 
-
-
-
-
+        {/* Packages */}
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Packages:</Text>
+          {Array.isArray(eventData.packages) && eventData.packages.length > 0 ? (
+            eventData.packages.map((packageItem, index) => (
+              <View key={index} style={styles.detailContainer}>
+                <Text style={styles.detailValue}>
+                  {packageItem.packageName} - {packageItem.totalPrice} 
+                </Text>
+              </View>
+            ))
+          ) : (
+            <View style={styles.detailContainer}>
+              <Text style={styles.detailValue}>No packages available.</Text>
+            </View>
+          )}
+        </View>
       </ScrollView>
     </>
   );

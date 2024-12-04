@@ -20,7 +20,7 @@ const HeaderSP = ({ title, navigation }) => {
         <Ionicons name="menu-outline" size={24} color="#333" />
       </TouchableOpacity>
       <Text style={styles.titleText}>{title}</Text>
-      <Image source={require("../assets/logo1.png")} style={styles.logo} />
+      <Image source={require("../assets/ew.png")} style={styles.logo} />
       <View style={styles.iconContainer}>
         <TouchableOpacity onPress={handleMessagePress} style={styles.headerButton}>
           <Ionicons name="chatbubble-outline" size={24} color="#333" />

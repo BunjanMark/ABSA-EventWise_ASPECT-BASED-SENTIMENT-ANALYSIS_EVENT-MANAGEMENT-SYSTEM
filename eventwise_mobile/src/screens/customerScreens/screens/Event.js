@@ -109,15 +109,14 @@ const Event = () => {
           {filteredEvents.length > 0 ? (
             filteredEvents.map((event, index) => (
               <View key={index} style={styles.eventFolder}>
-                <Image
-                  source={{
-                    uri: event?.coverPhoto
-                      ? event.coverPhoto
-                      : require("../pictures/bookpic.png"),
-                  }}
-                  style={styles.eventImage}
-                  resizeMode="cover"
-                />
+              <Image
+  source={{
+    uri: event?.coverPhoto || "defaultImageURL",
+  }}
+  style={styles.eventImage}
+  resizeMode="cover"
+/>
+
                 <View style={styles.eventDetailsContainer}>
                   <Text style={styles.eventName}>
                     {event.name || "No event name"}
