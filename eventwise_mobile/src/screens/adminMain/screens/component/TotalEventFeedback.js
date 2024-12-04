@@ -1,9 +1,17 @@
 import React from "react";
-import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import { StyleSheet, View, Text, ScrollView, SafeAreaView } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
-
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
 const TotalEventFeedback = ({ eventFeedback, sliceColor }) => {
+  const navigation = useNavigation();
+  const handleGoToButtonPress = () => {
+    console.log("Go to FeedbackAdmin");
+    navigation.navigate("Feedback");
+    // FeedbackEventDetails
+  };
   // Aggregate data for pie chart
   const aggregateFeedback = () => {
     let positive = 0,
@@ -63,10 +71,14 @@ const TotalEventFeedback = ({ eventFeedback, sliceColor }) => {
   const feedbackAggregatedData = aggregateFeedback();
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Display Pie Chart */}
-      <View style={styles.chartSection}>
-        <Text style={styles.chartTitle}>Feedback Summary</Text>
+      <View style={styles.feedbackContainer}>
+        <Text style={styles.chartTitle}>Total Feedback </Text>
+        <TouchableOpacity onPress={handleGoToButtonPress}>
+          <Text style={styles.subtitle}>go to</Text>
+          <AntDesign name="swapright" size={24} color="black" />
+        </TouchableOpacity>
         {feedbackAggregatedData.length > 0 && (
           <PieChart
             data={feedbackAggregatedData}
@@ -83,7 +95,7 @@ const TotalEventFeedback = ({ eventFeedback, sliceColor }) => {
         )}
       </View>
 
-      {/* Display Detailed Feedbacks */}
+      {/* Display Detailed Feedbacks
       <ScrollView style={styles.feedbackList}>
         <Text style={styles.feedbackListTitle}>Detailed Feedback</Text>
         {eventFeedback.map((feedback, index) => (
@@ -105,13 +117,32 @@ const TotalEventFeedback = ({ eventFeedback, sliceColor }) => {
             </Text>
           </View>
         ))}
-      </ScrollView>
-    </View>
+      </ScrollView> */}
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 20 },
+  container: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 8,
+    paddingTop: 10,
+    height: "100%",
+    width: "100%",
+    // backgroundColor: "green",
+    // margin: 5,
+  },
+  feedbackContainer: {
+    flexDirection: "column",
+    backgroundColor: "rgba(255,252,221,99)",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
   chartSection: { alignItems: "center", marginBottom: 20 },
   chartTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
   feedbackList: { marginTop: 10 },
