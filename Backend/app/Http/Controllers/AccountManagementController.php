@@ -52,4 +52,24 @@ class AccountManagementController extends Controller
         }
     }
 
+    public function update(Request $request)
+{
+    $user = $request->user();
+
+    $validatedData = $request->validate([
+        'email' => 'required|email',
+        'username' => 'required|string|max:255',
+        'password' => 'nullable|string|min:6',
+        'phone_number' => 'nullable|string|max:15',
+    ]);
+
+    if (!empty($validatedData['password'])) {
+        $validatedData['password'] = bcrypt($validatedData['password']);
+    }
+
+    $user->update(array_filter($validatedData));
+    return response()->json(['message' => 'Profile updated successfully']);
+}
+
+
 }

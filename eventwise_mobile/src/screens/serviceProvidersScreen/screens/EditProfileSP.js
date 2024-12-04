@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -7,21 +7,54 @@ import {
   ScrollView,
   Image,
   TextInput,
-  Alert
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+  Alert,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { getUser, updateUser } from "../../../services/authServices"; // Add updateUser function
 
 const EditProfileSP = () => {
   const navigation = useNavigation();
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
 
-  const handleSubmit = () => {
-    Alert.alert('Profile edited successfully');
+  // States for user data
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone_number, setPhoneNumber] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await getUser();
+        setEmail(userData.email || "");
+        setUsername(userData.username || "");
+        setPhoneNumber(userData.phone_number || "");
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const updatedData = { email, username, password, phone_number };
+      await updateUser(updatedData); // Call the update API
+      Alert.alert("Success", "Profile updated successfully");
+      navigation.navigate("ProfileSP"); // Navigate back to the profile page
+    } catch (error) {
+      Alert.alert("Error", "Failed to update profile. Please try again.");
+      console.error("Update error:", error);
+    }
   };
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <ScrollView
@@ -29,11 +62,10 @@ const EditProfileSP = () => {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.container}>
-        {/* Header with Back Button */}
         <View style={styles.headerContainer}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate('ProfileSP')} // Navigate to ProfileSP
+            onPress={() => navigation.navigate("ProfileSP")}
           >
             <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
@@ -42,19 +74,17 @@ const EditProfileSP = () => {
 
         <View style={styles.profileContainer}>
           <Image
-            source={require('../assets/pro_pic.png')}
+            source={require("../assets/pro_pic.png")}
             style={styles.profileImage}
           />
           <View style={styles.profileTextContainer}>
-            <Text style={styles.profileName}>John Doe</Text>
-            <Text style={styles.profileEmail}>johndoe@example.com</Text>
+            <Text style={styles.profileName}>{username}</Text>
+            <Text style={styles.profileEmail}>{email}</Text>
           </View>
-        </View> 
-        {/* Fading Line */}
+        </View>
         <View style={styles.line} />
 
         <Text style={styles.settingText}>Account Details</Text>
-
         <View style={styles.content}>
           <Text style={styles.settingsText}>Edit Email</Text>
           <TextInput
@@ -81,13 +111,13 @@ const EditProfileSP = () => {
             value={password}
             onChangeText={setPassword}
           />
-          <Text style={styles.settingsText}>Contact Number</Text>
+          <Text style={styles.settingsText}>Phone Number</Text>
           <TextInput
             style={styles.textInput}
-            placeholder="Enter your Contact Number"
+            placeholder="Enter your Phone Number"
             placeholderTextColor="white"
-            value={contactNumber}
-            onChangeText={setContactNumber}
+            value={phone_number}
+            onChangeText={setPhoneNumber}
           />
 
           <TouchableOpacity
@@ -96,14 +126,6 @@ const EditProfileSP = () => {
           >
             <Text style={styles.buttonText}>Save</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.createPortfolioButton}
-            onPress={() => navigation.navigate('AddAnotherAccSP')}
-          >
-            <Ionicons name="add" size={24} color="white" style={styles.icon} />
-            <Text style={styles.createPortfolioText}>Add Another Account</Text>
-          </TouchableOpacity>
-         
         </View>
       </View>
     </ScrollView>

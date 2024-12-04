@@ -69,6 +69,7 @@ const CreateServiceScreen = ({ navigation }) => {
       const result = await createService(newService);
 
       Alert.alert("Success", "Service added successfully!");
+      navigation.goBack();
       console.log("Result from result:", result);
       setRefresh(!refresh); // Refresh the component
 

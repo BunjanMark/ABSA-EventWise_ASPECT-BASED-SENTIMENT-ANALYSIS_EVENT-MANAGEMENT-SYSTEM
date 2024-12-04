@@ -10,9 +10,6 @@ import {
   Animated,
   ScrollView,
 } from 'react-native';
-import { RefreshControl } from "react-native";
-import { useEventStore } from "../../../stateManagement/admin/useEventStore";
-import { useCallback } from "react";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchEvents } from '../../../services/organizer/adminEventServices';
 import event1 from '../assets/event1.png';
@@ -21,7 +18,7 @@ import event3 from '../assets/event3.png';
 
 const EventsSP = ({ navigation }) => {
   const [events, setEvents] = useState([]);
-  const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [overlayVisible, setOverlayVisible] = useState({});
 
@@ -38,7 +35,7 @@ const EventsSP = ({ navigation }) => {
           image: coverPhotos[index % coverPhotos.length],
         }));
         setEvents(eventsWithImages);
-        setFilteredEvents(eventsWithImages);
+        setFilteredEvents(eventsWithImages); // Initialize filtered events
       } catch (error) {
         console.error('Failed to fetch events:', error);
       }
@@ -47,19 +44,20 @@ const EventsSP = ({ navigation }) => {
     fetchAllEvents();
   }, []);
 
-  const handleSearch = (text) => {
-    setSearch(text);
-    if (text) {
+  // Updated handleSearch to use searchQuery and filter events
+  useEffect(() => {
+    if (searchQuery) {
       const newData = events.filter((item) => {
-        const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
+        const nameData = item.name ? item.name.toLowerCase() : '';
+        const locationData = item.location ? item.location.toLowerCase() : '';
+        const query = searchQuery.toLowerCase();
+        return nameData.includes(query) || locationData.includes(query); // Search in both name and location
       });
       setFilteredEvents(newData);
     } else {
-      setFilteredEvents(events);
+      setFilteredEvents(events); // Show all events when searchQuery is empty
     }
-  };
+  }, [searchQuery, events]); // Runs when searchQuery or events changes
 
   const toggleOverlay = (eventId) => {
     setOverlayVisible((prevState) => ({
@@ -91,53 +89,48 @@ const EventsSP = ({ navigation }) => {
       </TouchableOpacity>
 
       {overlayVisible[item.id] && (
-  <Animated.View style={styles.overlay}>
-    <TouchableOpacity
-      style={styles.overlayItem}
-      onPress={() => navigation.navigate('InventorySP', { eventId: item.id })}
-    >
-      <MaterialCommunityIcons name="checkbox-marked-outline" size={20} color="#fff" />
-      <Text style={styles.overlayText}>Inventory</Text>
-    </TouchableOpacity>
-    <TouchableOpacity
+        <Animated.View style={styles.overlay}>
+          <TouchableOpacity
             style={styles.overlayItem}
-            onPress={() => {
-              navigation.navigate("EquipmentSP", {
-                eventId: item.id,
-                eventName: item.title,
-                eventDate: item.date,
-                eventAddress: item.address,
-              });
-            }}
+            onPress={() => navigation.navigate('InventorySP', { eventId: item.id })}
+          >
+            <MaterialCommunityIcons name="checkbox-marked-outline" size={20} color="#fff" />
+            <Text style={styles.overlayText}>Inventory</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.overlayItem}
+            onPress={() => navigation.navigate("EquipmentSP", {
+              eventId: item.id,
+              eventName: item.name,
+              eventDate: item.date,
+              eventAddress: item.location,
+            })}
           >
             <MaterialCommunityIcons name="archive" size={20} color="#fff" />
             <Text style={styles.overlayText}>Equipment</Text>
           </TouchableOpacity>
-
-    <TouchableOpacity
-      style={styles.overlayItem}
-      onPress={() => {
-        navigation.navigate('FeedbackSP');
-        toggleOverlay(item.id);
-      }}
-    >
-      <MaterialCommunityIcons name="message-text" size={20} color="#fff" />
-      <Text style={styles.overlayText}>Feedback</Text>
-    </TouchableOpacity>
-    <TouchableOpacity
-  style={styles.overlayItem}
-  onPress={() => {
-    console.log('Navigating to GuestSP', { eventId: item.id, eventName: item.name });
-    navigation.navigate('GuestSP', { eventId: item.id, eventName: item.name });
-  }}
->
-  <MaterialCommunityIcons name="account-group" size={20} color="#fff" />
-  <Text style={styles.overlayText}>Guest</Text>
-</TouchableOpacity>
-
-  </Animated.View>
-)}
-
+          <TouchableOpacity
+            style={styles.overlayItem}
+            onPress={() => {
+              navigation.navigate('FeedbackSP');
+              toggleOverlay(item.id);
+            }}
+          >
+            <MaterialCommunityIcons name="message-text" size={20} color="#fff" />
+            <Text style={styles.overlayText}>Feedback</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.overlayItem}
+            onPress={() => {
+              console.log('Navigating to GuestSP', { eventId: item.id, eventName: item.name });
+              navigation.navigate('GuestSP', { eventId: item.id, eventName: item.name });
+            }}
+          >
+            <MaterialCommunityIcons name="account-group" size={20} color="#fff" />
+            <Text style={styles.overlayText}>Guest</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </View>
   );
 
@@ -147,8 +140,8 @@ const EventsSP = ({ navigation }) => {
         <TextInput
           style={styles.searchInput}
           placeholder="Search Events"
-          value={search}
-          onChangeText={handleSearch}
+          value={searchQuery}
+          onChangeText={setSearchQuery} // Directly update searchQuery
         />
       </View>
       <ScrollView
@@ -211,7 +204,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 5,
     color: '#eeba2b',
-    
   },
   detailContainer: {
     marginVertical: 10,
@@ -235,15 +227,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEBA2B',
     borderRadius: 8,
     padding: 10,
-    bottom: 50, // Adjusted to show below the dots icon
+    bottom: 50,
     right: 10,
-    zIndex: 9999, // Higher zIndex to appear in front
+    zIndex: 9999,
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
-    width: 150, // Set a width for the overlay for better visibility
+    width: 150,
   },
   overlayItem: {
     flexDirection: 'row',
@@ -256,7 +248,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   paddingBottom: {
-    height: 60, // Set height for the bottom padding
+    height: 60,
   },
 });
 

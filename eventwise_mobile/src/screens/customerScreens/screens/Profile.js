@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -16,16 +16,20 @@ import useStore from "../../../stateManagement/useStore";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API_URL from "../../../constants/constant";
+import { useNavigation } from "@react-navigation/native";
+import { getUser} from "../../../services/authServices";
+
 
 const Profile = () => {
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
-
+  const navigator = useNavigation();
   const switchProfile = useStore((state) => state.switchProfile);
   const activeProfile = useStore((state) => state.activeProfile);
-  const user = useStore((state) => state.user);
+  const [user, setUser] = useState(null);
   const accountProfiles = useStore((state) => state.accountProfiles);
+  
 
   const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -44,6 +48,19 @@ const Profile = () => {
     },
     (error) => Promise.reject(error)
   );
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await getUser();  // Assuming this function returns user data
+        setUser(userData);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleCreateProfile = async () => {
     try {
@@ -75,23 +92,35 @@ const Profile = () => {
     <>
       <Header />
       <View style={styles.container}>
-        <View style={styles.profileBox}>
-          <Image
-            source={require("../pictures/user.png")}
-            style={styles.profilePicture}
-          />
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.username}>
-            {activeProfile && activeProfile === 2 ? "Customer" : "Service Provider"}
-          </Text>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => navigator.navigate("EditProfile")}
-          >
-            <FontAwesome name="pencil-square" size={16} color={"#fff"} />
-            <Text style={styles.editButtonText}>Edit Profile</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.profileBox}>
+  {/* Check if user is not null before accessing its properties */}
+  {user ? (
+    <>
+      <Image
+        source={require("../pictures/user.png")}
+        style={styles.profilePicture}
+      />
+      <Text style={styles.name}>{user.name}</Text>
+      <Text style={styles.email}>{user.email}</Text>
+      <Text style={styles.username}>{user.username}</Text>
+      <Text style={styles.phone}>{user.phone_number}</Text>
+      <Text style={styles.username}>
+        {activeProfile && activeProfile === 2 ? "Customer" : "Service Provider"}
+      </Text>
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => navigator.navigate("EditProfile")}
+      >
+        <FontAwesome name="pencil-square" size={16} color={"#fff"} />
+        <Text style={styles.editButtonText}>Edit Profile</Text>
+      </TouchableOpacity>
+    </>
+  ) : (
+    // You can show a loading indicator or a placeholder message here
+    <Text>Loading...</Text>
+  )}
+</View>
+
         
         <View style={styles.switchAccountContainer}>
         <Text style={styles.header}>Switch Account</Text>
