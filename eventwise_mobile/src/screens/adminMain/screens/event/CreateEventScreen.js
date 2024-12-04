@@ -1330,7 +1330,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 16,
-    alignSelf: "center", },
+    alignSelf: "center",
+ },
   titlePackage: {
     fontSize: 24,
     fontWeight: "bold",

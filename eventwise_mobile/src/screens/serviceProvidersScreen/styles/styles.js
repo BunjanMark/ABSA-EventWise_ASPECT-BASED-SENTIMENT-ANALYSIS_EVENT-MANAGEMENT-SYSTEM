@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
   },
   // For header
   headerContainer: {
-    height:80,
+    height: 85,
     backgroundColor: "#fff",
     flexDirection: "row",
     alignItems: "center",
