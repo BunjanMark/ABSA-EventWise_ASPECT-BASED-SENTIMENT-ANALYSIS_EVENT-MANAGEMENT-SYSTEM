@@ -25,7 +25,7 @@ const Header2 = ({ onBackPress, showBackButton }) => {
           <Icon name="menu-outline" size={24} color="black" />
         </TouchableOpacity>
         <Image
-          source={require("../../../../assets/logoWhite.png")}
+          source={require("../../../../assets/ew.png")}
           style={styles.logo}
           resizeMode="contain"
         />

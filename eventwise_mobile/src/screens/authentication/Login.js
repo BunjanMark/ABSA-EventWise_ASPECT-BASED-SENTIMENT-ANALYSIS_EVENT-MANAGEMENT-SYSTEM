@@ -171,8 +171,8 @@ const Login = ({ navigation }) => {
               <TextInput
                 style={styles.inputStyle}
                 mode="contained-tonal"
-                label="Username"
-                placeholder="Enter your username"
+                label="Email"
+                placeholder="Enter your email"
                 inputMode="username"
                 value={username}
                 error={isError}
@@ -210,7 +210,7 @@ const Login = ({ navigation }) => {
                       <CustomIcon
                         name={!HideEntry ? "eye" : "eye-off"}
                         size={24}
-                        color="white"
+                        color="black"
                       />
                     )}
                   />
