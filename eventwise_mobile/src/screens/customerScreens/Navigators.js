@@ -1,5 +1,3 @@
-
-
 import React, { useContext } from "react";
 // stacks
 import { NavigationContainer } from "@react-navigation/native";
@@ -45,6 +43,7 @@ import Profile from "../screens/customerScreens/screens/Profile";
 import EventPackage from "../screens/customerScreens/otherScreens/EventPackage";
 import EventPackageDetails from "../adminMain/screens/event/EventPackageDetails";
 import GuestList from "../screens/customerScreens/sidebarScreens/Guest";
+import FeedbackInputs from "./screens/feedback/FeedbackInputs";
 
 // Guest Stack here
 
@@ -206,6 +205,11 @@ const Navigators = () => {
         <Stack.Screen
           name="Feedback"
           component={Feedback}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="FeedbackInputs"
+          component={FeedbackInputs}
           options={{ headerShown: false }}
         />
         <Stack.Screen

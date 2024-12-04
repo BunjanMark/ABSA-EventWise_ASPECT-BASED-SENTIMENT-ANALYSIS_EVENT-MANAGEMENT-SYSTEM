@@ -59,9 +59,7 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
               size={25}
             />
           </TouchableOpacity>
-          <View>
-            
-          </View>
+          <View></View>
         </View>
 
         <View style={styles.details}>
@@ -73,7 +71,11 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
             <Text style={styles.infoText}>{currentEvents?.date || "N/A"}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={16}
+              color="#eeba2b"
+            />
             <Text style={styles.infoText}>
               {currentEvents?.location || "N/A"}
             </Text>

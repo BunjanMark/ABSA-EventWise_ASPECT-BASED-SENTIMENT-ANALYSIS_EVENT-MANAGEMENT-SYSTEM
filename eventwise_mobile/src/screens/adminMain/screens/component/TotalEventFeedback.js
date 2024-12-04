@@ -1,306 +1,129 @@
 import React from "react";
-import { View, Text, StyleSheet, SafeAreaView, Pressable } from "react-native";
-import styles from "../../styles/styles";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { AntDesign } from "@expo/vector-icons";
-import PieChart from "react-native-pie-chart";
-import useStore from "../../../../stateManagement/useStore";
-import { useState } from "react";
-import { Modal } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { VictoryPie, VictoryLabel } from "victory-native"; // Import Victory Pie Chart
+import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { PieChart } from "react-native-chart-kit";
+import { Dimensions } from "react-native";
 
-const TotalEventFeedback = ({ eventData, sliceColor }) => {
-  // Initialize counters
-  const navigation = useNavigation();
-  const totalEvents = eventData.length;
-  const feedbackCount = {
-    positive: 0,
-    negative: 0,
-    neutral: 0,
-  };
-  const [modalVisiblePositive, setModalVisiblePositive] = useState(false);
-  const [modalVisibleNegative, setModalVisibleNegative] = useState(false);
-  const [modalVisibleNeutral, setModalVisibleNeutral] = useState(false);
-  // Process all feedback data across events
-  eventData.forEach((event) => {
-    if (event.feedbackData && event.feedbackData.length > 0) {
-      // Add this check
-      event.feedbackData.forEach((feedback) => {
-        if (feedback.sentiment in feedbackCount) {
-          feedbackCount[feedback.sentiment]++;
-        } else {
-          feedbackCount[feedback.sentiment] = 1;
-        }
-      });
-    }
-  });
-  const handleGoToButtonPress = () => {
-    console.log("Go to FeedbackAdmin");
-    navigation.navigate("Feedback");
-    // FeedbackEventDetails
-  };
-  const totalFeedbackCount =
-    feedbackCount.positive + feedbackCount.negative + feedbackCount.neutral ||
-    1;
-  const data = [
-    {
-      x: "Positive",
-      y: (feedbackCount.positive / totalFeedbackCount) * 100 || 0.01, // Display at least a very small value
-      color: "rgba(9,226,0,1)",
-      blurColor: "rgba(9,226,0,0.5)",
-    },
-    {
-      x: "Negative",
-      y: (feedbackCount.negative / totalFeedbackCount) * 100 || 0.01, // Display at least a very small value
-      color: "#ff3c00",
-      blurColor: "rgba(255,60,0,0.5)",
-    },
-    {
-      x: "Neutral",
-      y: (feedbackCount.neutral / totalFeedbackCount) * 100 || 0.01, // Ensure neutral value is displayed
-      color: "#fbd203",
-      blurColor: "rgba(251,210,3,0.5)",
-    },
-  ];
-  const [clickedIndex, setClickedIndex] = useState(0);
+const TotalEventFeedback = ({ eventFeedback, sliceColor }) => {
+  // Aggregate data for pie chart
+  const aggregateFeedback = () => {
+    let positive = 0,
+      neutral = 0,
+      negative = 0;
 
-  const handleClick = (index) => {
-    setClickedIndex(clickedIndex === index ? null : index);
+    eventFeedback.forEach((item) => {
+      if (item.event_sentiment) {
+        positive += item.event_sentiment.pos || 0;
+        neutral += item.event_sentiment.neu || 0;
+        negative += item.event_sentiment.neg || 0;
+      }
+      if (item.venue_sentiment) {
+        positive += item.venue_sentiment.pos || 0;
+        neutral += item.venue_sentiment.neu || 0;
+        negative += item.venue_sentiment.neg || 0;
+      }
+      if (item.catering_sentiment) {
+        positive += item.catering_sentiment.pos || 0;
+        neutral += item.catering_sentiment.neu || 0;
+        negative += item.catering_sentiment.neg || 0;
+      }
+      if (item.decoration_sentiment) {
+        positive += item.decoration_sentiment.pos || 0;
+        neutral += item.decoration_sentiment.neu || 0;
+        negative += item.decoration_sentiment.neg || 0;
+      }
+    });
+
+    const total = positive + neutral + negative;
+
+    if (total === 0) return []; // Handle edge case for no feedback
+
+    const positivePercentage = ((positive / total) * 100).toFixed(2);
+    const neutralPercentage = ((neutral / total) * 100).toFixed(2);
+    const negativePercentage = ((negative / total) * 100).toFixed(2);
+
+    return [
+      {
+        name: "Positive",
+        population: parseFloat(positivePercentage),
+        color: sliceColor[1],
+      },
+      {
+        name: "Neutral",
+        population: parseFloat(neutralPercentage),
+        color: sliceColor[2],
+      },
+      {
+        name: "Negative",
+        population: parseFloat(negativePercentage),
+        color: sliceColor[0],
+      },
+    ];
   };
+
+  const feedbackAggregatedData = aggregateFeedback();
+
   return (
-    <SafeAreaView style={[styles.container]}>
-      {/* <View style={[styles.header, {}]}>
-        <Text style={styles.title}>Feedback Summary</Text>
-      </View> */}
-      <View style={[styles.feedbackMainContainer]}>
-        <View
-          style={[
-            styles.header,
-            {
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              alignContent: "center",
-              alignSelf: "center",
-              // backgroundColor: "red",
-              padding: 10,
-              paddingHorizontal: 40,
-            },
-          ]}
-        >
-          <Text
-            style={[
-              // styles.title,
-              {
-                textAlign: "center",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                // backgroundColor: "red",
-                width: "100%",
-
-                marginBottom: -5,
-                fontSize: 20,
-                fontWeight: "500",
-                color: "black",
-              },
-            ]}
-            lineBreakMode="tail"
-            numberOfLines={1}
-          >
-            Total Feedback Summary
-          </Text>
-          <TouchableOpacity onPress={handleGoToButtonPress}>
-            <Text style={styles.subtitle}>go to</Text>
-            <AntDesign name="swapright" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-        <View
-          style={[
-            styles.feedbackContainer,
-            {
-              flex: 1,
-              display: "flex",
-              flexDirection: "row",
-              gap: 7,
-            },
-          ]}
-        >
-          <View style={[styles.sentimentBlock, { height: 160 }]}>
-            <VictoryPie
-              // origin={{ y: 250 }}
-              height={260}
-              // width={100}
-              labelPosition={"centroid"}
-              labelRadius={43}
-              // padding={110}
-              data={data}
-              labels={({ datum }) =>
-                datum.y === data[clickedIndex]?.y
-                  ? `${Math.round(datum.y)}%` // Display total sentiment feedback
-                  : datum.x
-              }
-              padAngle={2.4}
-              innerRadius={1}
-              style={{
-                data: {
-                  fill: ({ index }) =>
-                    index === clickedIndex
-                      ? data[index].blurColor // Blurred color when clicked
-                      : data[index].color, // Original color
-                },
-                labels: { fill: "black", fontSize: 14 },
-              }}
-              colorScale={data.map((item) => item.color)}
-              events={[
-                {
-                  target: "data",
-                  eventHandlers: {
-                    onPressIn: (event, props) => {
-                      handleClick(props.index);
-                    },
-                  },
-                },
-              ]}
-              labelComponent={
-                <VictoryLabel textAnchor="middle" style={{ fill: "black" }} />
-              } // Customize label appearance
-            />
-          </View>
-          <View style={[styles.sentimentBlock, {}]}>
-            <View
-              style={[
-                styles.sentimentList,
-                {
-                  marginBottom: 30,
-                  flexDirection: "column",
-
-                  alignItems: "flex-start",
-                  // backgroundColor: "white",
-                },
-              ]}
-            >
-              {/* <Text style={{ fontSize: 15, fontWeight: "500" }}>
-                Total Events: {totalEvents}
-              </Text> */}
-              <Text style={{ fontSize: 15, fontWeight: "500" }}>
-                Total feedbacks:{" "}
-                {feedbackCount.positive +
-                  feedbackCount.negative +
-                  feedbackCount.neutral}
-              </Text>
-            </View>
-            <View>
-              <View style={styles.sentimentList}>
-                <Pressable
-                  onPress={() => setModalVisiblePositive(true)}
-                  style={styles.sentimentList}
-                >
-                  <PieChart
-                    widthAndHeight={32}
-                    series={[100]}
-                    sliceColor={["rgba(9,226,0,1)"]}
-                  />
-                  <Text>Number of Positive feedbacks</Text>
-                </Pressable>
-                <Modal
-                  animationType="fade"
-                  transparent={true}
-                  visible={modalVisiblePositive}
-                  onRequestClose={() => setModalVisiblePositive(false)}
-                >
-                  <View style={styles.modalOverlay}>
-                    <View style={styles.modalView}>
-                      <Text style={styles.modalText}>
-                        Number of Positive feedbacks: {feedbackCount.positive}
-                      </Text>
-                      <Pressable
-                        style={[styles.button, styles.buttonClose]}
-                        onPress={() => setModalVisiblePositive(false)}
-                      >
-                        <Text style={styles.textStyle}>OK</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                </Modal>
-              </View>
-
-              <View style={styles.sentimentList}>
-                <Pressable
-                  onPress={() => setModalVisibleNegative(true)}
-                  style={styles.sentimentList}
-                >
-                  <PieChart
-                    widthAndHeight={32}
-                    series={[100]}
-                    sliceColor={["#ff3c00"]}
-                  />
-                  <Text>Negative</Text>
-                </Pressable>
-                <Modal
-                  animationType="fade"
-                  transparent={true}
-                  visible={modalVisibleNegative}
-                  onRequestClose={() => setModalVisibleNegative(false)}
-                >
-                  <View style={styles.modalOverlay}>
-                    <View style={styles.modalView}>
-                      <Text style={styles.modalText}>
-                        Number of Negative feedbacks: {feedbackCount.negative}
-                      </Text>
-                      <Pressable
-                        style={[styles.button, styles.buttonClose]}
-                        onPress={() => setModalVisibleNegative(false)}
-                      >
-                        <Text style={styles.textStyle}>OK</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                </Modal>
-              </View>
-
-              <View style={styles.sentimentList}>
-                <Pressable
-                  onPress={() => setModalVisibleNeutral(true)}
-                  style={styles.sentimentList}
-                >
-                  <PieChart
-                    widthAndHeight={32}
-                    series={[100]}
-                    sliceColor={["#fbd203"]}
-                  />
-                  <Text>Neutral</Text>
-                </Pressable>
-                <Modal
-                  animationType="fade"
-                  transparent={true}
-                  visible={modalVisibleNeutral}
-                  onRequestClose={() => setModalVisibleNeutral(false)}
-                >
-                  <View style={styles.modalOverlay}>
-                    <View style={styles.modalView}>
-                      <Text style={styles.modalText}>
-                        Number of Neutral feedbacks: {feedbackCount.neutral}
-                      </Text>
-                      <Pressable
-                        style={[styles.button, styles.buttonClose]}
-                        onPress={() => setModalVisibleNeutral(false)}
-                      >
-                        <Text style={styles.textStyle}>OK</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                </Modal>
-              </View>
-            </View>
-          </View>
-        </View>
+    <View style={styles.container}>
+      {/* Display Pie Chart */}
+      <View style={styles.chartSection}>
+        <Text style={styles.chartTitle}>Feedback Summary</Text>
+        {feedbackAggregatedData.length > 0 && (
+          <PieChart
+            data={feedbackAggregatedData}
+            width={Dimensions.get("window").width - 40}
+            height={200}
+            chartConfig={{
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            }}
+            accessor="population"
+            backgroundColor="transparent"
+            paddingLeft="15"
+          />
+        )}
       </View>
-      {/* Display total counts for each sentiment */}
-    </SafeAreaView>
+
+      {/* Display Detailed Feedbacks */}
+      <ScrollView style={styles.feedbackList}>
+        <Text style={styles.feedbackListTitle}>Detailed Feedback</Text>
+        {eventFeedback.map((feedback, index) => (
+          <View key={index} style={styles.feedbackItem}>
+            <Text style={styles.feedbackDate}>
+              {new Date(feedback.timestamp).toLocaleString()}
+            </Text>
+            <Text style={styles.feedbackText}>
+              Event: {feedback.event_feedback}
+            </Text>
+            <Text style={styles.feedbackText}>
+              Venue: {feedback.venue_feedback}
+            </Text>
+            <Text style={styles.feedbackText}>
+              Catering: {feedback.catering_feedback}
+            </Text>
+            <Text style={styles.feedbackText}>
+              Decoration: {feedback.decoration_feedback}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#fff", padding: 20 },
+  chartSection: { alignItems: "center", marginBottom: 20 },
+  chartTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  feedbackList: { marginTop: 10 },
+  feedbackListTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },
+  feedbackItem: {
+    backgroundColor: "#F5F5F5",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  feedbackDate: { fontSize: 12, color: "#555", marginBottom: 5 },
+  feedbackText: { fontSize: 14, marginBottom: 5 },
+});
 
 export default TotalEventFeedback;

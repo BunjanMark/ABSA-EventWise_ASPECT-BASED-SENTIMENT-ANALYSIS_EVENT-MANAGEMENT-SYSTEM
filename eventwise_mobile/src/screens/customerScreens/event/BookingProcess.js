@@ -200,9 +200,13 @@ const BookingProcess = ({ navigation }) => {
         eventLocation: values.eventLocation,
         description: values.description,
         guest: values.guests,
-        coverPhoto: coverPhotoURL || null,
+        coverPhoto:
+          "https://ktmddejbdwjeremvbzbl.supabase.co/storage/v1/" +
+            coverPhotoURL || null,
       };
+
   
+
       const result = await createEvent(newEvent);
       console.log("Create event result:", result);
   

@@ -3,7 +3,13 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
+const EventCardHome = ({
+  currentEvents,
+  likedEvents,
+  toggleLike,
+  handleDeleteEvent,
+  handleEditEvent,
+}) => {
   const navigation = useNavigation();
   const [eventDetails, setEventDetails] = useState([]);
 
@@ -61,7 +67,11 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
             <Text style={styles.infoText}>{currentEvents?.date || "N/A"}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={16}
+              color="#eeba2b"
+            />
             <Text style={styles.infoText}>
               {currentEvents?.location || "N/A"}
             </Text>

@@ -80,7 +80,7 @@ public function store(Request $request)
             'status' => $validatedData['eventStatus'],
             'location' => $validatedData['eventLocation'],
             'description' => $validatedData['description'],
-            'cover_photo' => $validatedData['coverPhoto'],
+            'coverPhoto' => $validatedData['coverPhoto'],
             // 'package_id' => $validatedData['package_id'],
             'packages' => json_encode($validatedData['packages']), // Store packages as JSON
             'user_id' => $validatedData['user_id'], // Now user_id is explicitly set

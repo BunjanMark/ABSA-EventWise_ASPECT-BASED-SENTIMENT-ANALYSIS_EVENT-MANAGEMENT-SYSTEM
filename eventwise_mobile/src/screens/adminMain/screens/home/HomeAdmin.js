@@ -1,4 +1,4 @@
-  import {
+import {
   View,
   Text,
   SafeAreaView,
@@ -24,14 +24,16 @@ import UpcomingEvents from "../event/UpcomingEvents";
 import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
 import EventBookings from "../event/EventBookings";
 import { fetchEvents } from "../../../../services/organizer/adminEventServices";
+import { getFeedback } from "../../../../services/feedbackServices";
+import { useFeedbackStore } from "../../../../stateManagement/admin/useFeedbackStore";
 const HomeAdmin = () => {
   const { eventData, sliceColor } = useStore(); // Using your state store
   const [refreshing, setRefreshing] = useState(false); // State for refresh control
   const [likedEvents, setlikedEvents] = useState({});
-
   const [refreshingEvents, setRefreshingEvents] = useState(false);
   const [refreshingPackages, setRefreshingPackages] = useState(false);
   const { currentEvents, setCurrentEvents } = useEventStore();
+  const { currentFeedbacks, setCurrentFeedbacks } = useFeedbackStore();
   const navigation = useNavigation();
   useEffect(() => {
     refreshEvents();
@@ -42,6 +44,9 @@ const HomeAdmin = () => {
     try {
       const updatedEvents = await fetchEvents();
       setCurrentEvents(updatedEvents);
+
+      const updatedFeedbacks = await getFeedback();
+      setCurrentFeedbacks(updatedFeedbacks);
     } catch (error) {
       console.error("Failed to fetch events", error);
     } finally {
@@ -49,6 +54,7 @@ const HomeAdmin = () => {
     }
   }, [setCurrentEvents]);
 
+  console.log("Feedback Data: ", currentFeedbacks);
   const handleBackPress = () => {
     Alert.alert("Exit App", "Are you sure you want to exit?", [
       {
@@ -170,7 +176,10 @@ const HomeAdmin = () => {
         </View>
         <EventCalendar />
         <EventPackagesHome />
-        <TotalEventFeedback eventData={eventData} sliceColor={sliceColor} />
+        <TotalEventFeedback
+          eventFeedback={currentFeedbacks}
+          sliceColor={sliceColor}
+        />
         <View style={{ height: 1000 }} />
       </ScrollView>
     </SafeAreaView>
