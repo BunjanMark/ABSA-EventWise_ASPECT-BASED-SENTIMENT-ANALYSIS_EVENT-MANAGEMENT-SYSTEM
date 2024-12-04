@@ -8,7 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class EventReminder extends Mailable
+class EventReminder1Day extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -35,9 +35,9 @@ class EventReminder extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.event_reminder')
-                    ->subject("Reminder: Upcoming Event - {$this->event->name} " . "at " . \Carbon\Carbon::parse($this->event->time)->format('g:i A') . "!")
-                    ->with([
+        return $this->view('emails.event_reminder_1_day')
+        ->subject("Get Ready for your event {$this->event->name} tomorrow atsss " . \Carbon\Carbon::parse($this->event->time)->format('g:i A') . "!")
+        ->with([
                         'eventName' => $this->event->name,
                         'eventType' => $this->event->type,
                         'eventPax' => $this->event->pax,
@@ -47,7 +47,6 @@ class EventReminder extends Mailable
                         'eventCoverPhoto' => $this->event->coverPhoto,
                         'eventDate' => $this->event->date,
                         'eventTime' => $this->event->time,
-                        'guests' => $this->guests,
                     ]);
     }
 }

@@ -81,6 +81,8 @@ Route::get('/admin/packages/{packageId}/services',[PackageServiceController::cla
 Route::get('/admin/packages/{packageId}/serviceProviders', [PackageServiceController::class, 'getPackageServiceProvidersId']);
 // Admin Event Management
 Route::middleware('auth:sanctum')->post('/admin/events', [EventController::class, 'store']);
+Route::middleware('auth:sanctum')->get('/my-events', [EventController::class, 'getEventsByUserId']);
+ 
 // Route::post('/admin/events', [EventController::class, 'store']);
 Route::get('/admin/events', [EventController::class, 'index']);
 Route::get('/admin/events/{id}', [EventController::class, 'showEventById']);
@@ -95,6 +97,7 @@ Route::get('/admin/events/by-date/{date}', [EventController::class, 'fetchEvents
 Route::post('/admin/events/{id}/restore', [EventController::class, 'restoreEvent']);
 Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEventPackages']);
 Route::get('/admin/events/{eventId}/user/{userId}', [EventController::class, 'getServiceProviderInfoByUserId']);
+Route::get('/admin/events/{id}/user', [EventController::class, 'getUserBookingEvents'])->middleware('auth');
 Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateEventStatus']);
 
 

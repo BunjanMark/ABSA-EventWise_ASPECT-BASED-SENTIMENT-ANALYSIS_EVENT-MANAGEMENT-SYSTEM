@@ -59,7 +59,7 @@
     <div class="email-container">
         <div class="header">
             <img src="{{ $event->eventCoverPhoto }}" alt="Event Image">
-            <h1>{{ $event->name }}</h1>
+            <h1>{{ $event->name }} is {{ltrim(\Carbon\Carbon::parse($event->time)->format('h'), '0')}} hours away! </h1>
         </div>
 
         <div class="event-details">

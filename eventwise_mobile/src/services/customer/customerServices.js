@@ -12,13 +12,16 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  use(async (config) => {
+  async (config) => {
     const token = await AsyncStorage.getItem("authToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
-  })
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 // event section
@@ -59,7 +62,15 @@ export const deleteEvent = async (id) => {
     throw error;
   }
 };
-
+export const myBookEvents = async () => {
+  try {
+    const response = await api.get(`/my-events`);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    throw new Error();
+  }
+};
 export const notifyParticipants = async (id) => {
   try {
     const response = await api.post(`/event/${id}/notify`);
