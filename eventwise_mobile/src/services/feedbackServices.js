@@ -42,4 +42,20 @@ const getFeedback = async () => {
   }
 };
 
-export { submitFeedback, getFeedback };
+const getFeedbackCount = async (eventId) => {
+  try {
+    const response = await api.get(
+      `/get_feedback?event_id=${eventId}&count=true`
+    );
+    console.log("Feedback count:", response.data.count);
+    return response.data.count;
+  } catch (error) {
+    console.error(
+      "Error getting feedback count:",
+      error.response || error.message
+    );
+    throw error;
+  }
+};
+
+export { submitFeedback, getFeedback, getFeedbackCount };
