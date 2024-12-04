@@ -61,6 +61,8 @@ const CreateEventScreen = ({ navigation }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const guestsPerPage = 20; // Maximum guests per page
   const [focusedInput, setFocusedInput] = useState(null);
+  const [selectedEventType, setSelectedEventType] = useState(null); // For RNPickerSelect
+  const [filteredPackages, setFilteredPackages] = useState([]); // For filtered packages
 
   // Validation schema
   const validationSchema = Yup.object().shape({
@@ -85,6 +87,18 @@ const CreateEventScreen = ({ navigation }) => {
   });
   // Fetch packages on mount
   // console.log("setPackages function:" );
+
+  useEffect(() => {
+    // Filter packages based on selected event type
+    if (selectedEventType) {
+      const filtered = currentPackages.filter(
+        (pkg) => pkg.eventType === selectedEventType
+      );
+      setFilteredPackages(filtered);
+    } else {
+      setFilteredPackages(currentPackages); // Show all packages if no filter
+    }
+  }, [selectedEventType, currentPackages]); // Re-run when eventType or packages change
 
   // Fetch packages on mount
   useEffect(() => {
@@ -202,7 +216,7 @@ const CreateEventScreen = ({ navigation }) => {
       // Notify user of success and reset the form
       Alert.alert("Success", "Event created successfully!");
       resetForm(); // Reset the form
-  
+      navigation.goBack();
       // Navigate to the Event Screen
     } catch (error) {
       console.error("Error creating event:", error);
@@ -336,10 +350,12 @@ const CreateEventScreen = ({ navigation }) => {
               <View style={[styles.form, { paddingBottom: 100 }]}>
                 {/* Event Creation Screen */}
                 {currentScreen === 1 && (
-                  <>
-                  <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10}/>
-            </TouchableOpacity>
+                  <><TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ position: "absolute", left: 20, top: 20 }}
+              >
+                <Ionicons name="arrow-back" size={25} color="#eeba2b" />
+              </TouchableOpacity>
                     <Text style={styles.title}>Create Event</Text>
 
                     <View style={styles.servicePhotoContainer}>
@@ -388,21 +404,42 @@ const CreateEventScreen = ({ navigation }) => {
                       <Text style={styles.errorText}>{errors.eventName}</Text>
                     )}
 
+                    <View
+                    style={[
+                      styles.input,
+                      {
+                        height: 50, 
+                        justifyContent: "center", 
+                      },
+                      focusedInput === "eventType" && {
+                        borderColor: "#EEBA2B",
+                        borderWidth: 2,
+                      },
+                    ]}
+                  >
                     <RNPickerSelect
-                      onValueChange={(value) =>
-                        setFieldValue("eventType", value)
-                      }
-                      items={[
-                        { label: "Wedding", value: "Wedding" },
-                        { label: "Birthday", value: "Birthday" },
-                        { label: "Corporate Event", value: "Corporate Event" },
-                        { label: "Other", value: "Other" },
-                      ]}
-                      placeholder={{ label: "Select event type", value: null }}
-                    />
-                    {touched.eventType && errors.eventType && (
-                      <Text style={styles.errorText}>{errors.eventType}</Text>
-                    )}
+                  onValueChange={(value) => {
+                    setSelectedEventType(value); // Set the selected event type
+                    setFieldValue("eventType", value); // Update the form field value
+                  }}
+                  items={[
+                    { label: "Wedding", value: "Wedding" },
+                    { label: "Birthday", value: "Birthday" },
+                    { label: "Corporate Event", value: "Corporate Event" },
+                    { label: "Other", value: "Other" },
+                  ]}
+                  placeholder={{ label: "Select event type", value: null }}
+                  style={{
+                    inputAndroid: { color: "black", padding: 10 },
+                    inputIOS: { color: "black", padding: 10 },
+                  }}
+                />
+
+                  </View>
+                  {touched.eventType && errors.eventType && (
+                    <Text style={styles.errorText}>{errors.eventType}</Text>
+                  )}
+
 
                     <TextInput
                       style={[
@@ -572,91 +609,77 @@ const CreateEventScreen = ({ navigation }) => {
 
                 {/* Packages Screen */}
                 {currentScreen === 2 && (
-                  <>
-                    <TouchableOpacity onPress={() => setCurrentScreen(1)}>
-                      <Ionicons
-                        name="arrow-back"
-                        size={24}
-                        color="#eeba2b"
-                        marginBottom={10}
-                      />
-                    </TouchableOpacity>
+      <>
+        <TouchableOpacity onPress={() => setCurrentScreen(1)}>
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color="#eeba2b"
+            marginBottom={10}
+          />
+        </TouchableOpacity>
 
-                    <Text style={styles.titlePackage}>Available Packages</Text>
+        <Text style={styles.titlePackage}>Available Packages</Text>
 
-                    {currentPackages && currentPackages.length > 0 ? (
-                      <ScrollView>
-                        {currentPackages.map((pkg, index) => (
-                          <TouchableOpacity
-                            key={index}
-                            style={[
-                              styles.packageCard,
-                              selectedPackage === pkg.id &&
-                                styles.selectedPackageCard, // Compare with pkg.id
-                            ]}
-                            onPress={() => {
-                              console.log("Package clicked:", pkg.id); // Log the clicked package's ID
-                              setSelectedPackage(pkg.id); // Update the selected package
-                            }}
-                          >
-                            <Text style={styles.packageName}>
-                              Package Name: {pkg.packageName}
-                            </Text>
-                            <Text style={styles.packageType}>
-                              Type: {pkg.eventType}
-                            </Text>
-                            <Text style={styles.packagePrice}>
-                              Price: ₱{pkg.totalPrice}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <Text style={styles.noPackagesText}>
-                        No packages available at the moment.
-                      </Text>
-                    )}
+        {filteredPackages && filteredPackages.length > 0 ? (
+          <ScrollView>
+            {filteredPackages.map((pkg, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.packageCard,
+                  selectedPackage === pkg.id && styles.selectedPackageCard,
+                ]}
+                onPress={() => {
+                  console.log("Package clicked:", pkg.id);
+                  setSelectedPackage(pkg.id);
+                }}
+              >
+                <Text style={styles.packageName}>
+                  Package Name: {pkg.packageName}
+                </Text>
+                <Text style={styles.packageType}>
+                  Type: {pkg.eventType}
+                </Text>
+                <Text style={styles.packagePrice}>
+                  Price: ₱{pkg.totalPrice}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        ) : (
+          <Text style={styles.noPackagesText}>
+            No packages available for the selected event type.
+          </Text>
+        )}
 
-                    <Button
-                      mode="contained"
-                      onPress={() => {
-                        setCurrentScreen(3);
-                        console.log(
-                          "Proceeding with package ID:",
-                          selectedPackage
-                        );
+        <Button
+          mode="contained"
+          onPress={() => {
+            setCurrentScreen(3);
+            console.log("Proceeding with package ID:", selectedPackage);
 
-                        const selectedPkgDetails = currentPackages.find(
-                          (pkg) => pkg.id === selectedPackage
-                        );
-                        if (selectedPkgDetails) {
-                          console.log("Proceeding with package details:");
-                          console.log("ID:", selectedPkgDetails.id);
-                          console.log(
-                            "packageName:",
-                            selectedPkgDetails.packageName
-                          );
-                          console.log(
-                            "eventType:",
-                            selectedPkgDetails.eventType
-                          );
-                          console.log(
-                            "totalPrice:",
-                            selectedPkgDetails.totalPrice
-                          );
-                        } else {
-                          console.log(
-                            "No package selected or package details not found."
-                          );
-                        }
-                      }}
-                      style={styles.closeButton} // Switch to Packages screen
-                    >
-                      Next
-                    </Button>
-                  </>
-                )}
-
+            const selectedPkgDetails = currentPackages.find(
+              (pkg) => pkg.id === selectedPackage
+            );
+            if (selectedPkgDetails) {
+              console.log("Proceeding with package details:");
+              console.log("ID:", selectedPkgDetails.id);
+              console.log("packageName:", selectedPkgDetails.packageName);
+              console.log("eventType:", selectedPkgDetails.eventType);
+              console.log("totalPrice:", selectedPkgDetails.totalPrice);
+            } else {
+              console.log(
+                "No package selected or package details not found."
+              );
+            }
+          }}
+          style={styles.closeButton}
+        >
+          Next
+        </Button>
+      </>
+    )}
                 {currentScreen === 3 && selectedPackage !== null && (
                   <>
                     <TouchableOpacity onPress={() => setCurrentScreen(2)}>
@@ -1307,7 +1330,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 16,
-  },
+    alignSelf: "center", },
   titlePackage: {
     fontSize: 24,
     fontWeight: "bold",

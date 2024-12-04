@@ -76,7 +76,7 @@ const ServiceCard = ({
           style={styles.deleteButton}
           onPress={() => handleDeleteService(service.id)} // Now using the prop
         >
-          <Text style={styles.buttonText}>Delete</Text>
+          <Text style={styles.buttonText}>Disable</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -92,6 +92,7 @@ const styles = {
     shadowRadius: 5,
     elevation: 5,
     width: 250,
+    marginTop: 20,
     marginBottom: 20,
   },
   image: {
