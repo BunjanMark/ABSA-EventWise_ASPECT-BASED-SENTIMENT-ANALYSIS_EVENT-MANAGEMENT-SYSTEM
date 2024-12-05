@@ -23,6 +23,7 @@ class EventController extends Controller
     public function index()
 {
     $events = Event::withCount('guest')->get();
+    $events = Event::with('user')->get();
     return response()->json($events);
 }
  public function eventsForDay($date)
@@ -638,5 +639,24 @@ public function getServiceProviederName($eventId, $userId)
 
     return response()->json($events);
 }
+
+public function updatePaymentStatus(Request $request, $id)
+{
+    $request->validate([
+        'payment_status' => 'required|in:Downpayment,Paid',  
+    ]);
+    $event = Event::find($id);
+
+    if (!$event) {
+        return response()->json(['message' => 'Event not found'], 404);
+    }
+    $event->payment_status = $request->input('payment_status');
+    $event->save();
+    return response()->json([
+        'message' => 'Payment status updated successfully',
+        'payment_status' => $event->payment_status
+    ], 200);
+}
+
     
 }

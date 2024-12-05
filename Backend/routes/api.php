@@ -99,6 +99,7 @@ Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEv
 Route::get('/admin/events/{eventId}/user/{userId}', [EventController::class, 'getServiceProviderInfoByUserId']);
 Route::get('/admin/events/{id}/user', [EventController::class, 'getUserBookingEvents'])->middleware('auth');
 Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateEventStatus']);
+Route::put('/admin/events/{id}/payment-status', [EventController::class, 'updatePaymentStatus']);
 
 
 
