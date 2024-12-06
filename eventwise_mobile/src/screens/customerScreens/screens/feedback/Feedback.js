@@ -1,5 +1,17 @@
 import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, Modal, ScrollView, Image, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Header2 from "../elements/Header2";
 
@@ -13,7 +25,12 @@ const Feedback = () => {
   const navigation = useNavigation();
 
   const handleFeedbackSubmit = async () => {
-    if (!eventFeedback.trim() || !venueFeedback.trim() || !cateringFeedback.trim() || !decorationFeedback.trim()) {
+    if (
+      !eventFeedback.trim() ||
+      !venueFeedback.trim() ||
+      !cateringFeedback.trim() ||
+      !decorationFeedback.trim()
+    ) {
       setErrorMessage("All feedback fields must be filled.");
       return;
     }
@@ -47,13 +64,16 @@ const Feedback = () => {
     setVenueFeedback("");
     setCateringFeedback("");
     setDecorationFeedback("");
-    navigation.navigate("FeedbackView"); 
+    navigation.navigate("FeedbackView");
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <Header2 />
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <Text style={styles.textStyle}>We Value Your Feedback</Text>
 
@@ -89,17 +109,35 @@ const Feedback = () => {
             value={decorationFeedback}
           />
 
-          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
 
-          <TouchableOpacity style={styles.buttonStyle} onPress={handleFeedbackSubmit}>
-            <Text style={styles.buttonText}>Submit Feedback</Text>
+          <TouchableOpacity
+            style={styles.buttonStyle}
+            onPress={handleFeedbackSubmit}
+          >
+            <Text style={styles.buttonText}>Submit Feedbacks</Text>
           </TouchableOpacity>
 
-          <Modal transparent={true} visible={modalVisible} onRequestClose={closeModal}>
-            <TouchableOpacity style={styles.modalBackground} onPress={closeModal}>
+          <Modal
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={closeModal}
+          >
+            <TouchableOpacity
+              style={styles.modalBackground}
+              onPress={closeModal}
+            >
               <View style={styles.modalContent}>
-                <Image source={require("../pictures/Popf.png")} style={styles.popupImage} />
-                <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
+                <Image
+                  source={require("../pictures/Popf.png")}
+                  style={styles.popupImage}
+                />
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={closeModal}
+                >
                   <Text style={styles.modalButtonText}>X</Text>
                 </TouchableOpacity>
               </View>
@@ -114,9 +152,26 @@ const Feedback = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", padding: 20 },
   textStyle: { fontSize: 26, textAlign: "center", marginBottom: 40 },
-  inputStyle: { borderColor: "gray", borderWidth: 1, padding: 10, marginVertical: 20, marginTop: 10 },
-  buttonStyle: { backgroundColor: "#EFBF04", paddingHorizontal: 30, paddingVertical: 15, borderRadius: 20, marginHorizontal: 80 },
-  buttonText: { color: "#000", fontSize: 16, textAlign: "center", fontWeight: "bold", },
+  inputStyle: {
+    borderColor: "gray",
+    borderWidth: 1,
+    padding: 10,
+    marginVertical: 20,
+    marginTop: 10,
+  },
+  buttonStyle: {
+    backgroundColor: "#EFBF04",
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 20,
+    marginHorizontal: 80,
+  },
+  buttonText: {
+    color: "#000",
+    fontSize: 16,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
   errorText: { color: "red", textAlign: "center", marginTop: 5 },
   modalMessage: { fontSize: 18, textAlign: "center" },
   modalBackground: {

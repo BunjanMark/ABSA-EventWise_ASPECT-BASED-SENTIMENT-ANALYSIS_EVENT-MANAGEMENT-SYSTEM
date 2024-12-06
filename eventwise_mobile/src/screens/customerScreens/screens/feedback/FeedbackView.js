@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { useNavigation } from "@react-navigation/native";
 import Header2 from "../elements/Header2";
-
+import { AntDesign } from "@expo/vector-icons";
 const FeedbackView = () => {
   const [feedbackData, setFeedbackData] = useState([]);
   const navigation = useNavigation();
@@ -14,25 +21,30 @@ const FeedbackView = () => {
       try {
         const response = await fetch("http://192.168.1.38:5000/get_feedback");
         const result = await response.json();
-  
+
         // Ensure feedback has valid timestamps and sort by descending order
         const sortedFeedback = result
-          .filter((item) => item.timestamp && !isNaN(new Date(item.timestamp).getTime())) // Filter valid timestamps
+          .filter(
+            (item) =>
+              item.timestamp && !isNaN(new Date(item.timestamp).getTime())
+          ) // Filter valid timestamps
           .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort by latest
-  
+
         setFeedbackData(sortedFeedback);
       } catch (error) {
         console.error("Error fetching feedback:", error);
       }
     };
-  
+
     fetchFeedback();
   }, []);
 
   // Aggregate feedback data into percentage format
   const aggregateFeedback = () => {
-    let positive = 0, neutral = 0, negative = 0;
-  
+    let positive = 0,
+      neutral = 0,
+      negative = 0;
+
     feedbackData.forEach((item) => {
       // Ensure the sentiment data is not null or undefined before adding
       if (item.event_sentiment) {
@@ -56,15 +68,15 @@ const FeedbackView = () => {
         negative += item.decoration_sentiment.neg || 0;
       }
     });
-  
+
     const total = positive + neutral + negative;
-  
+
     if (total === 0) return []; // Handle edge case for no feedback
-  
+
     const positivePercentage = ((positive / total) * 100).toFixed(2);
     const neutralPercentage = ((neutral / total) * 100).toFixed(2);
     const negativePercentage = ((negative / total) * 100).toFixed(2);
-  
+
     return [
       {
         name: "Positive",
@@ -85,7 +97,7 @@ const FeedbackView = () => {
         color: "#FF0000",
       },
     ];
-  };  
+  };
 
   const feedbackAggregatedData = aggregateFeedback();
 
@@ -95,7 +107,9 @@ const FeedbackView = () => {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.feedbackSection}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("FeedbackDetailView", { feedbackData })}
+            onPress={() =>
+              navigation.navigate("FeedbackDetailView", { feedbackData })
+            }
           >
             <Text style={styles.eventTitle}>Mr. & Mrs. Malik Wedding</Text>
 
@@ -125,10 +139,18 @@ const FeedbackView = () => {
               <Text style={styles.feedbackDate}>
                 {new Date(feedback.timestamp).toLocaleString()}
               </Text>
-              <Text style={styles.feedbackText}>Event: {feedback.event_feedback}</Text>
-              <Text style={styles.feedbackText}>Venue: {feedback.venue_feedback}</Text>
-              <Text style={styles.feedbackText}>Catering: {feedback.catering_feedback}</Text>
-              <Text style={styles.feedbackText}>Decoration: {feedback.decoration_feedback}</Text>
+              <Text style={styles.feedbackText}>
+                Event: {feedback.event_feedback}
+              </Text>
+              <Text style={styles.feedbackText}>
+                Venue: {feedback.venue_feedback}
+              </Text>
+              <Text style={styles.feedbackText}>
+                Catering: {feedback.catering_feedback}
+              </Text>
+              <Text style={styles.feedbackText}>
+                Decoration: {feedback.decoration_feedback}
+              </Text>
             </View>
           ))}
         </View>

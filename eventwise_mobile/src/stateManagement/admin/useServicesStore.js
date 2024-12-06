@@ -12,9 +12,13 @@ const useServicesStore = create((set) => ({
     requirements: "",
     availability_status: true,
   },
+
   updateNewService: (key, value) =>
     set((state) => ({ newService: { ...state.newService, [key]: value } })),
   setServices: (services) => set({ services }),
+
+  inEventServices: [],
+  setInEventServices: (services) => set({ inEventServices: services }),
 }));
 
 export { useServicesStore };
