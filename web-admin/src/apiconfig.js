@@ -1,8 +1,6 @@
 export const getAuthToken = () => {
-  return (
-    localStorage.getItem("token") ||
-    "13|YBTTboW6CcEroa3A3WUoDuDGWNBMyeEMSDLplst5a5e1c165"
-  );
+ 
+    return localStorage.getItem('token') || '1|tS2i5wkDbhdPV160OosNxSvns8U0uyZtELKh7ZvOad493165';
 };
 
 const API_URL = "http://192.168.1.45:8000";

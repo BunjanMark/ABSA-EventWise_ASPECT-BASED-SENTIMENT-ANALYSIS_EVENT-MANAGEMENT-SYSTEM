@@ -15,7 +15,7 @@ const Package = () => {
 
   const [packageName, setPackageName] = useState('');
   const [eventType, setEventType] = useState('');
-  const [totalPrice, setTotalPrice] = useState('');
+  const [totalPrice, setTotalPrice] = useState(0);
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [services, setServices] = useState([]);
   const [availableServices, setAvailableServices] = useState([]);
@@ -30,57 +30,59 @@ const Package = () => {
 
   const location = useLocation();
 
-useEffect(() => {
-  if (location.state && location.state.packageDetails) {
-    const { packageDetails } = location.state;
-    setPackageName(packageDetails.packageName || '');
-    setEventType(packageDetails.eventType || '');
-    setTotalPrice(packageDetails.totalPrice || '');
-    setCoverPhoto(packageDetails.coverPhoto || null);
-    setServices(packageDetails.services || []);
-  }
-}, [location.state]);
+  useEffect(() => {
+    if (location.state && location.state.packageDetails) {
+      const { packageDetails } = location.state;
+      setPackageName(packageDetails.packageName || '');
+      setEventType(packageDetails.eventType || '');
+      setTotalPrice(packageDetails.totalPrice || 0);
+      setCoverPhoto(packageDetails.coverPhoto || null);
+      setServices(packageDetails.services || []);
+    }
+  }, [location.state]);
 
-const handleUpdatePackage = () => {
-  if (!packageName || !eventType) {
-    alert("Please fill in all fields and select at least one service.");
-    return;
-  }
+  // Calculate the total price based on the services added or removed
+  useEffect(() => {
+    const newTotalPrice = services.reduce((acc, service) => acc + service.basePrice, 0);
+    setTotalPrice(newTotalPrice);
+  }, [services]);
 
-  // Prepare data
-  const updatedPackageData = {
-    packageName: packageName || location.state.packageDetails.packageName,
-    eventType: eventType || location.state.packageDetails.eventType,
-    services: services.map((service) => service.id), // Ensure this is an array of IDs
-    totalPrice: totalPrice || location.state.packageDetails.totalPrice,
-    coverPhoto: coverPhoto || location.state.packageDetails.coverPhoto,
-  };
+  const handleUpdatePackage = () => {
+    if (!packageName || !eventType) {
+      alert("Please fill in all fields and select at least one service.");
+      return;
+    }
 
-  axios.put(`${API_URL}/api/admin/packages/${location.state.packageDetails.id}`, updatedPackageData, {
-    headers: {
-      Authorization: `Bearer ${getAuthToken()}`,
-      'Content-Type': 'application/json',
-    },
-  })
-    .then((response) => {
-      console.log('Package updated successfully:', response.data);
-      alert('Package updated successfully!');
-      navigate('/profile'); // Redirect to profile or another relevant page
+    // Prepare data
+    const updatedPackageData = {
+      packageName: packageName || location.state.packageDetails.packageName,
+      eventType: eventType || location.state.packageDetails.eventType,
+      services: services.map((service) => service.id), // Ensure this is an array of IDs
+      totalPrice: totalPrice || location.state.packageDetails.totalPrice,
+      coverPhoto: coverPhoto || location.state.packageDetails.coverPhoto,
+    };
+
+    axios.put(`${API_URL}/api/admin/packages/${location.state.packageDetails.id}`, updatedPackageData, {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+        'Content-Type': 'application/json',
+      },
     })
-    .catch((error) => {
-      console.error('Error updating package:', error.response?.data || error.message);
-      const errors = error.response?.data?.errors || {};
-      alert(
-        `Failed to update package. ${
-          Object.keys(errors).length ? Object.values(errors).join(', ') : 'Please try again.'
-        }`
-      );
-    });
-};
-
-
-
-
+      .then((response) => {
+        console.log('Package updated successfully:', response.data);
+        alert('Package updated successfully!');
+        navigate('/profile'); // Redirect to profile or another relevant page
+      })
+      .catch((error) => {
+        console.error('Error updating package:', error.response?.data || error.message);
+        const errors = error.response?.data?.errors || {};
+        alert(
+          `Failed to update package. ${
+            Object.keys(errors).length ? Object.values(errors).join(', ') : 'Please try again.'
+          }`
+        );
+      });
+  };
 
   useEffect(() => {
     axios.get(`${API_URL}/api/services`, {
@@ -148,9 +150,15 @@ const handleUpdatePackage = () => {
   };
 
   const handleRemoveService = (serviceId) => {
-    const updatedServices = services.filter(service => service.id !== serviceId);
-    setServices(updatedServices);
+    setServices((prevServices) => {
+      const updatedServices = prevServices.filter(service => service.id !== serviceId);
+      // Recalculate the total price
+      const updatedTotalPrice = updatedServices.reduce((total, service) => total + service.basePrice, 0);
+      setTotalPrice(updatedTotalPrice); // Update total price after removing the service
+      return updatedServices;
+    });
   };
+  
 
   const handleCreatePackage = () => {
     if (!packageName || !eventType) {
@@ -193,9 +201,7 @@ const handleUpdatePackage = () => {
         }
       });
   };
-  
-  
-  
+
   const resetForm = () => {
     setPackageName('');
     setEventType('');
@@ -205,7 +211,6 @@ const handleUpdatePackage = () => {
     setSelectedCategory('All');
     setFilteredServices([]);
   };
-  
 
   // Handle totalPrice input manually (ensuring it's a valid float)
   const handleTotalPriceChange = (e) => {
@@ -221,8 +226,19 @@ const handleUpdatePackage = () => {
       setTotalPrice(0); // Default to 0 if input is empty
     }
   };
-  
-  
+
+
+  const handleAddService = (service) => {
+    // Add the service to the services list
+    setServices((prevServices) => {
+      const updatedServices = [...prevServices, service];
+      // Recalculate the total price
+      const updatedTotalPrice = updatedServices.reduce((total, service) => total + service.basePrice, 0);
+      setTotalPrice(updatedTotalPrice); // Update total price based on the new services
+      return updatedServices;
+    });
+  };
+
 
   return (
     <div className="gradient-container-portfolio">
@@ -287,12 +303,12 @@ const handleUpdatePackage = () => {
 
         <label className="label-portfolio">Enter Total Price</label>
         <input
-          type="number"  // Use number type for whole numbers
+          type="number"
           className="text-input-portfolio"
           placeholder="Total Price"
           value={totalPrice}
-          step="1"  // Only whole numbers allowed
-          onChange={handleTotalPriceChange}  // Manual input handling
+          step="1"
+          onChange={handleTotalPriceChange}  // Allow manual input (but ensure it's a valid number)
         />
 
 

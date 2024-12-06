@@ -1039,7 +1039,9 @@ button:hover {
 
 
 
-/* EVENTS */
+/* EVENTS PAGE */
+
+
 
 
 .gradient-container-events {
@@ -1322,6 +1324,78 @@ button:hover {
 .menu-item-events svg {
   margin-right: 8px; /* Space between icon and text */
 }
+
+.overlay-events {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.overlay-content-events {
+  background: white;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.close-button-events {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.header-events {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.detail-group-events {
+  margin-bottom: 15px;
+}
+
+.detail-group-events p {
+  margin: 5px 0;
+}
+
+.payment-status-group {
+  margin-top: 20px;
+}
+
+#payment-status {
+  padding: 8px;
+  width: 200px;
+}
+
+.save-button-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.save-button {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #45a049;
+}
+
 
 
 

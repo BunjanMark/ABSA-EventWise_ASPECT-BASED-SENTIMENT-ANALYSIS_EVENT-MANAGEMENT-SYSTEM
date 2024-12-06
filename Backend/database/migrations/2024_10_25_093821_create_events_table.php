@@ -26,6 +26,8 @@ return new class extends Migration
             $table->json('packages');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');  
             $table->timestamps();
+            $table->string('payment_status')->nullable();
+
         });
     }
 
