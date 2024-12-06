@@ -100,8 +100,7 @@ Route::get('/admin/events/{eventId}/user/{userId}', [EventController::class, 'ge
 Route::get('/admin/events/{id}/user', [EventController::class, 'getUserBookingEvents'])->middleware('auth');
 Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateEventStatus']);
 Route::put('/admin/events/{id}/payment-status', [EventController::class, 'updatePaymentStatus']);
-
-
+Route::get('/events/{eventId}/services', [EventController::class, 'getEventServices']);
 
 // Route::get('/admin/events', [EventController::class, 'getEvents']);
 

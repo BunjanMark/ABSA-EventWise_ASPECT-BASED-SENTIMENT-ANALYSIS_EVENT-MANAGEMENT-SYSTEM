@@ -67,17 +67,26 @@ const Feedback = () => {
             onPress={() => setActiveTab("event")}
           >
             <Text
-              style={[styles.tabText, activeTab === "event" && styles.activeTabText]}
+              style={[
+                styles.tabText,
+                activeTab === "event" && styles.activeTabText,
+              ]}
             >
-              Event
+              Events
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === "serviceProvider" && styles.activeTab]}
+            style={[
+              styles.tab,
+              activeTab === "serviceProvider" && styles.activeTab,
+            ]}
             onPress={() => setActiveTab("serviceProvider")}
           >
             <Text
-              style={[styles.tabText, activeTab === "serviceProvider" && styles.activeTabText]}
+              style={[
+                styles.tabText,
+                activeTab === "serviceProvider" && styles.activeTabText,
+              ]}
             >
               Service Provider
             </Text>
@@ -176,10 +185,7 @@ const Feedback = () => {
                           styles.selectedOption,
                       ]}
                       onPress={() =>
-                        handleInputChange(
-                          "recommendationLikelihood",
-                          option
-                        )
+                        handleInputChange("recommendationLikelihood", option)
                       }
                     >
                       <Text style={styles.optionText}>{option}</Text>
@@ -254,7 +260,9 @@ const Feedback = () => {
                   multiline
                   numberOfLines={5}
                   value={feedbackData.serviceFeedback}
-                  onChangeText={(text) => handleInputChange("serviceFeedback", text)}
+                  onChangeText={(text) =>
+                    handleInputChange("serviceFeedback", text)
+                  }
                 />
                 <TouchableOpacity
                   style={styles.submitButton}
@@ -409,7 +417,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    
   },
   modalContent: {
     width: "80%",

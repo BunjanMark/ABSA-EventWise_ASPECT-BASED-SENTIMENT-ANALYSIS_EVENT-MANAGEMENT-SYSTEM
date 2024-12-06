@@ -4,10 +4,12 @@ import EventFeedbackSentiment from "../component/EventFeedbackSentiment";
 import styles from "../../styles/styles";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import useStore from "../../../../stateManagement/useStore";
-
+import { useFeedbackStore } from "../../../../stateManagement/admin/useFeedbackStore";
 const FeedbackAdmin = () => {
   const { eventData, sliceColor } = useStore(); // Using your state store
+  const { currentFeedbacks, setCurrentFeedbacks } = useFeedbackStore();
 
+  console.log("This is the current feedbacks: ", currentFeedbacks);
   return (
     <SafeAreaView style={[styles.container]}>
       <View style={[styles.header, {}]}>
@@ -24,18 +26,27 @@ const FeedbackAdmin = () => {
             },
           ]}
         >
-          Event Feedbacks
+          Event Feedbacksxx
         </Text>
       </View>
       {/* Components */}
       <ScrollView>
         <SafeAreaView style={[styles.scrollViewContentFeedback]}>
-          {eventData.map((event) => (
+          {/* {currentFeedbacks.map((event) => (
             <EventFeedbackSentiment
               key={event.eventId}
               eventId={event.eventId}
               eventName={event.eventName}
-              feedbackData={event.feedbackData || []} // Handle empty feedbackData
+              feedbackData={currentFeedbacks || []} // Handle empty feedbackData
+              sliceColor={sliceColor}
+            />
+          ))} */}
+          {currentFeedbacks.map((event) => (
+            <EventFeedbackSentiment
+              key={event.eventId}
+              eventId={event.eventId}
+              eventName={event.eventName}
+              feedbackData={currentFeedbacks || []} // Handle empty feedbackData
               sliceColor={sliceColor}
             />
           ))}
