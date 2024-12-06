@@ -784,57 +784,46 @@ const BookingProcess = ({ navigation }) => {
                                 )
                                 .map((service, index) => (
                                   <TouchableOpacity
-                                    key={index}
-                                    style={[
-                                      styles.serviceItem,
-                                      {
-                                        borderColor: "#eeba2b", // Border color
-                                        borderWidth: 1, // Set the border width to make it visible on all sides
-                                        borderRadius: 8, // Optional: to add rounded corners
-                                        marginTop: 10,
-                                      },
-                                    ]}
-                                    onPress={() => {
-                                      // Ensure the selectedPkg is updated correctly without mutating the original object
-                                      const updatedServices = selectedPkg
-                                        ? [...selectedPkg.services, service]
-                                        : [service];
+  key={index}
+  style={[styles.serviceItem, { borderColor: "#eeba2b", borderWidth: 1, borderRadius: 8, marginTop: 10 }]}
+  onPress={() => {
+    // Ensure selectedPkg is not null
+    const updatedServices = selectedPkg ? [...selectedPkg.services, service] : [service];
 
-                                      // Clone the currentPackages and update the selected package with new services
-                                      const updatedPackages =
-                                        currentPackages.map((pkg) =>
-                                          pkg.id === selectedPkg.id
-                                            ? {
-                                                ...pkg,
-                                                services: updatedServices,
-                                              }
-                                            : pkg
-                                        );
+    // Convert totalPrice and service.basePrice to numbers to avoid string concatenation
+    const currentTotalPrice = parseFloat(selectedPkg.totalPrice) || 0;  // Convert totalPrice to a number, default to 0 if invalid
+    const serviceBasePrice = parseFloat(service.basePrice) || 0;  // Ensure service.basePrice is a number, default to 0 if invalid
 
-                                      // Log the updated package details after adding a service
-                                      console.log(
-                                        "Package updated with new service:",
-                                        {
-                                          packageId: selectedPkg.id,
-                                          updatedServices: updatedServices,
-                                        }
-                                      );
+    // Calculate the updated totalPrice
+    const updatedTotalPrice = currentTotalPrice + serviceBasePrice;
 
-                                      // Set the updated packages list
-                                      setCurrentPackages(updatedPackages);
-                                      closeServiceModal(); // Close the modal after selection
-                                    }}
-                                  >
-                                    <Text style={styles.serviceName}>
-                                      {service.serviceName}
-                                    </Text>
-                                    <Text style={styles.serviceCategory}>
-                                      {service.serviceCategory}
-                                    </Text>
-                                    <Text style={styles.servicePrice}>
-                                      Price: ₱{service.basePrice}
-                                    </Text>
-                                  </TouchableOpacity>
+    // Log for debugging
+    console.log("Package updated with new service:", {
+      packageId: selectedPkg.id,
+      updatedServices: updatedServices,
+      updatedTotalPrice: updatedTotalPrice,
+    });
+
+    // Clone the currentPackages and update the selected package
+    const updatedPackages = currentPackages.map((pkg) =>
+      pkg.id === selectedPkg.id
+        ? { ...pkg, services: updatedServices, totalPrice: updatedTotalPrice.toFixed(2) }  // Format totalPrice as a string with two decimal places
+        : pkg
+    );
+
+    // Set the updated packages list
+    setCurrentPackages(updatedPackages);
+
+    // Close the modal after selection
+    closeServiceModal();
+  }}
+>
+  <Text style={styles.serviceName}>{service.serviceName}</Text>
+  <Text style={styles.serviceCategory}>{service.serviceCategory}</Text>
+  <Text style={styles.servicePrice}>Price: ₱{service.basePrice}</Text>
+</TouchableOpacity>
+
+
                                 ))}
                             </ScrollView>
                           ) : (
@@ -876,44 +865,50 @@ const BookingProcess = ({ navigation }) => {
                           </Text>
 
                           <View style={styles.modalActions}>
-                            <Button
-                              mode="contained"
-                              onPress={() => {
-                                // Ensure you're filtering by ID or another unique identifier for object comparison
-                                const updatedServices =
-                                  selectedPkg.services.filter(
-                                    (service) =>
-                                      service.id !== selectedServiceToRemove.id
-                                  );
+                          <Button
+                        mode="contained"
+                        onPress={() => {
+                          // Remove the service from the selected package's services
+                          const updatedServices = selectedPkg.services.filter(
+                            (service) => service.id !== selectedServiceToRemove.id
+                          );
 
-                                // Log the updated service list after removal
-                                console.log(
-                                  "Package updated after service removal:",
-                                  {
-                                    packageId: selectedPkg.id,
-                                    updatedServices: updatedServices,
-                                  }
-                                );
+                          // Calculate the new totalPrice
+                          const updatedTotalPrice = selectedPkg.totalPrice - selectedServiceToRemove.basePrice;
 
-                                // Clone the currentPackages and update the selected package
-                                const updatedPackages = currentPackages.map(
-                                  (pkg) =>
-                                    pkg.id === selectedPkg.id
-                                      ? { ...pkg, services: updatedServices }
-                                      : pkg
-                                );
+                          // Update the selected package with the new services list and totalPrice
+                          const updatedPackage = { 
+                            ...selectedPkg, 
+                            services: updatedServices, 
+                            totalPrice: updatedTotalPrice 
+                          };
 
-                                // Update the state with the new package list
-                                setCurrentPackages(updatedPackages);
+                          // Update the currentPackages state
+                          const updatedPackages = currentPackages.map((pkg) =>
+                            pkg.id === selectedPkg.id
+                              ? { ...pkg, services: updatedServices, totalPrice: updatedTotalPrice }
+                              : pkg
+                          );
 
-                                // Close the modal after the update
-                                setConfirmRemoveModalVisible(false);
-                              }}
-                              style={styles.closeButton}
-                              marginRight={10}
-                            >
-                              Yes, Remove
-                            </Button>
+                          // Log the updated package details after removal
+                          console.log("Package updated after service removal:", {
+                            packageId: selectedPkg.id,
+                            updatedServices: updatedServices,
+                            updatedTotalPrice: updatedTotalPrice,
+                          });
+
+                          // Update the state with the new packages list
+                          setCurrentPackages(updatedPackages);
+
+                          // Close the modal
+                          setConfirmRemoveModalVisible(false);
+                        }}
+                        style={styles.closeButton}
+                        marginRight={10}
+                      >
+                        Yes, Remove
+                      </Button>
+
 
                             <Button
                               mode="contained"

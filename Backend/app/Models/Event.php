@@ -28,7 +28,8 @@ class Event extends Model
         'coverPhoto',
         'packages',
         'user_id',
-        'archived', 
+        'archived',
+        'payment_status',
     ];
     protected $dates = ['deleted_at']; // To track soft delete timestamps
     // Relationship to guest
