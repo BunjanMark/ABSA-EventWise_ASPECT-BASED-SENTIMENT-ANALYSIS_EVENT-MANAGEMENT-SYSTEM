@@ -76,6 +76,7 @@ export const ProfileProvider = ({ children }) => {
         console.log("Switched to profile:", profile);
         const user = await getUser();
         console.log("Profile Contexts:", profile, user);
+        // #FIXME this needs immediate update of the active profile, it causes errors
         console.log("activeProfile context:", activeProfile);
       } else {
         console.error("Invalid profile index");
