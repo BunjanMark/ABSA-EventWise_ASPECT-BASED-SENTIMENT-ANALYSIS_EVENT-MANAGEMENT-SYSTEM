@@ -1,4 +1,3 @@
-
 export const getAuthToken = () => {
     return localStorage.getItem('token') || '1|6lgZbsMvLnifhl0qbUtySPfYksdsxjxIwfRSW50d0b1ace85';
 };

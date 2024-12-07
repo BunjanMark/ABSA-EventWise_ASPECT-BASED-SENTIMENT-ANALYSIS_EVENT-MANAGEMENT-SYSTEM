@@ -415,7 +415,7 @@ function ServiceProviderStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="HomeSP"
+        name="ServiceProviderStackIndex"
         component={ServiceProviderIndex}
         options={{ headerShown: false }}
       />

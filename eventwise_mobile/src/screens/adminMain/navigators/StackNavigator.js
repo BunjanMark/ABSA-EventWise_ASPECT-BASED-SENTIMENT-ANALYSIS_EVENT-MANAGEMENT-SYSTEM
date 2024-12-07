@@ -1,6 +1,7 @@
 import React from "react";
 import EditPackageScreen from "../screens/package/EditPackageScreen";
 import CreatePackageScreen from "../screens/package/CreatePackageScreen";
+import FeedbackDetail from "../screens/feedback/FeedbackDetail";
 import PackageCardDetails from "../screens/package/PackageCardDetails";
 import { createStackNavigator } from "@react-navigation/stack";
 import CreateEventScreen from "../screens/event/CreateEventScreen";
@@ -130,6 +131,7 @@ const FeedbackStackNavigator = () => {
         name="FeedbackEventDetails"
         component={EventFeedbackDetails}
       /> */}
+      <Stack.Screen name="FeedbackDetail" component={FeedbackDetail} />
     </Stack.Navigator>
   );
 };

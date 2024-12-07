@@ -1,129 +1,86 @@
 import React from "react";
-import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import { StyleSheet, View, Text, SafeAreaView } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
 
 const TotalEventFeedback = ({ eventFeedback, sliceColor }) => {
-  // Aggregate data for pie chart
-  const aggregateFeedback = () => {
-    let positive = 0,
-      neutral = 0,
-      negative = 0;
+  const navigation = useNavigation();
 
-    eventFeedback.forEach((item) => {
-      if (item.event_sentiment) {
-        positive += item.event_sentiment.pos || 0;
-        neutral += item.event_sentiment.neu || 0;
-        negative += item.event_sentiment.neg || 0;
-      }
-      if (item.venue_sentiment) {
-        positive += item.venue_sentiment.pos || 0;
-        neutral += item.venue_sentiment.neu || 0;
-        negative += item.venue_sentiment.neg || 0;
-      }
-      if (item.catering_sentiment) {
-        positive += item.catering_sentiment.pos || 0;
-        neutral += item.catering_sentiment.neu || 0;
-        negative += item.catering_sentiment.neg || 0;
-      }
-      if (item.decoration_sentiment) {
-        positive += item.decoration_sentiment.pos || 0;
-        neutral += item.decoration_sentiment.neu || 0;
-        negative += item.decoration_sentiment.neg || 0;
-      }
-    });
-
-    const total = positive + neutral + negative;
-
-    if (total === 0) return []; // Handle edge case for no feedback
-
-    const positivePercentage = ((positive / total) * 100).toFixed(2);
-    const neutralPercentage = ((neutral / total) * 100).toFixed(2);
-    const negativePercentage = ((negative / total) * 100).toFixed(2);
-
-    return [
-      {
-        name: "Positive",
-        population: parseFloat(positivePercentage),
-        color: sliceColor[1],
-      },
-      {
-        name: "Neutral",
-        population: parseFloat(neutralPercentage),
-        color: sliceColor[2],
-      },
-      {
-        name: "Negative",
-        population: parseFloat(negativePercentage),
-        color: sliceColor[0],
-      },
-    ];
+  const handleGoToButtonPress = () => {
+    navigation.navigate("Feedback");
   };
 
-  const feedbackAggregatedData = aggregateFeedback();
+  const chartConfig = {
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  };
+
+  const data = [
+    {
+      name: "Positive",
+      population: eventFeedback.positive_count,
+      color: sliceColor[1],
+    },
+    {
+      name: "Neutral",
+      population: eventFeedback.neutral_count,
+      color: sliceColor[2],
+    },
+    {
+      name: "Negative",
+      population: eventFeedback.negative_count,
+      color: sliceColor[0],
+    },
+  ];
 
   return (
-    <View style={styles.container}>
-      {/* Display Pie Chart */}
-      <View style={styles.chartSection}>
-        <Text style={styles.chartTitle}>Feedback Summary</Text>
-        {feedbackAggregatedData.length > 0 && (
-          <PieChart
-            data={feedbackAggregatedData}
-            width={Dimensions.get("window").width - 40}
-            height={200}
-            chartConfig={{
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            }}
-            accessor="population"
-            backgroundColor="transparent"
-            paddingLeft="15"
-          />
-        )}
+    <SafeAreaView style={styles.container}>
+      <View style={styles.feedbackContainer}>
+        <Text style={styles.chartTitle}>
+          Total Feedback {eventFeedback.total_feedback}
+        </Text>
+        <TouchableOpacity onPress={handleGoToButtonPress}>
+          <Text style={styles.subtitle}>Go to Feedback</Text>
+          <AntDesign name="swapright" size={24} color="black" />
+        </TouchableOpacity>
+        <PieChart
+          data={data}
+          width={Dimensions.get("window").width - 40}
+          height={200}
+          chartConfig={chartConfig}
+          accessor="population"
+          backgroundColor="transparent"
+          paddingLeft="15"
+        />
       </View>
-
-      {/* Display Detailed Feedbacks */}
-      <ScrollView style={styles.feedbackList}>
-        <Text style={styles.feedbackListTitle}>Detailed Feedback</Text>
-        {eventFeedback.map((feedback, index) => (
-          <View key={index} style={styles.feedbackItem}>
-            <Text style={styles.feedbackDate}>
-              {new Date(feedback.timestamp).toLocaleString()}
-            </Text>
-            <Text style={styles.feedbackText}>
-              Event: {feedback.event_feedback}
-            </Text>
-            <Text style={styles.feedbackText}>
-              Venue: {feedback.venue_feedback}
-            </Text>
-            <Text style={styles.feedbackText}>
-              Catering: {feedback.catering_feedback}
-            </Text>
-            <Text style={styles.feedbackText}>
-              Decoration: {feedback.decoration_feedback}
-            </Text>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 20 },
-  chartSection: { alignItems: "center", marginBottom: 20 },
-  chartTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
-  feedbackList: { marginTop: 10 },
-  feedbackListTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },
-  feedbackItem: {
-    backgroundColor: "#F5F5F5",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+  container: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 8,
+    paddingTop: 10,
+    height: "100%",
+    width: "100%",
   },
-  feedbackDate: { fontSize: 12, color: "#555", marginBottom: 5 },
-  feedbackText: { fontSize: 14, marginBottom: 5 },
+  feedbackContainer: {
+    flexDirection: "column",
+    backgroundColor: "rgba(255,252,221,99)",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  chartTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  subtitle: { fontSize: 16, color: "#888" },
 });
 
 export default TotalEventFeedback;

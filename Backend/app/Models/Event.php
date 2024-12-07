@@ -9,6 +9,7 @@ use App\Models\Guest;
 use App\Models\Package;
 use App\Models\User;
 use App\Models\Equipment;
+use App\Models\Service;
 use Illuminate\Database\Eloquent\SoftDeletes;
 class Event extends Model
 {
@@ -63,4 +64,13 @@ class Event extends Model
     {
         return $this->hasMany(Guest::class, 'event_id');
     }
+
+    public function packages()
+    {
+        return $this->belongsToMany(Package::class, 'event_package', 'event_id', 'package_id');
+    }
+
+// Function to retrieve all services for a specific event
+
+
 }

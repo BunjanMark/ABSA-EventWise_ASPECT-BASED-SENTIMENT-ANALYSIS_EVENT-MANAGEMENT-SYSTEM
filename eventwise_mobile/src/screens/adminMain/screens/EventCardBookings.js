@@ -87,7 +87,7 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
               color="#eeba2b"
             />
             <Text style={styles.infoText}>
-              {`Guests: ${currentEvents?.pax || 0}`}ss
+              {`Guests: ${currentEvents?.pax || 0}`}
             </Text>
           </View>
           <View style={styles.infoRow}>
