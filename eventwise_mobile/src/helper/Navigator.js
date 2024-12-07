@@ -49,6 +49,8 @@ import BookingContinuation4 from "../screens/customerScreens/otherScreens/Bookin
 import Attendee from "../screens/customerScreens/otherScreens/Attendee";
 import Feedback from "../screens/customerScreens/otherScreens/Feedback";
 import FeedbackInputs from "../screens/customerScreens/otherScreens/FeedbackInputs";
+import Attendees from "../screens/adminMain/screens/attendee/Attendees";
+
 // import Feedback from "../screens/customerScreens/otherScreens/Feedback";
 
 // Service Provider Stack here
@@ -87,6 +89,11 @@ const AuthenticationStack = () => {
       <Stack.Screen
         name="Landing"
         component={Landing}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Attendees"
+        component={Attendees}
         options={{ headerShown: false }}
       />
       <Stack.Screen

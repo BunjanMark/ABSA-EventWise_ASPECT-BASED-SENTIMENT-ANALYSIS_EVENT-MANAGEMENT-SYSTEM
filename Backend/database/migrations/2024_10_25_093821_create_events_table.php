@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('type');
             $table->integer('pax');
             $table->string('status');
-            $table->integer('totalPrice')->nullable();
+            $table->decimal('totalPrice', 10, 2)->nullable();
             $table->date('date');
             $table->time('time');
             $table->string('location');

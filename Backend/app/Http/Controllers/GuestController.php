@@ -70,31 +70,24 @@ class GuestController extends Controller
    // Inside GuestController
 
    public function update(Request $request, $id)
-    {
-        // Validate the request data
-        $request->validate([
-            'GuestName' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:15',
-            'role' => 'required|string',    
-        ]);
+{
+    $request->validate([
+        'GuestName' => 'sometimes|required|string|max:255',
+        'email' => 'sometimes|required|email|max:255',
+        'phone' => 'sometimes|required|string|max:15',
+        'role' => 'sometimes|required|string',
+        'status' => 'sometimes|required|in:Present,Absent',
+    ]);
 
-        // Find the guest by ID
-        $guest = Guest::find($id);
+    // Find or fail
+    $guest = Guest::findOrFail($id);
 
-        if (!$guest) {
-            return response()->json(['message' => 'Guest not found'], 404);
-        }
+    // Update guest data
+    $guest->update($request->only(['GuestName', 'email', 'phone', 'role', 'status']));
 
-        // Update the guest's information
-        $guest->GuestName = $request->GuestName;
-        $guest->email = $request->email;
-        $guest->phone = $request->phone;
-        $guest->role = $request->role;
-        $guest->save();
+    return response()->json($guest, 200);
+}
 
-        return response()->json($guest, 200);  // Return the updated guest
-    }
 
    
 

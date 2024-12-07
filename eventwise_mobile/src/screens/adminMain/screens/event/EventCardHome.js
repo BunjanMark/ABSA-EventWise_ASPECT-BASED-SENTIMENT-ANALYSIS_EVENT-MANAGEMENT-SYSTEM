@@ -88,6 +88,12 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
               currentEvents?.type || "N/A"
             }`}</Text>
           </View>
+          <View style={styles.infoRow}>
+            <MaterialCommunityIcons name="list-status" size={16} color="#eeba2b" />
+            <Text style={styles.infoText}>{`Payment Status: ${
+              currentEvents?.payment_status || "N/A"
+            }`}</Text>
+          </View>
         </View>
       </TouchableOpacity>
     </View>

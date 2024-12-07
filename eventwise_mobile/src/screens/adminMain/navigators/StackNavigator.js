@@ -19,6 +19,7 @@ import AboutAdmin from "../screens/about/AboutAdmin";
 import EventAdmin from "../screens/event/EventAdmin";
 import ProfileAdmin from "../screens/profile/ProfileAdmin";
 import AttendeeAdmin from "../screens/attendee/AttendeeAdmin";
+import Attendees from "../screens/attendee/Attendees";
 import InventoryAdmin from "../screens/inventory/InventoryAdmin";
 import EventFeedbackDetails from "../screens/feedback/EventFeedbackDetails";
 import EditProfileAdmin from "../screens/profile/EditProfileAdmin";
@@ -146,6 +147,7 @@ const AttendeeTrackerStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="AttendeeTrackerAdmin" component={AttendeeAdmin} />
+      <Stack.Screen name="Attendees" component={Attendees} />
     </Stack.Navigator>
   );
 };
