@@ -612,9 +612,9 @@ const BookingProcess = ({ navigation }) => {
                   selectedPackage === pkg.id && styles.selectedPackageCard,
                 ]}
                 onPress={() => {
-                  console.log("Package clicked:", pkg.id);
-                  setSelectedPackage(pkg.id);
-                }}
+                console.log("Package clicked:", pkg.id);
+                setSelectedPackage(pkg.id); 
+              }}
               >
                 <Text style={styles.packageName}>
                   Package Name: {pkg.packageName}
@@ -1144,8 +1144,22 @@ const BookingProcess = ({ navigation }) => {
         marginBottom={10}
       />
     </TouchableOpacity>
+    
     <View style={styles.reviewContainer}>
       <Text style={styles.title}>Review Details</Text>
+
+      {/* Displaying Cover Photo */}
+      <View style={styles.coverPhotoContainer}>
+        <Text style={styles.label}>Cover Photo:</Text>
+        {values.coverPhoto ? (
+          <Image
+            source={{ uri: values.coverPhoto }}
+            style={styles.coverPhoto}
+          />
+        ) : (
+          <Text style={styles.value}>No cover photo selected</Text>
+        )}
+      </View>
 
       {/* Displaying Event Information */}
       <View style={styles.reviewItem}>
@@ -1176,49 +1190,41 @@ const BookingProcess = ({ navigation }) => {
         <Text style={styles.label}>Description:</Text>
         <Text style={styles.value}>{values.description}</Text>
       </View>
+
       {/* Displaying Package Information */}
       <View style={styles.reviewItem}>
-        <Text style={styles.label}>Packages:</Text>
-        {values.currentPackages.length > 0 ? (
-          values.currentPackages.map((pkg, index) => (
-            <Text key={index} style={styles.value}>
-              {pkg.name} - {pkg.price}
+        <Text style={styles.label}>Package:</Text>
+        {selectedPkg ? (
+          <>
+            <Text style={styles.value}>
+              {selectedPkg.packageName} - ₱{selectedPkg.totalPrice}
             </Text>
-          ))
+          </>
         ) : (
-          <Text style={styles.value}>No packages selected</Text>
-        )}
-      </View>
-      {/* Displaying Cover Photo */}
-      <View style={styles.reviewItem}>
-        <Text style={styles.label}>Cover Photo:</Text>
-        {values.coverPhoto ? (
-          <Image
-            source={{ uri: values.coverPhoto }}
-            style={styles.coverPhoto}
-          />
-        ) : (
-          <Text style={styles.value}>No cover photo selected</Text>
+          <Text style={styles.value}>No package selected</Text>
         )}
       </View>
 
       {/* Buttons for Finalizing */}
       <View style={styles.buttonContainer}>
-      <Button
-                     mode="contained"
-                      onPress={handleSubmit}
-                      loading={isLoading}
-                      disabled={isLoading}
-                      style={styles.addButton1}
-                    >
-                      Submit
-                    </Button>
+        <Button
+          mode="contained"
+          onPress={handleSubmit}
+          loading={isLoading}
+          disabled={isLoading}
+          style={styles.addButton1}
+        >
+          Submit
+        </Button>
       </View>
     </View>
   </>
 )}
 
 
+
+
+{/* dari raka taman haaaaaaaaaaaaaaaaaaaaaa heheheheh (|================3*/}
               </View>
             )}
           </Formik>
@@ -1529,16 +1535,34 @@ const styles = StyleSheet.create({
   reviewContainer: {
     padding: 20,
   },
-
+  
   reviewItem: {
+    flexDirection: 'row', // Aligns label and value horizontally
+    justifyContent: 'space-between',
     marginBottom: 15,
   },
+  
+  coverPhotoContainer: {
+    alignItems: 'center', // Centers the cover photo and text
+    marginBottom: 20,
+  },
+  
   coverPhoto: {
     width: 100,
     height: 100,
     borderRadius: 8,
     marginTop: 10,
   },
+  
+  label: {
+    fontWeight: 'bold',
+    flex: 1, // Ensures proper spacing
+  },
+  
+  value: {
+    flex: 2, // Aligns value to the right of the label
+  },
+  
 });
 
 export default BookingProcess;

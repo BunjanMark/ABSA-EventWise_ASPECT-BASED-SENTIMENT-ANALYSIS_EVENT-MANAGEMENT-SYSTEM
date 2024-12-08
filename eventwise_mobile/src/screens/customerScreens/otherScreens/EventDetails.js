@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Header from "../elements/Header";
@@ -52,10 +52,34 @@ const EventDetails = () => {
         </View>
 
         {/* Event Details */}
+        <View style={styles.coverPhotoContainer}>
+          <Text style={styles.label}>Cover Photo:</Text>
+          {eventData.coverPhoto ? (
+            <Image
+              source={{ uri: eventData.coverPhoto }}
+              style={styles.coverPhoto}
+              onError={(e) => console.error("Image Load Error:", e.nativeEvent.error)} // Debug loading error
+            />
+          ) : (
+            <Text style={styles.value}>No cover photo selected</Text>
+          )}
+        </View>
         <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Event Name:</Text>
+          <Text style={styles.detailLabel1}></Text>
           <View style={styles.detailContainer}>
-            <Text style={styles.detailValue}>{eventData.name}</Text>
+            <Text style={styles.detailValue1}>{eventData.name}</Text>
+          </View>
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Event Type:</Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.detailValue}>{eventData.type}</Text>
+          </View>
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={[styles.detailLabel, { color: "#eeba2b" }]}>Total Price:</Text>
+          <View style={styles.detailContainer}>
+            <Text style={[styles.detailValue, { color: "#eeba2b" }]}>{eventData.totalPrice}</Text>
           </View>
         </View>
         <View style={styles.detailGroup}>
@@ -86,22 +110,28 @@ const EventDetails = () => {
         </View>
 
         {/* Packages */}
-        <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Packages:</Text>
-          {Array.isArray(eventData.packages) && eventData.packages.length > 0 ? (
-            eventData.packages.map((packageItem, index) => (
-              <View key={index} style={styles.detailContainer}>
-                <Text style={styles.detailValue}>
-                  {packageItem.packageName} - {packageItem.totalPrice} 
-                </Text>
-              </View>
-            ))
-          ) : (
-            <View style={styles.detailContainer}>
-              <Text style={styles.detailValue}>No packages available.</Text>
-            </View>
-          )}
+        <Text style={styles.packageHeader}>Packages</Text>
+
+        <View style={styles.packageContainer}>
+  {Array.isArray(eventData.packages) && eventData.packages.length > 0 ? (
+    eventData.packages.map((packageItem, index) => (
+      <View key={index} style={styles.packageItem}>
+        <Text style={styles.packageHeader}>{packageItem.packageName}</Text>
+        <View style={styles.packageDetailGroup}>
+          <Text style={styles.packageDetailLabel}>Category: </Text>
+          <Text style={styles.packageDetailValue}>{packageItem.eventType}</Text>
         </View>
+        <View style={styles.packageDetailGroup}>
+          <Text style={styles.packageDetailLabel}>Price: ₱</Text>
+          <Text style={styles.packagePrice}>{packageItem.totalPrice}</Text>
+        </View>
+      </View>
+    ))
+  ) : (
+    <Text style={styles.packageText}>No packages available.</Text>
+  )}
+</View>
+
       </ScrollView>
     </>
   );
@@ -122,28 +152,64 @@ const styles = StyleSheet.create({
   },
   detailGroup: {
     marginBottom: 15,
+    flexDirection: 'row',
   },
   detailLabel: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
   },
-  detailContainer: {
-    backgroundColor: "#f9f9f9",
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 5,
-    // Shadow for iOS
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    // Shadow for Android
-    elevation: 4,
-  },
   detailValue: {
     fontSize: 14,
     color: "#333",
+  },
+  detailValue1: {
+    fontSize: 25,
+    color: "#333",
+    fontWeight: 'bold',
+  },
+  packageContainer: {
+    marginBottom: 20,
+    padding: 10,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  packageItem: {
+    marginBottom: 10,
+    flexDirection: "column", // Arrange items in a column
+  },
+  packageHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
+  },
+  packageDetailGroup: {
+    flexDirection: "row",
+    marginBottom: 5,
+  },
+  packageDetailLabel: {
+    fontSize: 15, // Smaller font size for labels
+    fontWeight: "bold",
+    color: "#555",
+  },
+  packageDetailValue: {
+    fontSize: 15, // Smaller font size for values
+    color: "#666",
+  },
+  packagePrice: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#eeba2b", // Highlight the price
+  },
+  packageText: {
+    fontSize: 15,
+    color: "#555",
   },
 });
 

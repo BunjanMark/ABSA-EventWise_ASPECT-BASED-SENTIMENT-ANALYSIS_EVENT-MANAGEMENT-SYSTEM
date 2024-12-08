@@ -15,7 +15,7 @@ const Package = () => {
 
   const [packageName, setPackageName] = useState('');
   const [eventType, setEventType] = useState('');
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState();
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [services, setServices] = useState([]);
   const [availableServices, setAvailableServices] = useState([]);
@@ -35,7 +35,7 @@ const Package = () => {
       const { packageDetails } = location.state;
       setPackageName(packageDetails.packageName || '');
       setEventType(packageDetails.eventType || '');
-      setTotalPrice(packageDetails.totalPrice || 0);
+      setTotalPrice(packageDetails.totalPrice);
       setCoverPhoto(packageDetails.coverPhoto || null);
       setServices(packageDetails.services || []);
     }
@@ -43,9 +43,11 @@ const Package = () => {
 
   // Calculate the total price based on the services added or removed
   useEffect(() => {
-    const newTotalPrice = services.reduce((acc, service) => acc + service.basePrice, 0);
-    setTotalPrice(newTotalPrice);
+    const newTotalPrice = services.reduce((acc, service) => acc + parseFloat(service.basePrice), 0);
+    setTotalPrice(newTotalPrice.toFixed(2));
   }, [services]);
+  
+  
 
   const handleUpdatePackage = () => {
     if (!packageName || !eventType) {
@@ -84,20 +86,21 @@ const Package = () => {
   useEffect(() => {
     // Axios will automatically include the token because of the interceptor in axiosconfig.js
     api.get(`${API_URL}/api/services`)
-      .then((response) => {
-        const mappedServices = response.data.map((service) => ({
-          id: service.id,
-          serviceName: service.serviceName,
-          basePrice: service.basePrice,
-          serviceCategory: service.serviceCategory,
-          image: images[Math.floor(Math.random() * images.length)],
-        }));
-        setAvailableServices(mappedServices);
-        setFilteredServices(mappedServices); // Initially, show all services
-      })
-      .catch((error) => {
-        console.error('Error fetching services:', error);
-      });
+  .then((response) => {
+    const mappedServices = response.data.map((service) => ({
+      id: service.id,
+      serviceName: service.serviceName,
+      basePrice: parseFloat(service.basePrice), // Ensure basePrice is a number
+      serviceCategory: service.serviceCategory,
+      image: images[Math.floor(Math.random() * images.length)],
+    }));
+    setAvailableServices(mappedServices);
+    setFilteredServices(mappedServices);
+  })
+  .catch((error) => {
+    console.error('Error fetching services:', error);
+  });
+
   }, []);
 
   useEffect(() => {
@@ -131,12 +134,17 @@ const Package = () => {
           serviceCategory: selectedService.serviceCategory,
           basePrice: selectedService.basePrice,
         }];
+  
+        // Update totalPrice directly by adding the basePrice of the new service
+        setTotalPrice((prevTotal) => parseFloat(prevTotal || 0) + parseFloat(selectedService.basePrice));
+  
         return updatedServices;
       });
     }
     setShowConfirmOverlay(false);
     setShowOverlay(false);
   };
+  
 
   const handleCancelService = () => {
     setShowConfirmOverlay(false);
@@ -203,34 +211,6 @@ const Package = () => {
     setFilteredServices([]);
   };
 
-  // Handle totalPrice input manually (ensuring it's a valid float)
-  const handleTotalPriceChange = (e) => {
-    let value = e.target.value;
-  
-    // Remove any non-numeric characters (keeping only numbers)
-    value = value.replace(/[^0-9]/g, "");
-  
-    // Set the total price only if the value is a valid number
-    if (value !== "") {
-      setTotalPrice(parseInt(value, 10)); // Parse as integer
-    } else {
-      setTotalPrice(0); // Default to 0 if input is empty
-    }
-  };
-
-
-  const handleAddService = (service) => {
-    // Add the service to the services list
-    setServices((prevServices) => {
-      const updatedServices = [...prevServices, service];
-      // Recalculate the total price
-      const updatedTotalPrice = updatedServices.reduce((total, service) => total + service.basePrice, 0);
-      setTotalPrice(updatedTotalPrice); // Update total price based on the new services
-      return updatedServices;
-    });
-  };
-
-
   return (
     <div className="gradient-container-portfolio">
       <button onClick={() => navigate('/profile')} className="back-button-portfolio">
@@ -292,15 +272,14 @@ const Package = () => {
           onChange={(e) => setEventType(e.target.value)}
         />
 
-        <label className="label-portfolio">Enter Total Price</label>
-        <input
-          type="number"
-          className="text-input-portfolio"
-          placeholder="Total Price"
-          value={totalPrice}
-          step="1"
-          onChange={handleTotalPriceChange}  // Allow manual input (but ensure it's a valid number)
-        />
+          <input
+            type="number"
+            className="text-input-portfolio"
+            placeholder="Total Price"
+            value={totalPrice}
+            onChange={(e) => setTotalPrice(e.target.value)}
+          />
+
 
 
 
