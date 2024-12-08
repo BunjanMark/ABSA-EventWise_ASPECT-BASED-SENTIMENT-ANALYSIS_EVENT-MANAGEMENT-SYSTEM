@@ -628,7 +628,7 @@ public function getServiceProviederName($eventId, $userId)
             if ($event->status === 'complete') {
                 $this->sendFeedbackEmails($event);
             }
-            return response()->json(['message' => 'Event is not done, it is now complete'], 200);
+            return response()->json(['message' => 'Event is done, it is now complete'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
