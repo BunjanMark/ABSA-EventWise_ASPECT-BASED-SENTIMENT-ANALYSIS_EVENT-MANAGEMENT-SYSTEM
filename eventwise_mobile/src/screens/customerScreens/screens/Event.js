@@ -123,19 +123,13 @@ const Event = () => {
                   </Text>
                   <View style={styles.eventInfo}>
                     <View style={styles.eventDetails}>
-                      <Icon name="calendar" size={16} color="#007BFF" />
+                      <Icon name="calendar" size={16} color="#eeba2b" />
                       <Text style={styles.eventDate}>
                         {event.date || "No date"}
                       </Text>
                     </View>
                     <View style={styles.eventDetails}>
-                      <Icon name="list-status" size={16} color="#007BFF" />
-                      <Text style={styles.eventDate}>
-                        {event.payment_status || "No Payment Status"}
-                      </Text>
-                    </View>
-                    <View style={styles.eventDetails}>
-                      <Icon name="map-marker" size={16} color="#007BFF" />
+                      <Icon name="map-marker" size={16} color="#eeba2b" />
                       <TouchableOpacity
                         onPress={() => handleLocationPress(event)}
                       >
@@ -144,6 +138,13 @@ const Event = () => {
                         </Text>
                       </TouchableOpacity>
                     </View>
+                    <View style={styles.eventDetails}>
+                      <Icon name="list-status" size={16} color="#eeba2b" />
+                      <Text style={styles.eventDate}>
+                        {event.payment_status || "No Payment Status"}
+                      </Text>
+                    </View>
+                    
                   </View>
                   <View style={styles.buttonContainer}>
                     <TouchableOpacity
@@ -286,13 +287,13 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   eventInfo: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
     marginBottom: 10,
   },
   eventDetails: {
     flexDirection: "row",
-    alignItems: "center",
+    marginBottom: 5,
   },
   eventDate: {
     marginLeft: 5,
