@@ -23,7 +23,8 @@ use App\Http\Controllers\SmsTwilioController;
 use App\Events\NewServiceCreated;
 use App\Http\Controllers\TwilioSmsController;
 use App\Http\Controllers\NotificationUpcomingEventController;
- 
+use App\Http\Controllers\FeedbackController;
+
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -99,6 +100,7 @@ Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEv
 Route::get('/admin/events/{eventId}/user/{userId}', [EventController::class, 'getServiceProviderInfoByUserId']);
 Route::get('/admin/events/{id}/user', [EventController::class, 'getUserBookingEvents'])->middleware('auth');
 Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateEventStatus']);
+Route::put('/admin/events/bookings/complete/{eventId}', [EventController::class, 'updateEventStatusComplete']); //to complete
 Route::get('/events/{eventId}/services', [EventController::class, 'getEventServices']);
 
 // Route::get('/admin/events', [EventController::class, 'getEvents']);
@@ -221,3 +223,11 @@ Route::get('/test-email', function () {
  
 use App\Http\Controllers\EventReminderController;
 Route::get('event/{eventId}/reminder', [EventReminderController::class, 'sendEventReminder']);
+
+
+// For feedback web
+
+// use App\Http\Controllers\FeedbackController;
+// Route::get('/feedback', [FeedbackController::class, 'showForm']);
+
+// Route::post('/feedback/submit', [FeedbackController::class, 'submitFeedback'])->name('feedback.submit');
