@@ -17,6 +17,8 @@ use App\Models\AccountRole;
 use App\Notifications\EventScheduleNotice;
 use App\Events\EventCreatedApprovedEvent;
 use Carbon\Carbon;
+use App\Mail\FeedbackRequestMail;
+use Illuminate\Support\Facades\Mail;
 class EventController extends Controller
 {
     //Add a method to fetch all events
@@ -597,12 +599,50 @@ public function getServiceProviederName($eventId, $userId)
             // Dispatch the EventCreatedApprovedEvent
             EventCreatedApprovedEvent::dispatch($event);
 
+                // Trigger the feedback email to guests
+            if ($event->status === 'complete') {
+                $this->sendFeedbackEmails($event);
+            }
             return response()->json(['message' => 'Booking approved! Your event is now scheduled!'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    }
+    }   
 
+    public function updateEventStatusComplete(Request $request, $eventId)
+    {
+        try {
+            $event = Event::find($eventId);
+
+            if (!$event) {
+                return response()->json(['error' => 'Event not found'], 404);
+            }
+
+            // Update the event status to 'scheduled'
+            $event->update(['status' => 'complete']);
+
+            // Dispatch the EventCreatedApprovedEvent
+            // EventCreatedApprovedEvent::dispatch($event);
+
+                // Trigger the feedback email to guests
+            if ($event->status === 'complete') {
+                $this->sendFeedbackEmails($event);
+            }
+            return response()->json(['message' => 'Event is done, it is now complete'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }   
+    protected function sendFeedbackEmails(Event $event)
+    { 
+        // Retrieve all guests for the event
+        $guests = Guest::where('event_id', $event->id)->get();
+
+        // Iterate over each guest and send an email
+        foreach ($guests as $guest) {
+            Mail::to($guest->email)->send(new FeedbackRequestMail($event, $guest));
+        }
+    }
     public function sendEventScheduleNotice(Request $request, $eventId)
 {
     try {
