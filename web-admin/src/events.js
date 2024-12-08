@@ -149,6 +149,10 @@ const handleGuestClick = (eventId) => {
   navigate('/group-attendees', { state: { eventId } });
 };
 
+const handleAttendeeClick = (eventId) => {
+  navigate('/attendees', { state: { eventId } });
+};
+
 
   const toggleLike = (eventId) => {
     setLikedEvents((prevState) => ({
@@ -215,7 +219,7 @@ const handleGuestClick = (eventId) => {
       </div>
       {showMenu[item.id] && (
         <div className="menu-overlay-events">
-          <div className="menu-item-events" onClick={() => navigate('/attendees')}>
+          <div className="menu-item-events" onClick={() => handleAttendeeClick(item.id)}>
             <FontAwesomeIcon icon={faUser} /> Attendee
           </div>
           <div className="menu-item-events" onClick={() => handleInventoryClick(item.id)}>

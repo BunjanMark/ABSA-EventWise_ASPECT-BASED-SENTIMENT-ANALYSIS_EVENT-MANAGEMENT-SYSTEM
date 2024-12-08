@@ -7,7 +7,7 @@ import image1 from './images/event1.png';
 import image2 from './images/event2.png';
 import image3 from './images/event3.png';
 import axios from 'axios';
-import { getAuthToken } from './apiconfig';
+import api from './axiosconfig';
 import API_URL from './apiconfig';
 
 const Package = () => {
@@ -52,7 +52,7 @@ const Package = () => {
       alert("Please fill in all fields and select at least one service.");
       return;
     }
-
+  
     // Prepare data
     const updatedPackageData = {
       packageName: packageName || location.state.packageDetails.packageName,
@@ -61,13 +61,9 @@ const Package = () => {
       totalPrice: totalPrice || location.state.packageDetails.totalPrice,
       coverPhoto: coverPhoto || location.state.packageDetails.coverPhoto,
     };
-
-    axios.put(`${API_URL}/api/admin/packages/${location.state.packageDetails.id}`, updatedPackageData, {
-      headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
-        'Content-Type': 'application/json',
-      },
-    })
+  
+    // Use the axios instance 'api' instead of axios directly
+    api.put(`${API_URL}/api/admin/packages/${location.state.packageDetails.id}`, updatedPackageData)
       .then((response) => {
         console.log('Package updated successfully:', response.data);
         alert('Package updated successfully!');
@@ -83,13 +79,11 @@ const Package = () => {
         );
       });
   };
+  
 
   useEffect(() => {
-    axios.get(`${API_URL}/api/services`, {
-      headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
-      },
-    })
+    // Axios will automatically include the token because of the interceptor in axiosconfig.js
+    api.get(`${API_URL}/api/services`)
       .then((response) => {
         const mappedServices = response.data.map((service) => ({
           id: service.id,
@@ -179,13 +173,9 @@ const Package = () => {
       packageCreatedDate: new Date().toISOString().split('T')[0],
     };
   
-    axios
-      .post(`${API_URL}/api/admin/packages`, packageData, {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-          'Content-Type': 'application/json',
-        },
-      })
+    // Use the axios instance 'api' instead of axios directly
+    api
+      .post(`${API_URL}/api/admin/packages`, packageData)
       .then((response) => {
         console.log('Package created successfully:', response.data);
         alert('Package created successfully!');
@@ -201,6 +191,7 @@ const Package = () => {
         }
       });
   };
+  
 
   const resetForm = () => {
     setPackageName('');
