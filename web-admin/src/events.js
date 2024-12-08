@@ -17,7 +17,30 @@ function Events() {
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState('All');
   const [showMenu, setShowMenu] = useState({});
+  const [eventData, setEventData] = useState(null);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [eventId, setEventId] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState('');
   const navigate = useNavigate();
+
+
+  const handlePaymentStatusChange = (e) => {
+    setPaymentStatus(e.target.value);
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      const response = await axios.put(`${API_URL}/api/admin/events/${eventId}/payment-status`, {
+          payment_status: paymentStatus, 
+      });
+
+      // Handle success
+      console.log('Payment status updated', response.data);
+      closeOverlay();
+  } catch (error) {
+      console.error('Error updating payment status:', error);
+  }
+  };
 
   function formatTime(timeString) {
     const [hours, minutes] = timeString.split(':');
@@ -31,13 +54,22 @@ function Events() {
     });
   }
 
+  const fetchEventPackageDetails = async (id) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/admin/events/${id}/packages`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching event package details:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/events`);
         setEvents(response.data);
-      } catch (error) { 
-        console.error('Error fetching events data:', error);
+      } catch (error) {
+        console.error("Error fetching events data:", error);
       } finally {
         setLoading(false);
       }
@@ -45,6 +77,36 @@ function Events() {
 
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    if (eventId) {
+      const fetchEventData = async () => {
+        try {
+          const eventResponse = await axios.get(`${API_URL}/api/admin/events/${eventId}`);
+          const eventDetails = eventResponse.data;
+          const packageDetails = await fetchEventPackageDetails(eventId);
+          setEventData({ ...eventDetails, packages: packageDetails });
+        } catch (error) {
+          console.error("Error fetching event or package data:", error);
+        }
+      };
+
+      fetchEventData();
+    }
+  }, [eventId]);
+  
+
+  const openEventDetails = (id) => {
+    setEventId(id); 
+    setEventData(null); 
+    setShowOverlay(true); 
+  };
+
+  const closeOverlay = () => {
+    setShowOverlay(false);
+    setEventData(null);  
+    setEventId(null); 
+  };
 
   const filterEventsByDate = (option) => {
     setSortOption(option);
@@ -87,6 +149,10 @@ const handleGuestClick = (eventId) => {
   navigate('/group-attendees', { state: { eventId } });
 };
 
+const handleAttendeeClick = (eventId) => {
+  navigate('/attendees', { state: { eventId } });
+};
+
 
   const toggleLike = (eventId) => {
     setLikedEvents((prevState) => ({
@@ -104,7 +170,7 @@ const handleGuestClick = (eventId) => {
 
   const renderEventItem = (item) => {
     // Use the cover photo URL from the item directly
-    const coverPhotoUrl = item.cover_photo; // Assuming your API response has a `cover_photo` field
+    const coverPhotoUrl = item.coverPhoto; // Assuming your API response has a `cover_photo` field
 
     return (
       <div key={item.id} className="item-container-events">
@@ -129,6 +195,18 @@ const handleGuestClick = (eventId) => {
           <IoTime className="event-icon-dashboard" />
           <p className="event-venue-dashboard">{formatTime(item.time)}</p>
         </div>
+        <div className="event-detail-dashboard-events">
+          <p className="event-venue-dashboard-events">Booked By: {item.user?.name || "Unknown User"}</p>
+        </div>
+
+        <div className="event-detail-dashboard-events">
+          <p className="event-venue-dashboard-events"> Contact Numer: {item.user?.phone_number || "Unknown User"}</p>
+        </div>
+
+        <div className="event-detail-dashboard-events">
+          <button className="view-details-button-events" onClick={() => openEventDetails(item.id)}>View Details</button>
+        </div>
+        
       </div>
       <button
         className={`heart-icon-events ${likedEvents[item.id] ? 'heart-liked-events' : ''}`}
@@ -141,7 +219,7 @@ const handleGuestClick = (eventId) => {
       </div>
       {showMenu[item.id] && (
         <div className="menu-overlay-events">
-          <div className="menu-item-events" onClick={() => navigate('/attendees')}>
+          <div className="menu-item-events" onClick={() => handleAttendeeClick(item.id)}>
             <FontAwesomeIcon icon={faUser} /> Attendee
           </div>
           <div className="menu-item-events" onClick={() => handleInventoryClick(item.id)}>
@@ -195,7 +273,70 @@ const handleGuestClick = (eventId) => {
           {filteredEvents.map(renderEventItem)}
         </div>
       </div>
+      {showOverlay && eventData && (
+          <div className="overlay-events">
+            <div className="overlay-content-events">
+              <button className="close-button-events" onClick={closeOverlay}>X</button>
+              <div className="header-events">
+                <h2>Event Details</h2>
+              </div>
+              <div className="detail-group-events">
+          <label htmlFor="paymentStatus">Payment Status:</label>
+          <select
+            id="paymentStatus"
+            value={paymentStatus}
+            onChange={handlePaymentStatusChange}
+          >
+            <option value="Downpayment">Downpayment</option>
+            <option value="Paid">Paid</option>
+          </select>
+        </div>
+
+        <div className="action-buttons">
+          <button onClick={handleSaveChanges} disabled={loading}>
+            {loading ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+
+              {/* Event Details */}
+              <div className="detail-group-events">
+                <p><strong>Event Name:</strong> {eventData.name}</p>
+                <p><strong>Date:</strong> {new Date(eventData.date).toLocaleDateString()}</p>
+                <p><strong>Location:</strong> {eventData.location}</p>
+                <p><strong>Payment Status:</strong> {eventData.payment_status}</p>
+              </div>
+
+              {/* Guests */}
+              <div className="detail-group-events">
+                <h3>Guests:</h3>
+                {eventData.guest && eventData.guest.length > 0 ? (
+                  eventData.guest.map((guest, index) => (
+                    <p key={index}>{guest.GuestName} - {guest.email}</p>
+                  ))
+                ) : (
+                  <p>No guests available.</p>
+                )}
+              </div>
+
+              {/* Packages */}
+              <div className="detail-group-events">
+                <h3>Packages:</h3>
+                {Array.isArray(eventData.packages) && eventData.packages.length > 0 ? (
+                  eventData.packages.map((pkg, index) => (
+                    <p key={index}>
+                      {pkg.packageName} - {pkg.totalPrice}
+                    </p>
+                  ))
+                ) : (
+                  <p>No packages available.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
     </div>
+
+    
   );
 }
 

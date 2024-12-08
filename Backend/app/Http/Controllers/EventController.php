@@ -24,9 +24,10 @@ class EventController extends Controller
     //Add a method to fetch all events
     public function index()
 {
-    $events = Event::withCount('guest')->get();
+    $events = Event::withCount('guest')->with('user')->get();
     return response()->json($events);
 }
+
  public function eventsForDay($date)
 {
     $events = Event::whereDate('date', $date)->get();
@@ -54,14 +55,14 @@ public function store(Request $request)
             'eventLocation' => 'required|string',
             'description' => 'required|string',
             'coverPhoto' => 'nullable|string', 
-            'totalPrice' => 'nullable|integer',
+            'totalPrice' => 'nullable|numeric|min:1',
             // 'package_id' => 'required|exists:packages,id',
             'packages' => 'nullable|array',
-            'guest' => 'required|array',
-            'guest.*.GuestName' => 'required|string|max:255',
-            'guest.*.email' => 'required|email',
+            'guest' => 'nullable|array',
+            'guest.*.GuestName' => 'nullable|string|max:255',
+            'guest.*.email' => 'nullable|email',
             'guest.*.role' => 'nullable|string|max:255',
-            'guest.*.phone' => 'required|string|max:15',
+            'guest.*.phone' => 'nullable|string|max:15',
         ]);
 
         // Attach user ID to validated data
@@ -79,6 +80,7 @@ public function store(Request $request)
             'pax' => $validatedData['eventPax'],
             'date' => $validatedData['eventDate'],
             'time' => $validatedData['eventTime'],
+            'totalPrice' => $validatedData['totalPrice'],
             'status' => $validatedData['eventStatus'],
             'location' => $validatedData['eventLocation'],
             'description' => $validatedData['description'],
@@ -152,8 +154,8 @@ public function store(Request $request)
                'GuestName' => $guestData['GuestName'],
                'email' => $guestData['email'],
                'phone' => $guestData['phone'],
-               // set role default value to 'guest' role
-             'role' => $guestData['role'] ?? 'guest',
+               'role' => $guestData['role'],
+
 
            ]);
            $guests[] = $guest;
@@ -362,6 +364,8 @@ public function updateEvent(Request $request, $eventId)
             'type' => 'required|string',
             'packages' => 'nullable|string', // Ensure this matches your frontend input
             'coverPhoto' => 'nullable|string', // Optional, can be null
+            'payment_status' => 'required|in:Downpayment,Paid',  
+
         ]);
 
         // Update the event with the validated data
@@ -688,5 +692,24 @@ public function getServiceProviederName($eventId, $userId)
 
     return response()->json($events);
 }
+
+public function updatePaymentStatus(Request $request, $id)
+{
+    $request->validate([
+        'payment_status' => 'required|in:Downpayment,Paid',  
+    ]);
+    $event = Event::find($id);
+
+    if (!$event) {
+        return response()->json(['message' => 'Event not found'], 404);
+    }
+    $event->payment_status = $request->input('payment_status');
+    $event->save();
+    return response()->json([
+        'message' => 'Payment status updated successfully',
+        'payment_status' => $event->payment_status
+    ], 200);
+}
+
     
 }

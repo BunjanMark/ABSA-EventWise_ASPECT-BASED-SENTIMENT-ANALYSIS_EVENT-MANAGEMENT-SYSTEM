@@ -1039,7 +1039,9 @@ button:hover {
 
 
 
-/* EVENTS */
+/* EVENTS PAGE */
+
+
 
 
 .gradient-container-events {
@@ -1322,6 +1324,78 @@ button:hover {
 .menu-item-events svg {
   margin-right: 8px; /* Space between icon and text */
 }
+
+.overlay-events {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.overlay-content-events {
+  background: white;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.close-button-events {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.header-events {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.detail-group-events {
+  margin-bottom: 15px;
+}
+
+.detail-group-events p {
+  margin: 5px 0;
+}
+
+.payment-status-group {
+  margin-top: 20px;
+}
+
+#payment-status {
+  padding: 8px;
+  width: 200px;
+}
+
+.save-button-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.save-button {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #45a049;
+}
+
 
 
 
@@ -2048,320 +2122,58 @@ button:hover {
 /* ATTENDEE */
 
 
-.main-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  padding: 20px;
-  background: white; /* Set background to white */
-}
-.back-button-attendee {
-  align-self: flex-start;
-  background: transparent;
+.status-button {
+  padding: 8px 12px;
+  margin: 0 5px;
   border: none;
   cursor: pointer;
+  border-radius: 4px;
 }
 
-.header-wrapper {
-  display: flex;
-  flex-direction: column;
+.present-button {
+  background-color: #4CAF50; /* Green for Present */
+  color: white;
+}
+
+.absent-button {
+  background-color: #f44336; /* Red for Absent */
+  color: white;
+}
+
+.search-container {
   margin-bottom: 20px;
 }
 
-.header-title {
-  color: black; /* Set text to black */
-  font-size: 36px;
-  font-weight: bold;
-  text-align: center;
+.search-input {
+  padding: 8px;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-.title-highlight {
-  color: #eeba2b; /* Retain highlight color */
-}
-
-.title-divider {
-  border: 0;
-  background: linear-gradient(to right, transparent,black, transparent); /* Stronger black fading */
-  height: 1px;
-  margin: 10px 0;
-}
-
-.event-chart-wrapper {
-  display: flex;
-  align-items: flex-start;
+.status-count-container {
   margin-bottom: 20px;
 }
 
-.event-info-wrapper {
-  display: flex;
-  align-items: flex-start;
-  flex: 1;
-  /* box-shadow: 0 0 0.3rem rgba(0, 0, 0, 0.3); Add box-shadow */
-}
-
-.event-img {
-  width: 250px;
-  height: 180px;
-  border-radius: 10px;
-  object-fit: cover;
-  margin-left: 1rem;
-  margin-top: 10px;
-}
-
-.event-info {
-  flex: 1;
-  margin-left: 20px;
+.status-count-button {
   padding: 10px;
-  background: white; /* Set container background to white */
-  border-radius: 5px;
-  box-shadow: 0 0 0.3rem rgba(0, 0, 0, 0.3); /* Add box-shadow */
-}
-
-.event-name {
-  color: black; /* Set text to black */
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.event-detail {
-  color: black; /* Set text to black */
-  margin: 5px 0;
-}
-
-.chart-wrapper {
-  flex: 1;
-  max-width: 300px;
-  height: 150px;
-  margin-left: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: transparent; /* Keep transparent background */
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 0 0.3rem rgba(0, 0, 0, 0.3); /* Add box-shadow */
-}
-
-.chart-legend {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 10px;
-  color: black; /* Set text to black */
-}
-
-.legend-item {
-  margin: 0 10px;
-}
-
-.filter-wrapper {
-  display: flex;
-  justify-content: space-around;
-  margin: 10px 0;
-  padding: 10px;
-  background: white;
-  border-radius: 5px;
-  box-shadow: 0 0 0.3rem rgba(0, 0, 0, 0.3); /* Add box-shadow */
-}
-
-.filter-btn {
-  padding: 10px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  border: 1px solid #eeba2b;
-  color: black; /* Set text to black */
-  cursor: pointer;
-}
-
-.filter-active {
-  background-color: #eeba2b; /* Retain active filter color */
-}
-
-.attendees-table-wrapper {
-  background-color: transparent;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 0 0.3rem rgba(0, 0, 0, 0.3); /* Add box-shadow */
-}
-
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.header-cell {
-  color: black; /* Set text to black */
-  flex: 1;
-  text-align: center;
-}
-
-.table-row {
-  display: flex;
-  align-items: center; /* Center items vertically */
-  justify-content: space-between;
-  padding: 10px;
-  border-bottom: 1px solid #777;
-}
-
-.table-cell {
-  color: black; /* Set text to black */
-  flex: 1;
-  text-align: center;
-}
-
-.status-dots {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.status-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%; /* Circle shape */
-  border: 2px solid black; /* Set border to black */
-  cursor: pointer;
-  margin: 0 5px; /* Space between dots */
-  opacity: 0.5; /* Default opacity for unselected dots */
-}
-
-.status-dot.active {
-  opacity: 1; /* Full opacity for the selected dot */
-}
-
-.add-attendee-btn {
-  padding: 10px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  border: 1px solid #eeba2b;
-  color: black; /* Set text to black */
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
-.add-attendee-btn svg {
-  margin-right: 8px;
-}
-
-/* Overlay Styles */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.overlay-content {
-  background: white; /* Set background to white */
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #eeba2b;
-  box-shadow: 0 0 0.3rem rgba(0, 0, 0, 0.3); /* Add box-shadow */
-}
-
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  color: black; /* Set text to black */
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.overlay-content input {
-  display: block;
-  width: calc(100% - 20px);
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
-
-}
-
-.insert-btn {
-  padding: 10px;
-  background-color: #eeba2b;
-  border-radius: 5px;
-  border: none;
-  color: black; /* Set text to black */
-  cursor: pointer;
-  width: 40%;
-  margin-top: 10px; /* Space between input and button */
-  font-weight: bold;
-}
-
-.status-selection {
+  margin-right: 10px;
+  border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
 }
 
-/* Style for the remove button */
-.remove-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #ff0000;
+.present-button {
+  background-color: green;
+  color: white;
 }
 
-.remove-btn:hover {
-  color: #cc0000;
+.absent-button {
+  background-color: red;
+  color: white;
 }
 
-/* Style for the confirmation popup */
-.remove-popup-attendee {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
-.popup-content-attendee {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  text-align: center;
-  box-shadow: 0 0 0.3rem rgba(0, 0, 0, 0.3); /* Add box-shadow */
-}
-
-.popup-content-attendee h2 {
-  margin-top: 0;
-  color: black; /* Set text to black */
-}
-
-.popup-content-attendee button {
-  padding: 10px;
-  margin-right: 1rem;
-  margin-left: 1rem;
-  background-color: #eeba2b;
-  border-radius: 5px;
-  border: none;
-  color: black; /* Set text to black */
-  cursor: pointer;
-  width: 30%;
-  margin-top: 10px;
-}
 
 .pagination-controls {
   display: flex;
@@ -6177,3 +5989,8 @@ background-color: #eeba2b;
   cursor: pointer; /* Pointer cursor on hover */
   transition: color 0.3s; /* Smooth color transition */
 }
+
+
+
+
+

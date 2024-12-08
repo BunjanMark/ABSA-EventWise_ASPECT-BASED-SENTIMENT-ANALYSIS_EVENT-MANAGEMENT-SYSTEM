@@ -1,10 +1,7 @@
 export const getAuthToken = () => {
-  return (
-    localStorage.getItem("token") ||
-    "13|YBTTboW6CcEroa3A3WUoDuDGWNBMyeEMSDLplst5a5e1c165"
-  );
+    return localStorage.getItem('token') || '1|6lgZbsMvLnifhl0qbUtySPfYksdsxjxIwfRSW50d0b1ace85';
 };
 
-const API_URL = "http://192.168.1.45:8000";
+const API_URL = "http://192.168.100.8:8000";
 
 export default API_URL;

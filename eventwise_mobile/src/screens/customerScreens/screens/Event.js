@@ -129,6 +129,12 @@ const Event = () => {
                       </Text>
                     </View>
                     <View style={styles.eventDetails}>
+                      <Icon name="list-status" size={16} color="#007BFF" />
+                      <Text style={styles.eventDate}>
+                        {event.payment_status || "No Payment Status"}
+                      </Text>
+                    </View>
+                    <View style={styles.eventDetails}>
                       <Icon name="map-marker" size={16} color="#007BFF" />
                       <TouchableOpacity
                         onPress={() => handleLocationPress(event)}

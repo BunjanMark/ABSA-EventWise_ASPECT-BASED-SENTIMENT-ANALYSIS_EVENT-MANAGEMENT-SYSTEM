@@ -46,37 +46,37 @@ public function update(Request $request, $id)
             ], 404);
         }
 
+        // Validate the incoming data
         $validatedData = $request->validate([
             'packageName' => 'nullable|string|max:255',
             'eventType' => 'nullable|string',
-            'services' => 'nullable|array',
+            'services' => 'nullable|array', // Validate services as an array
             'services.*' => 'integer', // Ensure each service is an integer
             'totalPrice' => 'nullable|numeric|min:1',
             'coverPhoto' => 'nullable|url',
         ]);
 
+        // Update the main `packages` table fields
         $package->update([
             'packageName' => $validatedData['packageName'] ?? $package->packageName,
             'eventType' => $validatedData['eventType'] ?? $package->eventType,
             'totalPrice' => $validatedData['totalPrice'] ?? $package->totalPrice,
             'coverPhoto' => $validatedData['coverPhoto'] ?? $package->coverPhoto,
+            'services' => $validatedData['services'] ?? $package->services, // Update the services column as an array
         ]);
 
+        // Sync the `package_services` pivot table
         if (isset($validatedData['services'])) {
-            DB::table('package_services')->where('package_id', $package->id)->delete();
-            foreach ($validatedData['services'] as $serviceId) {
-                DB::table('package_services')->insert([
-                    'package_id' => $package->id,
-                    'service_id' => $serviceId,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
+            $package->services()->sync($validatedData['services']); // Automatically handles updates
         }
 
         DB::commit();
 
-        return response()->json($package, 200);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Package updated successfully.',
+            'package' => $package->load('services'), // Load related services for the response
+        ], 200);
     } catch (\Illuminate\Validation\ValidationException $e) {
         DB::rollBack();
         return response()->json([
@@ -92,6 +92,7 @@ public function update(Request $request, $id)
         ], 500);
     }
 }
+
 
 
     // Method to store a new package
