@@ -42,7 +42,11 @@ Route::prefix('auth')->group(function () {
     Route::post('switch-account', [AuthenticatedSessionController::class, 'switchAccount'])->middleware(['auth:sanctum']);
     Route::post('/createProfileServiceProvider', [AuthenticatedSessionController::class, 'createServiceProvider'])->middleware(['auth:sanctum']);
     Route::post('/createProfileCustomer', [AuthenticatedSessionController::class, 'createCustomer'])->middleware(['auth:sanctum']);
+    Route::post('password-recovery', [AuthenticatedSessionController::class, 'sendRecoveryEmail']);
+    Route::post('/password/recovery', [AuthenticatedSessionController::class, 'recoverPassword']);
+
 });
+
 // for email verification
 // Route::post('/verify-email', [AuthenticatedSessionController::class, 'sendVerificationEmail']);
 // Route::post('/verify-email-code', [AuthenticatedSessionController::class, 'verifyCode']);

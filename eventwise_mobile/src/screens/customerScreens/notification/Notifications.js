@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { formatDistanceToNow } from "date-fns";
 import * as Notifications from "expo-notifications"; // Import Expo Notifications
+import Header from "../elements/Header";
+
 
 import {
   fetchNotifications,
@@ -126,18 +128,12 @@ export default NotificationsComponent = () => {
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {
-          display: "flex",
-          flex: 1,
-          flexDirection: "column",
-          paddingBottom: 300,
-        },
-      ]}
-    >
-      <Button title="Clear All" onPress={clearAllNotifications} />
+    <>
+    <Header />
+    <TouchableOpacity style={styles.clearButton} onPress={clearAllNotifications}>
+        <Text style={styles.clearButtonText}>Clear All</Text>
+      </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
       <FlatList
         style={styles.root}
         data={visibleNotifications}
@@ -152,7 +148,7 @@ export default NotificationsComponent = () => {
           return (
             <TouchableOpacity
               style={[
-                styles.container,
+                styles.notificationContainer,
                 { backgroundColor: item.read ? "white" : "#F0F8FF" },
               ]}
               onPress={() => markAsRead(item.id)}
@@ -163,8 +159,6 @@ export default NotificationsComponent = () => {
                   <View style={styles.text}>
                     <Text style={styles.name}>{item.title}</Text>
                     <Text>{item.body}</Text>
-                    {/* <Text>{item.data}</Text> */}
-                    {/* <Text> {JSON.stringify(item, null, 2)}</Text> */}
                   </View>
                   <Text style={styles.timeAgo}>{timeAgo}</Text>
                 </View>
@@ -183,26 +177,51 @@ export default NotificationsComponent = () => {
         }
         ListFooterComponent={() =>
           notifications.length > visibleNotifications.length ? (
-            <Button title="Load More" onPress={loadMoreNotifications} />
+            <TouchableOpacity style={styles.loadMoreButton} onPress={loadMoreNotifications}>
+              <Text style={styles.loadMoreText}>Load More</Text>
+            </TouchableOpacity>
           ) : null
         }
       />
     </SafeAreaView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingBottom: 10,
+    marginTop: 40,
+    width: "95%",
+    margin: 10,
+  },
+  clearButton: {
+    position: "absolute",
+    right: 15,
+    top: 100,
+    zIndex: 1,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  clearButtonText: {
+    color: "#2196F3",
+    fontWeight: "bold",
+    fontSize: 16,
+    textDecorationLine: "underline", // Add underline
+  },
   root: {
     flex: 1,
+    backgroundColor: "white",
   },
-  container: {
+  notificationContainer: {
     flexDirection: "row",
     padding: 15,
   },
   avatar: {
     width: 50,
     height: 50,
-    borderRadius: 50 / 2,
+    borderRadius: 25,
     marginRight: 10,
   },
   content: {

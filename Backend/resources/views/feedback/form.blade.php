@@ -1,118 +1,119 @@
-@extends('layouts.app') 
+@extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container" style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); display: flex; justify-content: center; align-items: center; flex-direction: column;">
     <div id="services">
         <!-- The services will be dynamically loaded here -->
     </div>
-    <h1>Feedback for Event: {{ $event->name ?? 'Unknown Event' }}</h1>
+    <h1 class="text-center" style="color: #DAA520; font-family: 'Arial', sans-serif; margin-bottom: 20px;">Feedback for Event: {{ $event->name ?? 'Unknown Event' }}</h1>
 
-    <form id="feedbackForm">
+
+    <form id="feedbackForm" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center;">
         @csrf
         <input type="hidden" name="event_id" value="{{ $eventId }}">
         <input type="hidden" name="customer_id" value="">
         <input type="hidden" name="customer_name" value="">
-    
+
         <!-- Feedback for dynamically included categories -->
         @if (in_array('Catering', $services))
-            <div class="form-group">
-                <label for="catering_feedback">Catering Feedback</label>
-                <textarea name="catering_feedback" id="catering_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="catering_feedback" style="color: #DAA520; margin-bottom: 8px;">Catering Feedback</label>
+                <textarea name="catering_feedback" id="catering_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Food Catering', $services))
-            <div class="form-group">
-                <label for="food_catering_feedback">Food Catering Feedback</label>
-                <textarea name="food_catering_feedback" id="food_catering_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="food_catering_feedback" style="color: #DAA520; margin-bottom: 8px;">Food Catering Feedback</label>
+                <textarea name="food_catering_feedback" id="food_catering_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
     
         @if (in_array('Decoration', $services))
-            <div class="form-group">
-                <label for="decoration_feedback">Decoration Feedback</label>
-                <textarea name="decoration_feedback" id="decoration_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="decoration_feedback" style="color: #DAA520; margin-bottom: 8px;">Decoration Feedback</label>
+                <textarea name="decoration_feedback" id="decoration_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
     
         @if (in_array('Photography', $services))
-            <div class="form-group">
-                <label for="photography_feedback">Photography Feedback</label>
-                <textarea name="photography_feedback" id="photography_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="photography_feedback" style="color: #DAA520; margin-bottom: 8px;">Photography Feedback</label>
+                <textarea name="photography_feedback" id="photography_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
     
         @if (in_array('Videography', $services))
-            <div class="form-group">
-                <label for="videography_feedback">Videography Feedback</label>
-                <textarea name="videography_feedback" id="videography_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="videography_feedback" style="color: #DAA520; margin-bottom: 8px;">Videography Feedback</label>
+                <textarea name="videography_feedback" id="videography_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Host', $services))
-            <div class="form-group">
-                <label for="host_feedback">Videography Feedback</label>
-                <textarea name="host_feedback" id="host_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="host_feedback" style="color: #DAA520; margin-bottom: 8px;">Host Feedback</label>
+                <textarea name="host_feedback" id="host_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Entertainment', $services))
-            <div class="form-group">
-                <label for="entertainment_feedback">Videography Feedback</label>
-                <textarea name="entertainment_feedback" id="entertainment_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="entertainment_feedback" style="color: #DAA520; margin-bottom: 8px;">Entertainment Feedback</label>
+                <textarea name="entertainment_feedback" id="entertainment_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Sound', $services))
-            <div class="form-group">
-                <label for="sound_feedback">Videography Feedback</label>
-                <textarea name="sound_feedback" id="sound_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="sound_feedback" style="color: #DAA520; margin-bottom: 8px;">Sound Feedback</label>
+                <textarea name="sound_feedback" id="sound_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Marketing', $services))
-            <div class="form-group">
-                <label for="marketing_feedback">Videography Feedback</label>
-                <textarea name="marketing_feedback" id="marketing_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="marketing_feedback" style="color: #DAA520; margin-bottom: 8px;">Marketing Feedback</label>
+                <textarea name="marketing_feedback" id="marketing_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Trasportation', $services))
-            <div class="form-group">
-                <label for="transportation_feedback">Videography Feedback</label>
-                <textarea name="transportation_feedback" id="transportation_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="transportation_feedback" style="color: #DAA520; margin-bottom: 8px;">Transportation Feedback</label>
+                <textarea name="transportation_feedback" id="transportation_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Accomodation', $services))
-            <div class="form-group">
-                <label for="accommodation_feedback">Videography Feedback</label>
-                <textarea name="accommodation_feedback" id="accommodation_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="accommodation_feedback" style="color: #DAA520; margin-bottom: 8px;">Accommodation Feedback</label>
+                <textarea name="accommodation_feedback" id="accommodation_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Venue', $services))
-            <div class="form-group">
-                <label for="venue_feedback">Videography Feedback</label>
-                <textarea name="venue_feedback" id="venue_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="venue_feedback" style="color: #DAA520; margin-bottom: 8px;">Venue Feedback</label>
+                <textarea name="venue_feedback" id="venue_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Lighting', $services))
-            <div class="form-group">
-                <label for="lighting_feedback">Videography Feedback</label>
-                <textarea name="lighting_feedback" id="lighting_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="lighting_feedback" style="color: #DAA520; margin-bottom: 8px;">Lighting Feedback</label>
+                <textarea name="lighting_feedback" id="lighting_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Venue Management', $services))
-            <div class="form-group">
-                <label for="venue_management_feedback">Videography Feedback</label>
-                <textarea name="venue_management_feedback" id="venue_management_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="venue_management_feedback" style="color: #DAA520; margin-bottom: 8px;">Venue Management Feedback</label>
+                <textarea name="venue_management_feedback" id="venue_management_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
         @if (in_array('Other', $services))
-            <div class="form-group">
-                <label for="other_feedback">Videography Feedback</label>
-                <textarea name="other_feedback" id="other_feedback" class="form-control" rows="3"></textarea>
+            <div class="form-group" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                <label for="other_feedback" style="color: #DAA520; margin-bottom: 8px;">Other Feedback</label>
+                <textarea name="other_feedback" id="other_feedback" class="form-control" rows="3" style="border-color: #DAA520;"></textarea>
             </div>
         @endif
-    
-        <button type="button" id="submitFeedback" class="btn btn-primary">Submit Feedback</button>
-    </form>
-    
-</div>
 
+        <div class="text-center">
+            <button type="button" id="submitFeedback" class="btn" style="background-color: #DAA520; color: white; padding: 10px 20px; border-radius: 5px; font-size: 16px; border: none;">Submit Feedback</button>
+        </div>
+    </form>
+</div>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -154,7 +155,8 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log("Feedback Data:", feedbackData);
 
         // Submit the feedback data to the server #TODO should be dynamic
-        fetch("https://1e1f-49-149-106-143.ngrok-free.app/submit_feedback", {
+        // port 5000
+        fetch("https://18d6-49-149-106-143.ngrok-free.app/submit_feedback", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

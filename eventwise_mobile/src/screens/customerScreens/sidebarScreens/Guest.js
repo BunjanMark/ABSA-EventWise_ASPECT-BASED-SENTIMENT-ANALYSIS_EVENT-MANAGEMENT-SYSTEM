@@ -238,6 +238,7 @@ const GuestList = () => {
                   <Text style={styles.guestInfo}>Email: {item.email}</Text>
                   <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
                   <Text style={styles.guestInfo}>Role: {item.role}</Text>
+                  <Text style={styles.guestInfo}>Status: {item.status}</Text>
                 </View>
               </View>
             )}
