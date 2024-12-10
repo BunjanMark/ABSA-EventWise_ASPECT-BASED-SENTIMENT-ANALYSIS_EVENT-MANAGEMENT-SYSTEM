@@ -99,8 +99,8 @@ Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEv
 Route::get('/admin/events/{eventId}/user/{userId}', [EventController::class, 'getServiceProviderInfoByUserId']);
 Route::get('/admin/events/{id}/user', [EventController::class, 'getUserBookingEvents'])->middleware('auth');
 Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateEventStatus']);
-
-
+Route::put('/admin/events/{id}/payment-status', [EventController::class, 'updatePaymentStatus']);
+Route::get('/events/{eventId}/services', [EventController::class, 'getEventServices']);
 
 // Route::get('/admin/events', [EventController::class, 'getEvents']);
 
@@ -222,3 +222,17 @@ Route::get('/test-email', function () {
  
 use App\Http\Controllers\EventReminderController;
 Route::get('event/{eventId}/reminder', [EventReminderController::class, 'sendEventReminder']);
+
+
+use App\Http\Controllers\PasswordResetController;
+
+Route::post('/account-recovery', [PasswordResetController::class, 'sendResetCode']);
+Route::post('/verify-password-reset-code', [PasswordResetController::class, 'verifyResetCode']);
+Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
+
+
+
+Route::get('/equipment/{eventId}', [EquipmentController::class, 'index']);
+Route::post('/equipment', [EquipmentController::class, 'store']);
+Route::put('/equipment/{id}', [EquipmentController::class, 'update']);
+Route::delete('/equipment/{id}', [EquipmentController::class, 'destroy']);

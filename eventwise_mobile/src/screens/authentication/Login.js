@@ -129,8 +129,6 @@ const Login = ({ navigation }) => {
       //     ? setUser(userProfiles[0].service_provider_name)
       //     : setUser(userProfiles[1].service_provider_name)
       // );
-
-      // #TODO for user customer feedback
       if (userProfiles.length > 0) {
         // Set the active profile and navigate based on role
         const activeProfile = userProfiles[0]; // Assuming the first profile is the active one
@@ -200,8 +198,8 @@ const Login = ({ navigation }) => {
               <TextInput
                 style={styles.inputStyle}
                 mode="contained-tonal"
-                label="Username"
-                placeholder="Enter your username"
+                label="Email"
+                placeholder="Enter your email"
                 inputMode="username"
                 value={username}
                 error={isError}
@@ -239,7 +237,7 @@ const Login = ({ navigation }) => {
                       <CustomIcon
                         name={!HideEntry ? "eye" : "eye-off"}
                         size={24}
-                        color="white"
+                        color="black"
                       />
                     )}
                   />

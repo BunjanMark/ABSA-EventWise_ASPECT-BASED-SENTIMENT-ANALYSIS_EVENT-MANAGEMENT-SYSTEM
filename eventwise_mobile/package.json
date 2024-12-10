@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build": "vite build"
   },
   "dependencies": {
     "@ilz5753/react-native-time-line": "^0.1.5",
@@ -91,7 +92,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
-    "react-native-dotenv": "^3.4.11"
+    "react-native-dotenv": "^3.4.11",
+    "vite": "^6.0.2"
   },
   "private": true
 }

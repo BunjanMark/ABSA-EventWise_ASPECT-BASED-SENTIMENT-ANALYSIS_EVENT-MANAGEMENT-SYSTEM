@@ -92,10 +92,10 @@ const EventsSP = ({ navigation }) => {
         <Animated.View style={styles.overlay}>
           <TouchableOpacity
             style={styles.overlayItem}
-            onPress={() => navigation.navigate('InventorySP', { eventId: item.id })}
+            onPress={() => navigation.navigate('EquipmentInventory', { eventId: item.id })}
           >
             <MaterialCommunityIcons name="checkbox-marked-outline" size={20} color="#fff" />
-            <Text style={styles.overlayText}>Inventory</Text>
+            <Text style={styles.overlayText}>Equipment Inventory</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.overlayItem}
