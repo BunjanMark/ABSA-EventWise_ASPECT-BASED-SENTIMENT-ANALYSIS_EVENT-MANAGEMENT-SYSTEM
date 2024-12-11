@@ -59,6 +59,8 @@ const BookingProcess = ({ navigation }) => {
   const [focusedInput, setFocusedInput] = useState(null);
   const [filteredPackages, setFilteredPackages] = useState([]); // For filtered packages
   const [selectedEventType, setSelectedEventType] = useState(null); // For RNPickerSelect
+  const [pax, setPax] = useState('');
+
 
   
   // Validation schema
@@ -124,6 +126,12 @@ const BookingProcess = ({ navigation }) => {
     loadServices();
   }, [setServices]);
 
+  useEffect(() => {
+    const filtered = currentPackages.filter(pkg => {
+      return pkg.pax >= pax;  // Filter packages based on the pax entered
+    });
+    setFilteredPackages(filtered);
+  }, [pax, currentPackages]);
 
 
   // CREATE EVENT FUNCTION
@@ -162,6 +170,7 @@ const BookingProcess = ({ navigation }) => {
         eventType: selectedPkg.eventType,
         services: formattedServices.map((service) => service.id),
         totalPrice: selectedPkg.totalPrice,
+        pax: selectedPkg.pax,
         packagePhotoURl: coverPhotoURL || "",
       };
   
@@ -421,29 +430,6 @@ const BookingProcess = ({ navigation }) => {
                     <Text style={styles.errorText}>{errors.eventType}</Text>
                   )}
 
-
-                    <TextInput
-                      style={[
-                        styles.input,
-                        focusedInput === "eventPax" && {
-                          borderColor: "#EEBA2B",
-                          borderWidth: 2,
-                        },
-                      ]}
-                      placeholder="Event Pax"
-                      keyboardType="numeric"
-                      onChangeText={handleChange("eventPax")}
-                      onBlur={() => {
-                        handleBlur("eventPax");
-                        setFocusedInput(null);
-                      }}
-                      onFocus={() => setFocusedInput("eventPax")}
-                      value={values.eventPax}
-                    />
-                    {touched.eventPax && errors.eventPax && (
-                      <Text style={styles.errorText}>{errors.eventPax}</Text>
-                    )}
-
                     <TouchableOpacity onPress={() => setShowCalendar(true)}>
                       <Text style={styles.datePicker}>
                         {selectedDate
@@ -602,6 +588,32 @@ const BookingProcess = ({ navigation }) => {
 
         <Text style={styles.titlePackage}>Available Packages</Text>
 
+          <TextInput
+            style={[
+              styles.input,
+              focusedInput === "eventPax" && {
+                borderColor: "#EEBA2B",
+                borderWidth: 2,
+              },
+            ]}
+            placeholder="Event Pax"
+            keyboardType="numeric"
+            onChangeText={(text) => {
+              handleChange("eventPax")(text); // Call handleChange with the text
+              setPax(text); // Update pax state
+            }}
+            onBlur={() => {
+              handleBlur("eventPax");
+              setFocusedInput(null);
+            }}
+            onFocus={() => setFocusedInput("eventPax")}
+            value={values.eventPax} // Use the correct value from `values`
+          />
+          {touched.eventPax && errors.eventPax && (
+            <Text style={styles.errorText}>{errors.eventPax}</Text>
+          )}
+
+
         {filteredPackages && filteredPackages.length > 0 ? (
           <ScrollView>
             {filteredPackages.map((pkg, index) => (
@@ -624,6 +636,9 @@ const BookingProcess = ({ navigation }) => {
                 </Text>
                 <Text style={styles.packagePrice}>
                   Price: ₱{pkg.totalPrice}
+                </Text>
+                <Text style={styles.packagePrice}>
+                  Pax: {pkg.pax}
                 </Text>
               </TouchableOpacity>
             ))}

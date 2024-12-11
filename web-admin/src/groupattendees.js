@@ -21,16 +21,19 @@ const GroupAttendees = () => {
       console.error('No eventId found');
       return;
     }
-
+  
     const fetchGuests = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/guest/${eventId}`);
-        setGuests(response.data);
+        const filteredGuests = response.data.filter(guest => 
+          guest.GuestName && guest.email && guest.phone
+        );
+        setGuests(filteredGuests);
       } catch (error) {
         console.error('Error fetching guests:', error);
       }
     };
-
+  
     fetchGuests();
   }, [eventId]);
 
@@ -101,7 +104,11 @@ const GroupAttendees = () => {
 
   const renderItem = (item, index) => {
     const displayNumber = (currentPage - 1) * guestsPerPage + index + 1;
-
+  
+    if (!item.GuestName || !item.email || !item.phone) {
+      return null; 
+    }
+  
     return (
       <tr key={item.id} onClick={() => { setSelectedGuest(item);}} className="row-groupattendee">
         <td className="cell-groupattendee cellNo-groupattendee">{displayNumber}</td>
@@ -116,7 +123,7 @@ const GroupAttendees = () => {
       </tr>
     );
   };
-
+  
   return (
     <div className="container-groupattendee">
       <h1 className="headerText-groupattendee">Group Attendees</h1>

@@ -53,13 +53,14 @@ const EventDetails = () => {
 
         {/* Event Details */}
         <View style={styles.coverPhotoContainer}>
-          <Text style={styles.label}>Cover Photo:</Text>
           {eventData.coverPhoto ? (
             <Image
-              source={{ uri: eventData.coverPhoto }}
-              style={styles.coverPhoto}
-              onError={(e) => console.error("Image Load Error:", e.nativeEvent.error)} // Debug loading error
-            />
+             source={{
+    uri: eventData?.coverPhoto || "defaultImageURL",
+  }}
+  style={styles.eventImage}
+  resizeMode="cover"
+/>
           ) : (
             <Text style={styles.value}>No cover photo selected</Text>
           )}
@@ -210,6 +211,14 @@ const styles = StyleSheet.create({
   packageText: {
     fontSize: 15,
     color: "#555",
+  },
+  eventImage: {
+    width: "100%",
+    height: 220,
+    borderRadius: 15,
+    marginBottom: 10,
+    borderColor: "#eeba2b",
+    borderWidth: 2,
   },
 });
 

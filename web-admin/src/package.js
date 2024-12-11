@@ -15,6 +15,7 @@ const Package = () => {
 
   const [packageName, setPackageName] = useState('');
   const [eventType, setEventType] = useState('');
+  const [pax, setPax] = useState('');
   const [totalPrice, setTotalPrice] = useState();
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [services, setServices] = useState([]);
@@ -31,11 +32,23 @@ const Package = () => {
   const location = useLocation();
 
   useEffect(() => {
+    if (pax) {
+      // Filter services where the pax value is greater than the value entered in the pax input
+      const filtered = availableServices.filter(service => service.pax > pax);
+      setFilteredServices(filtered);
+    } else {
+      // If pax is not set, show all available services
+      setFilteredServices(availableServices);
+    }
+  }, [pax, availableServices]);
+
+  useEffect(() => {
     if (location.state && location.state.packageDetails) {
       const { packageDetails } = location.state;
       setPackageName(packageDetails.packageName || '');
       setEventType(packageDetails.eventType || '');
       setTotalPrice(packageDetails.totalPrice);
+      setPax(packageDetails.pax || '');
       setCoverPhoto(packageDetails.coverPhoto || null);
       setServices(packageDetails.services || []);
     }
@@ -61,6 +74,7 @@ const Package = () => {
       eventType: eventType || location.state.packageDetails.eventType,
       services: services.map((service) => service.id), // Ensure this is an array of IDs
       totalPrice: totalPrice || location.state.packageDetails.totalPrice,
+      pax: pax || location.state.packageDetails.pax,
       coverPhoto: coverPhoto || location.state.packageDetails.coverPhoto,
     };
   
@@ -92,6 +106,7 @@ const Package = () => {
       serviceName: service.serviceName,
       basePrice: parseFloat(service.basePrice), // Ensure basePrice is a number
       serviceCategory: service.serviceCategory,
+      pax: service.pax,
       image: images[Math.floor(Math.random() * images.length)],
     }));
     setAvailableServices(mappedServices);
@@ -133,6 +148,7 @@ const Package = () => {
           serviceName: selectedService.serviceName,
           serviceCategory: selectedService.serviceCategory,
           basePrice: selectedService.basePrice,
+          pax: selectedService.pax,
         }];
   
         // Update totalPrice directly by adding the basePrice of the new service
@@ -177,6 +193,7 @@ const Package = () => {
       packageType: true, // Default value for packageType
       services: serviceIds, // Send only IDs
       totalPrice,
+      pax,
       coverPhoto,
       packageCreatedDate: new Date().toISOString().split('T')[0],
     };
@@ -271,13 +288,21 @@ const Package = () => {
           value={eventType}
           onChange={(e) => setEventType(e.target.value)}
         />
-
+        <label className="label-portfolio">Total Price</label>
           <input
             type="number"
             className="text-input-portfolio"
             placeholder="Total Price"
             value={totalPrice}
             onChange={(e) => setTotalPrice(e.target.value)}
+          />
+           <label className="label-portfolio">Pax</label>
+          <input
+            type="number"
+            className="text-input-portfolio"
+            placeholder="Pax"
+            value={pax}
+            onChange={(e) => setPax(e.target.value)}
           />
 
 
@@ -291,6 +316,7 @@ const Package = () => {
               <input type="text" placeholder="Service Name" value={service.serviceName} readOnly className="service-input-portfolio" />
               <input type="text" placeholder="Service Category" value={service.serviceCategory} readOnly className="service-input-portfolio" />
               <input type="text" placeholder="Service Price" value={service.basePrice} readOnly className="service-input-portfolio" />
+              <input type="text" placeholder="Service Pax" value={service.pax} readOnly className="service-input-portfolio" />
               <button
                 className="delete-service-button-portfolio"
                 onClick={() => handleRemoveService(service.id)}
@@ -342,6 +368,7 @@ const Package = () => {
                       <h4>{service.serviceName}</h4>
                       <p>{service.serviceCategory}</p>
                       <p>{service.basePrice}</p>
+                      <p>{service.pax}</p>
                     </div>
                     <button className="select-service-overlay" onClick={() => handleServiceSelect(service)}>
                       Select Service
@@ -360,6 +387,7 @@ const Package = () => {
               <h3>Confirm Service: {selectedService.serviceName}</h3>
               <p>Category: {selectedService.serviceCategory}</p>
               <p>Base Price:{selectedService.basePrice}</p>
+              <p>Pax:{selectedService.pax}</p>
               <div className="confirm-button-container">
                 <button className="confirm-button" onClick={handleConfirmService}>
                   Confirm

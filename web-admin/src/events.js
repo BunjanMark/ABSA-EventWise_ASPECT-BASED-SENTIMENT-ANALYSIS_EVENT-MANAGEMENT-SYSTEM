@@ -169,8 +169,7 @@ const handleAttendeeClick = (eventId) => {
   };
 
   const renderEventItem = (item) => {
-    // Use the cover photo URL from the item directly
-    const coverPhotoUrl = item.coverPhoto; // Assuming your API response has a `cover_photo` field
+    const coverPhotoUrl = item.coverPhoto; 
 
     return (
       <div key={item.id} className="item-container-events">

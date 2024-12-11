@@ -276,6 +276,8 @@ const styles = StyleSheet.create({
     height: 220,
     borderRadius: 15,
     marginBottom: 10,
+    borderColor: "#eeba2b",
+    borderWidth: 2,
   },
   eventDetailsContainer: {
     marginLeft: 0,

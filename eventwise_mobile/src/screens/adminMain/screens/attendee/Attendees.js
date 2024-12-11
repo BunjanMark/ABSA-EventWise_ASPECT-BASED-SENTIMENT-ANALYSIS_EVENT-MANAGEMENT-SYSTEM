@@ -125,6 +125,15 @@ const Attendees = () => {
     }
   };
 
+  const filteredGuestsForCount = safeGuests.filter(
+    (guest) =>
+      guest.GuestName && // Exclude if GuestName is null
+      guest.email && // Exclude if email is null
+      guest.phone && // Exclude if phone is null
+      guest.role !== "Service Provider" // Exclude Service Provider
+  );
+  
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -169,30 +178,31 @@ const Attendees = () => {
       </View>
 
       <View style={styles.subTitleContainer}>
-        <Text style={styles.subTitle}>
-          Total Guests listed: {safeGuests.length} / {pax}
-        </Text>
-        <TextInput
-          style={styles.searchBox}
-          placeholder="Search guest by name"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <View style={styles.statusButtons}>
-          <TouchableOpacity
-            style={[styles.filterButton, filterStatus === "Present" && styles.activeFilter]}
-            onPress={() => setFilterStatus(filterStatus === "Present" ? null : "Present")}
-          >
-            <Text style={styles.buttonText}>Present: {presentCount}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filterStatus === "Absent" && styles.activeFilter]}
-            onPress={() => setFilterStatus(filterStatus === "Absent" ? null : "Absent")}
-          >
-            <Text style={styles.buttonText}>Absent: {absentCount}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Text style={styles.subTitle}>
+  Total Guests listed: {filteredGuestsForCount.length} / {pax}
+</Text>
+
+  <TextInput
+    style={styles.searchBox}
+    placeholder="Search guest by name"
+    value={searchQuery}
+    onChangeText={setSearchQuery}
+  />
+  <View style={styles.statusButtons}>
+    <TouchableOpacity
+      style={[styles.filterButton, filterStatus === "Present" && styles.activeFilter]}
+      onPress={() => setFilterStatus(filterStatus === "Present" ? null : "Present")}
+    >
+      <Text style={styles.buttonText}>Present: {presentCount}</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+      style={[styles.filterButton, filterStatus === "Absent" && styles.activeFilter]}
+      onPress={() => setFilterStatus(filterStatus === "Absent" ? null : "Absent")}
+    >
+      <Text style={styles.buttonText}>Absent: {absentCount}</Text>
+    </TouchableOpacity>
+  </View>
+</View>
 
       {filteredGuests.length > 0 ? (
         <FlatList

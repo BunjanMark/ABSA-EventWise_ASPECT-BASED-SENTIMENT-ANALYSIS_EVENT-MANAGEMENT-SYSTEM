@@ -26,6 +26,13 @@ class EventController extends Controller
     return response()->json($events);
 }
 
+public function eventsByMonth($month)
+{
+    $events = Event::whereMonth('date', $month)->get();
+    return response()->json($events);
+}
+
+
  public function eventsForDay($date)
 {
     $events = Event::whereDate('date', $date)->get();

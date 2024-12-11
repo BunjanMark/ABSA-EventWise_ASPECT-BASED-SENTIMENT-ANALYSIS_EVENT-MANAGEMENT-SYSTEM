@@ -68,7 +68,14 @@ const EventsSP = ({ navigation }) => {
 
   const renderEventItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <Image source={item.image} style={styles.image} />
+    <Image
+          source={{
+    uri: item?.coverPhoto || "defaultImageURL",
+  }}
+  style={styles.eventImage}
+  resizeMode="cover"
+/>
+
       <Text style={styles.title}>{item.name}</Text>
       <View style={styles.detailContainer}>
         <View style={styles.detailRow}>
@@ -267,6 +274,14 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins",
     fontWeight: "bold",
     textDecorationLine: "underline",
+  },
+  eventImage: {
+    width: "100%",
+    height: 220,
+    borderRadius: 15,
+    marginBottom: 10,
+    borderColor: "#eeba2b",
+    borderWidth: 2,
   },
 });
 
