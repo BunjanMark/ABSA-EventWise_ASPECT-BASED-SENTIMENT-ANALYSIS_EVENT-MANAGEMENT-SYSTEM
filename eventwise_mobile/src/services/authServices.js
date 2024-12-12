@@ -71,29 +71,20 @@ export const verifyCode = async (email, code) => {
 };
 export const login = async (email, password) => {
   try {
-    // Fetch the push token first
-    const pushToken = await registerForPushNotificationsAsync();
-    if (!pushToken) {
-      console.warn("Push token could not be obtained.");
-      return;
-    }
+      const response = await api.post("/auth/login", {
+          email: email.trim(),
+          password: password.trim(),
+      });
 
-    // Include push_token in the login request
-    const response = await api.post("/auth/login", {
-      email,
-      password,
-      push_token: pushToken,
-    });
-
-    const { token } = response.data;
-    console.log(response.data);
-    await AsyncStorage.setItem("authToken", token);
-    return response.data;
+      const { token } = response.data;
+      await AsyncStorage.setItem("authToken", token);
+      return response.data;
   } catch (error) {
-    console.error("Login errors:", error);
-    throw error;
+      console.error("Login error:", error);
+      throw error;
   }
 };
+
 
 export const updateAccount = async (userData) => {
   try {
@@ -160,16 +151,116 @@ export const getAccountProfile = async () => {
   }
 };
 
-export const addEquipment = async (equipmentData) => {
+export const sendPasswordResetCode = async (email) => {
   try {
-    const response = await api.post("/equipment", equipmentData);
+    const response = await api.post("/account-recovery", { email });
+
     return response.data;
   } catch (error) {
+    console.error("Error in sendPasswordResetCode:", error);
     if (error.response) {
-      console.error("Add equipment error response:", error.response.data);
+      throw new Error(error.response.data.message || "Error sending reset code");
     } else {
-      console.error("Add equipment error:", error.message);
+      throw new Error("Network error or server unavailable");
     }
+  }
+};
+
+export const verifyPasswordResetCode = async (email, code) => {
+  try {
+    const trimmedEmail = email.trim();
+    const response = await api.post("/verify-password-reset-code", {
+      email: trimmedEmail,
+      code,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error verifying reset code:", error.response ? error.response.data : error.message);
+    throw new Error("An error occurred while verifying the reset code");
+  }
+};
+
+export const resetPassword = async (email, code, newPassword) => {
+  try {
+    const trimmedEmail = email.trim();
+
+    // Verify the reset code first
+    const verifyResponse = await api.post("/verify-password-reset-code", {
+      email: trimmedEmail,
+      code,
+    });
+
+    if (verifyResponse.data.success) {
+      // Update the user's password
+      const updateResponse = await api.put("/user/password", {
+        email: trimmedEmail,
+        password: newPassword,
+        password_confirmation: newPassword,
+      });
+
+      return updateResponse.data;
+    } else {
+      throw new Error("Invalid reset code");
+    }
+  } catch (error) {
+    console.error("Error resetting password:", error.response ? error.response.data : error.message);
+    throw new Error("An error occurred while resetting the password");
+  }
+};
+
+
+// Equipment Services
+export const fetchEquipment = async (eventId) => {
+  try {
+    const response = await api.get(`/equipment/${eventId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Fetch equipment error:", error);
     throw error;
   }
 };
+
+export const addEquipment = async (equipmentData) => {
+  try {
+    const response = await api.post(`/equipment`, equipmentData);
+    return response.data;
+  } catch (error) {
+    console.error("Add equipment error:", error);
+    throw error;
+  }
+};
+
+
+export const updateEquipment = async (item) => {
+  try {
+    const response = await axios.put(
+      `http://192.168.100.8:8000/api/equipment/${item.id}`,  
+      item 
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response.data.message || 'Failed to update equipment');
+  }
+};
+
+export const deleteEquipment = async (id) => {
+  try {
+    const response = await api.delete(`/equipment/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Delete equipment error:", error);
+    throw error;
+  }
+};
+
+export const fetchAllEquipment = async () => {
+  try {
+      const response = await api.get('/equipment/all'); 
+      return response.data;
+  } catch (error) {
+      console.error("Error fetching all equipment:", error);
+      throw error;
+  }
+};
+

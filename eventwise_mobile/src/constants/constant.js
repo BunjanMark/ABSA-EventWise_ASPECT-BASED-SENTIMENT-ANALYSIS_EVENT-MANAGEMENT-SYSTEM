@@ -1,4 +1,5 @@
 // Change with your IP
-const API_URL = "https://d087-49-149-106-143.ngrok-free.app";
+const API_URL = "http://192.168.100.8:8000";
+
 
 export default API_URL;
