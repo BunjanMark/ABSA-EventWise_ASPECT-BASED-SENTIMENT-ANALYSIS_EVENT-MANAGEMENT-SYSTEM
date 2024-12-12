@@ -30,7 +30,7 @@ import ServiceCardDetails from "../screens/ServiceTab/ServiceCardDetails";
 import ServiceDetails from "../screens/ServiceTab/ServiceCardDetails";
 import EditServiceScreen from "../screens/ServiceTab/editServiceScreen";
 import GuestList from "../screens/GuestSP";
-import EquipmentSPDataTable from "../screens/EquipmentSPDataTable";
+import EquipmentInventory from "../screens/EquipmentInventory";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -51,8 +51,8 @@ const MainStackNavigator = () => {
       <Stack.Screen name="InventorySP" component={InventorySP} />
       <Stack.Screen name="EquipmentSP" component={EquipmentSP} />
       <Stack.Screen
-        name="EquipmentSPDataTable"
-        component={EquipmentSPDataTable}
+        name="EquipmentInventory"
+        component={EquipmentInventory}
       />
       <Stack.Screen name="ProfileSP" component={ProfileSP} />
       <Stack.Screen name="EditProfileSP" component={EditProfileSP} />

@@ -1,223 +1,256 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  ScrollView,
-  Button,
-  TextInput,
-  Modal,
-  StyleSheet,
   Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  TextInput,
 } from "react-native";
-import { DataTable } from "react-native-paper";
-import { fetchEquipment } from "../../../../services/organizer/adminEquipmentServices";
+import { fetchEquipment, updateEquipment } from "../../../../services/authServices";
+import { useNavigation } from "@react-navigation/native";
+import { MaterialIcons } from "@expo/vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const EquipmentPanelDetails = ({ route }) => {
   const { eventId } = route.params;
-  const [page, setPage] = useState(0);
-  const [numberOfItemsPerPageList] = useState([2, 4, 8, 20]);
-  const [itemsPerPage, onItemsPerPageChange] = useState(
-    numberOfItemsPerPageList[0]
-  );
-  const [items, setItems] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentItem, setCurrentItem] = useState(null);
-  const [newItem, setNewItem] = useState({
-    name: "",
-    NumItems: "",
-    NumItemsSort: "",
-    Status: "",
-  });
+  const [equipment, setEquipment] = useState([]);
+  const [totals, setTotals] = useState({ totalItems: 0, brokenItems: 0, missingItems: 0 });
+  const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState(null);
+  const [editedItem, setEditedItem] = useState(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchEquipmentData = async () => {
+    const fetchEventEquipment = async () => {
       try {
-        console.log("Event ID:", eventId);
-        const response = await fetchEquipment(eventId);
-        console.log("Equipment data:", response);
-        setItems(response);
+        const data = await fetchEquipment(eventId);
+        const totalItems = data.reduce((sum, item) => sum + item.total_items, 0);
+
+        let brokenItems = 0;
+        let missingItems = 0;
+
+        data.forEach(item => {
+          const unsortedItems = item.total_items - item.sorted_items;
+
+          if (item.status === "Broken") {
+            brokenItems += unsortedItems;
+          } else if (item.status === "Missing") {
+            missingItems += unsortedItems;
+          }
+        });
+
+        setEquipment(data);
+        setTotals({ totalItems, brokenItems, missingItems });
       } catch (error) {
-        console.error("Error fetching equipment data:", error);
+        console.error("Error fetching equipment:", error);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchEquipmentData();
+
+    fetchEventEquipment();
   }, [eventId]);
-  const from = page * itemsPerPage;
-  const to = Math.min((page + 1) * itemsPerPage, items.length);
 
-  const handleAddItem = () => {
-    setItems((prevItems) => [
-      ...prevItems,
-      {
-        key: prevItems.length + 1,
-        ...newItem,
-        NumItems: parseInt(newItem.NumItems),
-        NumItemsSort: parseInt(newItem.NumItemsSort),
-        Status: newItem.Status,
-      },
-    ]);
-    setNewItem({ name: "", NumItems: "", NumItemsSort: "", Status: "" });
-    setModalVisible(false);
+  const handleEdit = (itemId) => {
+    setEditMode(itemId);
+    const itemToEdit = equipment.find(item => item.id === itemId);
+    setEditedItem({ ...itemToEdit });
   };
 
-  const handleUpdateItem = () => {
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.key === currentItem.key ? { ...currentItem, ...newItem } : item
-      )
+  const handleUpdate = async () => {
+    if (!editedItem) return;
+
+    try {
+      const response = await updateEquipment(editedItem);
+      if (response.success) {
+        setEquipment((prevEquipment) =>
+          prevEquipment.map((item) =>
+            item.id === editedItem.id ? { ...editedItem } : item
+          )
+        );
+        setEditMode(null);
+        setEditedItem(null);
+      }
+    } catch (error) {
+      console.error("Error updating equipment:", error.response || error.message);
+    }
+  };
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Complete":
+        return "#28a745"; 
+      case "Broken":
+        return "#dc3545"; 
+      case "Missing":
+        return "#ffc107"; 
+      default:
+        return "#6c757d"; 
+    }
+  };
+  
+  const renderItem = ({ item }) => (
+    <View style={styles.tableRow}>
+      <TextInput
+        style={[styles.rowCell, { flex: 2 }]}
+        value={editMode === item.id ? editedItem.item_name : item.item_name}
+        editable={editMode === item.id}
+        onChangeText={(text) => setEditedItem({ ...editedItem, item_name: text })}
+      />
+      <TextInput
+        style={[styles.rowCell, { flex: 1 }]}
+        value={editMode === item.id ? String(editedItem.total_items) : String(item.total_items)}
+        editable={editMode === item.id}
+        keyboardType="numeric"
+        onChangeText={(text) => setEditedItem({ ...editedItem, total_items: parseInt(text) })}
+      />
+      <TextInput
+        style={[styles.rowCell, { flex: 1 }]}
+        value={editMode === item.id ? String(editedItem.sorted_items || 0) : String(item.sorted_items || 0)}
+        editable={editMode === item.id}
+        keyboardType="numeric"
+        onChangeText={(text) => setEditedItem({ ...editedItem, sorted_items: parseInt(text) || 0 })}
+      />
+      <TextInput
+        style={[styles.rowCell, { flex: 1, color: getStatusColor(editMode === item.id ? editedItem.status : item.status) }]}
+        value={editMode === item.id ? editedItem.status : item.status}
+        editable={editMode === item.id}
+        onChangeText={(text) => setEditedItem({ ...editedItem, status: text })}
+      />
+      {editMode === item.id ? (
+        <TouchableOpacity onPress={handleUpdate} style={styles.editButton}>
+          <MaterialIcons name="save" size={24} color="#4CAF50" />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity onPress={() => handleEdit(item.id)} style={styles.editButton}>
+          <MaterialIcons name="edit" size={24} color="#4CAF50" />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+  
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#eeba2b" />
+        <Text>Loading Equipment...</Text>
+      </View>
     );
-    setCurrentItem(null);
-    setNewItem({ name: "", NumItems: "", NumItemsSort: "" });
-    setModalVisible(false);
-  };
-
-  const handleDeleteItem = (key) => {
-    setItems((prevItems) => prevItems.filter((item) => item.key !== key));
-  };
-
-  const openModal = (item = null) => {
-    setCurrentItem(item);
-    setNewItem(item || { name: "", NumItems: "", NumItemsSort: "" });
-    setModalVisible(true);
-  };
-
-  React.useEffect(() => {
-    setPage(0);
-  }, [itemsPerPage]);
+  }
 
   return (
-    <View style={{ padding: 16 }}>
-      {/* Add Button */}
-      <Button title="Add Item" onPress={() => openModal()} />
-      {/* Modal for Add/Update */}
-      <Modal transparent visible={modalVisible} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text>{currentItem ? "Update Item" : "Add Item"}</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Item Name"
-              value={newItem.name}
-              onChangeText={(text) =>
-                setNewItem((prev) => ({ ...prev, name: text }))
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="No. of Items"
-              keyboardType="numeric"
-              value={newItem.NumItems}
-              onChangeText={(text) =>
-                setNewItem((prev) => ({ ...prev, NumItems: text }))
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="No. of Items Sorted"
-              keyboardType="numeric"
-              value={newItem.NumItemsSort}
-              onChangeText={(text) =>
-                setNewItem((prev) => ({ ...prev, NumItemsSort: text }))
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Status"
-              keyboardType="default"
-              value={newItem.Status}
-              onChangeText={(text) =>
-                setNewItem((prev) => ({ ...prev, Status: text }))
-              }
-            />
-            <Button
-              title={currentItem ? "Update" : "Add"}
-              onPress={currentItem ? handleUpdateItem : handleAddItem}
-            />
-            <Button
-              title="Cancel"
-              color="red"
-              onPress={() => setModalVisible(false)}
-            />
-          </View>
-        </View>
-      </Modal>
+    <View style={styles.container}>
+      <View style={styles.headerSection}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#FFCE00" />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Equipment for Event</Text>
+      </View>
 
-      {/* Data Table */}
-      <ScrollView horizontal>
-        <DataTable>
-          <DataTable.Header>
-            <DataTable.Title style={{ width: 150 }}>Item</DataTable.Title>
-            <DataTable.Title numeric style={{ width: 100 }}>
-              No. of Items
-            </DataTable.Title>
-            <DataTable.Title numeric style={{ width: 150 }}>
-              No. of Items Sorted
-            </DataTable.Title>
-            <DataTable.Title numeric style={{ width: 100 }}>
-              Status
-            </DataTable.Title>
-            <DataTable.Title style={{ width: 100 }}>Actions</DataTable.Title>
-          </DataTable.Header>
+      {/* Table Header */}
+      <View style={styles.tableHeader}>
+        <Text style={[styles.headerCell, { flex: 2 }]}>Item Name</Text>
+        <Text style={[styles.headerCell, { flex: 1 }]}>Total</Text>
+        <Text style={[styles.headerCell, { flex: 1 }]}>Sorted</Text>
+        <Text style={[styles.headerCell, { flex: 1 }]}>Status</Text>
+      </View>
 
-          {items.slice(from, to).map((item) => (
-            <DataTable.Row key={item.key}>
-              <DataTable.Cell style={{ width: 150 }}>
-                {item.name}
-              </DataTable.Cell>
-              <DataTable.Cell numeric style={{ width: 100 }}>
-                {item.NumItems}
-              </DataTable.Cell>
-              <DataTable.Cell numeric style={{ width: 150 }}>
-                {item.NumItemsSort}
-              </DataTable.Cell>
-              <DataTable.Cell numeric style={{ width: 100 }}>
-                {item.Status}
-              </DataTable.Cell>
-              <DataTable.Cell style={{ width: "100%" }}>
-                <Button title="Edit" onPress={() => openModal(item)} />
-                <Button
-                  title="Delete"
-                  color="red"
-                  onPress={() => handleDeleteItem(item.key)}
-                />
-              </DataTable.Cell>
-            </DataTable.Row>
-          ))}
+      {/* Equipment List */}
+      <FlatList
+        data={equipment}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        ListEmptyComponent={<Text>No equipment available for this event.</Text>}
+      />
 
-          <DataTable.Pagination
-            page={page}
-            numberOfPages={Math.ceil(items.length / itemsPerPage)}
-            onPageChange={(page) => setPage(page)}
-            label={`${from + 1}-${to} of ${items.length}`}
-            numberOfItemsPerPageList={numberOfItemsPerPageList}
-            numberOfItemsPerPage={itemsPerPage}
-            onItemsPerPageChange={onItemsPerPageChange}
-            showFastPaginationControls
-            selectPageDropdownLabel="Rows per page"
-          />
-        </DataTable>
-      </ScrollView>
+      {/* Totals Section */}
+      <View style={styles.totalsContainer}>
+        <Text style={styles.totalText}>
+          Total Items: <Text style={styles.boldText}>{totals.totalItems}</Text>
+        </Text>
+        <Text style={styles.totalText}>
+          Broken Items: <Text style={styles.boldText}>{totals.brokenItems}</Text>
+        </Text>
+        <Text style={styles.totalText}>
+          Missing Items: <Text style={styles.boldText}>{totals.missingItems}</Text>
+        </Text>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#F5F5F5",
+  },
+  headerSection: {
+    marginTop: 10,
+    padding: 20,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFCE00",
+    textAlign: "center",
+    flex: 1,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#f8f9fa",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderColor: "#dee2e6",
+  },
+  headerCell: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#495057",
+    textAlign: "center",
+  },
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderColor: "#dee2e6",
+  },
+  rowCell: {
+    fontSize: 14,
+    color: "#212529",
+    textAlign: "center",
+  },
+  totalsContainer: {
+    position: "absolute",
+    bottom: 16,
+    left: 16,
+    backgroundColor: "#f8f9fa",
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#dee2e6",
+  },
+  totalText: {
+    fontSize: 16,
+    marginVertical: 4,
+    color: "#212529",
+  },
+  boldText: {
+    fontWeight: "bold",
+    color: "#333",
+  },
+  loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  modalContent: {
-    width: 300,
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    elevation: 5,
-  },
-  input: {
-    borderBottomWidth: 1,
-    marginBottom: 10,
-    padding: 5,
+  editButton: {
+    padding: 8,
   },
 });
 

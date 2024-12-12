@@ -44,9 +44,11 @@ public function update(Request $request, $id)
         }
 
         // Validate the incoming data
+        // Validate the incoming data
         $validatedData = $request->validate([
             'packageName' => 'nullable|string|max:255',
             'eventType' => 'nullable|string',
+            'services' => 'nullable|array', // Validate services as an array
             'services' => 'nullable|array', // Validate services as an array
             'services.*' => 'integer', // Ensure each service is an integer
             'totalPrice' => 'nullable|numeric|min:1',

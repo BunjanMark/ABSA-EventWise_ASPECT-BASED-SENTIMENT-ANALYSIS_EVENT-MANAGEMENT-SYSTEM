@@ -1,469 +1,373 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Modal,
-  TextInput,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { DataTable } from "react-native-paper";
-import { fetchEquipment } from "../../../services/organizer/adminEquipmentServices";
-import { fetchMyEquipments } from "../../../services/serviceProvider/serviceProviderServices";
-import { addEquipment } from "../../../services/authServices"; 
- 
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    TextInput,
+    TouchableOpacity,
+    ActivityIndicator,
+    Alert,
+} from 'react-native';
+import {
+    fetchEquipment,
+    addEquipment,
+    updateEquipment,
+    deleteEquipment,
+} from '../../../services/authServices';
+import { Picker } from '@react-native-picker/picker'; // For status selection
+import { MaterialIcons } from '@expo/vector-icons'; // For icons
+import { useNavigation } from '@react-navigation/native'; // Add this import
 
 const EquipmentSP = ({ route }) => {
-  const { eventId } = route.params;
-  const navigation = useNavigation();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [newItem, setNewItem] = useState("");
-  const [newItemCount, setNewItemCount] = useState("");
-  const [removeMode, setRemoveMode] = useState(false);
-  const [inventoryData, setInventoryData] = useState([]);
-  const [inventoryData2, setInventoryData2] = useState([]);
-  const [selectedStatusIndex, setSelectedStatusIndex] = useState(null);
+    const navigation = useNavigation(); // Add useNavigation hook
+    const { eventId } = route.params;
+    const [equipment, setEquipment] = useState([]);
+    const [newItem, setNewItem] = useState('');
+    const [newTotal, setNewTotal] = useState('');
+    const [newSorted, setNewSorted] = useState('');
+    const [newStatus, setNewStatus] = useState('Complete');
+    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
 
-  // Fetch equipment data
-  useEffect(() => {
-    const fetchEquipmentData = async () => {
-      try {
-        // Simulating data fetch
-        const response = [
-          {
-            id: 1,
-            item: "Camera",
-            number_of_items: 5,
-            number_of_sort_items: 0,
-            status: "",
-          },
-          {
-            id: 2,
-            item: "Tripod",
-            number_of_items: 3,
-            number_of_sort_items: 0,
-            status: "",
-          },
-        ]; // Replace this with `fetchMyEquipments(eventId)`
-        const formattedItems = response.map((item) => ({
-          key: item.id,
-          item: item.item,
-          noOfItems: item.number_of_items,
-          noOfSortItems: item.number_of_sort_items,
-          status: item.status,
-        }));
-        const response2 = await fetchMyEquipments(eventId);
-        const formattedItems2 = response2.map((item) => ({
-          key: item.id,
-          item: item.item,
-          noOfItems: item.number_of_items,
-          noOfSortItems: item.number_of_sort_items,
-          status: item.status,
-        }));
-        setInventoryData(formattedItems);
-        setInventoryData2(formattedItems2);
-      } catch (error) {
-        console.error("Error fetching equipment data:", error);
-      }
+    useEffect(() => {
+        const loadEquipment = async () => {
+            setLoading(true);
+            try {
+                const data = await fetchEquipment(eventId);
+                setEquipment(data);
+            } catch (error) {
+                Alert.alert('Error', 'Failed to load equipment.');
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadEquipment();
+    }, [eventId]);
+
+    const handleAdd = async () => {
+        if (newItem.trim() && newTotal.trim()) {
+            const item = {
+                event_id: eventId,
+                item_name: newItem.trim(),
+                total_items: parseInt(newTotal, 10),
+                sorted_items: parseInt(newSorted, 10) || 0,
+                status: newStatus,
+            };
+            setSaving(true);
+            try {
+                const addedItem = await addEquipment(item);
+                setEquipment((prev) => [...prev, addedItem]);
+                setNewItem('');
+                setNewTotal('');
+                setNewSorted('');
+                setNewStatus('Complete'); // Default to "Complete"
+                Alert.alert('Success', 'Equipment added successfully.');
+            } catch (error) {
+                Alert.alert('Error', 'Failed to add equipment.');
+                console.error(error);
+            } finally {
+                setSaving(false);
+            }
+        } else {
+            Alert.alert('Validation Error', 'Please enter valid item name and total items.');
+        }
     };
 
-    fetchEquipmentData();
-  }, [eventId]);
+    const handleDelete = async (id) => {
+        Alert.alert(
+            'Confirm Delete',
+            'Are you sure you want to delete this equipment?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        setSaving(true);
+                        try {
+                            await deleteEquipment(id);
+                            setEquipment((prev) => prev.filter((item) => item.id !== id));
+                            Alert.alert('Deleted', 'Equipment deleted successfully.');
+                        } catch (error) {
+                            Alert.alert('Error', 'Failed to delete equipment.');
+                            console.error(error);
+                        } finally {
+                            setSaving(false);
+                        }
+                    },
+                },
+            ]
+        );
+    };
 
-  // Add item handler
-  const handleAddItem = async () => {
-    if (newItem && newItemCount) {
-      try {
-        // Prepare the equipment data
-        const equipmentData = {
-          item: newItem,
-          number_of_items: newItemCount,
-          number_of_sort_items: 0, // Default value
-          status: "", // Default status
-          event_id: eventId, // Ensure eventId is available
-        };
-  
-        // Call the backend integration function
-        const responseData = await addEquipment(equipmentData);
-  
-        // Update inventory data with the new item
-        setInventoryData((prevInventory) => [
-          ...prevInventory,
-          {
-            item: responseData.item,
-            noOfItems: responseData.number_of_items,
-            noOfSortItems: responseData.number_of_sort_items,
-            status: responseData.status,
-          },
-        ]);
-  
-        // Clear inputs and close modal
-        setNewItem("");
-        setNewItemCount("");
-        setModalVisible(false);
-      } catch (error) {
-        console.error("Error adding item:", error);
-        alert("Failed to add item. Please try again.");
-      }
-    } else {
-      alert("Please fill in all fields.");
+    const handleUpdate = (id, field, value) => {
+        setEquipment((prev) =>
+            prev.map((item) =>
+                item.id === id ? { ...item, [field]: value } : item
+            )
+        );
+    };
 
-//       const newInventory = [
-//         ...inventoryData,
-//         {
-//           key: Date.now().toString(),
-//           item: newItem,
-//           noOfItems: parseInt(newItemCount, 10),
-//           noOfSortItems: 0,
-//           status: "",
-//         },
-//       ];
-//       setInventoryData(newInventory);
-//       setNewItem("");
-//       setNewItemCount("");
-//       setModalVisible(false);
+    const handleSaveChanges = async () => {
+        setSaving(true);
+        try {
+            const updatePromises = equipment.map((item) =>
+                updateEquipment(item.id, {
+                    item_name: item.item_name,
+                    total_items: parseInt(item.total_items, 10),
+                    sorted_items: parseInt(item.sorted_items, 10),
+                    status: item.status,
+                })
+            );
+            await Promise.all(updatePromises);
+            Alert.alert('Success', 'All changes have been saved.');
+        } catch (error) {
+            Alert.alert('Error', 'Failed to save changes.');
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    };
 
-    }
-  };
-
-  // Remove item handler
-  const handleRemoveItem = (index) => {
-    const newInventory = inventoryData.filter((_, i) => i !== index);
-    setInventoryData(newInventory);
-  };
-
-  // Sort items handler
-  const handleSortItemsChange = (index, change) => {
-    const newInventory = [...inventoryData];
-    newInventory[index].noOfSortItems = Math.max(
-      0,
-      newInventory[index].noOfSortItems + change
-    );
-    setInventoryData(newInventory);
-  };
-
-  // Status change handler
-  const handleStatusChange = (index, status) => {
-    const newInventory = [...inventoryData];
-    newInventory[index].status = status;
-    setInventoryData(newInventory);
-    setSelectedStatusIndex(null);
-  };
-
-  // Toggle dropdown visibility
-  const toggleDropdown = (index) => {
-    setSelectedStatusIndex(selectedStatusIndex === index ? null : index);
-  };
-
-  // Save handler
-  const handleSave = () => {
-    console.log("Updated Inventory Data:", inventoryData);
-    alert("Inventory data saved successfully!");
-    navigation.goBack();
-  };
-
-  return (
-    <View style={styles.container}>
-      <ScrollView style={styles.scrollContainer}>
-        <View style={styles.headerSection}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#FFCE00" />
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Equipment</Text>
-        </View>
-
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.tableHeaderText}>ITEM</Text>
-            <Text style={styles.tableHeaderText}>NO. OF ITEMS</Text>
-            <Text style={styles.tableHeaderText}>NO. OF SORT ITEMS</Text>
-            <Text style={styles.tableHeaderText}>STATUS</Text>
-          </View>
-
-          {inventoryData.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              {removeMode && (
-                <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                  <Ionicons
-                    name="remove-circle-outline"
-                    size={24}
-                    color="red"
-                  />
-                </TouchableOpacity>
-              )}
-              <Text style={styles.tableRowText}>{item.item}</Text>
-              <Text style={styles.tableRowText}>{item.noOfItems}</Text>
-              <View style={styles.sortItemsContainer}>
-                <TouchableOpacity
-                  onPress={() => handleSortItemsChange(index, -1)}
-                >
-                  <Ionicons
-                    name="remove-circle-outline"
-                    size={20}
-                    color="red"
-                  />
-                </TouchableOpacity>
-                <Text style={styles.sortItemsText}>{item.noOfSortItems}</Text>
-                <TouchableOpacity
-                  onPress={() => handleSortItemsChange(index, 1)}
-                >
-                  <Ionicons name="add-circle-outline" size={20} color="green" />
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity
-                onPress={() => toggleDropdown(index)}
-                style={styles.statusContainer}
-              >
-                <Text style={{ color: item.status ? "black" : "gray" }}>
-                  {item.status || "Set Status"}
-                </Text>
-                <Ionicons name="chevron-down-outline" size={20} color="gray" />
-              </TouchableOpacity>
-              {selectedStatusIndex === index && (
-                <View style={styles.statusDropdown}>
-                  <TouchableOpacity
-                    onPress={() => handleStatusChange(index, "Complete")}
-                  >
-                    <Text style={{ color: "green" }}>Complete</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleStatusChange(index, "Missing")}
-                  >
-                    <Text style={{ color: "orange" }}>Missing</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleStatusChange(index, "Broken")}
-                  >
-                    <Text style={{ color: "red" }}>Broken</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          ))}
-        </View>
-
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setModalVisible(true)}
-        >
-          <Ionicons name="add-circle-outline" size={24} color="white" />
-          <Text style={styles.addButtonText}>Add Item</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.removeButton}
-          onPress={() => setRemoveMode(!removeMode)}
-        >
-          <Ionicons name="remove-circle-outline" size={24} color="white" />
-          <Text style={styles.removeButtonText}>Remove Item</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-      </ScrollView>
-
-      <Modal visible={modalVisible} transparent>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalView}>
-            <Text>Name of Item</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter item name"
-              value={newItem}
-              onChangeText={setNewItem}
-            />
-            <Text>No. of Items</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter count"
-              keyboardType="numeric"
-              value={newItemCount}
-              onChangeText={setNewItemCount}
-            />
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={handleAddItem}
-            >
-              <Text>Add</Text>
+    const renderItem = ({ item }) => (
+        <View style={styles.tableRow}>
+            <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.deleteButton}>
+                <MaterialIcons name="delete" size={24} color="#FF3B30" />
             </TouchableOpacity>
-          </View>
+            <Text style={[styles.rowText, { flex: 2 }]}>{item.item_name}</Text>
+            <Text style={[styles.rowText, { flex: 1 }]}>{item.total_items}</Text>
+            <Text style={[styles.rowText, { flex: 1 }]}>{item.sorted_items}</Text>
+            <Text style={[styles.rowText, { flex: 1 }]}>{item.status}</Text>
         </View>
-      </Modal>
-    </View>
-  );
+    );
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#eeba2b" />
+                <Text>Loading Equipment...</Text>
+            </View>
+        );
+    }
+
+    return (
+        <View style={styles.container}>
+            {/* Back Button */}
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                <MaterialIcons name="arrow-back" size={30} color="#333" />
+            </TouchableOpacity>
+
+            <Text style={styles.title}>Equipment Management</Text>
+
+            {/* Table Header */}
+            <View style={styles.tableHeader}>
+                <Text style={[styles.headerText, { flex: 2 }]}>ITEMS</Text>
+                <Text style={[styles.headerText, { flex: 1 }]}>NO. OF ITEMS</Text>
+                <Text style={[styles.headerText, { flex: 1 }]}>NO. OF SORTED ITEMS</Text>
+                <Text style={[styles.headerText, { flex: 1 }]}>STATUS</Text>
+            </View>
+
+            {/* Equipment List */}
+            <FlatList
+                data={equipment}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderItem}
+                ListEmptyComponent={
+                    <Text style={styles.emptyText}>No equipment available.</Text>
+                }
+                contentContainerStyle={equipment.length === 0 && styles.emptyContainer}
+            />
+
+            {/* Add New Equipment Section */}
+            <View style={styles.addContainer}>
+                <Text style={styles.addTitle}>Add New Equipment</Text>
+                <TextInput
+                    value={newItem}
+                    onChangeText={setNewItem}
+                    placeholder="Item Name"
+                    style={styles.addInput}
+                />
+                <TextInput
+                    value={newTotal}
+                    onChangeText={setNewTotal}
+                    placeholder="Total Items"
+                    style={styles.addInput}
+                    keyboardType="number-pad"
+                />
+                <TextInput
+                    value={newSorted}
+                    onChangeText={setNewSorted}
+                    placeholder="Sorted Items"
+                    style={styles.addInput}
+                    keyboardType="number-pad"
+                />
+                <View style={styles.pickerContainer}>
+                    <Text style={styles.label}>Status:</Text>
+                    <Picker
+                        selectedValue={newStatus}
+                        style={styles.picker}
+                        onValueChange={(value) => setNewStatus(value)}
+                    >
+                        <Picker.Item label="Complete" value="Complete" />
+                        <Picker.Item label="Missing" value="Missing" />
+                        <Picker.Item label="Broken" value="Broken" />
+                    </Picker>
+                </View>
+                <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={handleAdd}
+                    disabled={saving}
+                >
+                    {saving ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.addButtonText}>Add Equipment</Text>
+                    )}
+                </TouchableOpacity>
+            </View>
+
+            {/* Save Changes Button */}
+            <TouchableOpacity
+                style={styles.saveButton}
+                onPress={handleSaveChanges}
+                disabled={saving}
+            >
+                {saving ? (
+                    <ActivityIndicator color="#fff" />
+                ) : (
+                    <Text style={styles.saveButtonText}>Save Changes</Text>
+                )}
+            </TouchableOpacity>
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
-  saveButton: {
-    backgroundColor: "#FFCE00",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    margin: 20,
-  },
-  saveButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-  scrollContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  scrollContent: {
-    paddingBottom: 50,
-  },
-  headerSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-    padding: 20,
-    backgroundColor: "transparent",
-    borderRadius: 10,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FFCE00",
-    marginLeft: 70,
-  },
-  table: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: "transparent",
-    borderRadius: 10,
-  },
-  tableHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-  },
-  tableHeaderText: {
-    color: "black",
-    flex: 1,
-    textAlign: "center",
-  },
-  tableRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-  },
-  tableRowText: {
-    flex: 1,
-    textAlign: "center",
-    color: "black",
-  },
-  sortItemsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  removeIcon: {
-    marginRight: 5,
-  },
-  addButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#28a745",
-    paddingVertical: 10,
-    borderRadius: 5,
-    marginTop: 80,
-  },
-  addButtonText: {
-    color: "white",
-    marginLeft: 10,
-  },
-  removeButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "red",
-    paddingVertical: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  removeButtonText: {
-    color: "white",
-    marginLeft: 10,
-  },
-  summary: {
-    marginTop: 20,
-  },
-  summaryText: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  statusContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  statusDropdown: {
-    position: "absolute",
-    top: 30,
-    left: 240,
-    right: 0,
-    backgroundColor: "white",
-    borderRadius: 5,
-    padding: 10,
-    elevation: 5,
-    zIndex: 1,
-    width: "30%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalView: {
-    width: 300,
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 20,
-    alignItems: "center",
-  },
-  closeButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-  },
-  modalText: {
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  input: {
-    width: "100%",
-    padding: 10,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    color: "black",
-  },
-  modalButton: {
-    backgroundColor: "#28a745",
-    padding: 10,
-    borderRadius: 5,
-  },
-  modalButtonText: {
-    color: "white",
-  },
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: '#F5F5F5',
+    },
+    backButton: {
+        position: 'absolute',
+        top: 16,
+        left: 16,
+        zIndex: 1,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        color: '#333',
+        alignSelf: 'center',
+    },
+    tableHeader: {
+        flexDirection: 'row',
+        backgroundColor: '#f8f9fa',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderColor: '#dee2e6',
+    },
+    headerText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#495057',
+        textAlign: 'center',
+    },
+    tableRow: {
+        flexDirection: 'row',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderColor: '#dee2e6',
+        alignItems: 'center',
+    },
+    rowText: {
+        fontSize: 14,
+        color: '#212529',
+        textAlign: 'center',
+    },
+    deleteButton: {
+        alignItems: 'flex-start',
+        marginRight: -15,
+    },
+    itemContainer: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyText: {
+        textAlign: 'center',
+        color: '#888',
+        fontSize: 16,
+        marginTop: 20,
+    },
+    emptyContainer: {
+        flexGrow: 1,
+        justifyContent: 'center',
+    },
+    addContainer: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        padding: 16,
+        marginTop: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    addTitle: {
+        fontSize: 20,
+        fontWeight: '600',
+        marginBottom: 12,
+        color: '#333',
+    },
+    addInput: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 12,
+        backgroundColor: '#fff',
+    },
+    addButton: {
+        backgroundColor: '#eeba2b',
+        padding: 12,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    addButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    saveButton: {
+        backgroundColor: '#4CAF50',
+        padding: 14,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginTop: 16,
+    },
+    saveButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '600',
+    },
 });
 
 export default EquipmentSP;
