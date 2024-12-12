@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Submit the feedback data to the server #TODO should be dynamic
         // port 5000
-        fetch("https://18d6-49-149-106-143.ngrok-free.app/submit_feedback", {
+        fetch("https://4d7e-49-149-106-143.ngrok-free.app/submit_feedback", { 
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

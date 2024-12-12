@@ -55,6 +55,7 @@ class FeedbackRequestMail extends Mailable
                         'eventName' => $this->event->name,
                         'guestName' => $this->guest->GuestName,
                         'feedbackLink' => url("/feedback/form?event_id={$this->event->id}&guest_id={$this->guest->id}"),
-                    ]);
+                    ]); // .ngrok
     }
+    
 }
