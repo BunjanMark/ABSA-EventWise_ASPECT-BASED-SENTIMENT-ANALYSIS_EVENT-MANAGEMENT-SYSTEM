@@ -53,8 +53,8 @@ const EquipmentPanel = () => {
 
   // Event press handler for navigation
   const handleEventPress = (eventId) => {
-    navigation.navigate("EquipmentPanelDetails", { eventId });
-  };
+    navigation.navigate("EquipmentPanelDetails", { eventId });  // Pass eventId to the details screen
+  };  
 
   // Search function
   const filteredEvents = events.filter((event) =>
