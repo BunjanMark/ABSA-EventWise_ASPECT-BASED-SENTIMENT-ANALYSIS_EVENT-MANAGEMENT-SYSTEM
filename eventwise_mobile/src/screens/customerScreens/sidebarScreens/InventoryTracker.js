@@ -1,52 +1,72 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import Header2 from '../elements/Header2';
-import API_URL from '../../../constants/constant';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Header2 from "../elements/Header2";
+import { fetchEquipment } from "../../../services/authServices";
 
 const InventoryTracker = () => {
-  const navigation = useNavigation();
   const route = useRoute();
-  const { eventId } = route.params;
-
-  const [inventoryData, setInventoryData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
+  const { eventId } = route.params; // Ensure eventId is passed
+  const [equipment, setEquipment] = useState([]);
+  const [totals, setTotals] = useState({
+    totalItems: 0,
+    brokenItems: 0,
+    missingItems: 0,
+  });
 
   useEffect(() => {
-    // Fetch equipment data
-    const fetchInventory = async () => {
+    const loadInventory = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/equipment?event_id=${eventId}`);
-        const data = await response.json();
-        setInventoryData(data);
+        const data = await fetchEquipment(eventId);
+
+        // Calculate totals for the whole inventory
+        const totalItems = data.reduce((sum, item) => sum + item.total_items, 0);
+
+        // Calculate broken and missing items
+        let brokenItems = 0;
+        let missingItems = 0;
+
+        data.forEach((item) => {
+          const unsortedItems = item.total_items - (item.sorted_items || 0);
+
+          if (item.status === "Broken") {
+            brokenItems += unsortedItems;
+          } else if (item.status === "Missing") {
+            missingItems += unsortedItems;
+          }
+        });
+
+        setEquipment(data);
+        setTotals({ totalItems, brokenItems, missingItems });
       } catch (error) {
-        console.error('Error fetching inventory:', error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching inventory:", error);
       }
     };
-
-    fetchInventory();
+    loadInventory();
   }, [eventId]);
 
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case "Complete":
-        return { color: "green" };
-      case "Missing":
-        return { color: "orange" };
-      case "Broken":
-        return { color: "red" };
-      default:
-        return { color: "black" };
-    }
+  const renderStatus = (status) => {
+    const statusColors = {
+      Complete: "#28a745",
+      Missing: "#ffc107",
+      Broken: "#dc3545",
+    };
+
+    return (
+      <Text style={{ color: statusColors[status] || "#6c757d", fontWeight: "bold" }}>
+        {status || "Unknown"}
+      </Text>
+    );
   };
-
-
-  const totalItems = inventoryData.reduce((sum, item) => sum + item.number_of_items, 0);
-  const totalBroken = inventoryData.filter(item => item.status === "Broken").length;
-  const totalMissing = inventoryData.filter(item => item.status === "Missing").length;
 
   return (
     <>
@@ -61,30 +81,43 @@ const InventoryTracker = () => {
               <Text style={styles.headerHighlight}>Inventory</Text> Tracker
             </Text>
           </View>
-          <View style={styles.table}>
-            <View style={styles.tableHeader}>
-              <Text style={styles.tableHeaderText}>ITEMS</Text>
-              <Text style={styles.tableHeaderText}>NO. OF ITEMS</Text>
-              <Text style={styles.tableHeaderText}>NO. OF SORT ITEMS</Text>
-              <Text style={styles.tableHeaderText}>STATUS</Text>
-            </View>
-            {inventoryData.map((item, index) => (
-              <View key={index} style={styles.tableRow}>
-                <Text style={styles.tableRowText}>{item.item}</Text>
-                <Text style={styles.tableRowText}>{item.number_of_items}</Text>
-                <Text style={styles.tableRowText}>{item.number_of_sort_items}</Text>
-                <Text style={[styles.tableRowText, getStatusStyle(item.status)]}>
-                  {item.status}
-                </Text>
+
+          <View style={styles.tableHeader}>
+            <Text style={[styles.headerCell, { flex: 2 }]}>ITEMS</Text>
+            <Text style={[styles.headerCell, { flex: 1 }]}>NO. OF ITEMS</Text>
+            <Text style={[styles.headerCell, { flex: 1 }]}>SORTED ITEMS</Text>
+            <Text style={[styles.headerCell, { flex: 1 }]}>STATUS</Text>
+          </View>
+
+          <FlatList
+            data={equipment}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.tableRow}>
+                <Text style={[styles.rowCell, { flex: 2 }]}>{item.item_name}</Text>
+                <Text style={[styles.rowCell, { flex: 1 }]}>{item.total_items}</Text>
+                <Text style={[styles.rowCell, { flex: 1 }]}>{item.sorted_items || 0}</Text>
+                <View style={{ flex: 1 }}>{renderStatus(item.status)}</View>
               </View>
-            ))}
-          </View>
-          <View style={styles.summary}>
-            <Text style={styles.summaryText}>Total Items: {totalItems}</Text>
-            <Text style={styles.summaryText}>Total Items Broken: {totalBroken}</Text>
-            <Text style={styles.summaryText}>Total Items Missing: {totalMissing}</Text>
-          </View>
+            )}
+            ListEmptyComponent={
+              <Text style={styles.emptyMessage}>No equipment found.</Text>
+            }
+          />
         </ScrollView>
+
+        {/* Totals at Bottom Left */}
+        <View style={styles.totalsContainer}>
+          <Text style={styles.totalText}>
+            Total Items: <Text style={styles.boldText}>{totals.totalItems}</Text>
+          </Text>
+          <Text style={styles.totalText}>
+            Broken Items: <Text style={styles.boldText}>{totals.brokenItems}</Text>
+          </Text>
+          <Text style={styles.totalText}>
+            Missing Items: <Text style={styles.boldText}>{totals.missingItems}</Text>
+          </Text>
+        </View>
       </View>
     </>
   );
@@ -93,7 +126,7 @@ const InventoryTracker = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   scrollContainer: {
     flex: 1,
@@ -101,55 +134,69 @@ const styles = StyleSheet.create({
   headerSection: {
     marginTop: 10,
     padding: 20,
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#eeba2b",
-    textAlign: 'center',
+    color: "#FFCE00",
     flex: 1,
+    textAlign: "center",
   },
   headerHighlight: {
     color: "#eeba2b",
-    paddingHorizontal: 5,
-  },
-  table: {
-    margin: 20,
-    padding: 10,
-    borderRadius: 10,
   },
   tableHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
+    backgroundColor: "#f8f9fa",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderColor: "#dee2e6",
   },
-  tableHeaderText: {
-    color: "black",
-    flex: 1,
+  headerCell: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#495057",
     textAlign: "center",
   },
   tableRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderColor: "#dee2e6",
   },
-  tableRowText: {
-    color: "black",
-    flex: 1,
+  rowCell: {
+    fontSize: 14,
+    color: "#212529",
     textAlign: "center",
   },
-  summary: {
-    margin: 20,
-    padding: 10,
-    borderRadius: 10,
-  },
-  summaryText: {
-    color: "black",
+  emptyMessage: {
     fontSize: 16,
-    marginVertical: 5,
+    textAlign: "center",
+    marginTop: 20,
+    color: "#999",
+  },
+  totalsContainer: {
+    position: "absolute",
+    bottom: 16,
+    left: 16,
+    backgroundColor: "#f8f9fa",
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#dee2e6",
+  },
+  totalText: {
+    fontSize: 16,
+    marginVertical: 4,
+    color: "#212529",
+  },
+  boldText: {
+    fontWeight: "bold",
+    color: "#333",
   },
 });
 
