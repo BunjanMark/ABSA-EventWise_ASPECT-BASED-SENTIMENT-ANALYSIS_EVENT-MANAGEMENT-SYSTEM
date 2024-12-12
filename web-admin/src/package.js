@@ -345,9 +345,9 @@ const Package = () => {
 
 
         {showOverlay && (
-          <div className="overlay-container-services">
-            <div className="overlay-content-services">
-              <div className="filter-buttons-container">
+          <div className="overlay-container-services">        
+            <div className="overlay-content-services">            
+              <div className="filter-buttons-container">             
                 {serCategory.map((category, index) => (
                   <button
                     key={index}
@@ -356,13 +356,16 @@ const Package = () => {
                   >
                     {category}
                   </button>
+                  
                 ))}
+                <button className="close-overlay-services" onClick={() => setShowOverlay(false)}>X</button>
+
               </div>
 
               <div className="service-buttons-container-services">
                 {filteredServices.map((service, index) => (
                   <div key={index} className="service-item-overlay">
-                    <button className="close-overlay-services" onClick={() => setShowOverlay(false)}>X</button>
+
                     <img src={service.image} alt={service.serviceName} className="service-image-overlay" />
                     <div className="service-details-overlay">
                       <h4>{service.serviceName}</h4>
@@ -383,7 +386,6 @@ const Package = () => {
         {showConfirmOverlay && selectedService && (
           <div className="overlay-container-buttons">
             <div className="overlay-content-buttons">
-              <button className="close-overlay-services" onClick={handleCancelService}>X</button>
               <h3>Confirm Service: {selectedService.serviceName}</h3>
               <p>Category: {selectedService.serviceCategory}</p>
               <p>Base Price:{selectedService.basePrice}</p>

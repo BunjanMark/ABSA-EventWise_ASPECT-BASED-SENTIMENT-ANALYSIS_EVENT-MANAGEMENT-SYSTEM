@@ -129,7 +129,7 @@ const Profile = () => {
 
           <div className="button-container-profile">
             <button className="edit-button-profile" onClick={() => navigate('/edit-profile')}>
-              <IoMdCreate size={24} color="black" />
+              <IoMdCreate size={24} color="white" />
               <span className="edit-button-text-profile">Edit Profile</span>
             </button>
           </div>

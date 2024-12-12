@@ -126,7 +126,7 @@ const GroupAttendees = () => {
   
   return (
     <div className="container-groupattendee">
-      <h1 className="headerText-groupattendee">Group Attendees</h1>
+      <h1 className="headerText-groupattendee">Guest List</h1>
       <div className="line-groupattendee"></div>
       <h2 className="eventTypesText-groupattendee">People In Event</h2>
       <div className="tableContainer-groupattendee">
@@ -146,7 +146,9 @@ const GroupAttendees = () => {
           </tbody>
         </table>
       </div>
+      <div className='save-changes-groupattendee'>
       <button onClick={handleSaveEdit} className="save-changes-groupattendee">Save Changes</button>
+      </div>
 
       <div className="pagination-controls">
         <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="pagination-button">&lt;</button>

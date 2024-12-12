@@ -138,7 +138,7 @@
 
     return (
       <div className="container-groupattendee">
-        <h1 className="headerText-groupattendee">Attendees</h1>
+        <h1 className="headerText-groupattendee">Attendee Tracker</h1>
         <div className="line-groupattendee"></div>
         <h2 className="eventTypesText-groupattendee">People In Event</h2>
         
