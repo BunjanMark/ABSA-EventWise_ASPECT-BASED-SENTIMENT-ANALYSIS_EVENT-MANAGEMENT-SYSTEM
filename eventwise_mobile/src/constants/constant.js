@@ -1,8 +1,4 @@
 // Change with your IP
-const API_URL = "http://192.168.0.168:8000";
-<<<<<<< HEAD
-=======
-
->>>>>>> d8168014b589d38be3849bf457336a9acff4e374
+const API_URL = "https://phplaravel-1381591-5105067.cloudwaysapps.com";
 
 export default API_URL;
