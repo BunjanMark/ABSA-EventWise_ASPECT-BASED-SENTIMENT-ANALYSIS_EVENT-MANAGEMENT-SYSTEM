@@ -243,23 +243,25 @@ public function createCustomer(Request $request)
         // Generate a token (or use Laravel's Password Reset feature)
         $token = \Str::random(60);
     
-        // Save the token in the password_resets table (optional)
+        // Save the token in the password_resets table
         \DB::table('password_resets')->updateOrInsert(
             ['email' => $user->email],
             ['token' => $token, 'created_at' => now()]
         );
     
-        // Use the correct backend URL
-        $backendUrl = config('app.url', 'https://6a8c-49-149-106-143.ngrok-free.app');
-        
-        // Send recovery email with the backend URL
-        Mail::send('emails.recovery', ['token' => $token, 'backendUrl' => $backendUrl], function ($message) use ($user) {
+        // Generate the recovery URL using the APP_URL
+        $recoveryUrl = url("/password/reset?token={$token}&email={$user->email}");
+    
+        // Send recovery email
+        Mail::send('emails.recovery', ['recoveryUrl' => $recoveryUrl], function ($message) use ($user) {
             $message->to($user->email);
             $message->subject('Password Recovery');
         });
     
         return response()->json(['message' => 'Recovery email sent.'], 200);
     }
+    
+    
     
     
 
