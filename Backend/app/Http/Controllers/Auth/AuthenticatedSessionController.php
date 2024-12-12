@@ -232,6 +232,35 @@ public function createCustomer(Request $request)
     
         return response()->json(['success' => false, 'message' => 'Invalid verification code.'], 400);
     }
+    public function recoverPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+    
+        $user = User::where('email', $request->email)->first();
+    
+        // Generate a token (or use Laravel's Password Reset feature)
+        $token = \Str::random(60);
+    
+        // Save the token in the password_resets table (optional)
+        \DB::table('password_resets')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => $token, 'created_at' => now()]
+        );
+    
+        // Use the correct backend URL
+        $backendUrl = config('app.url', 'https://6a8c-49-149-106-143.ngrok-free.app');
+        
+        // Send recovery email with the backend URL
+        Mail::send('emails.recovery', ['token' => $token, 'backendUrl' => $backendUrl], function ($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Password Recovery');
+        });
+    
+        return response()->json(['message' => 'Recovery email sent.'], 200);
+    }
+    
     
 
 

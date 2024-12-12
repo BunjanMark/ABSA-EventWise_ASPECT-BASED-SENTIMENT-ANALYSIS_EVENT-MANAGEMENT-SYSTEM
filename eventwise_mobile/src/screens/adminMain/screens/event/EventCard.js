@@ -98,6 +98,12 @@ const EventCardHome = ({
               currentEvents?.type || "N/A"
             }`}</Text>
           </View>
+          <View style={styles.infoRow}>
+            <MaterialCommunityIcons name="list-status" size={16} color="#eeba2b" />
+            <Text style={styles.infoText}>{`Payment Status: ${
+              currentEvents?.payment_status || "N/A"
+            }`}</Text>
+          </View>
         </View>
       </TouchableOpacity>
       <View style={styles.buttonContainer}>
@@ -116,7 +122,7 @@ const EventCardHome = ({
           style={styles.deleteButton}
           onPress={() => handleDeleteEvent(currentEvents?.id)} // Now using the prop
         >
-          <Text style={styles.buttonText}>Delete</Text>
+          <Text style={styles.buttonText}>Disable</Text>
         </TouchableOpacity>
       </View>
     </View>

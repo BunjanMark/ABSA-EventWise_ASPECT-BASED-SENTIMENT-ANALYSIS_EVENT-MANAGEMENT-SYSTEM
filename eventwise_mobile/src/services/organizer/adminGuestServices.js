@@ -35,7 +35,7 @@ const fetchGuestEventDetails = async (eventid) => {
     throw error;
   }
 };
-// #TODO  LOG  eventid 2
+
 //  ERROR  error fetching guest details [AxiosError: Request failed with status code 500]
 //  ERROR  [AxiosError: Request failed with status code 500]
 export { fetchGuestEventDetails };

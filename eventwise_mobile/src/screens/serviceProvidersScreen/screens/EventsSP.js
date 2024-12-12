@@ -79,6 +79,17 @@ const EventsSP = ({ navigation }) => {
           <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
           <Text style={styles.detailText}>{item.location}</Text>
         </View>
+        <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate("EventDetailsSP", {
+                          eventId: item.id,
+                        })
+                      }
+                    >
+                      <Text style={styles.viewAllButton}>View All</Text>
+                    </TouchableOpacity>
+                  </View>
       </View>
 
       <TouchableOpacity
@@ -249,6 +260,13 @@ const styles = StyleSheet.create({
   },
   paddingBottom: {
     height: 60,
+  },
+  viewAllButton: {
+    color: "#FFC42B",
+    fontSize: 16,
+    fontFamily: "Poppins",
+    fontWeight: "bold",
+    textDecorationLine: "underline",
   },
 });
 

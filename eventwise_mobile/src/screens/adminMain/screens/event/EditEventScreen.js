@@ -12,6 +12,7 @@ import RNPickerSelect from "react-native-picker-select";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { updateEvent } from "../../../../services/organizer/adminEventServices";
 import {Ionicons} from '@expo/vector-icons';
+import axios from "axios";
 const EditEventScreen = ({ route, navigation }) => {
   const { eventData } = route.params;
 
@@ -30,19 +31,20 @@ const EditEventScreen = ({ route, navigation }) => {
   const [location, setLocation] = useState(eventData?.location || "");
   const [description, setDescription] = useState(eventData?.description || "");
 
+  const [paymentStatus, setPaymentStatus] = useState(eventData?.payment_status || "");
+
   // Function to handle event update
   const handleSubmit = async () => {
-    // Validate input
-    if (!status) {
-      Alert.alert("Validation Error", "Please select an event status.");
+    if (!status || !paymentStatus) {
+      Alert.alert("Validation Error", "Please fill out all required fields.");
       return;
     }
-
+  
     setIsLoading(true);
-
+  
     try {
-      // Prepare payload
-      const payload = {
+      // Payload for event update
+      const eventPayload = {
         name,
         type,
         pax: parseInt(pax, 10),
@@ -52,21 +54,21 @@ const EditEventScreen = ({ route, navigation }) => {
         time,
         location,
         description,
+        payment_status: paymentStatus
       };
-
-      // Call API to update event
-      const response = await updateEvent(eventData.id, payload);
-
-      if (response) {
-        Alert.alert("Success", "Event updated successfully!");
-        navigation.goBack(); // Navigate back to the previous screen
-      }
+  
+      // Update event details
+      await updateEvent(eventData.id, eventPayload);
+  
+      Alert.alert("Success", "Event updated successfully!");
+      navigation.goBack();
     } catch (error) {
       Alert.alert("Error", "Failed to update the event.");
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <SafeAreaView style={{ flex: 1, paddingBottom: 100 }}>
@@ -125,6 +127,18 @@ const EditEventScreen = ({ route, navigation }) => {
           placeholder={{ label: "Select Status", value: null }}
           style={pickerSelectStyles}
         />
+        <Text style={styles.label}>Payment Status</Text>
+        <RNPickerSelect
+          onValueChange={(value) => setPaymentStatus(value)}
+          items={[
+            { label: "Downpayment", value: "Downpayment" },
+            { label: "Paid", value: "Paid" },
+          ]}
+          value={paymentStatus}
+          placeholder={{ label: "Select Payment Status", value: null }}
+          style={pickerSelectStyles}
+        />
+
 
         {/* Total Price */}
         <Text style={styles.label}>Total Price (₱)</Text>

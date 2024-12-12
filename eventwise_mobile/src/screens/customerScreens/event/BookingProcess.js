@@ -75,10 +75,10 @@ const BookingProcess = ({ navigation }) => {
     currentPackages: Yup.array(),
     guests: Yup.array().of(
       Yup.object().shape({
-        GuestName: Yup.string().required("Guest name is required"),
-        email: Yup.string()
-          .email("Invalid email")
-          .required("Email is required"),
+        GuestName: Yup.string().nullable(),
+        email: Yup.string().email("Invalid email").nullable(),
+        phone: Yup.string().nullable(),
+        role: Yup.string().nullable(),
       })
     ),
   });
@@ -132,13 +132,11 @@ const BookingProcess = ({ navigation }) => {
     try {
       let coverPhotoURL = null;
   
-      // Upload the cover photo if provided
       if (values.coverPhoto) {
         const fileName = `package_cover_${Date.now()}.jpg`;
         coverPhotoURL = await testUploadImageToSupabase(values.coverPhoto, fileName);
       }
   
-      // Fetch existing events for the selected date
       const existingEvents = await fetchEventsByDate(values.eventDate);
       if (existingEvents.length >= 3) {
         Alert.alert(
@@ -148,23 +146,6 @@ const BookingProcess = ({ navigation }) => {
         return;
       }
   
-       // Calculate the dynamic total price of the package
-    let dynamicTotalPrice = parseFloat(selectedPkg.totalPrice) || 0;
-
-    // Iterate over the selected package services to adjust the price
-    selectedPkg.services.forEach((service) => {
-      if (service.removed) {
-        dynamicTotalPrice -= parseFloat(service.basePrice) || 0; // Ensure basePrice is a number
-      }
-      if (service.added) {
-        dynamicTotalPrice += parseFloat(service.basePrice) || 0; // Ensure basePrice is a number
-      }
-    });
-
-    dynamicTotalPrice = parseFloat(dynamicTotalPrice.toFixed(2)); // Format to two decimal places
-    console.log("Dynamic Total Price: ", dynamicTotalPrice);
-  
-      // Format services for the package
       const formattedServices = selectedPkg.services
         .filter((service) => !service.removed) // Exclude removed services
         .map((service) => ({
@@ -176,12 +157,11 @@ const BookingProcess = ({ navigation }) => {
           requirements: service.requirements,
         }));
   
-      // Create the package
       const packageData = {
         packageName: selectedPkg.packageName,
         eventType: selectedPkg.eventType,
         services: formattedServices.map((service) => service.id),
-        totalPrice: dynamicTotalPrice,
+        totalPrice: selectedPkg.totalPrice,
         packagePhotoURl: coverPhotoURL || "",
       };
   
@@ -195,11 +175,12 @@ const BookingProcess = ({ navigation }) => {
         eventPax: values.eventPax,
         eventStatus: "Tentative",
         packages: [createdPackage.id],
+        totalPrice: selectedPkg.totalPrice,
         eventDate: values.eventDate,
         eventTime: values.eventTime,
         eventLocation: values.eventLocation,
         description: values.description,
-        guest: values.guests,
+        guest: values.guests || [],
         coverPhoto:
           "https://ktmddejbdwjeremvbzbl.supabase.co/storage/v1/" +
             coverPhotoURL || null,
@@ -330,7 +311,7 @@ const BookingProcess = ({ navigation }) => {
               eventLocation: "",
               description: "",
               coverPhoto: null,
-              guests: [{ GuestName: "", email: "" }],
+              guests: [{ GuestName: "", email: "", phone: "", role: ""}] || [],
             }}
             validationSchema={validationSchema}
             onSubmit={(values, { resetForm }) => {
@@ -350,6 +331,12 @@ const BookingProcess = ({ navigation }) => {
                 {/* Event Creation Screen */}
                 {currentScreen === 1 && (
                   <>
+                  <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ position: "absolute", left: 20, top: 20 }}
+              >
+                <Ionicons name="arrow-back" size={25} color="#eeba2b" />
+              </TouchableOpacity>
                     <Text style={styles.title}>Create Event</Text>
 
                     <View style={styles.servicePhotoContainer}>
@@ -625,9 +612,9 @@ const BookingProcess = ({ navigation }) => {
                   selectedPackage === pkg.id && styles.selectedPackageCard,
                 ]}
                 onPress={() => {
-                  console.log("Package clicked:", pkg.id);
-                  setSelectedPackage(pkg.id);
-                }}
+                console.log("Package clicked:", pkg.id);
+                setSelectedPackage(pkg.id); 
+              }}
               >
                 <Text style={styles.packageName}>
                   Package Name: {pkg.packageName}
@@ -675,7 +662,7 @@ const BookingProcess = ({ navigation }) => {
       </>
     )}
 
-                {currentScreen === 3 && selectedPackage !== null && (
+    {currentScreen === 3 && selectedPackage !== null && (
                   <>
                     <TouchableOpacity onPress={() => setCurrentScreen(2)}>
                       <Ionicons
@@ -804,54 +791,46 @@ const BookingProcess = ({ navigation }) => {
                                 )
                                 .map((service, index) => (
                                   <TouchableOpacity
-                                    key={index}
-                                    style={[
-                                      styles.serviceItem,
-                                      {
-                                        borderColor: "#eeba2b", // Border color
-                                        borderWidth: 1, // Set the border width to make it visible on all sides
-                                        borderRadius: 8, // Optional: to add rounded corners
-                                        marginTop: 10,
-                                      },
-                                    ]}
-                                    // Inside your Add Service Button onPress handler
-onPress={() => {
-  // Ensure the selectedPkg is updated correctly without mutating the original object
-  const updatedServices = selectedPkg ? [...selectedPkg.services, service] : [service];
+  key={index}
+  style={[styles.serviceItem, { borderColor: "#eeba2b", borderWidth: 1, borderRadius: 8, marginTop: 10 }]}
+  onPress={() => {
+    // Ensure selectedPkg is not null
+    const updatedServices = selectedPkg ? [...selectedPkg.services, service] : [service];
 
-  // Calculate the new totalPrice by adding the basePrice of the new service
-  const updatedTotalPrice = selectedPkg.totalPrice + service.basePrice;
+    // Convert totalPrice and service.basePrice to numbers to avoid string concatenation
+    const currentTotalPrice = parseFloat(selectedPkg.totalPrice) || 0;  // Convert totalPrice to a number, default to 0 if invalid
+    const serviceBasePrice = parseFloat(service.basePrice) || 0;  // Ensure service.basePrice is a number, default to 0 if invalid
 
-  // Clone the currentPackages and update the selected package with new services and the updated price
-  const updatedPackages = currentPackages.map((pkg) =>
-    pkg.id === selectedPkg.id
-      ? { ...pkg, services: updatedServices, totalPrice: updatedTotalPrice } // Update the total price here
-      : pkg
-  );
+    // Calculate the updated totalPrice
+    const updatedTotalPrice = currentTotalPrice + serviceBasePrice;
 
-  // Log the updated package details after adding a service
-  console.log("Package updated with new service:", {
-    packageId: selectedPkg.id,
-    updatedServices: updatedServices,
-    updatedTotalPrice: updatedTotalPrice,
-  });
+    // Log for debugging
+    console.log("Package updated with new service:", {
+      packageId: selectedPkg.id,
+      updatedServices: updatedServices,
+      updatedTotalPrice: updatedTotalPrice,
+    });
 
-  // Set the updated packages list
-  setCurrentPackages(updatedPackages);
-  closeServiceModal(); // Close the modal after selection
-}}
+    // Clone the currentPackages and update the selected package
+    const updatedPackages = currentPackages.map((pkg) =>
+      pkg.id === selectedPkg.id
+        ? { ...pkg, services: updatedServices, totalPrice: updatedTotalPrice.toFixed(2) }  // Format totalPrice as a string with two decimal places
+        : pkg
+    );
 
-                                  >
-                                    <Text style={styles.serviceName}>
-                                      {service.serviceName}
-                                    </Text>
-                                    <Text style={styles.serviceCategory}>
-                                      {service.serviceCategory}
-                                    </Text>
-                                    <Text style={styles.servicePrice}>
-                                      Price: ₱{service.basePrice}
-                                    </Text>
-                                  </TouchableOpacity>
+    // Set the updated packages list
+    setCurrentPackages(updatedPackages);
+
+    // Close the modal after selection
+    closeServiceModal();
+  }}
+>
+  <Text style={styles.serviceName}>{service.serviceName}</Text>
+  <Text style={styles.serviceCategory}>{service.serviceCategory}</Text>
+  <Text style={styles.servicePrice}>Price: ₱{service.basePrice}</Text>
+</TouchableOpacity>
+
+
                                 ))}
                             </ScrollView>
                           ) : (
@@ -893,44 +872,50 @@ onPress={() => {
                           </Text>
 
                           <View style={styles.modalActions}>
-                            <Button
-                              mode="contained"
-                              // Inside the Remove Service Confirmation modal onPress handler (Yes, Remove button)
-onPress={() => {
-  // Filter the removed service from the package's services
-  const updatedServices = selectedPkg.services.filter(
-    (service) => service.id !== selectedServiceToRemove.id
-  );
+                          <Button
+                        mode="contained"
+                        onPress={() => {
+                          // Remove the service from the selected package's services
+                          const updatedServices = selectedPkg.services.filter(
+                            (service) => service.id !== selectedServiceToRemove.id
+                          );
 
-  // Calculate the new totalPrice by subtracting the basePrice of the removed service
-  const updatedTotalPrice = selectedPkg.totalPrice - selectedServiceToRemove.basePrice;
+                          // Calculate the new totalPrice
+                          const updatedTotalPrice = selectedPkg.totalPrice - selectedServiceToRemove.basePrice;
 
-  // Clone the currentPackages and update the selected package with the updated services and price
-  const updatedPackages = currentPackages.map((pkg) =>
-    pkg.id === selectedPkg.id
-      ? { ...pkg, services: updatedServices, totalPrice: updatedTotalPrice } // Update the total price here
-      : pkg
-  );
+                          // Update the selected package with the new services list and totalPrice
+                          const updatedPackage = { 
+                            ...selectedPkg, 
+                            services: updatedServices, 
+                            totalPrice: updatedTotalPrice 
+                          };
 
-  // Log the updated package details after removing a service
-  console.log("Package updated after service removal:", {
-    packageId: selectedPkg.id,
-    updatedServices: updatedServices,
-    updatedTotalPrice: updatedTotalPrice,
-  });
+                          // Update the currentPackages state
+                          const updatedPackages = currentPackages.map((pkg) =>
+                            pkg.id === selectedPkg.id
+                              ? { ...pkg, services: updatedServices, totalPrice: updatedTotalPrice }
+                              : pkg
+                          );
 
-  // Update the state with the new package list
-  setCurrentPackages(updatedPackages);
+                          // Log the updated package details after removal
+                          console.log("Package updated after service removal:", {
+                            packageId: selectedPkg.id,
+                            updatedServices: updatedServices,
+                            updatedTotalPrice: updatedTotalPrice,
+                          });
 
-  // Close the confirmation modal after the update
-  setConfirmRemoveModalVisible(false);
-}}
+                          // Update the state with the new packages list
+                          setCurrentPackages(updatedPackages);
 
-                              style={styles.closeButton}
-                              marginRight={10}
-                            >
-                              Yes, Remove
-                            </Button>
+                          // Close the modal
+                          setConfirmRemoveModalVisible(false);
+                        }}
+                        style={styles.closeButton}
+                        marginRight={10}
+                      >
+                        Yes, Remove
+                      </Button>
+
 
                             <Button
                               mode="contained"
@@ -1137,19 +1122,109 @@ onPress={() => {
 
                     {/* Submit and Back buttons */}
                     <View style={styles.buttonContainer}>
-                      <Button
-                        mode="contained"
-                        onPress={handleSubmit}
-                        loading={isLoading}
-                        disabled={isLoading}
-                        style={styles.addButton1}
-                      >
-                        Submit
-                      </Button>
+                    
+                    <Button
+                      mode="contained"
+                      onPress={() => setCurrentScreen(5)}
+                      style={styles.addButton1}
+                    >
+                      Next
+                    </Button>
                     </View>
                   </>
                 )}
-                {/* dari ra taman */}
+
+                {currentScreen === 5 && (
+  <>
+    <TouchableOpacity onPress={() => setCurrentScreen(4)}>
+      <Ionicons
+        name="arrow-back"
+        size={24}
+        color="#eeba2b"
+        marginBottom={10}
+      />
+    </TouchableOpacity>
+    
+    <View style={styles.reviewContainer}>
+      <Text style={styles.title}>Review Details</Text>
+
+      {/* Displaying Cover Photo */}
+      <View style={styles.coverPhotoContainer}>
+        <Text style={styles.label}>Cover Photo:</Text>
+        {values.coverPhoto ? (
+          <Image
+            source={{ uri: values.coverPhoto }}
+            style={styles.coverPhoto}
+          />
+        ) : (
+          <Text style={styles.value}>No cover photo selected</Text>
+        )}
+      </View>
+
+      {/* Displaying Event Information */}
+      <View style={styles.reviewItem}>
+        <Text style={styles.label}>Event Name:</Text>
+        <Text style={styles.value}>{values.eventName}</Text>
+      </View>
+      <View style={styles.reviewItem}>
+        <Text style={styles.label}>Event Type:</Text>
+        <Text style={styles.value}>{values.eventType}</Text>
+      </View>
+      <View style={styles.reviewItem}>
+        <Text style={styles.label}>Event Pax:</Text>
+        <Text style={styles.value}>{values.eventPax}</Text>
+      </View>
+      <View style={styles.reviewItem}>
+        <Text style={styles.label}>Event Date:</Text>
+        <Text style={styles.value}>{values.eventDate}</Text>
+      </View>
+      <View style={styles.reviewItem}>
+        <Text style={styles.label}>Event Time:</Text>
+        <Text style={styles.value}>{values.eventTime}</Text>
+      </View>
+      <View style={styles.reviewItem}>
+        <Text style={styles.label}>Event Location:</Text>
+        <Text style={styles.value}>{values.eventLocation}</Text>
+      </View>
+      <View style={styles.reviewItem}>
+        <Text style={styles.label}>Description:</Text>
+        <Text style={styles.value}>{values.description}</Text>
+      </View>
+
+      {/* Displaying Package Information */}
+      <View style={styles.reviewItem}>
+        <Text style={styles.label}>Package:</Text>
+        {selectedPkg ? (
+          <>
+            <Text style={styles.value}>
+              {selectedPkg.packageName} - ₱{selectedPkg.totalPrice}
+            </Text>
+          </>
+        ) : (
+          <Text style={styles.value}>No package selected</Text>
+        )}
+      </View>
+
+      {/* Buttons for Finalizing */}
+      <View style={styles.buttonContainer}>
+        <Button
+          mode="contained"
+          onPress={handleSubmit}
+          loading={isLoading}
+          disabled={isLoading}
+          style={styles.addButton1}
+        >
+          Submit
+        </Button>
+      </View>
+    </View>
+  </>
+)}
+
+
+
+
+{/* dari raka taman haaaaaaaaaaaaaaaaaaaaaa heheheheh (|================3*/}
               </View>
             )}
           </Formik>
@@ -1158,7 +1233,6 @@ onPress={() => {
     </>
   );
 };
-
 const styles = StyleSheet.create({
   servicePhotoContainer: {
     alignItems: "center",
@@ -1318,7 +1392,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 16,
-  },
+    alignSelf: "center",
+ },
   titlePackage: {
     fontSize: 24,
     fontWeight: "bold",
@@ -1456,6 +1531,38 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     marginTop: 10,
   },
+
+  reviewContainer: {
+    padding: 20,
+  },
+  
+  reviewItem: {
+    flexDirection: 'row', // Aligns label and value horizontally
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  
+  coverPhotoContainer: {
+    alignItems: 'center', // Centers the cover photo and text
+    marginBottom: 20,
+  },
+  
+  coverPhoto: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  
+  label: {
+    fontWeight: 'bold',
+    flex: 1, // Ensures proper spacing
+  },
+  
+  value: {
+    flex: 2, // Aligns value to the right of the label
+  },
+  
 });
 
 export default BookingProcess;

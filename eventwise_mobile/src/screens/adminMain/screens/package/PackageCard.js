@@ -100,7 +100,7 @@ const PackageCard = ({
           style={styles.deleteButton}
           onPress={() => handleDeletePackage(currentPackages.id)} // Now using the prop
         >
-          <Text style={styles.buttonText}>Delete</Text>
+          <Text style={styles.buttonText}>Disable</Text>
         </TouchableOpacity>
       </View>
     </View>

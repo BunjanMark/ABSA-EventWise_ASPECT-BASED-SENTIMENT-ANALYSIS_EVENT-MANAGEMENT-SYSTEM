@@ -17,14 +17,17 @@ use App\Models\AccountRole;
 use App\Notifications\EventScheduleNotice;
 use App\Events\EventCreatedApprovedEvent;
 use Carbon\Carbon;
+use App\Mail\FeedbackRequestMail;
+use Illuminate\Support\Facades\Mail;
 class EventController extends Controller
 {
     //Add a method to fetch all events
     public function index()
 {
-    $events = Event::withCount('guest')->get();
+    $events = Event::withCount('guest')->with('user')->get();
     return response()->json($events);
 }
+
  public function eventsForDay($date)
 {
     $events = Event::whereDate('date', $date)->get();
@@ -52,14 +55,14 @@ public function store(Request $request)
             'eventLocation' => 'required|string',
             'description' => 'required|string',
             'coverPhoto' => 'nullable|string', 
-            'totalPrice' => 'nullable|integer',
+            'totalPrice' => 'nullable|numeric|min:1',
             // 'package_id' => 'required|exists:packages,id',
             'packages' => 'nullable|array',
-            'guest' => 'required|array',
-            'guest.*.GuestName' => 'required|string|max:255',
-            'guest.*.email' => 'required|email',
+            'guest' => 'nullable|array',
+            'guest.*.GuestName' => 'nullable|string|max:255',
+            'guest.*.email' => 'nullable|email',
             'guest.*.role' => 'nullable|string|max:255',
-            'guest.*.phone' => 'required|string|max:15',
+            'guest.*.phone' => 'nullable|string|max:15',
         ]);
 
         // Attach user ID to validated data
@@ -77,6 +80,7 @@ public function store(Request $request)
             'pax' => $validatedData['eventPax'],
             'date' => $validatedData['eventDate'],
             'time' => $validatedData['eventTime'],
+            'totalPrice' => $validatedData['totalPrice'],
             'status' => $validatedData['eventStatus'],
             'location' => $validatedData['eventLocation'],
             'description' => $validatedData['description'],
@@ -150,8 +154,8 @@ public function store(Request $request)
                'GuestName' => $guestData['GuestName'],
                'email' => $guestData['email'],
                'phone' => $guestData['phone'],
-               // set role default value to 'guest' role
-             'role' => $guestData['role'] ?? 'guest',
+               'role' => $guestData['role'],
+
 
            ]);
            $guests[] = $guest;
@@ -241,6 +245,7 @@ public function store(Request $request)
     }
 }
 
+
 public function fetchEventsByType(Request $request)
 {
     try {
@@ -265,6 +270,7 @@ public function fetchEventsByType(Request $request)
     }
 }
 
+
 public function getEventsWithMyServices(Request $request)
 {
     $userId = Auth::id();
@@ -277,6 +283,14 @@ public function getEventsWithMyServices(Request $request)
     })->get();
 
     return response()->json($events);
+}
+
+public function getEventServices(Request $request, $eventId)
+{
+    $eventServices = DB::table('event_services_providers')->where('event_id', $eventId)->pluck('service_id');
+    $services = Service::whereIn('id', $eventServices)->get();
+
+    return response()->json($services);
 }
 
 public function fetchEventsByDate($date)
@@ -350,6 +364,8 @@ public function updateEvent(Request $request, $eventId)
             'type' => 'required|string',
             'packages' => 'nullable|string', // Ensure this matches your frontend input
             'coverPhoto' => 'nullable|string', // Optional, can be null
+            'payment_status' => 'required|in:Downpayment,Paid',  
+
         ]);
 
         // Update the event with the validated data
@@ -583,12 +599,50 @@ public function getServiceProviederName($eventId, $userId)
             // Dispatch the EventCreatedApprovedEvent
             EventCreatedApprovedEvent::dispatch($event);
 
+                // Trigger the feedback email to guests
+            if ($event->status === 'complete') {
+                $this->sendFeedbackEmails($event);
+            }
             return response()->json(['message' => 'Booking approved! Your event is now scheduled!'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    }
+    }   
 
+    public function updateEventStatusComplete(Request $request, $eventId)
+    {
+        try {
+            $event = Event::find($eventId);
+
+            if (!$event) {
+                return response()->json(['error' => 'Event not found'], 404);
+            }
+
+            // Update the event status to 'scheduled'
+            $event->update(['status' => 'complete']);
+
+            // Dispatch the EventCreatedApprovedEvent
+            // EventCreatedApprovedEvent::dispatch($event);
+
+                // Trigger the feedback email to guests
+            if ($event->status === 'complete') {
+                $this->sendFeedbackEmails($event);
+            }
+            return response()->json(['message' => 'Event is done, it is now complete'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }   
+    protected function sendFeedbackEmails(Event $event)
+    { 
+        // Retrieve all guests for the event
+        $guests = Guest::where('event_id', $event->id)->get();
+
+        // Iterate over each guest and send an email
+        foreach ($guests as $guest) {
+            Mail::to($guest->email)->send(new FeedbackRequestMail($event, $guest));
+        }
+    }
     public function sendEventScheduleNotice(Request $request, $eventId)
 {
     try {
@@ -638,5 +692,24 @@ public function getServiceProviederName($eventId, $userId)
 
     return response()->json($events);
 }
+
+public function updatePaymentStatus(Request $request, $id)
+{
+    $request->validate([
+        'payment_status' => 'required|in:Downpayment,Paid',  
+    ]);
+    $event = Event::find($id);
+
+    if (!$event) {
+        return response()->json(['message' => 'Event not found'], 404);
+    }
+    $event->payment_status = $request->input('payment_status');
+    $event->save();
+    return response()->json([
+        'message' => 'Payment status updated successfully',
+        'payment_status' => $event->payment_status
+    ], 200);
+}
+
     
 }

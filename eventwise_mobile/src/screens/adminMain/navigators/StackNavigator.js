@@ -1,6 +1,7 @@
 import React from "react";
 import EditPackageScreen from "../screens/package/EditPackageScreen";
 import CreatePackageScreen from "../screens/package/CreatePackageScreen";
+import FeedbackDetail from "../screens/feedback/FeedbackDetail";
 import PackageCardDetails from "../screens/package/PackageCardDetails";
 import { createStackNavigator } from "@react-navigation/stack";
 import CreateEventScreen from "../screens/event/CreateEventScreen";
@@ -19,6 +20,7 @@ import AboutAdmin from "../screens/about/AboutAdmin";
 import EventAdmin from "../screens/event/EventAdmin";
 import ProfileAdmin from "../screens/profile/ProfileAdmin";
 import AttendeeAdmin from "../screens/attendee/AttendeeAdmin";
+import Attendees from "../screens/attendee/Attendees";
 import InventoryAdmin from "../screens/inventory/InventoryAdmin";
 import EventFeedbackDetails from "../screens/feedback/EventFeedbackDetails";
 import EditProfileAdmin from "../screens/profile/EditProfileAdmin";
@@ -129,6 +131,7 @@ const FeedbackStackNavigator = () => {
         name="FeedbackEventDetails"
         component={EventFeedbackDetails}
       /> */}
+      <Stack.Screen name="FeedbackDetail" component={FeedbackDetail} />
     </Stack.Navigator>
   );
 };
@@ -146,6 +149,7 @@ const AttendeeTrackerStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="AttendeeTrackerAdmin" component={AttendeeAdmin} />
+      <Stack.Screen name="Attendees" component={Attendees} />
     </Stack.Navigator>
   );
 };

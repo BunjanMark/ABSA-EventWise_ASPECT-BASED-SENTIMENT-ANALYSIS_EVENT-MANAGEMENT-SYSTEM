@@ -64,7 +64,6 @@ const MainStackNavigator = () => {
       <Stack.Screen name="EventsSP" component={EventsSP} />
       <Stack.Screen name="SetSchedSP" component={SetSchedSP} />
       <Stack.Screen name="GuestSP" component={GuestList} />
-      
     </Stack.Navigator>
   );
 };

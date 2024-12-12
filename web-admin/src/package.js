@@ -7,7 +7,7 @@ import image1 from './images/event1.png';
 import image2 from './images/event2.png';
 import image3 from './images/event3.png';
 import axios from 'axios';
-import { getAuthToken } from './apiconfig';
+import api from './axiosconfig';
 import API_URL from './apiconfig';
 
 const Package = () => {
@@ -15,7 +15,7 @@ const Package = () => {
 
   const [packageName, setPackageName] = useState('');
   const [eventType, setEventType] = useState('');
-  const [totalPrice, setTotalPrice] = useState('');
+  const [totalPrice, setTotalPrice] = useState();
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [services, setServices] = useState([]);
   const [availableServices, setAvailableServices] = useState([]);
@@ -30,78 +30,77 @@ const Package = () => {
 
   const location = useLocation();
 
-useEffect(() => {
-  if (location.state && location.state.packageDetails) {
-    const { packageDetails } = location.state;
-    setPackageName(packageDetails.packageName || '');
-    setEventType(packageDetails.eventType || '');
-    setTotalPrice(packageDetails.totalPrice || '');
-    setCoverPhoto(packageDetails.coverPhoto || null);
-    setServices(packageDetails.services || []);
-  }
-}, [location.state]);
-
-const handleUpdatePackage = () => {
-  if (!packageName || !eventType) {
-    alert("Please fill in all fields and select at least one service.");
-    return;
-  }
-
-  // Prepare data
-  const updatedPackageData = {
-    packageName: packageName || location.state.packageDetails.packageName,
-    eventType: eventType || location.state.packageDetails.eventType,
-    services: services.map((service) => service.id), // Ensure this is an array of IDs
-    totalPrice: totalPrice || location.state.packageDetails.totalPrice,
-    coverPhoto: coverPhoto || location.state.packageDetails.coverPhoto,
-  };
-
-  axios.put(`${API_URL}/api/admin/packages/${location.state.packageDetails.id}`, updatedPackageData, {
-    headers: {
-      Authorization: `Bearer ${getAuthToken()}`,
-      'Content-Type': 'application/json',
-    },
-  })
-    .then((response) => {
-      console.log('Package updated successfully:', response.data);
-      alert('Package updated successfully!');
-      navigate('/profile'); // Redirect to profile or another relevant page
-    })
-    .catch((error) => {
-      console.error('Error updating package:', error.response?.data || error.message);
-      const errors = error.response?.data?.errors || {};
-      alert(
-        `Failed to update package. ${
-          Object.keys(errors).length ? Object.values(errors).join(', ') : 'Please try again.'
-        }`
-      );
-    });
-};
-
-
-
-
-
   useEffect(() => {
-    axios.get(`${API_URL}/api/services`, {
-      headers: {
-        Authorization: `Bearer ${getAuthToken()}`,
-      },
-    })
+    if (location.state && location.state.packageDetails) {
+      const { packageDetails } = location.state;
+      setPackageName(packageDetails.packageName || '');
+      setEventType(packageDetails.eventType || '');
+      setTotalPrice(packageDetails.totalPrice);
+      setCoverPhoto(packageDetails.coverPhoto || null);
+      setServices(packageDetails.services || []);
+    }
+  }, [location.state]);
+
+  // Calculate the total price based on the services added or removed
+  useEffect(() => {
+    const newTotalPrice = services.reduce((acc, service) => acc + parseFloat(service.basePrice), 0);
+    setTotalPrice(newTotalPrice.toFixed(2));
+  }, [services]);
+  
+  
+
+  const handleUpdatePackage = () => {
+    if (!packageName || !eventType) {
+      alert("Please fill in all fields and select at least one service.");
+      return;
+    }
+  
+    // Prepare data
+    const updatedPackageData = {
+      packageName: packageName || location.state.packageDetails.packageName,
+      eventType: eventType || location.state.packageDetails.eventType,
+      services: services.map((service) => service.id), // Ensure this is an array of IDs
+      totalPrice: totalPrice || location.state.packageDetails.totalPrice,
+      coverPhoto: coverPhoto || location.state.packageDetails.coverPhoto,
+    };
+  
+    // Use the axios instance 'api' instead of axios directly
+    api.put(`${API_URL}/api/admin/packages/${location.state.packageDetails.id}`, updatedPackageData)
       .then((response) => {
-        const mappedServices = response.data.map((service) => ({
-          id: service.id,
-          serviceName: service.serviceName,
-          basePrice: service.basePrice,
-          serviceCategory: service.serviceCategory,
-          image: images[Math.floor(Math.random() * images.length)],
-        }));
-        setAvailableServices(mappedServices);
-        setFilteredServices(mappedServices); // Initially, show all services
+        console.log('Package updated successfully:', response.data);
+        alert('Package updated successfully!');
+        navigate('/profile'); // Redirect to profile or another relevant page
       })
       .catch((error) => {
-        console.error('Error fetching services:', error);
+        console.error('Error updating package:', error.response?.data || error.message);
+        const errors = error.response?.data?.errors || {};
+        alert(
+          `Failed to update package. ${
+            Object.keys(errors).length ? Object.values(errors).join(', ') : 'Please try again.'
+          }`
+        );
       });
+  };
+  
+
+  useEffect(() => {
+    // Axios will automatically include the token because of the interceptor in axiosconfig.js
+    api.get(`${API_URL}/api/services`)
+  .then((response) => {
+    const mappedServices = response.data.map((service) => ({
+      id: service.id,
+      serviceName: service.serviceName,
+      basePrice: parseFloat(service.basePrice), // Ensure basePrice is a number
+      serviceCategory: service.serviceCategory,
+      image: images[Math.floor(Math.random() * images.length)],
+    }));
+    setAvailableServices(mappedServices);
+    setFilteredServices(mappedServices);
+  })
+  .catch((error) => {
+    console.error('Error fetching services:', error);
+  });
+
   }, []);
 
   useEffect(() => {
@@ -135,12 +134,17 @@ const handleUpdatePackage = () => {
           serviceCategory: selectedService.serviceCategory,
           basePrice: selectedService.basePrice,
         }];
+  
+        // Update totalPrice directly by adding the basePrice of the new service
+        setTotalPrice((prevTotal) => parseFloat(prevTotal || 0) + parseFloat(selectedService.basePrice));
+  
         return updatedServices;
       });
     }
     setShowConfirmOverlay(false);
     setShowOverlay(false);
   };
+  
 
   const handleCancelService = () => {
     setShowConfirmOverlay(false);
@@ -148,9 +152,15 @@ const handleUpdatePackage = () => {
   };
 
   const handleRemoveService = (serviceId) => {
-    const updatedServices = services.filter(service => service.id !== serviceId);
-    setServices(updatedServices);
+    setServices((prevServices) => {
+      const updatedServices = prevServices.filter(service => service.id !== serviceId);
+      // Recalculate the total price
+      const updatedTotalPrice = updatedServices.reduce((total, service) => total + service.basePrice, 0);
+      setTotalPrice(updatedTotalPrice); // Update total price after removing the service
+      return updatedServices;
+    });
   };
+  
 
   const handleCreatePackage = () => {
     if (!packageName || !eventType) {
@@ -171,13 +181,9 @@ const handleUpdatePackage = () => {
       packageCreatedDate: new Date().toISOString().split('T')[0],
     };
   
-    axios
-      .post(`${API_URL}/api/admin/packages`, packageData, {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-          'Content-Type': 'application/json',
-        },
-      })
+    // Use the axios instance 'api' instead of axios directly
+    api
+      .post(`${API_URL}/api/admin/packages`, packageData)
       .then((response) => {
         console.log('Package created successfully:', response.data);
         alert('Package created successfully!');
@@ -194,8 +200,7 @@ const handleUpdatePackage = () => {
       });
   };
   
-  
-  
+
   const resetForm = () => {
     setPackageName('');
     setEventType('');
@@ -205,24 +210,6 @@ const handleUpdatePackage = () => {
     setSelectedCategory('All');
     setFilteredServices([]);
   };
-  
-
-  // Handle totalPrice input manually (ensuring it's a valid float)
-  const handleTotalPriceChange = (e) => {
-    let value = e.target.value;
-  
-    // Remove any non-numeric characters (keeping only numbers)
-    value = value.replace(/[^0-9]/g, "");
-  
-    // Set the total price only if the value is a valid number
-    if (value !== "") {
-      setTotalPrice(parseInt(value, 10)); // Parse as integer
-    } else {
-      setTotalPrice(0); // Default to 0 if input is empty
-    }
-  };
-  
-  
 
   return (
     <div className="gradient-container-portfolio">
@@ -285,15 +272,14 @@ const handleUpdatePackage = () => {
           onChange={(e) => setEventType(e.target.value)}
         />
 
-        <label className="label-portfolio">Enter Total Price</label>
-        <input
-          type="number"  // Use number type for whole numbers
-          className="text-input-portfolio"
-          placeholder="Total Price"
-          value={totalPrice}
-          step="1"  // Only whole numbers allowed
-          onChange={handleTotalPriceChange}  // Manual input handling
-        />
+          <input
+            type="number"
+            className="text-input-portfolio"
+            placeholder="Total Price"
+            value={totalPrice}
+            onChange={(e) => setTotalPrice(e.target.value)}
+          />
+
 
 
 

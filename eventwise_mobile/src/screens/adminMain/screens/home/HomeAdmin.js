@@ -24,8 +24,13 @@ import UpcomingEvents from "../event/UpcomingEvents";
 import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
 import EventBookings from "../event/EventBookings";
 import { fetchEvents } from "../../../../services/organizer/adminEventServices";
-import { getFeedback } from "../../../../services/feedbackServices";
+import {
+  getFeedbacksByEventId,
+  getTotalFeedbacks,
+  getFeedbackEventSentiments,
+} from "../../../../services/feedbackServices";
 import { useFeedbackStore } from "../../../../stateManagement/admin/useFeedbackStore";
+import HomeTotalFeedback from "../component/HomeTotalFeedback";
 const HomeAdmin = () => {
   const { eventData, sliceColor } = useStore(); // Using your state store
   const [refreshing, setRefreshing] = useState(false); // State for refresh control
@@ -33,7 +38,13 @@ const HomeAdmin = () => {
   const [refreshingEvents, setRefreshingEvents] = useState(false);
   const [refreshingPackages, setRefreshingPackages] = useState(false);
   const { currentEvents, setCurrentEvents } = useEventStore();
-  const { currentFeedbacks, setCurrentFeedbacks } = useFeedbackStore();
+  const {
+    currentFeedbacks,
+    setCurrentFeedbacks,
+    feedbacksByEvent,
+    setFeedbacksByEvent,
+  } = useFeedbackStore();
+
   const navigation = useNavigation();
   useEffect(() => {
     refreshEvents();
@@ -45,8 +56,18 @@ const HomeAdmin = () => {
       const updatedEvents = await fetchEvents();
       setCurrentEvents(updatedEvents);
 
-      const updatedFeedbacks = await getFeedback();
-      setCurrentFeedbacks(updatedFeedbacks);
+      const totalFeedbacks = await getTotalFeedbacks();
+      setCurrentFeedbacks(totalFeedbacks);
+      // const feedbacksByEvent = totalFeedbacks.reduce((acc, feedback) => {
+      //   const eventId = feedback.eventId;
+      //   if (!acc[eventId]) {
+      //     acc[eventId] = [];
+      //   }
+      //   acc[eventId].push(feedback);
+      //   return acc;
+      // })
+      const feedbacksEvents = await getFeedbackEventSentiments();
+      setFeedbacksByEvent(feedbacksEvents);
     } catch (error) {
       console.error("Failed to fetch events", error);
     } finally {
@@ -54,7 +75,6 @@ const HomeAdmin = () => {
     }
   }, [setCurrentEvents]);
 
-  console.log("Feedback Data: ", currentFeedbacks);
   const handleBackPress = () => {
     Alert.alert("Exit App", "Are you sure you want to exit?", [
       {
@@ -115,6 +135,7 @@ const HomeAdmin = () => {
   console.log("Current Events", JSON.stringify(currentEvents, ["status", 2]));
   return (
     <SafeAreaView>
+      {/* #TODO uncomment this and this sucessful auth will be go home */}
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -176,10 +197,11 @@ const HomeAdmin = () => {
         </View>
         <EventCalendar />
         <EventPackagesHome />
-        <TotalEventFeedback
+        <HomeTotalFeedback />
+        {/* <TotalEventFeedback
           eventFeedback={currentFeedbacks}
           sliceColor={sliceColor}
-        />
+        /> */}
         <View style={{ height: 1000 }} />
       </ScrollView>
     </SafeAreaView>

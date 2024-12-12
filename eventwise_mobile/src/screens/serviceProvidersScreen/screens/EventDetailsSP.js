@@ -1,194 +1,213 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-  Image,
-  TextInput,
-} from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import API_URL from '../../../constants/constant';
+import { fetchEventPackageDetails } from "../../../services/organizer/adminEventServices";
 
-const eventsData = [
-  { id: '1', title: 'Mr. & Mrs. Malik Wedding', image: require('../assets/event1.png'), date: '2024-07-01', address: 'CDO', buttons: ['Equipment'] },
-  { id: '2', title: 'Elizabeth Birthday', image: require('../assets/event2.png'), date: '2024-08-12', address: 'CDO', buttons: ['Inventory'] },
-  { id: '3', title: 'Class of 1979 Reunion', image: require('../assets/event3.png'), date: '2024-09-25', address: 'CDO', buttons: ['Equipment'] },
-  { id: '4', title: 'Corporate Party', image: require('../assets/event1.png'), date: '2024-10-30', address: 'CDO', buttons: ['Equipment'] },
-  { id: '5', title: 'Annual Gala', image: require('../assets/event2.png'), date: '2024-11-15', address: 'CDO', buttons: ['Inventory', 'Equipment'] },
-  { id: '6', title: 'New Year Celebration', image: require('../assets/event3.png'), date: '2024-12-31', address: 'CDO', buttons: ['Inventory'] },
-  { id: '7', title: 'Music Festival', image: require('../assets/event1.png'), date: '2024-06-22', address: 'CDO', buttons: ['Equipment'] },
-  { id: '8', title: 'Art Exhibition', image: require('../assets/event2.png'), date: '2024-07-05', address: 'CDO', buttons: ['Equipment'] },
-];
+const EventDetailsSP = () => {
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { eventId } = route.params;
+  const [eventData, setEventData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-const EventDetailsSP = ({ navigation }) => {
-  const [search, setSearch] = useState('');
-  const [filteredEvents, setFilteredEvents] = useState(eventsData);
-  const [likedEvents, setLikedEvents] = useState({});
+  useEffect(() => {
+    const fetchEventData = async () => {
+      try {
+        // Fetch event data
+        const eventResponse = await axios.get(`${API_URL}/api/admin/events/${eventId}`);
+        const eventDetails = eventResponse.data;
 
-  const handleSearch = (text) => {
-    setSearch(text);
-    if (text) {
-      const newData = eventsData.filter((item) => {
-        const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-      setFilteredEvents(newData);
-    } else {
-      setFilteredEvents(eventsData);
-    }
-  };
+        // Fetch package details
+        const packageDetails = await fetchEventPackageDetails(eventId);
 
-  const toggleLike = (eventId) => {
-    setLikedEvents((prevState) => ({
-      ...prevState,
-      [eventId]: !prevState[eventId],
-    }));
-  };
+        // Combine event and package details
+        setEventData({ ...eventDetails, packages: packageDetails });
+      } catch (error) {
+        console.error("Error fetching event or package data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const renderEventItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Image source={item.image} style={styles.image} />
-      <Text style={styles.title}>{item.title}</Text>
-      <View style={styles.detailContainer}>
-        <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="calendar" size={16} color="#2A93D5" />
-          <Text style={styles.detailText}>{item.date}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <MaterialCommunityIcons name="map-marker" size={16} color="#2A93D5" />
-          <Text style={styles.detailText}>{item.address}</Text>
-        </View>
-      </View>
-      <TouchableOpacity
-        style={[styles.heartIcon, likedEvents[item.id] ? styles.heartLiked : null]}
-        onPress={() => toggleLike(item.id)}
-      >
-        <MaterialCommunityIcons
-          name={likedEvents[item.id] ? 'heart' : 'heart-outline'}
-          color={likedEvents[item.id] ? '#FF0000' : '#888'}
-          size={20}
-        />
-      </TouchableOpacity>
-      <View style={styles.buttonsContainer}>
-        {item.buttons.map((button, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.button}
-            onPress={() => {
-              if (button === 'Equipment') {
-                navigation.navigate('EquipmentSP');
-              } else if (button === 'Inventory') {
-                navigation.navigate('InventorySP');
-              }
-            }}
-          >
-            <Text style={styles.buttonText}>{button}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
+    fetchEventData();
+  }, [eventId]);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#eeba2b" />;
+  }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search Events"
-          value={search}
-          onChangeText={handleSearch}
-        />
+    <>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
+        </TouchableOpacity>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Event DetailsSSSS</Text>
+        </View>
+
+        {/* Event Details */}
+        <View style={styles.coverPhotoContainer}>
+          <Text style={styles.label}>Cover Photo:</Text>
+          {eventData.coverPhoto ? (
+            <Image
+              source={{ uri: eventData.coverPhoto }}
+              style={styles.coverPhoto}
+              onError={(e) => console.error("Image Load Error:", e.nativeEvent.error)} // Debug loading error
+            />
+          ) : (
+            <Text style={styles.value}>No cover photo selected</Text>
+          )}
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel1}></Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.detailValue1}>{eventData.name}</Text>
+          </View>
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Event Type:</Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.detailValue}>{eventData.type}</Text>
+          </View>
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={[styles.detailLabel, { color: "#eeba2b" }]}>Total Price:</Text>
+          <View style={styles.detailContainer}>
+            <Text style={[styles.detailValue, { color: "#eeba2b" }]}>{eventData.totalPrice}</Text>
+          </View>
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Date:</Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.detailValue}>{eventData.date}</Text>
+          </View>
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Location:</Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.detailValue}>{eventData.location}</Text>
+          </View>
+        </View>
+        <View style={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Guests:</Text>
+          <View style={styles.detailContainer}>
+            {eventData.guest && eventData.guest.length > 0 ? (
+              eventData.guest.map((guest, index) => (
+                <Text key={index} style={styles.detailValue}>
+                  {guest.GuestName} - {guest.email}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.detailValue}>No guests available.</Text>
+            )}
+          </View>
+        </View>
+
+        {/* Packages */}
+        <Text style={styles.packageHeader}>Packages</Text>
+
+        <View style={styles.packageContainer}>
+  {Array.isArray(eventData.packages) && eventData.packages.length > 0 ? (
+    eventData.packages.map((packageItem, index) => (
+      <View key={index} style={styles.packageItem}>
+        <Text style={styles.packageHeader}>{packageItem.packageName}</Text>
+        <View style={styles.packageDetailGroup}>
+          <Text style={styles.packageDetailLabel}>Category: </Text>
+          <Text style={styles.packageDetailValue}>{packageItem.eventType}</Text>
+        </View>
+        <View style={styles.packageDetailGroup}>
+          <Text style={styles.packageDetailLabel}>Price: ₱</Text>
+          <Text style={styles.packagePrice}>{packageItem.totalPrice}</Text>
+        </View>
       </View>
-      <FlatList
-        data={filteredEvents}
-        renderItem={renderEventItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-      />
-    </View>
+    ))
+  ) : (
+    <Text style={styles.packageText}>No packages available.</Text>
+  )}
+</View>
+
+      </ScrollView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF', // Set background color to white
-    padding: 10,
-    paddingBottom: 100,
+  scrollContent: {
+    padding: 20,
   },
-  searchContainer: {
-    marginBottom: 10,
-  },
-  searchInput: {
-    backgroundColor: '#FFFFFF',
-    padding: 10,
-    borderRadius: 5,
-    borderColor: '#CCCCCC',
-    borderWidth: 1,
-  },
-  list: {
-    paddingBottom: 20,
-  },
-  itemContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2, // Increased shadow opacity
-    shadowRadius: 6, // Increased shadow radius
-    elevation: 4, // Increased elevation for Android
-  },
-  image: {
-    width: '100%',
-    height: 150,
-    borderRadius: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginVertical: 5,
-  },
-  detailContainer: {
-    marginVertical: 10,
-  },
-  detailRow: {
-    flexDirection: 'row',
+  header: {
     alignItems: 'center',
+    marginVertical: 20,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#e6b800',
+  },
+  detailGroup: {
+    marginBottom: 15,
+    flexDirection: 'row',
+  },
+  detailLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  detailValue: {
+    fontSize: 14,
+    color: "#333",
+  },
+  detailValue1: {
+    fontSize: 25,
+    color: "#333",
+    fontWeight: 'bold',
+  },
+  packageContainer: {
+    marginBottom: 20,
+    padding: 10,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  packageItem: {
+    marginBottom: 10,
+    flexDirection: "column", // Arrange items in a column
+  },
+  packageHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
+  },
+  packageDetailGroup: {
+    flexDirection: "row",
     marginBottom: 5,
   },
-  detailText: {
-    marginLeft: 5,
-    color: '#666',
+  packageDetailLabel: {
+    fontSize: 15, // Smaller font size for labels
+    fontWeight: "bold",
+    color: "#555",
   },
-  heartIcon: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
+  packageDetailValue: {
+    fontSize: 15, // Smaller font size for values
+    color: "#666",
   },
-  heartLiked: {
-    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-    borderRadius: 50,
-    padding: 5,
+  packagePrice: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#eeba2b", // Highlight the price
   },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    marginTop: 10,
-  },
-  button: {
-    backgroundColor: '#FFCE00',
-    borderRadius: 5,
-    padding: 10,
-    margin: 5,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+  packageText: {
+    fontSize: 15,
+    color: "#555",
   },
 });
 

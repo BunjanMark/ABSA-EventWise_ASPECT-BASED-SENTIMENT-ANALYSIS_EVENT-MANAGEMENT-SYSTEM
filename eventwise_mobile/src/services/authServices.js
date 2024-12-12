@@ -112,9 +112,10 @@ export const logout = async () => {
 export const getUser = async () => {
   try {
     const response = await api.get("/auth/me");
+    console.log("Get user response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Get user error:", error);
+    console.error("Get user error ngano man auth services.:", error);
     throw error;
   }
 };
@@ -128,7 +129,6 @@ export const updateUser = async (updatedData) => {
     throw error;
   }
 };
-
 
 export const getParticipants = async () => {
   try {
@@ -154,6 +154,7 @@ export const getAccountProfile = async () => {
 export const sendPasswordResetCode = async (email) => {
   try {
     const response = await api.post("/account-recovery", { email });
+
     return response.data;
   } catch (error) {
     console.error("Error in sendPasswordResetCode:", error);
@@ -230,6 +231,7 @@ export const addEquipment = async (equipmentData) => {
   }
 };
 
+
 export const updateEquipment = async (item) => {
   try {
     const response = await axios.put(
@@ -261,3 +263,4 @@ export const fetchAllEquipment = async () => {
       throw error;
   }
 };
+
