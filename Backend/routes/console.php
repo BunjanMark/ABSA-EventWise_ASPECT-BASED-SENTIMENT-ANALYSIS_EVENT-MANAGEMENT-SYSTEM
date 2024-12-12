@@ -7,6 +7,9 @@ use App\Console\Commands\ExampleCommand;
 use App\Console\Commands\ServeProject;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Console\Commands\SendEventReminders;
+use Illuminate\Support\Facades\Storage;
+
+
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
@@ -31,6 +34,18 @@ Artisan::command('serve-project {host?} {port?}', function ($host = 'localhost',
 $schedule = app(Schedule::class);
 
 // Schedule the SendEventReminders command to run daily at midnight
-$schedule->command('event:send-reminders')->everyMinute(); // This will run every minute
-$schedule->command('event:send-reminders-10-hours')->everyMinute(); // This will run every minute
-$schedule->command('event:send-reminders-1-day')->everyMinute(); // This will run every minute
+// For test
+$schedule->command('event:send-reminders')->dailyAt('16:15')->emailOutputOnFailure('eventwisecapstone@gmail.com');; // This will run every minute
+// $schedule->command('event:send-reminders-10-hours')->everyMinute(); // This will run every minute
+// $schedule->command('event:send-reminders-1-day')->everyMinute(); // This will run every minute
+// $schedule->command('event:send-reminders')
+//     ->dailyAt('01:57')
+//     ->emailOutputOnFailure('eventwisecapstone@gmail.com')
+//     ->when(function () {
+//         return !Storage::exists('event-reminder-flag');
+//     })
+//     ->after(function () {
+//         Storage::put('event-reminder-flag', true);
+//     });
+$schedule->command('event:send-reminders-10-hours')->everySixHours(0)->emailOutputOnFailure('eventwisecapstone@gmail.com'); // This will run every minute
+$schedule->command('event:send-reminders-1-day')->dailyAt('14:46')->emailOutputOnFailure('eventwisecapstone@gmail.com'); // This will run every minute

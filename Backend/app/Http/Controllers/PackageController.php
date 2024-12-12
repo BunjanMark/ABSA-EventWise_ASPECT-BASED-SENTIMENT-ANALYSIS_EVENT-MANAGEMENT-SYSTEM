@@ -51,6 +51,7 @@ public function update(Request $request, $id)
             'services.*' => 'integer', // Ensure each service is an integer
             'totalPrice' => 'nullable|numeric|min:1',
             'pax' => 'nullable|numeric|min:1',
+
             'coverPhoto' => 'nullable|url', // Ensure it's a valid URL
         ]);
 
@@ -98,6 +99,8 @@ public function update(Request $request, $id)
         ], 500);
     }
 }
+
+
 
     // Method to store a new package
     public function store(Request $request)

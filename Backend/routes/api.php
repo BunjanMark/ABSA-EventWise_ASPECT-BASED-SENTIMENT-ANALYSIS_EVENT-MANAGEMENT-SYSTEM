@@ -23,7 +23,8 @@ use App\Http\Controllers\SmsTwilioController;
 use App\Events\NewServiceCreated;
 use App\Http\Controllers\TwilioSmsController;
 use App\Http\Controllers\NotificationUpcomingEventController;
- 
+use App\Http\Controllers\FeedbackController;
+
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -41,7 +42,11 @@ Route::prefix('auth')->group(function () {
     Route::post('switch-account', [AuthenticatedSessionController::class, 'switchAccount'])->middleware(['auth:sanctum']);
     Route::post('/createProfileServiceProvider', [AuthenticatedSessionController::class, 'createServiceProvider'])->middleware(['auth:sanctum']);
     Route::post('/createProfileCustomer', [AuthenticatedSessionController::class, 'createCustomer'])->middleware(['auth:sanctum']);
+    Route::post('password-recovery', [AuthenticatedSessionController::class, 'sendRecoveryEmail']);
+    Route::post('/password/recovery', [AuthenticatedSessionController::class, 'recoverPassword']);
+
 });
+
 // for email verification
 // Route::post('/verify-email', [AuthenticatedSessionController::class, 'sendVerificationEmail']);
 // Route::post('/verify-email-code', [AuthenticatedSessionController::class, 'verifyCode']);
@@ -99,6 +104,8 @@ Route::get('/admin/events/{id}/packages', [EventPackageController::class, 'getEv
 Route::get('/admin/events/{eventId}/user/{userId}', [EventController::class, 'getServiceProviderInfoByUserId']);
 Route::get('/admin/events/{id}/user', [EventController::class, 'getUserBookingEvents'])->middleware('auth');
 Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateEventStatus']);
+Route::put('/admin/events/bookings/complete/{eventId}', [EventController::class, 'updateEventStatusComplete']); //to complete
+
 Route::put('/admin/events/{id}/payment-status', [EventController::class, 'updatePaymentStatus']);
 Route::get('/events/{eventId}/services', [EventController::class, 'getEventServices']);
 Route::get('/events/month/{month}', [EventController::class, 'eventsByMonth']);
@@ -225,3 +232,26 @@ Route::get('/test-email', function () {
  
 use App\Http\Controllers\EventReminderController;
 Route::get('event/{eventId}/reminder', [EventReminderController::class, 'sendEventReminder']);
+
+
+
+use App\Http\Controllers\PasswordResetController;
+
+Route::post('/account-recovery', [PasswordResetController::class, 'sendResetCode']);
+Route::post('/verify-password-reset-code', [PasswordResetController::class, 'verifyResetCode']);
+Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
+
+
+
+Route::get('/equipment/{eventId}', [EquipmentController::class, 'index']);
+Route::post('/equipment', [EquipmentController::class, 'store']);
+Route::put('/equipment/{id}', [EquipmentController::class, 'update']);
+Route::delete('/equipment/{id}', [EquipmentController::class, 'destroy']);
+
+// For feedback web
+
+// use App\Http\Controllers\FeedbackController;
+// Route::get('/feedback', [FeedbackController::class, 'showForm']);
+
+// Route::post('/feedback/submit', [FeedbackController::class, 'submitFeedback'])->name('feedback.submit');
+
