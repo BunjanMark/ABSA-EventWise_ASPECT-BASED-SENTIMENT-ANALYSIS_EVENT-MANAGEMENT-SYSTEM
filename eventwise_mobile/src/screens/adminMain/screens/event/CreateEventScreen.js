@@ -1113,21 +1113,15 @@ const CreateEventScreen = ({ navigation }) => {
 
                             {/* Button to manually add one guest */}
                             <View style={styles.buttonContainer}>
-                              <Button
-                                onPress={() =>
-                                  push({
-                                    GuestName: "",
-                                    email: "",
-                                    phone: "",
-                                    role: "",
-                                  })
-                                }
-                                style={styles.addButton1}
-                                textColor="white"
-                              >
-                                Add Guest
-                              </Button>
-                            </View>
+                    
+                    <Button
+                      mode="contained"
+                      onPress={() => setCurrentScreen(5)}
+                      style={styles.addButton1}
+                    >
+                      Skip
+                    </Button>
+                    </View>
                           </View>
                         );
                       }}

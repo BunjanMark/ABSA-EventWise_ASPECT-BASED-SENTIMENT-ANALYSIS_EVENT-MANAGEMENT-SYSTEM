@@ -154,8 +154,6 @@ const Attendees = () => {
             <Icon name="close" size={30} color="red" />
           </TouchableOpacity>
           <Text style={styles.modalTitle}>Edit Guest Details</Text>
-          <TextInput label="Guest Name" value={updatedGuestName} onChangeText={setUpdatedGuestName} style={styles.input} />
-          <TextInput label="Role" value={updatedRole} onChangeText={setUpdatedRole} style={styles.input} />
           <RNPickerSelect
             onValueChange={(value) => setUpdatedStatus(value)}
             items={[

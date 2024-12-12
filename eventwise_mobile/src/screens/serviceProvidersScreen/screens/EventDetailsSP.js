@@ -71,31 +71,31 @@ const EventDetailsSP = () => {
           </View>
         </View>
         <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Event Type:</Text>
+          <Text style={styles.detailLabel}>Event Type: </Text>
           <View style={styles.detailContainer}>
             <Text style={styles.detailValue}>{eventData.type}</Text>
           </View>
         </View>
         <View style={styles.detailGroup}>
-          <Text style={[styles.detailLabel, { color: "#eeba2b" }]}>Total Price:</Text>
+          <Text style={[styles.detailLabel, { color: "#eeba2b" }]}>Total Price: </Text>
           <View style={styles.detailContainer}>
             <Text style={[styles.detailValue, { color: "#eeba2b" }]}>{eventData.totalPrice}</Text>
           </View>
         </View>
         <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Date:</Text>
+          <Text style={styles.detailLabel}>Date: </Text>
           <View style={styles.detailContainer}>
             <Text style={styles.detailValue}>{eventData.date}</Text>
           </View>
         </View>
         <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Location:</Text>
+          <Text style={styles.detailLabel}>Location: </Text>
           <View style={styles.detailContainer}>
             <Text style={styles.detailValue}>{eventData.location}</Text>
           </View>
         </View>
         <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Guests:</Text>
+          <Text style={styles.detailLabel}>Guests: </Text>
           <View style={styles.detailContainer}>
             {eventData.guest && eventData.guest.length > 0 ? (
               eventData.guest.map((guest, index) => (
@@ -155,12 +155,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   detailLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
   },
   detailValue: {
-    fontSize: 14,
+    fontSize: 18,
     color: "#333",
   },
   detailValue1: {
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   packageContainer: {
-    marginBottom: 20,
+    marginBottom: 80,
     padding: 10,
     backgroundColor: "#f9f9f9",
     borderRadius: 5,
