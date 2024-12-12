@@ -37,6 +37,27 @@ export const signup = async (userData) => {
     throw error;
   }
 };
+export const accountRecovery = async (email) => {
+  try {
+    const response = await api.post("/auth/password/recovery", email);
+    console.log("this is the response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error(
+        "account recovery error response data:",
+        error.response.data
+      );
+      // console.error("Signup error response headers:", error.response.headers);
+    } else {
+      console.error(
+        "account recovery error response data:",
+        error.response.data
+      );
+    }
+    throw error;
+  }
+};
 export const sendVerificationEmail = async (email) => {
   try {
     const response = await api.post("/verify-email", { email });
