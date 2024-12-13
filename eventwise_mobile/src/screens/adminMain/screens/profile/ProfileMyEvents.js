@@ -3,42 +3,22 @@ import {
   Text,
   Modal,
   ScrollView,
-  Pressable,
   TouchableOpacity,
   Image,
+  StyleSheet,
 } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import styles from "../../styles/styles";
-import useStore from "../../../../stateManagement/useStore";
-import { useNavigation } from "@react-navigation/native";
-
-import event2 from "../../../../../assets/event2.png";
-import MyButtonComponent from "../component/MyButtonComponent";
 import { AntDesign } from "@expo/vector-icons";
 import AddEvent from "../component/AddEvent";
-// import AddEventOrPackageModalNew from "../component/AddEventOrPackageModalNew";
+import API_URL from "../../../../constants/constant";
+
 const ProfileMyEvents = () => {
-  const eventData = useStore((state) => state.eventData); // Fetch event data from useStore
-  const [selectedMonthEvents, setSelectedMonthEvents] = useState([]);
+  const [eventsByDate, setEventsByDate] = useState({}); // Grouped events by date
+  const [selectedMonth, setSelectedMonth] = useState(null); // Currently selected month
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [isModalVisiblePackage, setIsModalVisiblePackage] = useState(false);
-  const navigation = useNavigation();
-
-  const handleMonthPress = (month) => {
-    // Filter events based on the selected month
-    const filteredEvents = eventData.filter(
-      (event) => new Date(event.eventDate).getMonth() + 1 === month
-    );
-    setSelectedMonthEvents(filteredEvents);
-    setIsModalVisible(true); // Show the modal
-  };
-
-  const handleEventPress = (event) => {
-    // Navigate to event details with the event data
-    navigation.navigate("EventDetails", { event });
-  };
+  const [selectedEvent, setSelectedEvent] = useState(null); // Track selected event for modal
 
   const months = [
     { name: "January", value: 1 },
@@ -54,192 +34,107 @@ const ProfileMyEvents = () => {
     { name: "November", value: 11 },
     { name: "December", value: 12 },
   ];
-  // const monthparsed = months[parsed - 1].value;
-  const parsed = parseInt(selectedMonthEvents[0]?.eventDate.split("-")[1]);
-  // console.log(selectedMonthEvents[0].eventDate.split("-")[1]);
 
-  // console.log(parsed);
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = { year: 'numeric', month: 'long', day: '2-digit' };
+    return date.toLocaleDateString('en-US', options);
+  };
 
-  // console.log(parsed);
-  // console.log(parsed === months[parsed] ? "july" : false);
-  // console.log(months[parsed - 1].name ? "july" : false);
-  // console.log(months[parsed - 1]["name"]);
+  const fetchEventsByMonth = async (month) => {
+    try {
+      const response = await fetch(`${API_URL}/api/events/month/${month}`);
+      const text = await response.text();
+      const data = JSON.parse(text);
+      const groupedEvents = data.reduce((acc, event) => {
+        const date = event.date;
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(event);
+        return acc;
+      }, {});
+
+      setEventsByDate(groupedEvents);
+      setSelectedMonth(month);
+      setIsModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
+  };
 
   return (
-    <SafeAreaView style={[styles.container, {}]}>
-      <Text style={styles.header}>
-        <Text style={styles.title}>Events Archived</Text>
-      </Text>
-      <View
-        style={[
-          {
-            height: 120,
-            width: "100%",
-          },
-        ]}
-      >
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={[styles.scrollViewEventPackage]}
-        >
-          <View style={[{ marginVertical: -10, marginRight: 10 }]}>
-            <MyButtonComponent
-              onPress={() => setIsAddModalVisible(true)}
-              icon={"plus"}
-              title={"Add Event"}
-              backgroundColor={"#2A93D5"}
-              textColor={"white"}
-              width={130}
-              height={"100%"}
-              borderRadius={15}
-              iconSize={23}
-              iconColor={"white"}
-              fontSize={16}
-            />
-          </View>
-          {months.map((month) => (
-            <View
-              style={[
-                {
-                  display: "flex",
-                  flex: 1,
-                  justifyContent: "center",
-                  height: 120,
-                  width: "100%",
-                  flexDirection: "row",
-                  alignContent: "center",
-                  alignItems: "center",
-                },
-              ]}
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>Events Archived</Text>
+      {/* Add Event Button */}
+      <View style={styles.addEventContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.addEventButtonContainer}>
+            <TouchableOpacity
+              onPress={() => setIsAddModalVisible(true)} // Open add event modal
+              style={styles.addEventButton}
             >
-              <TouchableOpacity
-                key={month.value}
-                onPress={() => handleMonthPress(month.value)}
-              >
-                <View
-                  style={[
-                    styles.EventPackageOrEventCard,
-                    { height: "100%", width: 140 },
-                  ]}
-                >
-                  <Text style={styles.monthText}>{month.name}</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+              <Text style={styles.addEventButtonText}>Add Event</Text>
+            </TouchableOpacity>
+          </View>
+          {/* Month Buttons */}
+          {months.map((month) => (
+            <TouchableOpacity
+              key={month.value}
+              onPress={() => fetchEventsByMonth(month.value)}
+            >
+              <View style={styles.monthButton}>
+                <Text style={styles.monthButtonText}>{month.name}</Text>
+              </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
+
       {/* Modal to display events */}
       <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setIsModalVisible(false)}
-      >
-        <View
-          style={[
-            styles.modalContainer,
-            { backgroundColor: "#ffff", paddingTop: 100 },
-          ]}
+  visible={isModalVisible}
+  transparent={true}
+  animationType="slide"
+  onRequestClose={() => setIsModalVisible(false)}
+>
+  <View style={styles.modalContainer}>
+  <TouchableOpacity
+          onPress={() => setIsModalVisible(false)}
+          style={styles.closeButton}
         >
-          <View
-            style={[
-              {
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
+          <Text style={styles.closeButtonText}>X</Text>
+        </TouchableOpacity>
+    <View style={styles.modalHeader}>
+      <Text style={styles.modalTitle}>
+        Events in {months[selectedMonth - 1]?.name}
+      </Text>
+    </View>
 
-                alignItems: "center",
-              },
-            ]}
-          >
+    <ScrollView style={styles.scrollView}>
+      {Object.keys(eventsByDate).map((date) => (
+        <View key={date} style={styles.dateContainer}>
+          <Text style={styles.dateText}>{formatDate(date)}</Text>
+          {eventsByDate[date].map((event) => (
             <TouchableOpacity
-              onPress={() => setIsModalVisible(false)}
-              style={{
-                position: "absolute",
-
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                bottom: 30,
-                left: 240,
-                width: 50,
-                height: 50,
-                borderRadius: 25,
-                zIndex: 1,
-              }}
+              key={event.id}
+              style={styles.eventCard}
             >
-              <AntDesign name="close" size={30} color="black" />
-              {/* <MyButtonComponent
-                  icon={"close"}
-                  title={""}
-                  color={"white"}
-                  textColor="black"
-                  iconColor="black"
-                  onPress={() => setIsModalVisible(false)}
-                /> */}
+              <Image
+                source={{ uri: event.coverPhoto }}
+                style={styles.eventImage}
+              />
+              <Text style={styles.eventName}>{event.name}</Text>
+              <Text style={styles.eventDetails}>
+                {event.date} at {event.time} | {event.location}
+              </Text>
             </TouchableOpacity>
-
-            <Text style={styles.modalTitle}>
-              Events in Month of{" "}
-              {parsed === months[parsed - 1]?.value
-                ? months[parsed - 1].name
-                : parsed}
-            </Text>
-          </View>
-          <ScrollView>
-            {/* Check if there are events for the selected month */}
-            {selectedMonthEvents.length > 0 ? (
-              selectedMonthEvents.map((event) => (
-                <TouchableOpacity
-                  key={event.eventId}
-                  onPress={() => handleEventPress(event)}
-                >
-                  <View
-                    style={[
-                      styles.eventContainer,
-                      {
-                        marginBottom: 10,
-                        width: 370,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                      },
-                    ]}
-                  >
-                    <Image
-                      source={event.eventImage}
-                      style={styles.eventImage}
-                    />
-                    <Text style={styles.eventTitle}>{event.eventName}</Text>
-                    <View style={styles.eventPackageDetailRow}>
-                      <Text style={styles.subtitle}>
-                        {event.eventDate} at {event.eventTime}
-                      </Text>
-                      <Text style={styles.subtitle}>{event.eventLocation}</Text>
-                    </View>
-                    <Text style={[styles.subtitle, { color: "black" }]}>
-                      {event.eventDescription}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <View style={styles.noEventContainer}>
-                <Text style={styles.noEventText}>No events this month</Text>
-              </View>
-            )}
-          </ScrollView>
-
-          <Pressable
-            style={styles.closeButton}
-            onPress={() => setIsModalVisible(false)}
-          >
-            <Text style={styles.closeButtonText}>Close</Text>
-          </Pressable>
+          ))}
         </View>
-      </Modal>
+      ))}
+    </ScrollView>
+  </View>
+</Modal>
+
+      {/* Add Event Modal */}
       <AddEvent
         visible={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
@@ -248,5 +143,116 @@ const ProfileMyEvents = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 20,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  addEventContainer: {
+    height: 120,
+    width: "100%",
+  },
+  addEventButtonContainer: {
+    marginVertical: -10,
+    marginRight: 10,
+  },
+  addEventButton: {
+    backgroundColor: "#2A93D5",
+    borderRadius: 15,
+    padding: 15,
+    width: 130,
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+  },
+  addEventButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  monthButton: {
+    justifyContent: "center",
+    height: 120,
+    width: 140,
+    backgroundColor: "#eeba2b",
+    marginHorizontal: 5,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  monthButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  modalContainer: {
+    backgroundColor: "white",
+    flex: 1,
+    justifyContent: "flex-start",
+    paddingTop: 50,
+    paddingHorizontal: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+    width: "100%",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    flex: 1, // Ensure title takes remaining space
+  },
+  closeButton: {
+    position: "absolute",
+    top: 35,
+    right: 20,
+    backgroundColor: "transparent", // No background color
+    borderRadius: 20, // Optional for rounded corners
+    padding: 10,
+  },
+  closeButtonText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333", // Customize color of "X"
+  },
+  scrollView: {
+    flex: 1,
+  },
+  dateContainer: {
+    marginBottom: 20,
+  },
+  dateText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  eventCard: {
+    backgroundColor: "#eeba2b",
+    marginVertical: 10,
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  eventImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 8,
+  },
+  eventName: {
+    color: "white",
+    fontSize: 16,
+    marginTop: 10,
+  },
+  eventDetails: {
+    color: "white",
+    fontSize: 14,
+  },
+});
 
 export default ProfileMyEvents;

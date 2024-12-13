@@ -184,6 +184,7 @@ const createPackage = async (packageData) => {
       eventType: packageData.eventType,
       services: servicesArray, // Pass as an array
       totalPrice: packageData.totalPrice,
+      pax: packageData.pax,
       coverPhoto: packagePhotoURL, // URL from Supabase Storage
     };
 

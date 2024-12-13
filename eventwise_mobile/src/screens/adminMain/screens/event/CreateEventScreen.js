@@ -63,6 +63,8 @@ const CreateEventScreen = ({ navigation }) => {
   const [focusedInput, setFocusedInput] = useState(null);
   const [selectedEventType, setSelectedEventType] = useState(null); // For RNPickerSelect
   const [filteredPackages, setFilteredPackages] = useState([]); // For filtered packages
+  const [pax, setPax] = useState('');
+
 
   // Validation schema
   const validationSchema = Yup.object().shape({
@@ -99,6 +101,13 @@ const CreateEventScreen = ({ navigation }) => {
       setFilteredPackages(currentPackages); // Show all packages if no filter
     }
   }, [selectedEventType, currentPackages]); // Re-run when eventType or packages change
+
+  useEffect(() => {
+    const filtered = currentPackages.filter(pkg => {
+      return pkg.pax >= pax;  // Filter packages based on the pax entered
+    });
+    setFilteredPackages(filtered);
+  }, [pax, currentPackages]);
 
   // Fetch packages on mount
   useEffect(() => {
@@ -163,6 +172,7 @@ const CreateEventScreen = ({ navigation }) => {
         eventType: selectedPkg.eventType,
         services: formattedServices.map((service) => service.id),
         totalPrice: selectedPkg.totalPrice,
+        pax: selectedPkg.pax,
         packagePhotoURl: coverPhotoURL || "",
       };
   
@@ -420,28 +430,6 @@ const CreateEventScreen = ({ navigation }) => {
                   )}
 
 
-                    <TextInput
-                      style={[
-                        styles.input,
-                        focusedInput === "eventPax" && {
-                          borderColor: "#EEBA2B",
-                          borderWidth: 2,
-                        },
-                      ]}
-                      placeholder="Event Pax"
-                      keyboardType="numeric"
-                      onChangeText={handleChange("eventPax")}
-                      onBlur={() => {
-                        handleBlur("eventPax");
-                        setFocusedInput(null);
-                      }}
-                      onFocus={() => setFocusedInput("eventPax")}
-                      value={values.eventPax}
-                    />
-                    {touched.eventPax && errors.eventPax && (
-                      <Text style={styles.errorText}>{errors.eventPax}</Text>
-                    )}
-
                     <TouchableOpacity onPress={() => setShowCalendar(true)}>
                       <Text style={styles.datePicker}>
                         {selectedDate
@@ -588,77 +576,105 @@ const CreateEventScreen = ({ navigation }) => {
 
                 {/* Packages Screen */}
                 {currentScreen === 2 && (
-      <>
-        <TouchableOpacity onPress={() => setCurrentScreen(1)}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color="#eeba2b"
-            marginBottom={10}
+              <>
+                <TouchableOpacity onPress={() => setCurrentScreen(1)}>
+                  <Ionicons
+                    name="arrow-back"
+                    size={24}
+                    color="#eeba2b"
+                    marginBottom={10}
+                  />
+                </TouchableOpacity>
+
+                <Text style={styles.titlePackage}>Available Packages</Text>
+
+                {/* Pax Input */}
+                <TextInput
+            style={[
+              styles.input,
+              focusedInput === "eventPax" && {
+                borderColor: "#EEBA2B",
+                borderWidth: 2,
+              },
+            ]}
+            placeholder="Event Pax"
+            keyboardType="numeric"
+            onChangeText={(text) => {
+              handleChange("eventPax")(text); // Call handleChange with the text
+              setPax(text); // Update pax state
+            }}
+            onBlur={() => {
+              handleBlur("eventPax");
+              setFocusedInput(null);
+            }}
+            onFocus={() => setFocusedInput("eventPax")}
+            value={values.eventPax} // Use the correct value from `values`
           />
-        </TouchableOpacity>
+          {touched.eventPax && errors.eventPax && (
+            <Text style={styles.errorText}>{errors.eventPax}</Text>
+          )}
 
-        <Text style={styles.titlePackage}>Available Packages</Text>
+                {filteredPackages && filteredPackages.length > 0 ? (
+                  <ScrollView>
+                    {filteredPackages.map((pkg, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.packageCard,
+                          selectedPackage === pkg.id && styles.selectedPackageCard,
+                        ]}
+                        onPress={() => {
+                          console.log("Package clicked:", pkg.id);
+                          setSelectedPackage(pkg.id);
+                        }}
+                      >
+                        <Text style={styles.packageName}>
+                          Package Name: {pkg.packageName}
+                        </Text>
+                        <Text style={styles.packageType}>
+                          Type: {pkg.eventType}
+                        </Text>
+                        <Text style={styles.packagePrice}>
+                          Price: ₱{pkg.totalPrice}
+                        </Text>
+                        <Text style={styles.packagePrice}>
+                          Pax: {pkg.pax}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                ) : (
+                  <Text style={styles.noPackagesText}>
+                    No packages available for the selected event type.
+                  </Text>
+                )}
 
-        {filteredPackages && filteredPackages.length > 0 ? (
-          <ScrollView>
-            {filteredPackages.map((pkg, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.packageCard,
-                  selectedPackage === pkg.id && styles.selectedPackageCard,
-                ]}
-                onPress={() => {
-                  console.log("Package clicked:", pkg.id);
-                  setSelectedPackage(pkg.id);
-                }}
-              >
-                <Text style={styles.packageName}>
-                  Package Name: {pkg.packageName}
-                </Text>
-                <Text style={styles.packageType}>
-                  Type: {pkg.eventType}
-                </Text>
-                <Text style={styles.packagePrice}>
-                  Price: ₱{pkg.totalPrice}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        ) : (
-          <Text style={styles.noPackagesText}>
-            No packages available for the selected event type.
-          </Text>
-        )}
+                <Button
+                  mode="contained"
+                  onPress={() => {
+                    setCurrentScreen(3);
+                    console.log("Proceeding with package ID:", selectedPackage);
 
-        <Button
-          mode="contained"
-          onPress={() => {
-            setCurrentScreen(3);
-            console.log("Proceeding with package ID:", selectedPackage);
+                    const selectedPkgDetails = currentPackages.find(
+                      (pkg) => pkg.id === selectedPackage
+                    );
+                    if (selectedPkgDetails) {
+                      console.log("Proceeding with package details:");
+                      console.log("ID:", selectedPkgDetails.id);
+                      console.log("packageName:", selectedPkgDetails.packageName);
+                      console.log("eventType:", selectedPkgDetails.eventType);
+                      console.log("totalPrice:", selectedPkgDetails.totalPrice);
+                    } else {
+                      console.log("No package selected or package details not found.");
+                    }
+                  }}
+                  style={styles.closeButton}
+                >
+                  Next
+                </Button>
+              </>
+            )}
 
-            const selectedPkgDetails = currentPackages.find(
-              (pkg) => pkg.id === selectedPackage
-            );
-            if (selectedPkgDetails) {
-              console.log("Proceeding with package details:");
-              console.log("ID:", selectedPkgDetails.id);
-              console.log("packageName:", selectedPkgDetails.packageName);
-              console.log("eventType:", selectedPkgDetails.eventType);
-              console.log("totalPrice:", selectedPkgDetails.totalPrice);
-            } else {
-              console.log(
-                "No package selected or package details not found."
-              );
-            }
-          }}
-          style={styles.closeButton}
-        >
-          Next
-        </Button>
-      </>
-    )}
 
     {currentScreen === 3 && selectedPackage !== null && (
                   <>
@@ -1097,21 +1113,15 @@ const CreateEventScreen = ({ navigation }) => {
 
                             {/* Button to manually add one guest */}
                             <View style={styles.buttonContainer}>
-                              <Button
-                                onPress={() =>
-                                  push({
-                                    GuestName: "",
-                                    email: "",
-                                    phone: "",
-                                    role: "",
-                                  })
-                                }
-                                style={styles.addButton1}
-                                textColor="white"
-                              >
-                                Add Guest
-                              </Button>
-                            </View>
+                    
+                    <Button
+                      mode="contained"
+                      onPress={() => setCurrentScreen(5)}
+                      style={styles.addButton1}
+                    >
+                      Skip
+                    </Button>
+                    </View>
                           </View>
                         );
                       }}

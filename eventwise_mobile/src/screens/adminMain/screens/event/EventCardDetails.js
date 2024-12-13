@@ -1,18 +1,19 @@
+import { View, Text, ScrollView, Image, Alert, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
-import React, { useEffect, useState } from "react";
-import { Ionicons } from '@expo/vector-icons';
-import { fetchEventPackageDetails } from "../../../../services/organizer/adminEventServices";
+  approveBookingEvent,
+  fetchEventPackageDetails,
+  fetchServices,
+  fetchPackageServiceDetails,
+} from "../../../../services/organizer/adminEventServices";
 
 const EventCardDetails = ({ route, navigation }) => {
-  const { eventData } = route.params;
-  const [packageDetails, setPackageDetails] = useState([]);
+  const { eventData, userBookingDetails } = route.params;
+  const [packageDetails, setPackageDetails] = useState([]); // Packages
+  const [serviceDetails, setServiceDetails] = useState([]); // Services related to the package
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!eventData) {
     return <Text>Loading...</Text>;
@@ -22,65 +23,94 @@ const EventCardDetails = ({ route, navigation }) => {
     const fetchDetails = async () => {
       try {
         if (eventData) {
-          const details = await fetchEventPackageDetails(eventData.id);
-          setPackageDetails(details);
+          // Fetch event's package details
+          const packageData = await fetchEventPackageDetails(eventData.id);
+          console.log("Package Data:", packageData); // Log the data
+          setPackageDetails(packageData);
+
+          // If package details exist, fetch related services
+          if (packageData.length > 0) {
+            const packageId = packageData[0]?.id; // Assuming package ID exists
+            const services = await fetchPackageServiceDetails(packageId);
+            setServiceDetails(services);
+          }
         }
       } catch (error) {
-        console.log("Error fetching event package details: ", error);
+        console.error("Error fetching details: ", error);
+        Alert.alert("Error", "Unable to load package or service details.");
       }
     };
     fetchDetails();
   }, [eventData]);
 
-  console.log(
-    "Event data inside EventCardDetails: ",
-    JSON.stringify(eventData)
-  );
-
+  const handlingApproveButton = async (eventid) => {
+    setIsLoading(true);
+    try {
+      const response = await approveBookingEvent(eventid);
+      setIsLoading(false);
+      console.log("Approve!!" + response);
+      Alert.alert("Success", "Booking approved successfully!");
+    } catch (error) {
+      console.log("Error approving booking: ", error);
+      setIsLoading(false);
+    }
+  };
   return (
     <ScrollView style={styles.container}>
-     <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10}/>
-            </TouchableOpacity>
-      <View style={styles.card}>
-        {/* Displaying package cover photo */}
-        <Image
-          source={
-            eventData.coverPhoto
-              ? { uri: eventData.coverPhoto }
-              : require("../../../../../assets/event2.png")
-          }
-          style={styles.coverPhoto}
-        />
+    {/* Back Navigation */}
+    <TouchableOpacity onPress={() => navigation.goBack()}>
+      <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10} />
+    </TouchableOpacity>
 
-        <Text style={styles.title}>{eventData?.name}</Text>
-        <Text style={styles.eventType}>Event Type: {eventData?.type}</Text>
-        <Text style={styles.totalPrice}>
-          Total Price:{" "}
-          {eventData?.totalPrice ? `₱${eventData?.totalPrice}` : "N/A"}
-        </Text>
+    {/* Event Details */}
+    <View style={styles.card}>
+      <Image source={{ uri: eventData?.coverPhoto }} style={styles.coverPhoto} />
+      <Text style={styles.title}>{eventData?.name}</Text>
+      <Text style={styles.subtitle}>Booked by: {userBookingDetails?.service_provider_name}</Text>
+      <Text style={styles.eventType}>Event Type: {eventData?.type}</Text>
+      <Text style={styles.totalPrice}>Total Price: N/a</Text>
 
-        <Text style={styles.sectionTitle}>Package Services:</Text>
-        {packageDetails.length > 0 ? (
-          packageDetails.map((currentPackage, index) => (
-            <View key={index} style={styles.serviceContainer}>
-              <Text style={styles.serviceName}>
-                {currentPackage.packageName}
-              </Text>
-              <Text style={styles.serviceCategory}>
-                Category: {currentPackage.serviceCategory}
-              </Text>
-              <Text style={styles.servicePrice}>
-                Price: ₱{currentPackage.basePrice}
-              </Text>
-              <Text style={styles.serviceFeatures}>
-                Features: {currentPackage?.serviceFeatures}
-              </Text>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.noPackages}>No package details available.</Text>
-        )}
+      <Text style={styles.sectionTitle}>Event Details</Text>
+      <View style={styles.eventDetailsContainer}>
+        <Text style={styles.eventDetail}>Date: {new Date(eventData?.date).toLocaleString()}</Text>
+        <Text style={styles.eventDetail}>Time: {eventData?.time}</Text>
+        <Text style={styles.eventDetail}>Location: {eventData?.location}</Text>
+        <Text style={styles.eventDetail}>Description: {eventData?.description}</Text>
+      </View>
+
+      {/* Package Section */}
+      <Text style={styles.sectionTitle}>Package</Text>
+      {packageDetails.length > 0 ? (
+        packageDetails.map((pkg, index) => (
+          <View key={index} style={styles.packageContainer}>
+            <Text style={styles.packageName}>{pkg.packageName}</Text>
+            <Text>Category: {pkg.eventType}</Text>
+            <Text>Price: ₱{pkg.totalPrice}</Text>
+            <Text>Pax:{pkg.pax}</Text>
+          </View>
+        ))
+      ) : (
+        <Text>No package details available.</Text>
+      )}
+
+      {/* Service Details */}
+      <Text style={styles.sectionTitle}>Services</Text>
+      {serviceDetails.length > 0 ? (
+        serviceDetails.map((service, index) => (
+          <View key={index} style={styles.serviceContainer}>
+            <Image source={{ uri: service?.servicePhotoURL }} style={styles.serviceImage} />
+            <Text style={styles.serviceName}>{service.serviceName}</Text>
+            <Text>Category: {service.serviceCategory}</Text>
+            <Text>Price: ₱{service.basePrice}</Text>
+            <Text>Location: {service.location}</Text>
+            <Text>Pax: {service.pax}</Text>
+            <Text>Requirements: {service.requirements}</Text>
+            <Text>Features: {service.serviceFeatures?.join(", ")}</Text>
+          </View>
+        ))
+      ) : (
+        <Text>No services available for this package.</Text>
+      )}
 
         <Text style={styles.sectionTitle}>Created At:</Text>
         <Text style={styles.createdAt}>
@@ -152,7 +182,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
-    marginVertical: 10,
+    marginBottom: 10,
+  },
+  eventDetailsContainer: {
+    marginBottom: 20,
+  },
+  eventDetail: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  eventDetailLabel: {
+    fontSize: 16,
+    color: "#666",
+  },
+  eventDetailValue: {
+    fontSize: 16,
+    color: "#333",
   },
   serviceContainer: {
     marginBottom: 20,
@@ -185,29 +231,26 @@ const styles = StyleSheet.create({
   createdAt: {
     fontSize: 16,
     color: "#555",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   updatedAt: {
     fontSize: 16,
     color: "#555",
-    marginBottom: 10,
-  },
-  noPackages: {
-    fontSize: 16,
-    color: "#999",
-    marginTop: 10,
+    marginBottom: 20,
   },
   buttonsContainer: {
     flexDirection: "row",
     justifyContent: "center",
+    marginBottom: 20,
   },
   editButton: {
-    backgroundColor: "#eeba2b",
+    backgroundColor: "#ff9900",
     padding: 12,
     borderRadius: 5,
     marginTop: 20,
     alignItems: "center",
     width: "100%",
+    marginHorizontal: 10,
   },
   buttonText: {
     color: "#fff",
