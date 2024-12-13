@@ -588,7 +588,7 @@ const BookingProcess = ({ navigation }) => {
 
         <Text style={styles.titlePackage}>Available Packages</Text>
 
-          <TextInput
+        <TextInput
             style={[
               styles.input,
               focusedInput === "eventPax" && {
@@ -612,6 +612,7 @@ const BookingProcess = ({ navigation }) => {
           {touched.eventPax && errors.eventPax && (
             <Text style={styles.errorText}>{errors.eventPax}</Text>
           )}
+
 
 
         {filteredPackages && filteredPackages.length > 0 ? (
