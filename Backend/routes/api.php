@@ -108,7 +108,6 @@ Route::put('/admin/events/bookings/complete/{eventId}', [EventController::class,
 Route::get('/events/month/{month}', [EventController::class, 'eventsByMonth']); 
 Route::put('/admin/events/{id}/payment-status', [EventController::class, 'updatePaymentStatus']);
 Route::get('/events/{eventId}/services', [EventController::class, 'getEventServices']);
-Route::get('/events/month/{month}', [EventController::class, 'eventsByMonth']);
 
 
 // Route::get('/admin/events', [EventController::class, 'getEvents']);
