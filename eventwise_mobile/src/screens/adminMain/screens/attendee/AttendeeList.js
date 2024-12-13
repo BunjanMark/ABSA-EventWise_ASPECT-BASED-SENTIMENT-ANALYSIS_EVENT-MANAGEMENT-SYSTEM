@@ -57,7 +57,7 @@ const AttendeeList = ({ event, navigation }) => {
         {event.description}
       </Text>
       <View style={styles.footer}>
-        <Text style={styles.totalGuests}>Guestsssss: {event.pax}</Text>
+        <Text style={styles.totalGuests}>Guests: {event.pax}</Text>
         <MaterialIcons name="keyboard-arrow-right" size={24} color="#757575" />
       </View>
     </TouchableOpacity>

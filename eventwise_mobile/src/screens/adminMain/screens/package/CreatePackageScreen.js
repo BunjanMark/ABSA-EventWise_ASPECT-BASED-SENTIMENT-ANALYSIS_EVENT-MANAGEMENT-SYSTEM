@@ -33,6 +33,8 @@ const CreatePackageScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { services, setServices } = useServicesStore();
   const [selected, setSelected] = useState([]);
+  const [filteredServices, setFilteredServices] = useState([]); // Filtered services
+  const [paxValue, setPaxValue] = useState("");
   // Validation schema
   const validationSchema = Yup.object().shape({
     packageName: Yup.string().required("Package name is required"),
@@ -41,6 +43,9 @@ const CreatePackageScreen = ({ navigation }) => {
     totalPrice: Yup.number()
       .required("Total price is required")
       .min(1, "Price must be at least 1"),
+      pax: Yup.number()
+      .required("Pax is required")
+      .min(1, "Pax must be at least 1"),
   });
   // Fetch services on mount
   useEffect(() => {
@@ -48,14 +53,27 @@ const CreatePackageScreen = ({ navigation }) => {
       try {
         const fetchedServices = await fetchServices();
         setServices(fetchedServices);
-        // console.log("Fetched services: " + services);
+        setFilteredServices(fetchedServices); // Initialize filteredServices
       } catch (error) {
         console.error("Error fetching services:", error);
-        Alert.alert("Error", "Unable to load servicesss. Please try again.");
+        Alert.alert("Error", "Unable to load services. Please try again.");
       }
     };
     loadServices();
   }, [setServices]);
+
+  useEffect(() => {
+    if (paxValue) {
+      const filtered = services.filter(
+        (service) => service.pax <= parseInt(paxValue, 10)
+      );
+      setFilteredServices(filtered);
+    } else {
+      setFilteredServices(services); // Show all services if paxValue is empty
+    }
+  }, [paxValue, services]);
+
+
   // console.log("Fetched services: " + services);
   const handleCreatePackage = async (values, resetForm) => {
     console.log("Creating package with values:", values);
@@ -79,6 +97,7 @@ const CreatePackageScreen = ({ navigation }) => {
         eventType: values.eventType,
         services: selected,
         totalPrice: values.totalPrice,
+        pax: values.pax,
         coverPhotoURL: coverPhotoURL || null,
       };
 
@@ -151,21 +170,6 @@ const CreatePackageScreen = ({ navigation }) => {
     </View>
   );
 
-  // useEffect(() => {
-  //   console.log("selected services: ", selected);
-  // });
-
-  // console.log(
-  //   "Console log services ",
-  //   services
-  //     .filter((service) => service.serviceName && service.id)
-  //     .map((service) => ({
-  //       label: service.serviceName,
-  //       value: service.id,
-  //       category: service.serviceCategory,
-  //     }))
-  // );
-
   return (
     <View style={styles.container}>
       <ScrollView style={[{ width: "100%" }]}>
@@ -176,6 +180,7 @@ const CreatePackageScreen = ({ navigation }) => {
             services: [],
             totalPrice: "",
             coverPhoto: null,
+            pax: "",
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { resetForm }) => {
@@ -231,6 +236,23 @@ const CreatePackageScreen = ({ navigation }) => {
               {errors.packageName && touched.packageName && (
                 <Text style={styles.errorText}>{errors.packageName}</Text>
               )}
+
+              <TextInput
+                style={styles.input}
+                placeholder="Pax"
+                value={values.pax}
+                onChangeText={(value) => {
+                  setFieldValue("pax", value); // Update Formik field
+                  setPaxValue(value); // Update Pax value for filtering
+                }}
+                onBlur={handleBlur("pax")}
+                keyboardType="numeric"
+              />
+              {errors.pax && touched.pax && (
+                <Text style={styles.errorText}>{errors.pax}</Text>
+              )}
+
+              
               <RNPickerSelect
                 onValueChange={(value) => setFieldValue("eventType", value)}
                 items={[
@@ -250,29 +272,20 @@ const CreatePackageScreen = ({ navigation }) => {
                 selectedTextStyle={styles.selectedTextStyle}
                 inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
-                data={services
-                  .filter((service) => service.serviceName && service.id)
-                  .map((service) => ({
-                    label: service.serviceName,
-                    value: service.id,
-                    category: service.serviceCategory,
-                  }))}
+                data={filteredServices.map((service) => ({
+                  label: `${service.serviceName} - ${service.basePrice} - Pax: ${service.pax}`,
+                  value: service.id,
+                  category: service.serviceCategory,
+                }))}
                 labelField="label"
                 valueField="value"
                 placeholder="Select services"
                 value={selected}
-                // data={data}
                 search
                 searchPlaceholder="Search..."
                 onChange={(items) => {
                   setSelected(items);
-                  setFieldValue(
-                    "services",
-                    items.map((item) =>
-                      console.log("hello this is the item", item)
-                    )
-                  ); // Update Formik's services field with the selected item values (not the full object)
-                  console.log("Selected servicesssss:", items);
+                  setFieldValue("services", items);
                 }}
                 renderItem={renderItem}
                 renderLeftIcon={() => (

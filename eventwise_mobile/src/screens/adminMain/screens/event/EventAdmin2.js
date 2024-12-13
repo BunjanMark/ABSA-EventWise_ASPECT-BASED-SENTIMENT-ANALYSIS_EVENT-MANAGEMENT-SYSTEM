@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView } from "react-native";
+  import { View, Text, SafeAreaView } from "react-native";
 import React from "react";
 import EventPackages from "../component/EventPackages";
 import { ScrollView } from "react-native-gesture-handler";

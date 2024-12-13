@@ -53,13 +53,14 @@ const EventDetails = () => {
 
         {/* Event Details */}
         <View style={styles.coverPhotoContainer}>
-          <Text style={styles.label}>Cover Photo:</Text>
           {eventData.coverPhoto ? (
             <Image
-              source={{ uri: eventData.coverPhoto }}
-              style={styles.coverPhoto}
-              onError={(e) => console.error("Image Load Error:", e.nativeEvent.error)} // Debug loading error
-            />
+             source={{
+    uri: eventData?.coverPhoto || "defaultImageURL",
+  }}
+  style={styles.eventImage}
+  resizeMode="cover"
+/>
           ) : (
             <Text style={styles.value}>No cover photo selected</Text>
           )}
@@ -71,31 +72,31 @@ const EventDetails = () => {
           </View>
         </View>
         <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Event Type:</Text>
+          <Text style={styles.detailLabel}>Event Type: </Text>
           <View style={styles.detailContainer}>
             <Text style={styles.detailValue}>{eventData.type}</Text>
           </View>
         </View>
         <View style={styles.detailGroup}>
-          <Text style={[styles.detailLabel, { color: "#eeba2b" }]}>Total Price:</Text>
+          <Text style={[styles.detailLabel, { color: "#eeba2b" }]}>Total Price: </Text>
           <View style={styles.detailContainer}>
             <Text style={[styles.detailValue, { color: "#eeba2b" }]}>{eventData.totalPrice}</Text>
           </View>
         </View>
         <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Date:</Text>
+          <Text style={styles.detailLabel}>Date: </Text>
           <View style={styles.detailContainer}>
             <Text style={styles.detailValue}>{eventData.date}</Text>
           </View>
         </View>
         <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Location:</Text>
+          <Text style={styles.detailLabel}>Location: </Text>
           <View style={styles.detailContainer}>
-            <Text style={styles.detailValue}>{eventData.location}</Text>
+            <Text style={styles.detailValue}>{eventData.location}</Text> 
           </View>
         </View>
-        <View style={styles.detailGroup}>
-          <Text style={styles.detailLabel}>Guests:</Text>
+        <View style ={styles.detailGroup}>
+          <Text style={styles.detailLabel}>Guests: </Text>
           <View style={styles.detailContainer}>
             {eventData.guest && eventData.guest.length > 0 ? (
               eventData.guest.map((guest, index) => (
@@ -155,12 +156,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   detailLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
   },
   detailValue: {
-    fontSize: 14,
+    fontSize: 18,
     color: "#333",
   },
   detailValue1: {
@@ -210,6 +211,14 @@ const styles = StyleSheet.create({
   packageText: {
     fontSize: 15,
     color: "#555",
+  },
+  eventImage: {
+    width: "100%",
+    height: 220,
+    borderRadius: 15,
+    marginBottom: 10,
+    borderColor: "#eeba2b",
+    borderWidth: 2,
   },
 });
 
