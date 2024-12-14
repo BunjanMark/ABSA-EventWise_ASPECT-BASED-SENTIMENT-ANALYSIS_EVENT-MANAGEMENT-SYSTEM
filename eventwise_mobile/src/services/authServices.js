@@ -37,27 +37,6 @@ export const signup = async (userData) => {
     throw error;
   }
 };
-export const accountRecovery = async (email) => {
-  try {
-    const response = await api.post("/auth/password/recovery", email);
-    console.log("this is the response:", response.data);
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      console.error(
-        "account recovery error response data:",
-        error.response.data
-      );
-      // console.error("Signup error response headers:", error.response.headers);
-    } else {
-      console.error(
-        "account recovery error response data:",
-        error.response.data
-      );
-    }
-    throw error;
-  }
-};
 export const sendVerificationEmail = async (email) => {
   try {
     const response = await api.post("/verify-email", { email });
@@ -92,20 +71,29 @@ export const verifyCode = async (email, code) => {
 };
 export const login = async (email, password) => {
   try {
-      const response = await api.post("/auth/login", {
-          email: email.trim(),
-          password: password.trim(),
-      });
+    // Fetch the push token first
+    const pushToken = await registerForPushNotificationsAsync();
+    if (!pushToken) {
+      console.warn("Push token could not be obtained.");
+      return;
+    }
 
-      const { token } = response.data;
-      await AsyncStorage.setItem("authToken", token);
-      return response.data;
+    // Include push_token in the login request
+    const response = await api.post("/auth/login", {
+      email,
+      password,
+      push_token: pushToken,
+    });
+
+    const { token } = response.data;
+    console.log(response.data);
+    await AsyncStorage.setItem("authToken", token);
+    return response.data;
   } catch (error) {
-      console.error("Login error:", error);
-      throw error;
+    console.error("Login errors:", error);
+    throw error;
   }
 };
-
 
 export const updateAccount = async (userData) => {
   try {
@@ -168,6 +156,73 @@ export const getAccountProfile = async () => {
     return response.data;
   } catch (error) {
     console.error("Get account profile error:", error);
+    throw error;
+  }
+};
+
+export const addEquipment = async (equipmentData) => {
+  try {
+    const response = await api.post(`/equipment`, equipmentData);
+    return response.data;
+  } catch (error) {
+    console.error("Add equipment error:", error);
+    throw error;
+  }
+};
+
+
+export const updateEquipment = async (item) => {
+  try {
+    const response = await axios.put(
+      `http://192.168.100.8:8000/api/equipment/${item.id}`,  
+      item 
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response.data.message || 'Failed to update equipment');
+  }
+};
+
+export const deleteEquipment = async (id) => {
+  try {
+    const response = await api.delete(`/equipment/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Delete equipment error:", error);
+    throw error;
+  }
+};
+
+export const fetchAllEquipment = async () => {
+  try {
+      const response = await api.get('/equipment/all'); 
+      return response.data;
+  } catch (error) {
+      console.error("Error fetching all equipment:", error);
+      throw error;
+  }
+};
+
+
+
+export const accountRecovery = async (email) => {
+  try {
+    const response = await api.post("/auth/password/recovery", email);
+    console.log("this is the response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error(
+        "account recovery error response data:",
+        error.response.data
+      );
+      // console.error("Signup error response headers:", error.response.headers);
+    } else {
+      console.error(
+        "account recovery error response data:",
+        error.response.data
+      );
+    }
     throw error;
   }
 };
@@ -241,47 +296,3 @@ export const fetchEquipment = async (eventId) => {
     throw error;
   }
 };
-
-export const addEquipment = async (equipmentData) => {
-  try {
-    const response = await api.post(`/equipment`, equipmentData);
-    return response.data;
-  } catch (error) {
-    console.error("Add equipment error:", error);
-    throw error;
-  }
-};
-
-
-export const updateEquipment = async (item) => {
-  try {
-    const response = await axios.put(
-      `http://192.168.100.8:8000/api/equipment/${item.id}`,  
-      item 
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response.data.message || 'Failed to update equipment');
-  }
-};
-
-export const deleteEquipment = async (id) => {
-  try {
-    const response = await api.delete(`/equipment/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Delete equipment error:", error);
-    throw error;
-  }
-};
-
-export const fetchAllEquipment = async () => {
-  try {
-      const response = await api.get('/equipment/all'); 
-      return response.data;
-  } catch (error) {
-      console.error("Error fetching all equipment:", error);
-      throw error;
-  }
-};
-

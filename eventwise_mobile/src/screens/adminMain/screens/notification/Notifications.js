@@ -6,20 +6,26 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
+  Button,
   SafeAreaView,
-  RefreshControl,
 } from "react-native";
 import { formatDistanceToNow } from "date-fns";
-import * as Notifications from "expo-notifications"; 
-import { fetchNotifications, markNotificationAsRead } from "../../../../services/organizer/adminNotificationServices";
+import * as Notifications from "expo-notifications"; // Import Expo Notifications
+import {
+  fetchNotifications,
+  markNotificationAsRead,
+} from "../../../../services/organizer/adminNotificationServices";
+import { RefreshControl } from "react-native";
 
 export default NotificationsComponent = () => {
   const [notifications, setNotifications] = useState([]);
+
   const [refreshing, setRefreshing] = useState(false);
+
   const [visibleNotifications, setVisibleNotifications] = useState([]);
+
   const INITIAL_LIMIT = 10;
   const LOAD_MORE_COUNT = 5;
-
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
@@ -43,7 +49,9 @@ export default NotificationsComponent = () => {
         const notificationsFromServer = await fetchNotifications();
         const formattedNotifications = notificationsFromServer.map((notif) => ({
           ...notif,
-          receivedAt: notif.receivedAt ? new Date(notif.receivedAt) : new Date(),
+          receivedAt: notif.receivedAt
+            ? new Date(notif.receivedAt)
+            : new Date(),
         }));
         setNotifications(formattedNotifications);
         setVisibleNotifications(formattedNotifications.slice(0, INITIAL_LIMIT));
@@ -55,31 +63,33 @@ export default NotificationsComponent = () => {
     fetchNotificationsFromServer();
   }, []);
 
+  // Listener to handle incoming notifications
   useEffect(() => {
     const subscription = Notifications.addNotificationReceivedListener(
       (notification) => {
         const { title, body } = notification.request.content;
         const newNotification = {
-          id: Date.now(),
+          id: Date.now(), // Use timestamp as unique ID
           name: title || "Unknown Sender",
           text: body || "No message content",
-          image: "https://bootdey.com/img/Content/avatar/avatar6.png",
-          attachment: "",
+          image: "https://bootdey.com/img/Content/avatar/avatar6.png", // Default avatar
+          attachment: "", // Optional attachment URL
           created_at: new Date(),
-          isRead: false,
+          isRead: false, // Set initial state as unread
         };
         setNotifications((prevNotifications) => {
           const updatedNotifications = [newNotification, ...prevNotifications];
           return updatedNotifications.sort((a, b) => {
             return new Date(b.created_at) - new Date(a.created_at);
           });
-        });
+        }); // Add new notification to the top
         setVisibleNotifications((prevVisible) =>
           [newNotification, ...prevVisible].slice(0, INITIAL_LIMIT)
         );
       }
     );
 
+    // Cleanup listener
     return () => subscription.remove();
   }, []);
 
@@ -89,6 +99,8 @@ export default NotificationsComponent = () => {
         notif.id === id ? { ...notif, read: true } : notif
       )
     );
+
+    // Update the visibleNotifications state
     setVisibleNotifications((prevVisible) =>
       prevVisible.map((notif) =>
         notif.id === id ? { ...notif, read: true } : notif
@@ -96,7 +108,7 @@ export default NotificationsComponent = () => {
     );
 
     try {
-      await markNotificationAsRead(id);
+      await markNotificationAsRead(id); // Persist the read status in backend
     } catch (error) {
       console.error("Error updating read status in backend:", error);
     }
@@ -113,11 +125,18 @@ export default NotificationsComponent = () => {
   };
 
   return (
-    <>
-    <TouchableOpacity style={styles.clearButton} onPress={clearAllNotifications}>
-        <Text style={styles.clearButtonText}>Clear All</Text>
-      </TouchableOpacity>
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {
+          display: "flex",
+          flex: 1,
+          flexDirection: "column",
+          paddingBottom: 300,
+        },
+      ]}
+    >
+      <Button title="Clear All" onPress={clearAllNotifications} />
       <FlatList
         style={styles.root}
         data={visibleNotifications}
@@ -132,7 +151,7 @@ export default NotificationsComponent = () => {
           return (
             <TouchableOpacity
               style={[
-                styles.notificationContainer,
+                styles.container,
                 { backgroundColor: item.read ? "white" : "#F0F8FF" },
               ]}
               onPress={() => markAsRead(item.id)}
@@ -143,6 +162,8 @@ export default NotificationsComponent = () => {
                   <View style={styles.text}>
                     <Text style={styles.name}>{item.title}</Text>
                     <Text>{item.body}</Text>
+                    {/* <Text>{item.data}</Text> */}
+                    {/* <Text> {JSON.stringify(item, null, 2)}</Text> */}
                   </View>
                   <Text style={styles.timeAgo}>{timeAgo}</Text>
                 </View>
@@ -161,50 +182,26 @@ export default NotificationsComponent = () => {
         }
         ListFooterComponent={() =>
           notifications.length > visibleNotifications.length ? (
-            <TouchableOpacity style={styles.loadMoreButton} onPress={loadMoreNotifications}>
-              <Text style={styles.loadMoreText}>Load More</Text>
-            </TouchableOpacity>
+            <Button title="Load More" onPress={loadMoreNotifications} />
           ) : null
         }
       />
     </SafeAreaView>
-    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingBottom: 90,
-    marginTop: 40,
-    width: "95%",
-    margin: 10,
-  },
-  clearButton: {
-    position: "absolute",
-    right: 15,
-    zIndex: 1,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  clearButtonText: {
-    color: "#2196F3",
-    fontWeight: "bold",
-    fontSize: 16,
-    textDecorationLine: "underline", // Add underline
-  },
   root: {
     flex: 1,
-    backgroundColor: "white",
   },
-  notificationContainer: {
+  container: {
     flexDirection: "row",
     padding: 15,
   },
   avatar: {
     width: 50,
     height: 50,
-    borderRadius: 25,
+    borderRadius: 50 / 2,
     marginRight: 10,
   },
   content: {
