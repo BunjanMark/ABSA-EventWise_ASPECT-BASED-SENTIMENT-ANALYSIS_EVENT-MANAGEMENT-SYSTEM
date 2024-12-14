@@ -129,6 +129,8 @@ const Login = ({ navigation }) => {
       //     ? setUser(userProfiles[0].service_provider_name)
       //     : setUser(userProfiles[1].service_provider_name)
       // );
+
+      // #TODO for user customer feedback
       if (userProfiles.length > 0) {
         // Set the active profile and navigate based on role
         const activeProfile = userProfiles[0]; // Assuming the first profile is the active one
