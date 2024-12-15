@@ -65,13 +65,14 @@ const CreatePackageScreen = ({ navigation }) => {
   useEffect(() => {
     if (paxValue) {
       const filtered = services.filter(
-        (service) => service.pax <= parseInt(paxValue, 10)
+        (service) => service.pax >= parseInt(paxValue, 10)
       );
       setFilteredServices(filtered);
     } else {
       setFilteredServices(services); // Show all services if paxValue is empty
     }
   }, [paxValue, services]);
+  
 
 
   // console.log("Fetched services: " + services);

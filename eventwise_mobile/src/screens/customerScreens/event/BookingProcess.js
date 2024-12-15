@@ -798,60 +798,70 @@ const BookingProcess = ({ navigation }) => {
 
                           {/* Filtered List of Services */}
                           {services && services.length > 0 ? (
-                            <ScrollView>
-                              {services
-                                .filter((service) =>
-                                  service.serviceCategory
-                                    .toLowerCase()
-                                    .includes(searchQuery.toLowerCase())
-                                )
-                                .map((service, index) => (
-                                  <TouchableOpacity
-  key={index}
-  style={[styles.serviceItem, { borderColor: "#eeba2b", borderWidth: 1, borderRadius: 8, marginTop: 10 }]}
-  onPress={() => {
-    // Ensure selectedPkg is not null
-    const updatedServices = selectedPkg ? [...selectedPkg.services, service] : [service];
+  <ScrollView>
+    {services
+      .filter((service) => {
+        // Combine search query and pax filtering logic
+        const matchesSearchQuery = service.serviceCategory
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
 
-    // Convert totalPrice and service.basePrice to numbers to avoid string concatenation
-    const currentTotalPrice = parseFloat(selectedPkg.totalPrice) || 0;  // Convert totalPrice to a number, default to 0 if invalid
-    const serviceBasePrice = parseFloat(service.basePrice) || 0;  // Ensure service.basePrice is a number, default to 0 if invalid
+        const matchesPax = !pax || service.pax >= parseInt(pax, 10);
 
-    // Calculate the updated totalPrice
-    const updatedTotalPrice = currentTotalPrice + serviceBasePrice;
+        // Return true only if both conditions are met
+        return matchesSearchQuery && matchesPax;
+      })
+      .map((service, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[
+            styles.serviceItem,
+            { borderColor: "#eeba2b", borderWidth: 1, borderRadius: 8, marginTop: 10 },
+          ]}
+          onPress={() => {
+            // Ensure selectedPkg is not null
+            const updatedServices = selectedPkg
+              ? [...selectedPkg.services, service]
+              : [service];
 
-    // Log for debugging
-    console.log("Package updated with new service:", {
-      packageId: selectedPkg.id,
-      updatedServices: updatedServices,
-      updatedTotalPrice: updatedTotalPrice,
-    });
+            // Convert totalPrice and service.basePrice to numbers
+            const currentTotalPrice = parseFloat(selectedPkg.totalPrice) || 0;
+            const serviceBasePrice = parseFloat(service.basePrice) || 0;
 
-    // Clone the currentPackages and update the selected package
-    const updatedPackages = currentPackages.map((pkg) =>
-      pkg.id === selectedPkg.id
-        ? { ...pkg, services: updatedServices, totalPrice: updatedTotalPrice.toFixed(2) }  // Format totalPrice as a string with two decimal places
-        : pkg
-    );
+            // Calculate the updated totalPrice
+            const updatedTotalPrice = currentTotalPrice + serviceBasePrice;
 
-    // Set the updated packages list
-    setCurrentPackages(updatedPackages);
+            console.log("Package updated with new service:", {
+              packageId: selectedPkg.id,
+              updatedServices: updatedServices,
+              updatedTotalPrice: updatedTotalPrice,
+            });
 
-    // Close the modal after selection
-    closeServiceModal();
-  }}
->
-  <Text style={styles.serviceName}>{service.serviceName}</Text>
-  <Text style={styles.serviceCategory}>{service.serviceCategory}</Text>
-  <Text style={styles.servicePrice}>Price: ₱{service.basePrice}</Text>
-</TouchableOpacity>
+            // Clone currentPackages and update the selected package
+            const updatedPackages = currentPackages.map((pkg) =>
+              pkg.id === selectedPkg.id
+                ? {
+                    ...pkg,
+                    services: updatedServices,
+                    totalPrice: updatedTotalPrice.toFixed(2),
+                  }
+                : pkg
+            );
 
-
-                                ))}
-                            </ScrollView>
-                          ) : (
-                            <Text>No services available.</Text>
-                          )}
+            setCurrentPackages(updatedPackages);
+            closeServiceModal();
+          }}
+        >
+          <Text style={styles.serviceName}>{service.serviceName}</Text>
+          <Text style={styles.serviceCategory}>{service.serviceCategory}</Text>
+          <Text style={styles.servicePrice}>Price: ₱{service.basePrice}</Text>
+          <Text style={styles.servicePrice}>Pax: {service.pax}</Text>
+        </TouchableOpacity>
+      ))}
+  </ScrollView>
+) : (
+  <Text>No services available.</Text>
+)}
 
                           {/* Close Button */}
                           <Button
@@ -1231,10 +1241,6 @@ const BookingProcess = ({ navigation }) => {
   </>
 )}
 
-
-
-
-{/* dari raka taman haaaaaaaaaaaaaaaaaaaaaa heheheheh (|================3*/}
               </View>
             )}
           </Formik>

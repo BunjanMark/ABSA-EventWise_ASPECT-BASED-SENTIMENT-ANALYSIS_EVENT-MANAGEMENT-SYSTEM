@@ -9,21 +9,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
-// Imported event images
-import event1 from "../pictures/event1.png";
-import event2 from "../pictures/event2.png";
-import event3 from "../pictures/event3.png";
-import event4 from "../pictures/event4.png";
-import event5 from "../pictures/event5.png";
 
-// Mapping images to event IDs
-const eventImages = {
-  1: event1,
-  2: event2,
-  3: event3,
-  4: event4,
-  5: event5,
-};
 
 const Book = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -38,19 +24,25 @@ const Book = ({ navigation }) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+  
         const data = await response.json();
+  
+        // Set eventPackages directly with data from the database
         const packagesWithImages = data.map((pkg) => ({
           ...pkg,
-          coverPhoto: eventImages[pkg.id] || null,
-          services: pkg.services || [],
+          coverPhoto: pkg.coverPhoto || null, // Use the coverPhoto directly from the API response
+          services: pkg.services || [],       // Ensure services is at least an empty array
         }));
+  
         setEventPackages(packagesWithImages);
       } catch (error) {
         console.error("Error fetching event data:", error);
       }
     };
+  
     fetchEventPackages();
   }, []);
+  
 
   const handlePackageClick = (packageItem) => {
     setSelectedPackage(packageItem);
@@ -97,7 +89,8 @@ const Book = ({ navigation }) => {
                       onPress={() => handlePackageClick(packageItem)}
                     >
                       {packageItem.coverPhoto && (
-                        <Image source={packageItem.coverPhoto} style={styles.coverPhoto} />
+                        <Image source={{ uri: packageItem?.coverPhoto }} style={styles.coverPhoto} />
+
                       )}
                       <Text style={styles.packageName}>{packageItem.packageName}</Text>
                       <Text style={styles.totalPrice}>{`Price: ${packageItem.totalPrice}`}</Text>
@@ -114,7 +107,8 @@ const Book = ({ navigation }) => {
               </TouchableOpacity>
               <Text style={styles.packageName1}>{selectedPackage.packageName}</Text>
               {selectedPackage.coverPhoto && (
-                <Image source={selectedPackage.coverPhoto} style={styles.coverPhoto} />
+                <Image source={{ uri: selectedPackage?.coverPhoto }} style={styles.coverPhoto} />
+
               )}
               <Text style={styles.eventType}>{selectedPackage.eventType}</Text>
               <Text style={styles.totalPrice}>{`Price: ${selectedPackage.totalPrice}`}</Text>
