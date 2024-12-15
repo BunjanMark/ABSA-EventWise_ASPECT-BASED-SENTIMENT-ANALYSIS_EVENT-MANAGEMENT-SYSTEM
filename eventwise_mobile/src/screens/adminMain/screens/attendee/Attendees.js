@@ -129,8 +129,7 @@ const Attendees = () => {
     (guest) =>
       guest.GuestName && // Exclude if GuestName is null
       guest.email && // Exclude if email is null
-      guest.phone && // Exclude if phone is null
-      guest.role !== "Service Provider" // Exclude Service Provider
+      guest.phone
   );
   
 

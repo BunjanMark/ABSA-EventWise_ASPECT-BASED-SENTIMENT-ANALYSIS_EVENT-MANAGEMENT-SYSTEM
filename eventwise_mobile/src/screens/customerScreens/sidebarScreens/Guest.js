@@ -200,6 +200,17 @@ const GuestList = () => {
   const startIndex = (currentPage - 1) * fieldsPerPage;
   const currentFields = newGuestFields.slice(startIndex, startIndex + fieldsPerPage);
 
+  const filteredGuests = Array.isArray(guests)
+  ? guests.filter(
+      (guest) =>
+        guest.GuestName &&
+        guest.email &&
+        guest.phone &&
+        guest.role &&
+        guest.role.toLowerCase() !== 'service provider'
+    )
+  : [];
+
   return (
     <>
       <Header2 />
@@ -207,45 +218,49 @@ const GuestList = () => {
       <TouchableOpacity onPress={() => navigation.goBack()}>
       <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
     </TouchableOpacity>
-        <Text style={styles.header}>Guest List for {eventName}</Text>
-        {guests.length > 0 ? (
-          <FlatList
-            data={guests}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.listItem}>
-                <Menu
-                  visible={visible && guestForDropdown?.id === item.id}
-                  onDismiss={() => setVisible(false)}
-                  anchor={
-                    <TouchableOpacity
-                      onPress={() => toggleDropdown(item)}
-                      style={styles.dotsContainer}
-                    >
-                      <Icon name="more-vert" size={24} color="#333" />
-                    </TouchableOpacity>
-                  }
-                >
-                  <View style={styles.menu}>
-                    <Menu.Item onPress={() => handleEdit(item)} title="Edit" />
-                    <Divider />
-                    <Menu.Item onPress={() => handleDelete(item)} title="Delete" />
-                  </View>
-                </Menu>
+    <View style={styles.header}>
+  <Text style={styles.title}>
+    Guest List for Event <Text style={styles.eventName}>{eventName}</Text>
+  </Text>
+</View>
 
-                <View style={styles.guestContainer}>
-                  <Text style={styles.guestName}>{item.GuestName}</Text>
-                  <Text style={styles.guestInfo}>Email: {item.email}</Text>
-                  <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
-                  <Text style={styles.guestInfo}>Role: {item.role}</Text>
-                  <Text style={styles.guestInfo}>Status: {item.status}</Text>
-                </View>
-              </View>
-            )}
-          />
-        ) : (
-          <Text style={styles.noGuests}>No guests found for this event.</Text>
-        )}
+{filteredGuests.length > 0 ? (
+  <FlatList
+    data={filteredGuests}
+    keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
+    renderItem={({ item }) => (
+      <View style={styles.listItem}>
+        <Menu
+          visible={visible && guestForDropdown?.id === item.id}
+          onDismiss={() => setVisible(false)}
+          anchor={
+            <TouchableOpacity
+              onPress={() => toggleDropdown(item)}
+              style={styles.dotsContainer}
+            >
+              <Icon name="more-vert" size={24} color="#333" />
+            </TouchableOpacity>
+          }
+        >
+          <View style={styles.menu}>
+            <Menu.Item onPress={() => handleEdit(item)} title="Edit" />
+            <Divider />
+            <Menu.Item onPress={() => handleDelete(item)} title="Delete" />
+          </View>
+        </Menu>
+
+        <View style={styles.guestContainer}>
+          <Text style={styles.guestName}>{item.GuestName}</Text>
+          <Text style={styles.guestInfo}>Email: {item.email}</Text>
+          <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
+          <Text style={styles.guestInfo}>Role: {item.role}</Text>
+        </View>
+      </View>
+    )}
+  />
+) : (
+  <Text style={styles.noGuests}>No guests found for this event.</Text>
+)}
       </View>
 
       {/* Modal for editing guest details */}
