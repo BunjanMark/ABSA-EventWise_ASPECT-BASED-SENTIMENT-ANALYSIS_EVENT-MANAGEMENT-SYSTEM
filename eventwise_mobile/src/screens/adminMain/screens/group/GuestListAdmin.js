@@ -217,6 +217,16 @@ const GuestListAdmin = () => {
       setVisible(true);
     }
   };
+  const filteredGuests = Array.isArray(guests)
+  ? guests.filter(
+      (guest) =>
+        guest.GuestName &&
+        guest.email &&
+        guest.phone &&
+        guest.role &&
+        guest.role.toLowerCase() !== 'service provider'
+    )
+  : [];
 
   return (
     <ScrollView
@@ -418,66 +428,59 @@ const GuestListAdmin = () => {
           </View>
         </Modal>
 
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          Guest List for Event <Text style={styles.eventName}>{name}</Text>
-        </Text>
-      </View>
+        <View style={styles.header}>
+  <Text style={styles.title}>
+    Guest List for Event <Text style={styles.eventName}>{name}</Text>
+  </Text>
+</View>
 
-      <View style={styles.subTitleContainer}>
-        <Text style={styles.subTitle}>
-          Total Guests listed: {guests.length} / {pax}
-        </Text>
-        <TouchableOpacity style={styles.sendButton} onPress={handleSendNotifications}>
-          <Text style={styles.sendButtonText}>Send Notif. </Text>
-        </TouchableOpacity>
-      </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+<View style={styles.subTitleContainer}>
+  <Text style={styles.subTitle}>
+    Total Guests listed: {filteredGuests.length} / {pax}
+  </Text>
+  <TouchableOpacity style={styles.sendButton} onPress={handleSendNotifications}>
+    <Text style={styles.sendButtonText}>Send Notif.</Text>
+  </TouchableOpacity>
+</View>
+{error && <Text style={styles.errorText}>{error}</Text>}
 
-      {guests.length > 0 ? (
-          <FlatList
-          data={guests}
-          keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
-          renderItem={({ item }) => {
-            if (!item) {
-              console.error('Undefined item in FlatList:', item);
-              return null;
-            }
-            return (
-              <View style={styles.listItem}>
-                <Menu
-                  visible={visible && guestForDropdown?.id === item.id}
-                  onDismiss={() => setVisible(false)}
-                  anchor={
-                    <TouchableOpacity
-                      onPress={() => toggleDropdown(item)}
-                      style={styles.dotsContainer}
-                    >
-                      <Icon name="more-vert" size={24} color="#333" />
-                    </TouchableOpacity>
-                  }
-                >
-                  <View style={styles.menu}>
-                    <Menu.Item onPress={() => handleEdit(item)} title="Edit" />
-                    <Divider />
-                    <Menu.Item onPress={() => handleDelete(item)} title="Delete" />
-                  </View>
-                </Menu>
-        
-                <View style={styles.guestContainer}>
-                  <Text style={styles.guestName}>{item.GuestName}</Text>
-                  <Text style={styles.guestInfo}>Email: {item.email}</Text>
-                  <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
-                  <Text style={styles.guestInfo}>Role: {item.role}</Text>
-                </View>
-              </View>
-            );
-          }}
-        />
-        
-        ) : (
-          <Text style={styles.noGuests}>No guests found for this event.</Text>
-        )}
+{Array.isArray(filteredGuests) && filteredGuests.length > 0 ? (
+  <FlatList
+    data={filteredGuests}
+    keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
+    renderItem={({ item }) => (
+      <View style={styles.listItem}>
+        <Menu
+          visible={visible && guestForDropdown?.id === item.id}
+          onDismiss={() => setVisible(false)}
+          anchor={
+            <TouchableOpacity
+              onPress={() => toggleDropdown(item)}
+              style={styles.dotsContainer}
+            >
+              <Icon name="more-vert" size={24} color="#333" />
+            </TouchableOpacity>
+          }
+        >
+          <View style={styles.menu}>
+            <Menu.Item onPress={() => handleEdit(item)} title="Edit" />
+            <Divider />
+            <Menu.Item onPress={() => handleDelete(item)} title="Delete" />
+          </View>
+        </Menu>
+
+        <View style={styles.guestContainer}>
+          <Text style={styles.guestName}>{item.GuestName}</Text>
+          <Text style={styles.guestInfo}>Email: {item.email}</Text>
+          <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
+          <Text style={styles.guestInfo}>Role: {item.role}</Text>
+        </View>
+      </View>
+    )}
+  />
+) : (
+  <Text style={styles.noGuests}>No guests found for this event.</Text>
+)}
         <Button
         mode="contained"
         style={styles.addGuestButton}
