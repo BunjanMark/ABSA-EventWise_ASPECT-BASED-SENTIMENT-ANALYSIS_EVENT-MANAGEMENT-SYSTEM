@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Calendar } from "react-native-calendars";
-import styles from "../../styles/styles";
-import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
-import { fetchEvents } from "../../../../services/organizer/adminEventServices";
+import styles from "../../adminMain/styles/styles";
+import { useEventStore } from "../../../stateManagement/admin/useEventStore";
+import { fetchEvents } from "../../../services/organizer/adminEventServices";
 import { ScrollView } from "react-native-gesture-handler";
 
 const ScheduleScreen = ({ refreshing, onRefresh }) => {

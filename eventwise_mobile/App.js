@@ -20,22 +20,24 @@ import {
 } from "@react-navigation/native";
 import { registerRootComponent } from "expo";
 import { ThemeContext } from "./src/services/ThemeContext";
-
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 export default function App() {
   const theme = useColorScheme();
   return (
-    <PaperProvider>
-      <AuthProvider>
-        <ProfileProvider>
-          <NavigationContainer
-            theme={theme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            {/* <ThemeContext> */}
-            <Navigator />
-            {/* </ThemeContext> */}
-          </NavigationContainer>
-        </ProfileProvider>
-      </AuthProvider>
-    </PaperProvider>
+    <GestureHandlerRootView>
+      <PaperProvider>
+        <AuthProvider>
+          <ProfileProvider>
+            <NavigationContainer
+              theme={theme === "dark" ? DarkTheme : DefaultTheme}
+            >
+              {/* <ThemeContext> */}
+              <Navigator />
+              {/* </ThemeContext> */}
+            </NavigationContainer>
+          </ProfileProvider>
+        </AuthProvider>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }
