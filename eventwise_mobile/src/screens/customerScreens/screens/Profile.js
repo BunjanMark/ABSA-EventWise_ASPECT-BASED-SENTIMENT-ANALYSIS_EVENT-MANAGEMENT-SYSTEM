@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  SafeAreaView,
   View,
   Image,
   Text,
@@ -9,6 +8,9 @@ import {
   Modal,
   TextInput,
   Alert,
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator, // Import the ActivityIndicator for loading state
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import Header from "../elements/Header";
@@ -17,19 +19,19 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API_URL from "../../../constants/constant";
 import { useNavigation } from "@react-navigation/native";
-import { getUser} from "../../../services/authServices";
-
+import { getUser } from "../../../services/authServices";
 
 const Profile = () => {
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
-  const navigator = useNavigation();
+  const [user, setUser] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true); // Manage loading state
   const switchProfile = useStore((state) => state.switchProfile);
   const activeProfile = useStore((state) => state.activeProfile);
-  const [user, setUser] = useState(null);
   const accountProfiles = useStore((state) => state.accountProfiles);
-  
+  const navigator = useNavigation();
 
   const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -52,10 +54,13 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userData = await getUser();  // Assuming this function returns user data
+        setLoading(true); // Set loading to true when data is being fetched
+        const userData = await getUser();
         setUser(userData);
+        setLoading(false); // Set loading to false when data is fetched
       } catch (error) {
         console.error("Error fetching user data:", error);
+        setLoading(false); // Set loading to false if error occurs
       }
     };
 
@@ -71,7 +76,9 @@ const Profile = () => {
       Alert.alert("Success", "Service provider profile created successfully!");
       setServiceName("");
       setDescription("");
-      setModalVisible(false); // Close modal after successful submission
+      setModalVisible(false);
+
+      onRefresh();
     } catch (error) {
       Alert.alert(
         "Error",
@@ -88,44 +95,63 @@ const Profile = () => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setLoading(true); // Set loading to true when refreshing
+    const userData = await getUser();
+    setUser(userData);
+    setRefreshing(false);
+    setLoading(false); // Set loading to false when refreshing is complete
+  };
+
   return (
     <>
       <Header />
-      <View style={styles.container}>
-      <View style={styles.profileBox}>
-  {/* Check if user is not null before accessing its properties */}
-  {user ? (
-    <>
-      <Image
-        source={require("../pictures/user.png")}
-        style={styles.profilePicture}
-      />
-      <Text style={styles.name}>{user.name}</Text>
-      <Text style={styles.email}>{user.email}</Text>
-      <Text style={styles.username}>{user.username}</Text>
-      <Text style={styles.phone}>{user.phone_number}</Text>
-      <Text style={styles.username}>
-        {activeProfile && activeProfile === 2 ? "Customer" : "Service Provider"}
-      </Text>
-      <TouchableOpacity
-        style={styles.editButton}
-        onPress={() => navigator.navigate("EditProfile")}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#ff9900"]}
+            tintColor="#ff9900"
+          />
+        }
       >
-        <FontAwesome name="pencil-square" size={16} color={"#fff"} />
-        <Text style={styles.editButtonText}>Edit Profile</Text>
-      </TouchableOpacity>
-    </>
-  ) : (
-    // You can show a loading indicator or a placeholder message here
-    <Text>Loading...</Text>
-  )}
-</View>
+        <View style={styles.profileBox}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#ff9900" /> // Show loading spinner if loading is true
+          ) : user ? (
+            <>
+              <Image
+                source={require("../pictures/user.png")}
+                style={styles.profilePicture}
+              />
+              <Text style={styles.name}>{user.name}</Text>
+              <Text style={styles.email}>{user.email}</Text>
+              <Text style={styles.username}>{user.username}</Text>
+              <Text style={styles.phone}>{user.phone_number}</Text>
+              <Text style={styles.username}>
+                {activeProfile && activeProfile === 2 ? "Customer" : "Service Provider"}
+              </Text>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => navigator.navigate("EditProfile")}
+              >
+                <FontAwesome name="pencil-square" size={16} color={"#fff"} />
+                <Text style={styles.editButtonText}>Edit Profile</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <Text>No User Data</Text>
+          )}
+        </View>
 
-        
         <View style={styles.switchAccountContainer}>
-        <Text style={styles.header}>Switch Account</Text>
+          <Text style={styles.header}>Switch Account</Text>
 
-        {accountProfiles.map((profile) => (
+          {accountProfiles.map((profile) => (
             <TouchableOpacity
               key={profile.role_id}
               style={styles.profileContainer}
@@ -143,18 +169,15 @@ const Profile = () => {
             </TouchableOpacity>
           ))}
 
-
-                 <TouchableOpacity
-          style={styles.addProfileButton}
-          onPress={() => setModalVisible(true)}
-        >
-          <FontAwesome name="plus-circle" size={24} color="#fff" />
-          <Text style={styles.addProfileText}>Create New Profile</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addProfileButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <FontAwesome name="plus-circle" size={24} color="#fff" />
+            <Text style={styles.addProfileText}>Create New Profile</Text>
+          </TouchableOpacity>
         </View>
-
- 
-      </View>
+      </ScrollView>
 
       {/* Modal for Creating New Profile */}
       <Modal
@@ -197,8 +220,10 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     padding: 10,
+  },
+  contentContainer: {
+    alignItems: "center", // This style applies to the content inside the ScrollView
   },
   profileBox: {
     borderColor: "#C2B067",
