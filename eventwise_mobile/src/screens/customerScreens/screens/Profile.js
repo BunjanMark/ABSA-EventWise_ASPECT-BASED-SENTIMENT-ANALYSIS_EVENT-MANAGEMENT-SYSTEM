@@ -17,9 +17,8 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API_URL from "../../../constants/constant";
 import { useNavigation } from "@react-navigation/native";
-import { getUser} from "../../../services/authServices";
-
-
+import { getUser } from "../../../services/authServices";
+import { ScrollView, RefreshControl } from "react-native";
 const Profile = () => {
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
@@ -29,7 +28,20 @@ const Profile = () => {
   const activeProfile = useStore((state) => state.activeProfile);
   const [user, setUser] = useState(null);
   const accountProfiles = useStore((state) => state.accountProfiles);
-  
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Re-fetch user data or other relevant data
+      const userData = await getUser();
+      setUser(userData);
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -52,7 +64,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userData = await getUser();  // Assuming this function returns user data
+        const userData = await getUser(); // Assuming this function returns user data
         setUser(userData);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -75,7 +87,8 @@ const Profile = () => {
     } catch (error) {
       Alert.alert(
         "Error",
-        error.response?.data?.message || "Failed to create service provider profile."
+        error.response?.data?.message ||
+          "Failed to create service provider profile."
       );
     }
   };
@@ -89,50 +102,55 @@ const Profile = () => {
   };
 
   return (
-    <>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <Header />
       <View style={styles.container}>
-      <View style={styles.profileBox}>
-  {/* Check if user is not null before accessing its properties */}
-  {user ? (
-    <>
-      <Image
-        source={require("../pictures/user.png")}
-        style={styles.profilePicture}
-      />
-      <Text style={styles.name}>{user.name}</Text>
-      <Text style={styles.email}>{user.email}</Text>
-      <Text style={styles.username}>{user.username}</Text>
-      <Text style={styles.phone}>{user.phone_number}</Text>
-      <Text style={styles.username}>
-        {activeProfile && activeProfile === 2 ? "Customer" : "Service Provider"}
-      </Text>
-      <TouchableOpacity
-        style={styles.editButton}
-        onPress={() => navigator.navigate("EditProfile")}
-      >
-        <FontAwesome name="pencil-square" size={16} color={"#fff"} />
-        <Text style={styles.editButtonText}>Edit Profile</Text>
-      </TouchableOpacity>
-    </>
-  ) : (
-    // You can show a loading indicator or a placeholder message here
-    <Text>Loading...</Text>
-  )}
-</View>
+        <View style={styles.profileBox}>
+          {user ? (
+            <>
+              <Image
+                source={require("../pictures/user.png")}
+                style={styles.profilePicture}
+              />
+              <Text style={styles.name}>{user.name}</Text>
+              <Text style={styles.email}>{user.email}</Text>
+              <Text style={styles.username}>{user.username}</Text>
+              <Text style={styles.phone}>{user.phone_number}</Text>
+              <Text style={styles.username}>
+                {activeProfile && activeProfile === 2
+                  ? "Customer"
+                  : "Service Provider"}
+              </Text>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => navigator.navigate("EditProfile")}
+              >
+                <FontAwesome name="pencil-square" size={16} color={"#fff"} />
+                <Text style={styles.editButtonText}>Edit Profile</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <Text>Loading...</Text>
+          )}
+        </View>
 
-        
         <View style={styles.switchAccountContainer}>
-        <Text style={styles.header}>Switch Account</Text>
+          <Text style={styles.header}>Switch Account</Text>
 
-        {accountProfiles.map((profile) => (
+          {accountProfiles.map((profile) => (
             <TouchableOpacity
               key={profile.role_id}
               style={styles.profileContainer}
               onPress={() => handleSwitchProfile(profile)}
             >
               <View style={styles.row}>
-                <Text style={styles.profileName}>{profile.service_provider_name}</Text>
+                <Text style={styles.profileName}>
+                  {profile.service_provider_name}
+                </Text>
                 <View
                   style={[
                     styles.circle,
@@ -143,17 +161,14 @@ const Profile = () => {
             </TouchableOpacity>
           ))}
 
-
-                 <TouchableOpacity
-          style={styles.addProfileButton}
-          onPress={() => setModalVisible(true)}
-        >
-          <FontAwesome name="plus-circle" size={24} color="#fff" />
-          <Text style={styles.addProfileText}>Create New Profile</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addProfileButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <FontAwesome name="plus-circle" size={24} color="#fff" />
+            <Text style={styles.addProfileText}>Create New Profile</Text>
+          </TouchableOpacity>
         </View>
-
- 
       </View>
 
       {/* Modal for Creating New Profile */}
@@ -190,7 +205,7 @@ const Profile = () => {
           </View>
         </View>
       </Modal>
-    </>
+    </ScrollView>
   );
 };
 
@@ -325,7 +340,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent:"center"
+    justifyContent: "center",
   },
   addProfileText: {
     color: "#fff",
@@ -360,7 +375,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4, // Shadow blur
     elevation: 5, // Shadow for Android
     backgroundColor: "#fff", // Required to make shadow visible
-    marginVertical:90,
+    marginVertical: 90,
   },
   row: {
     flexDirection: "row",
@@ -378,8 +393,6 @@ const styles = StyleSheet.create({
   filledCircle: {
     backgroundColor: "#eeba2b", // Fill color when selected
   },
-  
-  
 });
 
 export default Profile;
