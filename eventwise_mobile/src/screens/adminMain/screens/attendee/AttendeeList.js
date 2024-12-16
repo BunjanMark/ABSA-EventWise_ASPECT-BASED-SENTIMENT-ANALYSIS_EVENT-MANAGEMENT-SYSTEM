@@ -4,6 +4,11 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
 
 const AttendeeList = ({ event, navigation }) => {
+  // Only display the event if the status is "scheduled"
+  if (event.status.toLowerCase() !== "scheduled") {
+    return null;
+  }
+
   const handlePress = () => {
     // Navigate to the guest list screen
     navigation.navigate("Attendees", {
@@ -26,7 +31,7 @@ const AttendeeList = ({ event, navigation }) => {
         return "#4CAF50"; // Green
       case "tentative":
         return "#FF9800"; // Orange
-      case "canceled":
+      case "declined":
         return "#F44336"; // Red
       default:
         return "#607D8B"; // Default Grey

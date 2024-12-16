@@ -591,6 +591,25 @@ public function getServiceProviederName($eventId, $userId)
         return response()->json($events);
     }
 
+
+    public function declineEventStatus(Request $request, $eventId)
+{
+    try {
+        $event = Event::find($eventId);
+
+        if (!$event) {
+            return response()->json(['error' => 'Event not found'], 404);
+        }
+
+        $event->update(['status' => 'declined']);
+
+        return response()->json(['message' => 'Event has been declined'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+
     public function updateEventStatus(Request $request, $eventId)
     {
         try {

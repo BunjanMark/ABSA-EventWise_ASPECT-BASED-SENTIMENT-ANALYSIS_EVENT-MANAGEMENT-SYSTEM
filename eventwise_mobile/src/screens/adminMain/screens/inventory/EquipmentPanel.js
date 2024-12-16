@@ -58,7 +58,8 @@ const EquipmentPanel = () => {
 
   // Search function
   const filteredEvents = events.filter((event) =>
-    event.name.toLowerCase().includes(searchQuery.toLowerCase())
+    event.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    event.status.toLowerCase() === "scheduled" // Ensure the status is "scheduled"
   );
 
   // Sorting function
@@ -95,75 +96,73 @@ const EquipmentPanel = () => {
 
   const displayedEvents = sortEvents(sortOption);
 
- return (
-  
-  <SafeAreaView style={styles.container}>
-    <Text style={styles.title}>Events Equipment</Text>
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Events Equipment</Text>
 
-    {/* Search bar and sorting dropdown */}
-    <View style={styles.searchSortContainer}>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search event name..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
-      <DropDownPicker
-        open={openDropdown}
-        value={sortOption}
-        items={[
-          { label: "All", value: "all" },
-          { label: "Today", value: "today" },
-          { label: "This Week", value: "thisWeek" },
-          { label: "Next Week", value: "nextWeek" },
-        ]}
-        setOpen={setOpenDropdown}
-        setValue={setSortOption}
-        style={styles.dropdown}
-        containerStyle={styles.dropdownContainer}
-        dropDownContainerStyle={styles.dropdownList}
-      />
-    </View>
-
-    <ScrollView
-      style={styles.scrollView} // Add this for ScrollView
-      contentContainerStyle={styles.scrollViewContent}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={refreshEvents}
-          colors={["#ff9900"]}
-          tintColor="#ff9900"
+      {/* Search bar and sorting dropdown */}
+      <View style={styles.searchSortContainer}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search event name..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
-      }
-    >
-      <FlatList
-        data={displayedEvents}
-        renderItem={({ item }) => (
-          <View style={styles.eventContainer}>
-            <TouchableOpacity onPress={() => handleEventPress(item.id)}>
-              <Text style={styles.eventName}>{item.name}</Text>
-              <View style={styles.iconRow}>
-                <MaterialCommunityIcons name="calendar" size={16} color="#eeba2b" />
-                <Text style={styles.eventDetails}>{item.date}</Text>
-              </View>
-              <View style={styles.iconRow}>
-                <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
-                <Text style={styles.eventDetails}>{item.location}</Text>
-              </View>
-              <View style={styles.iconRow}>
-                <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
-                <Text style={styles.eventDetails}>{item.time}</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        )}
-        keyExtractor={(item) => item.id.toString()}
-      />
-    </ScrollView>
-  </SafeAreaView>
-);
+        <DropDownPicker
+          open={openDropdown}
+          value={sortOption}
+          items={[
+            { label: "All", value: "all" },
+            { label: "Today", value: "today" },
+            { label: "This Week", value: "thisWeek" },
+            { label: "Next Week", value: "nextWeek" },
+          ]}
+          setOpen={setOpenDropdown}
+          setValue={setSortOption}
+          style={styles.dropdown}
+          containerStyle={styles.dropdownContainer}
+          dropDownContainerStyle={styles.dropdownList}
+        />
+      </View>
 
+      <ScrollView
+        style={styles.scrollView} // Add this for ScrollView
+        contentContainerStyle={styles.scrollViewContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={refreshEvents}
+            colors={["#ff9900"]}
+            tintColor="#ff9900"
+          />
+        }
+      >
+        <FlatList
+          data={displayedEvents}
+          renderItem={({ item }) => (
+            <View style={styles.eventContainer}>
+              <TouchableOpacity onPress={() => handleEventPress(item.id)}>
+                <Text style={styles.eventName}>{item.name}</Text>
+                <View style={styles.iconRow}>
+                  <MaterialCommunityIcons name="calendar" size={16} color="#eeba2b" />
+                  <Text style={styles.eventDetails}>{item.date}</Text>
+                </View>
+                <View style={styles.iconRow}>
+                  <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
+                  <Text style={styles.eventDetails}>{item.location}</Text>
+                </View>
+                <View style={styles.iconRow}>
+                  <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
+                  <Text style={styles.eventDetails}>{item.time}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      </ScrollView>
+    </SafeAreaView>
+  );
 };
 
 export default EquipmentPanel;

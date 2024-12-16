@@ -110,6 +110,7 @@ const Profile = () => {
       <Header />
       <View style={styles.container}>
         <View style={styles.profileBox}>
+          {/* Check if user is not null before accessing its properties */}
           {user ? (
             <>
               <Image
@@ -134,6 +135,7 @@ const Profile = () => {
               </TouchableOpacity>
             </>
           ) : (
+            // You can show a loading indicator or a placeholder message here
             <Text>Loading...</Text>
           )}
         </View>
