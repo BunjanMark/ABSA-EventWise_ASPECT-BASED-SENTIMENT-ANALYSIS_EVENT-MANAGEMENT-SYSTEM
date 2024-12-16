@@ -49,6 +49,7 @@ const EventBookingDetails = ({ route, navigation }) => {
       setIsLoading(false);
       console.log("Approve!!" + response);
       Alert.alert("Success", "Booking approved successfully!");
+      navigation.goBack();
     } catch (error) {
       console.log("Error approving booking: ", error);
       setIsLoading(false);
@@ -129,12 +130,32 @@ const EventBookingDetails = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={[styles.editButton, { backgroundColor: "red" }]}
-            onPress={() => console.log("testing")}
-          >
-            <Text style={styles.buttonText}>Decline Event</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+  style={[styles.editButton, { backgroundColor: "red" }]}
+  onPress={() =>
+    Alert.alert(
+      "Decline Event",
+      "Are you sure you want to decline this event?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Decline",
+          style: "destructive",
+          onPress: () => {
+            // Add logic for declining the event here
+            console.log("Event Declined");
+            navigation.goBack();
+            Alert.alert("Declined", "The event has been declined.");
+
+          },
+        },
+      ]
+    )
+  }
+>
+  <Text style={styles.buttonText}>Decline Event</Text>
+</TouchableOpacity>
+
         </View>
       </View>
     </ScrollView>
