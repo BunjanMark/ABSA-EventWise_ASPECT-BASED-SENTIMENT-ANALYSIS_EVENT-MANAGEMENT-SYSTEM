@@ -196,7 +196,7 @@ const HomeAdmin = () => {
           />
         </View>
         <EventCalendar />
-        <EventPackagesHome />
+        {/* <EventPackagesHome /> */}
         <HomeTotalFeedback />
         {/* <TotalEventFeedback
           eventFeedback={currentFeedbacks}
