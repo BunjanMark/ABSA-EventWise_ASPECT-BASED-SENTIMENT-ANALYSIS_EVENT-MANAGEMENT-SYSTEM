@@ -254,6 +254,7 @@ const CreatePackageScreen = ({ navigation }) => {
               )}
 
               
+              <View style={styles.inputEvent}>
               <RNPickerSelect
                 onValueChange={(value) => setFieldValue("eventType", value)}
                 items={[
@@ -263,10 +264,16 @@ const CreatePackageScreen = ({ navigation }) => {
                   { label: "Other", value: "Other" },
                 ]}
                 placeholder={{ label: "Select event type", value: null }}
+                style={{
+                  inputAndroid: { color: "#000" }, // Add any additional styles here
+                  inputIOS: { color: "#000" }, // For iOS-specific styles
+                }}
               />
-              {errors.eventType && touched.eventType && (
-                <Text style={styles.errorText}>{errors.eventType}</Text>
-              )}
+            </View>
+            {errors.eventType && touched.eventType && (
+              <Text style={styles.errorText}>{errors.eventType}</Text>
+            )}
+
               <MultiSelect
                 style={styles.dropdown}
                 placeholderStyle={styles.placeholderStyle}
@@ -285,9 +292,20 @@ const CreatePackageScreen = ({ navigation }) => {
                 search
                 searchPlaceholder="Search..."
                 onChange={(items) => {
-                  setSelected(items);
-                  setFieldValue("services", items);
-                }}
+  setSelected(items);
+  setFieldValue("services", items);
+
+  // Calculate total basePrice
+  const selectedServices = services.filter((service) =>
+    items.includes(service.id)
+  );
+  const totalBasePrice = selectedServices.reduce(
+    (sum, service) => sum + parseFloat(service.basePrice || 0),
+    0
+  );
+  setFieldValue("totalPrice", totalBasePrice.toFixed(2)); // Format to 2 decimal places
+}}
+
                 renderItem={renderItem}
                 renderLeftIcon={() => (
                   <AntDesign
@@ -307,13 +325,15 @@ const CreatePackageScreen = ({ navigation }) => {
                 )}
               />
               <TextInput
-                style={styles.input}
-                placeholder="Total Price"
-                value={values.totalPrice}
-                onChangeText={handleChange("totalPrice")}
-                onBlur={handleBlur("totalPrice")}
-                keyboardType="numeric"
-              />
+              style={styles.input}
+              placeholder="Total Price"
+              value={values.totalPrice}
+              editable={false} // Make the field read-only
+            />
+            {errors.totalPrice && touched.totalPrice && (
+              <Text style={styles.errorText}>{errors.totalPrice}</Text>
+            )}
+
               {errors.totalPrice && touched.totalPrice && (
                 <Text style={styles.errorText}>{errors.totalPrice}</Text>
               )}
@@ -360,6 +380,15 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
+    width: "100%",
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#CCC",
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  inputEvent: {
+    height: 50,
     width: "100%",
     borderRadius: 5,
     borderWidth: 1,
