@@ -355,6 +355,17 @@ const approveBookingEvent = async (eventid) => {
   }
 };
 
+const declineBookingEvent = async (eventid) => {
+  try {
+    const response = await api.put(`admin/events/bookings/decline/${eventid}`);
+    console.log("Event declined: ", response);
+  } catch (error) {
+    console.error("Declining booking event error:", error);
+    throw error;
+  }
+};
+
+
 const sendEventNoticeToAllGuests = async (eventId) => {
   try {
     const response = await api.get(`event/${eventId}/reminder`);
@@ -383,4 +394,5 @@ export {
   sendEventNoticeToAllGuests,
   myEvents,
   myBookEvents,
+  declineBookingEvent,
 };

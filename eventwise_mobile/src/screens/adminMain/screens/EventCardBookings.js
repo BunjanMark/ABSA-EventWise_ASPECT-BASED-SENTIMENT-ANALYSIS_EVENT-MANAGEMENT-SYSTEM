@@ -6,20 +6,16 @@ import { fetchUserBookingEvents } from "../../../services/organizer/adminEventSe
 
 const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
   const navigation = useNavigation();
-  const [eventDetails, setEventDetails] = useState([]);
   const [userBookingDetails, setUserBookingDetails] = useState([]);
+
   useEffect(() => {
     const fetchDetails = async () => {
       try {
         if (currentEvents) {
-          // Assuming fetchEventDetails is implemented elsewhere
-          // const details = await fetchEventDetails(currentEvents.id);
-          // setEventDetails(details);
           const userDetails = await fetchUserBookingEvents(
             currentEvents.id,
             currentEvents.user_id
           );
-          console.log("userDetails", userDetails);
           setUserBookingDetails(userDetails);
         }
       } catch (error) {
@@ -28,6 +24,11 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
     };
     fetchDetails();
   }, [currentEvents]);
+
+  // If the event's status is "declined", return null to avoid rendering it
+  if (currentEvents?.status === "declined") {
+    return null;
+  }
 
   return (
     <View style={styles.card}>
@@ -59,7 +60,6 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
               size={25}
             />
           </TouchableOpacity>
-          <View></View>
         </View>
 
         <View style={styles.details}>

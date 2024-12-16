@@ -4,6 +4,11 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
 
 const TotalGuestsCard = ({ event, navigation }) => {
+  if (event.status.toLowerCase() !== "scheduled") {
+    // Do not render the card if the event status is not 'scheduled'
+    return null;
+  }
+
   const handlePress = () => {
     // Navigate to the guest list screen
     navigation.navigate("GuestListAdmin", {

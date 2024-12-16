@@ -180,7 +180,7 @@ const HomeAdmin = () => {
             )}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
-            contentContainerStyle={{ gap: 20 }}
+            contentContainerStyle={{ gap: 1 }}
             accessibilityViewIsModal={true}
             accessibilityModalRoot={true}
             showsHorizontalScrollIndicator={false}
