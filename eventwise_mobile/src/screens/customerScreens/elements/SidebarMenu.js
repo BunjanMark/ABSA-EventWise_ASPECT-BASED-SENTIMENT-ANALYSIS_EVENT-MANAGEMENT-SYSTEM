@@ -7,6 +7,7 @@ import {
   Image,
   Modal,
   Linking,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
@@ -45,7 +46,12 @@ const SidebarMenu = ({ visible, onClose }) => {
     setActiveOption(item);
     onClose();
     if (item === "Logout") {
-      navigation.navigate("Landing");
+      Alert.alert("Logged Out Successfully!");
+      navigation.navigate("Login"); // navigate to a different screen
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      });
     } else {
       navigation.navigate(screen);
     }
@@ -70,62 +76,59 @@ const SidebarMenu = ({ visible, onClose }) => {
           </View>
 
           <View style={styles.drawerHeader}>
-          <View style={styles.userProfile}>
-            <Image
-              source={
-                profilePicture
-                  ? { uri: profilePicture }
-                  : require("../pictures/user.png")
-              }
-              style={styles.accountImage}
-            />
-          </View>
-
-          <View style={styles.drawerInfo}>
-            <Text style={styles.userName}>{username}</Text>
-            <Text style={styles.userRole}>Customer</Text>
-          </View>
-        </View>
-
-
-          {["Profile", "Settings", "About", "Logout"].map(
-            (item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.option,
-                  hoveredOption === item && styles.optionHovered,
-                  activeOption === item && styles.optionActive,
-                ]}
-                onPress={() =>
-                  handlePress(item === "Logout" ? "Landing" : item, item)
+            <View style={styles.userProfile}>
+              <Image
+                source={
+                  profilePicture
+                    ? { uri: profilePicture }
+                    : require("../pictures/user.png")
                 }
-                onPressIn={() => setHoveredOption(item)}
-                onPressOut={() => setHoveredOption(null)}
+                style={styles.accountImage}
+              />
+            </View>
+
+            <View style={styles.drawerInfo}>
+              <Text style={styles.userName}>{username}</Text>
+              <Text style={styles.userRole}>Customer</Text>
+            </View>
+          </View>
+
+          {["Profile", "Settings", "About", "Logout"].map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.option,
+                hoveredOption === item && styles.optionHovered,
+                activeOption === item && styles.optionActive,
+              ]}
+              onPress={() =>
+                handlePress(item === "Logout" ? "Landing" : item, item)
+              }
+              onPressIn={() => setHoveredOption(item)}
+              onPressOut={() => setHoveredOption(null)}
+            >
+              <Ionicons
+                name={getIconName(item)}
+                size={24}
+                color={
+                  activeOption === item || hoveredOption === item
+                    ? "#FFF"
+                    : "#000"
+                }
+                style={styles.icon}
+              />
+              <Text
+                style={[
+                  styles.text,
+                  (activeOption === item || hoveredOption === item) && {
+                    color: "#FFF",
+                  },
+                ]}
               >
-                <Ionicons
-                  name={getIconName(item)}
-                  size={24}
-                  color={
-                    activeOption === item || hoveredOption === item
-                      ? "#FFF"
-                      : "#000"
-                  }
-                  style={styles.icon}
-                />
-                <Text
-                  style={[
-                    styles.text,
-                    (activeOption === item || hoveredOption === item) && {
-                      color: "#FFF",
-                    },
-                  ]}
-                >
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            )
-          )}
+                {item}
+              </Text>
+            </TouchableOpacity>
+          ))}
 
           <View style={styles.divider} />
 
