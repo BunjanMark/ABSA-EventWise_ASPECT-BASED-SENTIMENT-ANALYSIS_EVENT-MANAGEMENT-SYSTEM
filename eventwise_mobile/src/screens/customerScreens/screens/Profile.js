@@ -84,6 +84,7 @@ const Profile = () => {
       setServiceName("");
       setDescription("");
       setModalVisible(false); // Close modal after successful submission
+      console.log("customer create profile:", response);
     } catch (error) {
       Alert.alert(
         "Error",
@@ -110,7 +111,6 @@ const Profile = () => {
       <Header />
       <View style={styles.container}>
         <View style={styles.profileBox}>
-          {/* Check if user is not null before accessing its properties */}
           {user ? (
             <>
               <Image
@@ -135,7 +135,6 @@ const Profile = () => {
               </TouchableOpacity>
             </>
           ) : (
-            // You can show a loading indicator or a placeholder message here
             <Text>Loading...</Text>
           )}
         </View>
