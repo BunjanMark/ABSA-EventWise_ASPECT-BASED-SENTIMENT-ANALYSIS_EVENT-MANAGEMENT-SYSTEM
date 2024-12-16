@@ -26,32 +26,34 @@ const ScheduleScreen = ({ refreshing, onRefresh }) => {
     getEvents();
   }, [refreshing]);
 
-  // Update markedDates whenever currentEvents changes
   useEffect(() => {
     const newMarkedDates = {};
-    currentEvents.forEach((event) => {
-      const eventDate = event.date;
-
-      // Add dots for multiple events on the same day
-      if (!newMarkedDates[eventDate]) {
-        newMarkedDates[eventDate] = { dots: [] };
-      }
-
-      newMarkedDates[eventDate].dots.push({
-        color: "blue", // Customize the dot color
+    currentEvents
+      .filter((event) => event.status !== "declined") 
+      .forEach((event) => {
+        const eventDate = event.date;
+  
+        if (!newMarkedDates[eventDate]) {
+          newMarkedDates[eventDate] = { dots: [] };
+        }
+  
+        newMarkedDates[eventDate].dots.push({
+          color: "#eeba2b",
+        });
       });
-    });
-
+  
     setMarkedDates(newMarkedDates);
   }, [currentEvents]);
+  
 
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
   };
 
   const eventsForSelectedDate = currentEvents.filter(
-    (event) => event.date === selectedDate
+    (event) => event.date === selectedDate && event.status !== "declined"
   );
+  
 
   return (
     <View style={styles.container}>

@@ -58,10 +58,11 @@ const Event = () => {
 
   const filteredEvents = events.filter(
     (event) =>
-      (event.name &&
+      event.status !== "declined" && // Exclude events with status "declined"
+      ((event.name &&
         event.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (event.location &&
-        event.location.toLowerCase().includes(searchQuery.toLowerCase()))
+        (event.location &&
+          event.location.toLowerCase().includes(searchQuery.toLowerCase())))
   );
 
   const handleDropdownToggle = (index) => {
@@ -142,6 +143,12 @@ const Event = () => {
                       <Icon name="list-status" size={16} color="#eeba2b" />
                       <Text style={styles.eventDate}>
                         {event.payment_status || "No Payment Status"}
+                      </Text>
+                    </View>
+                    <View style={styles.eventDetails}>
+                      <Icon name="list-status" size={16} color="#eeba2b" />
+                      <Text style={styles.eventDate}>
+                        {event.status || "No Status"}
                       </Text>
                     </View>
                   </View>
