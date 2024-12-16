@@ -148,7 +148,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-equipment', [EquipmentController::class, 'myEquipment']);
     Route::middleware('auth:api')->post('/equipment', [EquipmentController::class, 'store']);
 
-
+    // geteventswithmyservices
+    Route::get('/events/my-services', [EventController::class, 'getEventsWithMyServices']);
 
 
 
