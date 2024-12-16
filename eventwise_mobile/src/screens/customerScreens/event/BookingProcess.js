@@ -172,6 +172,7 @@ const BookingProcess = ({ navigation }) => {
         totalPrice: selectedPkg.totalPrice,
         pax: selectedPkg.pax,
         packagePhotoURl: coverPhotoURL || "",
+        packageType: 0,
       };
   
       const createdPackage = await createPackage(packageData);
@@ -576,107 +577,108 @@ const BookingProcess = ({ navigation }) => {
 
                 {/* Packages Screen */}
                 {currentScreen === 2 && (
-      <>
-        <TouchableOpacity onPress={() => setCurrentScreen(1)}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color="#eeba2b"
-            marginBottom={10}
-          />
-        </TouchableOpacity>
+  <>
+    <TouchableOpacity onPress={() => setCurrentScreen(1)}>
+      <Ionicons
+        name="arrow-back"
+        size={24}
+        color="#eeba2b"
+        marginBottom={10}
+      />
+    </TouchableOpacity>
 
-        <Text style={styles.titlePackage}>Available Packages</Text>
+    <Text style={styles.titlePackage}>Available Packages</Text>
 
-        <TextInput
-            style={[
-              styles.input,
-              focusedInput === "eventPax" && {
-                borderColor: "#EEBA2B",
-                borderWidth: 2,
-              },
-            ]}
-            placeholder="Event Pax"
-            keyboardType="numeric"
-            onChangeText={(text) => {
-              handleChange("eventPax")(text); // Call handleChange with the text
-              setPax(text); // Update pax state
-            }}
-            onBlur={() => {
-              handleBlur("eventPax");
-              setFocusedInput(null);
-            }}
-            onFocus={() => setFocusedInput("eventPax")}
-            value={values.eventPax} // Use the correct value from `values`
-          />
-          {touched.eventPax && errors.eventPax && (
-            <Text style={styles.errorText}>{errors.eventPax}</Text>
-          )}
-
-
-
-        {filteredPackages && filteredPackages.length > 0 ? (
-          <ScrollView>
-            {filteredPackages.map((pkg, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.packageCard,
-                  selectedPackage === pkg.id && styles.selectedPackageCard,
-                ]}
-                onPress={() => {
-                console.log("Package clicked:", pkg.id);
-                setSelectedPackage(pkg.id); 
-              }}
-              >
-                <Text style={styles.packageName}>
-                  Package Name: {pkg.packageName}
-                </Text>
-                <Text style={styles.packageType}>
-                  Type: {pkg.eventType}
-                </Text>
-                <Text style={styles.packagePrice}>
-                  Price: ₱{pkg.totalPrice}
-                </Text>
-                <Text style={styles.packagePrice}>
-                  Pax: {pkg.pax}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        ) : (
-          <Text style={styles.noPackagesText}>
-            No packages available for the selected event type.
-          </Text>
-        )}
-
-        <Button
-          mode="contained"
-          onPress={() => {
-            setCurrentScreen(3);
-            console.log("Proceeding with package ID:", selectedPackage);
-
-            const selectedPkgDetails = currentPackages.find(
-              (pkg) => pkg.id === selectedPackage
-            );
-            if (selectedPkgDetails) {
-              console.log("Proceeding with package details:");
-              console.log("ID:", selectedPkgDetails.id);
-              console.log("packageName:", selectedPkgDetails.packageName);
-              console.log("eventType:", selectedPkgDetails.eventType);
-              console.log("totalPrice:", selectedPkgDetails.totalPrice);
-            } else {
-              console.log(
-                "No package selected or package details not found."
-              );
-            }
-          }}
-          style={styles.closeButton}
-        >
-          Next
-        </Button>
-      </>
+    <TextInput
+      style={[
+        styles.input,
+        focusedInput === "eventPax" && {
+          borderColor: "#EEBA2B",
+          borderWidth: 2,
+        },
+      ]}
+      placeholder="Event Pax"
+      keyboardType="numeric"
+      onChangeText={(text) => {
+        handleChange("eventPax")(text); // Call handleChange with the text
+        setPax(text); // Update pax state
+      }}
+      onBlur={() => {
+        handleBlur("eventPax");
+        setFocusedInput(null);
+      }}
+      onFocus={() => setFocusedInput("eventPax")}
+      value={values.eventPax} // Use the correct value from `values`
+    />
+    {touched.eventPax && errors.eventPax && (
+      <Text style={styles.errorText}>{errors.eventPax}</Text>
     )}
+
+    {/* Filter packages where packageType is 1 */}
+    {filteredPackages && filteredPackages.length > 0 ? (
+      <ScrollView>
+        {filteredPackages
+          .filter((pkg) => pkg.packageType === 1) // Add this line to filter by packageType
+          .map((pkg, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.packageCard,
+                selectedPackage === pkg.id && styles.selectedPackageCard,
+              ]}
+              onPress={() => {
+                console.log("Package clicked:", pkg.id);
+                setSelectedPackage(pkg.id);
+              }}
+            >
+              <Text style={styles.packageName}>
+                Package Name: {pkg.packageName}
+              </Text>
+              <Text style={styles.packageType}>
+                Type: {pkg.eventType}
+              </Text>
+              <Text style={styles.packagePrice}>
+                Price: ₱{pkg.totalPrice}
+              </Text>
+              <Text style={styles.packagePrice}>
+                Pax: {pkg.pax}
+              </Text>
+            </TouchableOpacity>
+          ))}
+      </ScrollView>
+    ) : (
+      <Text style={styles.noPackagesText}>
+        No packages available for the selected event type.
+      </Text>
+    )}
+
+    <Button
+      mode="contained"
+      onPress={() => {
+        setCurrentScreen(3);
+        console.log("Proceeding with package ID:", selectedPackage);
+
+        const selectedPkgDetails = currentPackages.find(
+          (pkg) => pkg.id === selectedPackage
+        );
+        if (selectedPkgDetails) {
+          console.log("Proceeding with package details:");
+          console.log("ID:", selectedPkgDetails.id);
+          console.log("packageName:", selectedPkgDetails.packageName);
+          console.log("eventType:", selectedPkgDetails.eventType);
+          console.log("totalPrice:", selectedPkgDetails.totalPrice);
+        } else {
+          console.log(
+            "No package selected or package details not found."
+          );
+        }
+      }}
+      style={styles.closeButton}
+    >
+      Next
+    </Button>
+  </>
+)}
 
     {currentScreen === 3 && selectedPackage !== null && (
                   <>
