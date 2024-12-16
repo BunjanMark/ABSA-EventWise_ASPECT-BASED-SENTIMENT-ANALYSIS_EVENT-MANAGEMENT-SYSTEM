@@ -4,6 +4,7 @@ import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import {
   approveBookingEvent,
+  declineBookingEvent,
   fetchEventPackageDetails,
   fetchServices,
   fetchPackageServiceDetails,
@@ -49,6 +50,19 @@ const EventBookingDetails = ({ route, navigation }) => {
       setIsLoading(false);
       console.log("Approve!!" + response);
       Alert.alert("Success", "Booking approved successfully!");
+      navigation.goBack();
+    } catch (error) {
+      console.log("Error approving booking: ", error);
+      setIsLoading(false);
+    }
+  };
+  const handlingDeclineButton = async (eventid) => {
+    setIsLoading(true);
+    try {
+      const response = await declineBookingEvent(eventid);
+      setIsLoading(false);
+      console.log("Decline!!" + response);
+      Alert.alert("Success", "Booking decline successfully!");
       navigation.goBack();
     } catch (error) {
       console.log("Error approving booking: ", error);
@@ -130,32 +144,12 @@ const EventBookingDetails = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.buttonsContainer}>
-        <TouchableOpacity
-  style={[styles.editButton, { backgroundColor: "red" }]}
-  onPress={() =>
-    Alert.alert(
-      "Decline Event",
-      "Are you sure you want to decline this event?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Decline",
-          style: "destructive",
-          onPress: () => {
-            // Add logic for declining the event here
-            console.log("Event Declined");
-            navigation.goBack();
-            Alert.alert("Declined", "The event has been declined.");
-
-          },
-        },
-      ]
-    )
-  }
->
-  <Text style={styles.buttonText}>Decline Event</Text>
-</TouchableOpacity>
-
+          <TouchableOpacity
+            style={[styles.editButton, { backgroundColor: "red" }]}
+            onPress={() => handlingDeclineButton(eventData.id)}
+          >
+            <Text style={styles.buttonText}>Decline Event</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
