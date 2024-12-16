@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
   const navigation = useNavigation();
   const [eventDetails, setEventDetails] = useState([]);
-
+  console.log(JSON.stringify(currentEvents, null, 2));
   useEffect(() => {
     const fetchDetails = async () => {
       try {
@@ -61,7 +61,11 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
             <Text style={styles.infoText}>{currentEvents?.date || "N/A"}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="map-marker" size={16} color="#eeba2b" />
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={16}
+              color="#eeba2b"
+            />
             <Text style={styles.infoText}>
               {currentEvents?.location || "N/A"}
             </Text>
@@ -89,7 +93,11 @@ const EventCardHome = ({ currentEvents, likedEvents, toggleLike }) => {
             }`}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="list-status" size={16} color="#eeba2b" />
+            <MaterialCommunityIcons
+              name="list-status"
+              size={16}
+              color="#eeba2b"
+            />
             <Text style={styles.infoText}>{`Payment Status: ${
               currentEvents?.payment_status || "N/A"
             }`}</Text>
