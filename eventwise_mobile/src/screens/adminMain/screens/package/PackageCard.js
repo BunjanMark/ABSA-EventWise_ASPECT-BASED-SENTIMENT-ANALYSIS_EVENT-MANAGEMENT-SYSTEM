@@ -30,80 +30,81 @@ const PackageCard = ({
     fetchDetails();
   }, [currentPackages]);
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate("PackageCardDetails", {
-            packageData: currentPackages,
-          })
-        }
-      >
-        <TouchableOpacity
-          onPress={() => toggleLike(currentPackages.id)}
-          style={styles.heartIcon}
-        >
-          <MaterialCommunityIcons
-            name={likedPackages[currentPackages.id] ? "heart" : "heart-outline"}
-            color={likedPackages[currentPackages.id] ? "#FF0000" : "#888"}
-            size={25}
-          />
-        </TouchableOpacity>
-        <Image
-          source={{
-            uri: currentPackages.coverPhoto,
-          }}
-          style={styles.image}
-        />
 
-        <View style={styles.serviceCardHeader}>
-          <Text style={styles.serviceName}>{currentPackages.packageName}</Text>
-        </View>
-        <View style={styles.serviceDetails}>
+    <>
+    {currentPackages && currentPackages.packageType === 1 && (
+      <View style={styles.container}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("PackageCardDetails", {
+              packageData: currentPackages,
+            })
+          }
+        >
+          <TouchableOpacity
+            onPress={() => toggleLike(currentPackages.id)}
+            style={styles.heartIcon}
+          >
+            <MaterialCommunityIcons
+              name={likedPackages[currentPackages.id] ? "heart" : "heart-outline"}
+              color={likedPackages[currentPackages.id] ? "#FF0000" : "#888"}
+              size={25}
+            />
+          </TouchableOpacity>
+          <Image
+            source={{
+              uri: currentPackages.coverPhoto,
+            }}
+            style={styles.image}
+          />
+          <View style={styles.serviceCardHeader}>
+            <Text style={styles.serviceName}>{currentPackages.packageName}</Text>
+          </View>
+          <View style={styles.serviceDetails}>
+            <View>
+              <Text style={styles.serviceCategory}>
+                Package Types: {currentPackages.eventType}
+              </Text>
+            </View>
+          </View>
           <View>
-            <Text style={styles.serviceCategory}>
-              Package Types: {currentPackages.eventType}
+            <Text style={styles.servicePrice}>
+              Price: ₱{currentPackages.totalPrice}
             </Text>
           </View>
-        </View>
-        <View>
-          <Text style={styles.servicePrice}>
-            Price: ₱{currentPackages.totalPrice}
+          <Text style={styles.serviceFeatures} numberOfLines={2}>
+            Inclusions:
+            {serviceDetails.map((service, index) => (
+              <Text key={index}>
+                {"   "}• {service.serviceName}
+              </Text>
+            ))}
           </Text>
+          <Text style={styles.serviceFeaturesDetails} numberOfLines={2}>
+            {currentPackages.serviceFeatures}
+          </Text>
+        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.updateButton}
+            onPress={() => {
+              navigation.navigate("EditPackageScreen", {
+                packageData: currentPackages,
+              });
+            }}
+          >
+            <Text style={styles.buttonText}>Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => handleDeletePackage(currentPackages.id)}
+          >
+            <Text style={styles.buttonText}>Disable</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.serviceFeatures} numberOfLines={2}>
-          Inclusions:
-          {serviceDetails.map((service, index) => (
-            <Text key={index}>
-              {"   "}• {service.serviceName}
-            </Text>
-          ))}
-        </Text>
-        <Text style={styles.serviceFeaturesDetails} numberOfLines={2}>
-          {currentPackages.serviceFeatures}
-        </Text>
-      </TouchableOpacity>
-      {/* <Text style={styles.serviceFeatures} numberOfLines={2}>
-        {"   "}• {service.serviceFeatures}
-      </Text> */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.updateButton}
-          onPress={() => {
-            navigation.navigate("EditPackageScreen", {
-              packageData: currentPackages,
-            }); // Pass service data to the Edit screen
-          }}
-        >
-          <Text style={styles.buttonText}>Edit</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => handleDeletePackage(currentPackages.id)} // Now using the prop
-        >
-          <Text style={styles.buttonText}>Disable</Text>
-        </TouchableOpacity>
       </View>
-    </View>
+    )}
+    </>
   );
 };
 
