@@ -8,9 +8,6 @@ import API_URL from "../../../constants/constant";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-
-
-
 const Book = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState("packages");
@@ -24,25 +21,24 @@ const Book = ({ navigation }) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-  
+
         const data = await response.json();
-  
+
         // Set eventPackages directly with data from the database
         const packagesWithImages = data.map((pkg) => ({
           ...pkg,
           coverPhoto: pkg.coverPhoto || null, // Use the coverPhoto directly from the API response
           services: pkg.services || [],       // Ensure services is at least an empty array
         }));
-  
+
         setEventPackages(packagesWithImages);
       } catch (error) {
         console.error("Error fetching event data:", error);
       }
     };
-  
+
     fetchEventPackages();
   }, []);
-  
 
   const handlePackageClick = (packageItem) => {
     setSelectedPackage(packageItem);
@@ -56,25 +52,23 @@ const Book = ({ navigation }) => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {currentStep === "packages" ? (
             <View>
-            <View style={styles.eventSection}>
-          <Text style={styles.eventTitle}>Event</Text>
-          <TouchableOpacity
-            style={styles.addEventButton}
-            onPress={() => {
-              try {
-                navigation.navigate("BookingProcess");
-              } catch (error) {
-                console.error("Navigation error:", error);
-              }
-            }}
-          >
-            {/* Plus icon and text */}
-            <Icon name="add" size={24} color="white" style={styles.icon} />
-            <Text style={styles.buttonText}>Add Events</Text>
-          </TouchableOpacity>
-        </View>
+              <View style={styles.eventSection}>
+                <Text style={styles.eventTitle}>Event</Text>
+                <TouchableOpacity
+                  style={styles.addEventButton}
+                  onPress={() => {
+                    try {
+                      navigation.navigate("BookingProcess");
+                    } catch (error) {
+                      console.error("Navigation error:", error);
+                    }
+                  }}
+                >
+                  <Icon name="add" size={24} color="white" style={styles.icon} />
+                  <Text style={styles.buttonText}>Add Events</Text>
+                </TouchableOpacity>
+              </View>
 
-              
               <View style={styles.packagesSection}>
                 <Text style={styles.packagesTitle}>Packages</Text>
                 <ScrollView
@@ -82,33 +76,36 @@ const Book = ({ navigation }) => {
                   showsHorizontalScrollIndicator={false}
                   style={styles.scrollView}
                 >
-                  {eventPackages.map((packageItem) => (
-                    <TouchableOpacity
-                      key={packageItem.id}
-                      style={styles.card}
-                      onPress={() => handlePackageClick(packageItem)}
-                    >
-                      {packageItem.coverPhoto && (
-                        <Image source={{ uri: packageItem?.coverPhoto }} style={styles.coverPhoto} />
-
-                      )}
-                      <Text style={styles.packageName}>{packageItem.packageName}</Text>
-                      <Text style={styles.totalPrice}>{`Price: ${packageItem.totalPrice}`}</Text>
-                      <Text style={styles.eventType}>{packageItem.eventType}</Text>
-                    </TouchableOpacity>
-                  ))}
+                  {eventPackages
+                    .filter((pkg) => pkg.packageType === 1) 
+                    .map((packageItem) => (
+                      <TouchableOpacity
+                        key={packageItem.id}
+                        style={styles.card}
+                        onPress={() => handlePackageClick(packageItem)}
+                      >
+                        {packageItem.coverPhoto && (
+                          <Image
+                            source={{ uri: packageItem?.coverPhoto }}
+                            style={styles.coverPhoto}
+                          />
+                        )}
+                        <Text style={styles.packageName}>{packageItem.packageName}</Text>
+                        <Text style={styles.totalPrice}>{`Price: ${packageItem.totalPrice}`}</Text>
+                        <Text style={styles.eventType}>{packageItem.eventType}</Text>
+                      </TouchableOpacity>
+                    ))}
                 </ScrollView>
               </View>
             </View>
           ) : (
             <View style={styles.packageDetails}>
               <TouchableOpacity onPress={() => setCurrentStep("packages")}>
-              <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
+                <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
               </TouchableOpacity>
               <Text style={styles.packageName1}>{selectedPackage.packageName}</Text>
               {selectedPackage.coverPhoto && (
                 <Image source={{ uri: selectedPackage?.coverPhoto }} style={styles.coverPhoto} />
-
               )}
               <Text style={styles.eventType}>{selectedPackage.eventType}</Text>
               <Text style={styles.totalPrice}>{`Price: ${selectedPackage.totalPrice}`}</Text>

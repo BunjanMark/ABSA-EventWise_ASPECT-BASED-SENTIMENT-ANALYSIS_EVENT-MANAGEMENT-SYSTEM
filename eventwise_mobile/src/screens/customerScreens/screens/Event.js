@@ -58,10 +58,11 @@ const Event = () => {
 
   const filteredEvents = events.filter(
     (event) =>
-      (event.name &&
+      event.status !== "declined" && // Exclude events with status "declined"
+      ((event.name &&
         event.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (event.location &&
-        event.location.toLowerCase().includes(searchQuery.toLowerCase()))
+        (event.location &&
+          event.location.toLowerCase().includes(searchQuery.toLowerCase())))
   );
 
   const handleDropdownToggle = (index) => {
@@ -109,13 +110,13 @@ const Event = () => {
           {filteredEvents.length > 0 ? (
             filteredEvents.map((event, index) => (
               <View key={index} style={styles.eventFolder}>
-              <Image
-  source={{
-    uri: event?.coverPhoto || "defaultImageURL",
-  }}
-  style={styles.eventImage}
-  resizeMode="cover"
-/>
+                <Image
+                  source={{
+                    uri: event?.coverPhoto || "defaultImageURL",
+                  }}
+                  style={styles.eventImage}
+                  resizeMode="cover"
+                />
 
                 <View style={styles.eventDetailsContainer}>
                   <Text style={styles.eventName}>
@@ -144,7 +145,12 @@ const Event = () => {
                         {event.payment_status || "No Payment Status"}
                       </Text>
                     </View>
-                    
+                    <View style={styles.eventDetails}>
+                      <Icon name="list-status" size={16} color="#eeba2b" />
+                      <Text style={styles.eventDate}>
+                        {event.status || "No Status"}
+                      </Text>
+                    </View>
                   </View>
                   <View style={styles.buttonContainer}>
                     <TouchableOpacity
