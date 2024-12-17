@@ -102,16 +102,13 @@ const BookingProcess = ({ navigation }) => {
   }, []);
   
   useEffect(() => {
-    // Filter packages based on selected event type
-    if (selectedEventType) {
-      const filtered = currentPackages.filter(
-        (pkg) => pkg.eventType === selectedEventType
-      );
-      setFilteredPackages(filtered);
-    } else {
-      setFilteredPackages(currentPackages); // Show all packages if no filter
-    }
-  }, [selectedEventType, currentPackages]); // Re-run when eventType or packages change
+    const filtered = currentPackages.filter(pkg => {
+      const matchesEventType = selectedEventType ? pkg.eventType === selectedEventType : true;
+      const matchesPax = pkg.pax >= pax;
+      return matchesEventType && matchesPax;
+    });
+    setFilteredPackages(filtered);
+  }, [selectedEventType, pax, currentPackages]);
 
   useEffect(() => {
     const loadServices = async () => {
@@ -126,12 +123,7 @@ const BookingProcess = ({ navigation }) => {
     loadServices();
   }, [setServices]);
 
-  useEffect(() => {
-    const filtered = currentPackages.filter(pkg => {
-      return pkg.pax >= pax;  // Filter packages based on the pax entered
-    });
-    setFilteredPackages(filtered);
-  }, [pax, currentPackages]);
+
 
 
   // CREATE EVENT FUNCTION
@@ -166,7 +158,7 @@ const BookingProcess = ({ navigation }) => {
         }));
   
       const packageData = {
-        packageName: selectedPkg.packageName,
+        packageName: `${selectedPkg.packageName}_${values.eventName}`,
         eventType: selectedPkg.eventType,
         services: formattedServices.map((service) => service.id),
         totalPrice: selectedPkg.totalPrice,
