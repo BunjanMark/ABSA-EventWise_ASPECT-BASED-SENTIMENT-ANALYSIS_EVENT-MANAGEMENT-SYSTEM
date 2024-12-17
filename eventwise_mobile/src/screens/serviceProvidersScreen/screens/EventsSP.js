@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
   Animated,
+  RefreshControl,
   ScrollView,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -22,7 +23,7 @@ const EventsSP = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [overlayVisible, setOverlayVisible] = useState({});
-
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const coverPhotos = [event1, event2, event3];
 
   // Fetch events on component mount
@@ -44,6 +45,22 @@ const EventsSP = ({ navigation }) => {
 
     fetchAllEvents();
   }, []);
+  const refreshEvents = async () => {
+    setIsRefreshing(true);
+    try {
+      const data = await getEventsWithMyServices();
+      const eventsWithImages = data.map((event, index) => ({
+        ...event,
+        image: coverPhotos[index % coverPhotos.length],
+      }));
+      setEvents(eventsWithImages);
+      setFilteredEvents(eventsWithImages); // Reset filtered events
+    } catch (error) {
+      console.error("Failed to refresh events:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Updated handleSearch to use searchQuery and filter events
   useEffect(() => {
@@ -193,7 +210,12 @@ const EventsSP = ({ navigation }) => {
           data={filteredEvents}
           renderItem={renderEventItem}
           keyExtractor={(item) => item.id.toString()}
-          scrollEnabled={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={refreshEvents}
+            />
+          }
         />
         <View style={styles.paddingBottom} />
       </ScrollView>
