@@ -6,8 +6,6 @@ import { faCalendar, faMapMarker, faHeart, faSearch, faChevronDown, faEllipsisV,
 import axios from 'axios';
 import { IoTime, IoLocationSharp } from "react-icons/io5";
 import { FaCalendar } from "react-icons/fa";
-
-
 import API_URL from './apiconfig';
 
 function Events() {
@@ -21,6 +19,7 @@ function Events() {
   const [showOverlay, setShowOverlay] = useState(false);
   const [eventId, setEventId] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState('');
+  const [showPaymentStatusDropdown, setShowPaymentStatusDropdown] = useState(false);
   const navigate = useNavigate();
 
 
@@ -281,17 +280,30 @@ const handleAttendeeClick = (eventId) => {
               <div className="header-events">
                 <h2>Event Details</h2>
               </div>
-              <div className="detail-group-events">
-          <label htmlFor="paymentStatus">Payment Status: </label>
-          <select
-            id="paymentStatus"
-            value={paymentStatus}
-            onChange={handlePaymentStatusChange}
-          >
-            <option value="Downpayment">Downpayment</option>
-            <option value="Paid">Paid</option>
-          </select>
+              {/* Payment Status */}
+<div className="detail-group-events">
+  <label htmlFor="paymentStatus">Payment Status: </label>
+  <div className="custom-dropdown-events">
+    <button
+      className="custom-dropdown-btn-events"
+      onClick={() => setShowPaymentStatusDropdown(!showPaymentStatusDropdown)}
+    >
+      {paymentStatus || 'Select Payment Status'}
+      <FontAwesomeIcon icon={faChevronDown} />
+    </button>
+    {showPaymentStatusDropdown && (
+      <div className="custom-dropdown-content-events">
+        <div onClick={() => { setPaymentStatus('Downpayment'); setShowPaymentStatusDropdown(false); }}>
+          Downpayment
         </div>
+        <div onClick={() => { setPaymentStatus('Paid'); setShowPaymentStatusDropdown(false); }}>
+          Paid
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
 
         
 

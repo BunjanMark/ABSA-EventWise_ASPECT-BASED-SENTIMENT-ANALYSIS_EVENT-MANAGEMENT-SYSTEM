@@ -16,6 +16,8 @@ import { fetchEvents } from "../../../../services/organizer/adminEventServices";
 import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
 import { deleteEvent } from "../../../../services/organizer/adminEventServices";
 import { useEffect } from "react";
+import PackageCardCustomer from "../package/PackageCardCustomer";
+import PackageManagerCustomer from "../package/PackageManagerCustomer";
 const EventAdmin = () => {
   const { currentPackages, setCurrentPackages } = usePackageStore();
   const { currentEvents, setCurrentEvents } = useEventStore();
@@ -163,6 +165,28 @@ const EventAdmin = () => {
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
               <PackageCard
+                currentPackages={item}
+                likedPackages={likedPackages}
+                toggleLike={toggleLike}
+                handleDeletePackage={handleDeletePackage}
+                handleEditPackage={handleEditPackage}
+              />
+            )}
+          />
+        </View>
+        <PackageManagerCustomer />
+        {/* #TODO organize based on package type.  */}
+        <View style={[]}>
+          <FlatList
+            data={currentPackages}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={true}
+            contentContainerStyle={{ gap: 20 }}
+            accessibilityViewIsModal={true}
+            accessibilityModalRoot={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <PackageCardCustomer
                 currentPackages={item}
                 likedPackages={likedPackages}
                 toggleLike={toggleLike}

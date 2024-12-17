@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faEnvelope, faBell, faInfoCircle, faUserFriends, faClipboardList, faCommentAlt, faUserCircle, faCog, faSignOutAlt, faChevronDown, faHouse, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import './App.css'; // Make sure this path is correct
-import logo from './images/logo.png'; // Make sure this path is correct
+import logo from './images/ew.png'; // Make sure this path is correct
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
