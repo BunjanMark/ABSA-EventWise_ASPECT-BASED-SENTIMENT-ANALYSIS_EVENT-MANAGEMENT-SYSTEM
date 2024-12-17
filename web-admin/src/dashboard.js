@@ -5,6 +5,7 @@ import './App.css';
 import { IoLocationSharp, IoTime } from "react-icons/io5";
 import { FaCalendar } from "react-icons/fa";
 import API_URL from './apiconfig';
+import defaultImage from './images/default.png';
 
 // Packages data
 const packageImages = [
@@ -198,7 +199,11 @@ function Dashboard() {
       <div className="events-list-container-dashboard-left">
         {selectedDayEvents.map((event, index) => (
           <div className="event-card-dashboard" key={index}>
-            <img src={event.coverPhoto} alt="Event Cover" className="event-cover-dashboard" />
+          <img
+  src={event.coverPhoto}
+  alt="Event Cover"
+  className="event-cover-dashboard"
+/>
             <div className="event-info-dashboard">
               <p className="event-name-dashboard">{event.name.charAt(0).toUpperCase() + event.name.slice(1)}</p>
               <div className="event-detail-dashboard">
