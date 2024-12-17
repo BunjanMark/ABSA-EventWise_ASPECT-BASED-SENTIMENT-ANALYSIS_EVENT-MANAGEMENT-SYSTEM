@@ -22,7 +22,7 @@ const FeedbackAdmin = () => {
   console.log(
     "this is the fedbacks by evnet" + JSON.stringify(feedbacksByEvent)
   );
-  console.log("Current Events", JSON.stringify(currentEvents, ["status", 2]));
+  console.log("Current Events", JSON.stringify(currentEvents, ["id", 2]));
 
   const renderFeedbackItem = ({ item }) => {
     const event = currentEvents.find((event) => event.id === item.event_id);
