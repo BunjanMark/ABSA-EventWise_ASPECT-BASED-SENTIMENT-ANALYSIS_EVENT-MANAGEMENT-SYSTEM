@@ -173,7 +173,7 @@ export const addEquipment = async (equipmentData) => {
 export const updateEquipment = async (item) => {
   try {
     const response = await axios.put(
-      `http://192.168.100.8:8000/api/equipment/${item.id}`, //#TODO replace with cloud url
+      `https://phplaravel-1381591-5105067.cloudwaysapps.com/api/equipment/${item.id}`, //#TODO replace with cloud url
       item
     );
     return response.data;
