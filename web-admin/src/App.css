@@ -4077,31 +4077,6 @@ textarea.text-input-addrole {
   margin: 2px 0;
 }
 
-.detail-text-eventfeedback {
-  font-size: 14px;
-  color: #555;
-  margin-left: 5px;
-}
-
-.heart-icon-eventfeedback {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #DADADA;
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #000;
-  cursor: pointer;
-}
-
-.heart-liked-eventfeedback {
-  background-color: #FF0000;
-}
-
 .buttons-container-eventfeedback {
   display: flex;
   flex-wrap: wrap;
@@ -4109,16 +4084,16 @@ textarea.text-input-addrole {
   margin-top: 10px;
 }
 
-.button-eventfeedback {
-  background-color: #FFC42B;
-  border-radius: 5px;
-  padding: 5px 10px;
-  margin: 5px;
-  border: none;
-  font-family: 'Poppins', sans-serif;
-  color: #000;
-  cursor: pointer;
-}
+  .button-eventfeedback {
+    background-color: #FFC42B;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 5px;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    color: #000;
+    cursor: pointer;
+  }
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
@@ -4142,6 +4117,61 @@ textarea.text-input-addrole {
 .pie-chart-container-eventfeedback {
   display: flex;
   justify-content: center;}
+
+  .overlay-feedback {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-feedback {
+    position: relative;  
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-height: 80%;
+    max-width: 90%;
+    width: 400px;  
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  
+  .feedback-content {
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+  }
+  
+  .modal-feedback::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .close-button-feedback {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    color: red;
+    cursor: pointer;
+  }
+  
+  .close-button-feedback:hover {
+    background: transparent;
+  }
+  
+  
+  
+  
 
 
 
