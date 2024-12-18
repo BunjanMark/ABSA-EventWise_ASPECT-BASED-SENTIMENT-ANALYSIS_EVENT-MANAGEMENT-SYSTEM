@@ -32,6 +32,7 @@ import {
 } from "../../../../services/feedbackServices";
 import { useFeedbackStore } from "../../../../stateManagement/admin/useFeedbackStore";
 import HomeTotalFeedback from "../component/HomeTotalFeedback";
+import { deleteEvent } from "../../../../services/organizer/adminEventServices";
 import EventCardComplete from "../EventCardComplete";
 const HomeAdmin = () => {
   const { eventData, sliceColor } = useStore(); // Using your state store
@@ -108,7 +109,7 @@ const HomeAdmin = () => {
   const handleDeleteEvent = async (id) => {
     try {
       await deleteEvent(id);
-      refreshPackages();
+      refreshEvents();
     } catch (error) {
       console.error("Failed to delete event", error);
     }

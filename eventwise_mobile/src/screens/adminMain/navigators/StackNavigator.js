@@ -62,6 +62,7 @@ const MainStackNavigator = () => {
         component={EventCompleteDetails}
       />
       <Stack.Screen name="FeedbackAdminCard" component={FeedbackAdminCard} />
+      <Stack.Screen name="EditEventScreen" component={EditEventScreen} />
     </Stack.Navigator>
   );
 };

@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import PackageCardCustomer from "../package/PackageCardCustomer";
 import PackageManagerCustomer from "../package/PackageManagerCustomer";
 import EventCardAdmin from "./EventCardAdmin";
+import EventCardHome from "../event/EventCardHome";
 const EventAdmin = () => {
   const { currentPackages, setCurrentPackages } = usePackageStore();
   const { currentEvents, setCurrentEvents } = useEventStore();
@@ -135,7 +136,9 @@ const EventAdmin = () => {
         <EventManager />
         <View style={[]}>
           <FlatList
-            data={currentEvents}
+            data={currentEvents
+              .filter((event) => event.status.toLowerCase() != "disabled")
+              .sort((a, b) => new Date(a.date) - new Date(b.date))} // Sort by closest date}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             contentContainerStyle={{ gap: 20 }}
@@ -143,7 +146,7 @@ const EventAdmin = () => {
             accessibilityModalRoot={true}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
-              <EventCardAdmin
+              <EventCardHome
                 currentEvents={item}
                 handleDeleteEvent={handleDeleteEvent}
                 likedEvent={likedEvents}
