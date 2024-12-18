@@ -32,6 +32,7 @@ import {
 } from "../../../../services/feedbackServices";
 import { useFeedbackStore } from "../../../../stateManagement/admin/useFeedbackStore";
 import HomeTotalFeedback from "../component/HomeTotalFeedback";
+import EventCardComplete from "../EventCardComplete";
 const HomeAdmin = () => {
   const { eventData, sliceColor } = useStore(); // Using your state store
   const [refreshing, setRefreshing] = useState(false); // State for refresh control
@@ -218,7 +219,7 @@ const HomeAdmin = () => {
             accessibilityModalRoot={true}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
-              <EventCardBookings
+              <EventCardComplete
                 currentEvents={item}
                 handleDeleteEvent={handleDeleteEvent}
                 likedEvent={likedEvents}
