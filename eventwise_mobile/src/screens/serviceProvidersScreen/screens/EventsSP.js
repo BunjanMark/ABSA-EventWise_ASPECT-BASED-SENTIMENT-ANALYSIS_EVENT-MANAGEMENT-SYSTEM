@@ -25,7 +25,7 @@ const EventsSP = ({ navigation }) => {
   const [overlayVisible, setOverlayVisible] = useState({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const coverPhotos = [event1, event2, event3];
-
+  console.log("My evnets".events);
   // Fetch events on component mount
   useEffect(() => {
     const fetchAllEvents = async () => {
