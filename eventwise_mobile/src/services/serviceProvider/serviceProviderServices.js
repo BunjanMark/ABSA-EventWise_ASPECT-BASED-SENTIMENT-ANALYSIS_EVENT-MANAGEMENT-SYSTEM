@@ -55,7 +55,24 @@ const fetchEventsByService = async () => {
     throw error;
   }
 };
+// Function to get all events with the user's services
+const getEventsWithMyServices = async () => {
+  try {
+    // Send GET request to fetch the events with services associated
+    const response = await api.get("/events/my-services");
 
+    // Check if response contains events data
+    if (response.data && response.data.events) {
+      return response.data.events; // Return the events list
+    } else {
+      throw new Error("No events found with your services.");
+    }
+  } catch (error) {
+    // Handle any errors
+    console.error("Error fetching events with services:", error.message);
+    throw error;
+  }
+};
 // Function to create a new service
 const createService = async (serviceData) => {
   try {
@@ -149,4 +166,5 @@ export {
   fetchServices,
   fetchEventsByService,
   fetchMyEquipments,
+  getEventsWithMyServices,
 };

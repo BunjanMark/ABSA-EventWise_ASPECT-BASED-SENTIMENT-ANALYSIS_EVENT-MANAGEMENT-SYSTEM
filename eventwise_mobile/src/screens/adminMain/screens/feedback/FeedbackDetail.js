@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { getAspectsWithSentimentEvent } from "../../../../services/feedbackServices";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const FeedbackDetail = ({ route }) => {
   const { event } = route.params;
@@ -16,6 +18,7 @@ const FeedbackDetail = ({ route }) => {
   const [loading, setLoading] = useState(true); // State to manage loading status
   const [error, setError] = useState(null); // State to handle errors
   const [expandedAspect, setExpandedAspect] = useState(null); // State to track which aspect is expanded
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchSentimentData = async () => {
@@ -38,6 +41,13 @@ const FeedbackDetail = ({ route }) => {
     setExpandedAspect(expandedAspect === aspect ? null : aspect);
   };
 
+  const capitalizeWords = (text) => {
+    return text
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -56,9 +66,10 @@ const FeedbackDetail = ({ route }) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={20} />
+      </TouchableOpacity>
       <Text style={styles.title}>{event.name}</Text>
-      <Text style={styles.eventId}>Event ID: {event.id}</Text>
-
       <ScrollView style={styles.sentimentDetails}>
         {sentimentData ? (
           Object.keys(sentimentData).map((aspect) => (
@@ -67,14 +78,18 @@ const FeedbackDetail = ({ route }) => {
                 onPress={() => toggleAspect(aspect)} // Toggle the clicked aspect
                 style={styles.aspectHeader}
               >
-                <Text style={styles.aspectTitle}>
-                  {aspect.replace("_", " ")}
-                </Text>
-                <Text style={styles.sentimentSummary}>
-                  Positive: {sentimentData[aspect].positive} | Neutral:{" "}
-                  {sentimentData[aspect].neutral} | Negative:{" "}
-                  {sentimentData[aspect].negative}
-                </Text>
+                <Text style={styles.aspectTitle}>{capitalizeWords(aspect)}</Text>
+                <View style={styles.sentimentSummaryContainer}>
+                  <Text style={[styles.sentimentText, styles.positive]}>
+                    Positive: {sentimentData[aspect].positive}
+                  </Text>
+                  <Text style={[styles.sentimentText, styles.neutral]}>
+                    Neutral: {sentimentData[aspect].neutral}
+                  </Text>
+                  <Text style={[styles.sentimentText, styles.negative]}>
+                    Negative: {sentimentData[aspect].negative}
+                  </Text>
+                </View>
               </TouchableOpacity>
 
               {/* Show raw feedback if the aspect is expanded */}
@@ -83,7 +98,7 @@ const FeedbackDetail = ({ route }) => {
                   {rawFeedbackData[aspect].map((feedback, index) => (
                     <View key={index} style={styles.feedbackItem}>
                       <Text style={styles.customerName}>
-                        {feedback.customer_name} (ID: {feedback.customer_id}):
+                        {feedback.customer_name}:
                       </Text>
                       <Text style={styles.rawFeedbackText}>
                         - {feedback.feedback_text}
@@ -115,19 +130,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 18,
+    fontSize: 25,
     fontWeight: "bold",
     marginBottom: 10,
-  },
-  eventId: {
-    fontSize: 16,
-    marginBottom: 5,
   },
   sentimentDetails: {
     marginTop: 20,
   },
   aspectContainer: {
-    marginBottom: 10,
+    marginBottom: 15,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
+    borderWidth: 1, // Add this line for border width
+    borderColor: "#f0f0f0",
   },
   aspectHeader: {
     backgroundColor: "#f0f0f0",
@@ -136,12 +157,25 @@ const styles = StyleSheet.create({
   },
   aspectTitle: {
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 20,
     marginBottom: 5,
   },
-  sentimentSummary: {
+  sentimentSummaryContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 5,
+  },
+  sentimentText: {
     fontSize: 14,
-    color: "#666",
+  },
+  positive: {
+    color: "green",
+  },
+  neutral: {
+    color: "#e9a800", // Dark shade of yellow
+  },
+  negative: {
+    color: "red",
   },
   rawFeedbackContainer: {
     padding: 10,

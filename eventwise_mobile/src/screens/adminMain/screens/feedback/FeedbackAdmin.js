@@ -20,29 +20,38 @@ const FeedbackAdmin = () => {
   const { currentEvents, setCurrentEvents } = useEventStore();
   const navigation = useNavigation();
   console.log(
-    "this is the fedbacks by evnet" + JSON.stringify(feedbacksByEvent)
+    "this is the feedbacks by event" + JSON.stringify(feedbacksByEvent)
   );
-  console.log("Current Events", JSON.stringify(currentEvents, ["status", 2]));
+  console.log("Current Events", JSON.stringify(currentEvents, ["id", 2]));
 
   const renderFeedbackItem = ({ item }) => {
     const event = currentEvents.find((event) => event.id === item.event_id);
     return (
-      <TouchableOpacity
-        style={styles.feedbackItem}
-        onPress={() =>
-          navigation.navigate("FeedbackDetail", {
-            event: event,
-            feedback: item,
-          })
-        }
-      >
-        <Text style={styles.eventName}>{event?.name}</Text>
-        <Text style={styles.eventId}>Event ID: {item.event_id}</Text>
-        <Text style={styles.feedbackSummary}>
-          Positive: {item.positive}, Neutral: {item.neutral}, Negative:{" "}
-          {item.negative}
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.eventContainer}>
+        <TouchableOpacity
+          style={styles.feedbackItem}
+          onPress={() =>
+            navigation.navigate("FeedbackDetail", {
+              event: event,
+              feedback: item,
+            })
+          }
+        >
+          <Text style={styles.eventName}>{event?.name}</Text>
+          <Text style={styles.eventId}>Event ID: {item.event_id}</Text>
+          <View style={styles.feedbackSummary}>
+            <Text style={[styles.sentimentText, styles.positive]}>
+              Positive: {item.positive}
+            </Text>
+            <Text style={[styles.sentimentText, styles.neutral]}>
+              Neutral: {item.neutral}
+            </Text>
+            <Text style={[styles.sentimentText, styles.negative]}>
+              Negative: {item.negative}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -70,14 +79,23 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 18,
+    fontSize: 25,
     fontWeight: "bold",
     marginBottom: 10,
   },
+  eventContainer: {
+    backgroundColor: "#f9f9f9",
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
+  },
   feedbackItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomWidth: 0,
   },
   eventName: {
     fontSize: 18,
@@ -89,8 +107,23 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   feedbackSummary: {
+    display: "flex",
+    flexDirection: "row",
+    marginTop: 5,
+  },
+  sentimentText: {
     fontSize: 16,
-    color: "#666",
+    marginBottom: 5,
+    marginRight: 10,
+  },
+  positive: {
+    color: "green",
+  },
+  neutral: {
+    color: "#e9a800", // Dark shade of yellow
+  },
+  negative: {
+    color: "red",
   },
 });
 

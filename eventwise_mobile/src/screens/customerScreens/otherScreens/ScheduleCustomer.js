@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
-import ScheduleScreen from "./CalendarSP";
+import ScheduleScreen from "./CalendarAdmin";
 
-const ScheduleAdmin = () => {
+const ScheduleCustomer = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -27,4 +27,4 @@ const ScheduleAdmin = () => {
   );
 };
 
-export default ScheduleAdmin;
+export default ScheduleCustomer;

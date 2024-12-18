@@ -202,7 +202,7 @@ const HomeAdmin = () => {
           eventFeedback={currentFeedbacks}
           sliceColor={sliceColor}
         /> */}
-        <View style={{ height: 1000 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );

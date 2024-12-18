@@ -50,7 +50,6 @@ const HomeTotalFeedback = () => {
       <Text style={styles.title}>Total Feedback</Text>
       <TouchableOpacity onPress={handleGoToButtonPress}>
         <Text style={styles.subtitle}>Go to Feedback</Text>
-        <AntDesign name="swapright" size={24} color="black" />
       </TouchableOpacity>
       <View style={styles.feedbackSummary}>
         <Text style={styles.label}>
@@ -102,6 +101,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
     color: "#333",
+  },
+  subtitle: {
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: "right",
+    color: "#eeba2b",
+    textDecorationLine: "underline",
   },
   feedbackSummary: {
     marginBottom: 20,

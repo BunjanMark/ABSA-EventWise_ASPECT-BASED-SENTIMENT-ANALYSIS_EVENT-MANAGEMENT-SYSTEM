@@ -170,16 +170,17 @@ export const addEquipment = async (equipmentData) => {
   }
 };
 
-
 export const updateEquipment = async (item) => {
   try {
     const response = await axios.put(
-      `http://192.168.100.8:8000/api/equipment/${item.id}`,  
-      item 
+      `https://phplaravel-1381591-5105067.cloudwaysapps.com/api/equipment/${item.id}`, //#TODO replace with cloud url
+      item
     );
     return response.data;
   } catch (error) {
-    throw new Error(error.response.data.message || 'Failed to update equipment');
+    throw new Error(
+      error.response.data.message || "Failed to update equipment"
+    );
   }
 };
 
@@ -195,15 +196,13 @@ export const deleteEquipment = async (id) => {
 
 export const fetchAllEquipment = async () => {
   try {
-      const response = await api.get('/equipment/all'); 
-      return response.data;
+    const response = await api.get("/equipment/all");
+    return response.data;
   } catch (error) {
-      console.error("Error fetching all equipment:", error);
-      throw error;
+    console.error("Error fetching all equipment:", error);
+    throw error;
   }
 };
-
-
 
 export const accountRecovery = async (email) => {
   try {
@@ -235,7 +234,9 @@ export const sendPasswordResetCode = async (email) => {
   } catch (error) {
     console.error("Error in sendPasswordResetCode:", error);
     if (error.response) {
-      throw new Error(error.response.data.message || "Error sending reset code");
+      throw new Error(
+        error.response.data.message || "Error sending reset code"
+      );
     } else {
       throw new Error("Network error or server unavailable");
     }
@@ -252,7 +253,10 @@ export const verifyPasswordResetCode = async (email, code) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error verifying reset code:", error.response ? error.response.data : error.message);
+    console.error(
+      "Error verifying reset code:",
+      error.response ? error.response.data : error.message
+    );
     throw new Error("An error occurred while verifying the reset code");
   }
 };
@@ -280,11 +284,13 @@ export const resetPassword = async (email, code, newPassword) => {
       throw new Error("Invalid reset code");
     }
   } catch (error) {
-    console.error("Error resetting password:", error.response ? error.response.data : error.message);
+    console.error(
+      "Error resetting password:",
+      error.response ? error.response.data : error.message
+    );
     throw new Error("An error occurred while resetting the password");
   }
 };
-
 
 // Equipment Services
 export const fetchEquipment = async (eventId) => {

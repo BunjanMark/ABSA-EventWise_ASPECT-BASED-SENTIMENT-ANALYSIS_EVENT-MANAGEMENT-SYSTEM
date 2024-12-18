@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { SafeAreaView, View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Calendar } from "react-native-calendars";
 
@@ -33,38 +40,60 @@ export default function SetSchedSP({ navigation }) {
       {/* Navigation Buttons */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.iconButton, activeButton === "checklist" && styles.activeButton]}
+          style={[
+            styles.iconButton,
+            activeButton === "checklist" && styles.activeButton,
+          ]}
           onPress={() => {
             setActiveButton("checklist");
             navigation.navigate("SchedSP");
           }}
         >
-          <Ionicons name="checkbox-outline" size={24} color={activeButton === "checklist" ? "#fff" : "#888"} />
+          <Ionicons
+            name="checkbox-outline"
+            size={24}
+            color={activeButton === "checklist" ? "#fff" : "#888"}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.iconButton, activeButton === "calendar" && styles.activeButton]}
+          style={[
+            styles.iconButton,
+            activeButton === "calendar" && styles.activeButton,
+          ]}
           onPress={() => {
             setActiveButton("calendar");
             navigation.navigate("SetSchedSP");
           }}
         >
-          <Ionicons name="calendar-outline" size={24} color={activeButton === "calendar" ? "#fff" : "#888"} />
+          <Ionicons
+            name="calendar-outline"
+            size={24}
+            color={activeButton === "calendar" ? "#fff" : "#888"}
+          />
         </TouchableOpacity>
       </View>
 
       {/* Event Details Form */}
       <View style={styles.formContainer}>
         <TextInput style={styles.inputField} placeholder="Enter Your Name" />
-        
-        <TouchableOpacity style={styles.dropdownField} onPress={toggleEventTypeOverlay}>
-          <Text style={styles.dropdownText}>{eventType || "Choose Event Type"}</Text>
+
+        <TouchableOpacity
+          style={styles.dropdownField}
+          onPress={toggleEventTypeOverlay}
+        >
+          <Text style={styles.dropdownText}>
+            {eventType || "Choose Event Type"}
+          </Text>
           <Ionicons name="caret-down" size={16} style={styles.iconRight} />
         </TouchableOpacity>
 
         {eventTypeVisible && (
           <View style={styles.overlay}>
-            <TouchableOpacity onPress={toggleEventTypeOverlay} style={styles.closeButton}>
+            <TouchableOpacity
+              onPress={toggleEventTypeOverlay}
+              style={styles.closeButton}
+            >
               <Ionicons name="caret-up" size={16} color="#fff" />
             </TouchableOpacity>
             {eventTypes.map((type) => (
@@ -82,14 +111,22 @@ export default function SetSchedSP({ navigation }) {
           </View>
         )}
 
-        <TouchableOpacity style={styles.dropdownField} onPress={toggleDatePicker}>
-          <Text style={styles.dropdownText}>{selectedDate || "Choose Event Date"}</Text>
+        <TouchableOpacity
+          style={styles.dropdownField}
+          onPress={toggleDatePicker}
+        >
+          <Text style={styles.dropdownText}>
+            {selectedDate || "Choose Event Date"}
+          </Text>
           <Ionicons name="caret-down" size={16} style={styles.iconRight} />
         </TouchableOpacity>
 
         {datePickerVisible && (
           <View style={styles.datePickerOverlay}>
-            <TouchableOpacity onPress={toggleDatePicker} style={styles.closeButton}>
+            <TouchableOpacity
+              onPress={toggleDatePicker}
+              style={styles.closeButton}
+            >
               <Ionicons name="caret-up" size={16} color="#fff" />
             </TouchableOpacity>
             <Calendar onDayPress={handleDateSelect} style={styles.calendar} />
@@ -97,8 +134,14 @@ export default function SetSchedSP({ navigation }) {
         )}
 
         <TextInput style={styles.inputField} placeholder="Enter Event Venue" />
-        <TextInput style={styles.inputField} placeholder="Enter Event Start Time" />
-        <TextInput style={styles.inputField} placeholder="Enter Event End Time" />
+        <TextInput
+          style={styles.inputField}
+          placeholder="Enter Event Start Timess"
+        />
+        <TextInput
+          style={styles.inputField}
+          placeholder="Enter Event End Time"
+        />
 
         <TouchableOpacity style={styles.saveButton}>
           <Text style={styles.saveButtonText}>Save</Text>

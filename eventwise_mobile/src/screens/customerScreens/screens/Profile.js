@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
+  SafeAreaView,
   View,
   Image,
   Text,
@@ -8,9 +9,6 @@ import {
   Modal,
   TextInput,
   Alert,
-  ScrollView,
-  RefreshControl,
-  ActivityIndicator, // Import the ActivityIndicator for loading state
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import Header from "../elements/Header";
@@ -20,18 +18,30 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import API_URL from "../../../constants/constant";
 import { useNavigation } from "@react-navigation/native";
 import { getUser } from "../../../services/authServices";
-
+import { ScrollView, RefreshControl } from "react-native";
 const Profile = () => {
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
-  const [user, setUser] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true); // Manage loading state
+  const navigator = useNavigation();
   const switchProfile = useStore((state) => state.switchProfile);
   const activeProfile = useStore((state) => state.activeProfile);
+  const [user, setUser] = useState(null);
   const accountProfiles = useStore((state) => state.accountProfiles);
-  const navigator = useNavigation();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Re-fetch user data or other relevant data
+      const userData = await getUser();
+      setUser(userData);
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -54,13 +64,10 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        setLoading(true); // Set loading to true when data is being fetched
-        const userData = await getUser();
+        const userData = await getUser(); // Assuming this function returns user data
         setUser(userData);
-        setLoading(false); // Set loading to false when data is fetched
       } catch (error) {
         console.error("Error fetching user data:", error);
-        setLoading(false); // Set loading to false if error occurs
       }
     };
 
@@ -76,13 +83,13 @@ const Profile = () => {
       Alert.alert("Success", "Service provider profile created successfully!");
       setServiceName("");
       setDescription("");
-      setModalVisible(false);
-
-      onRefresh();
+      setModalVisible(false); // Close modal after successful submission
+      console.log("customer create profile:", response);
     } catch (error) {
       Alert.alert(
         "Error",
-        error.response?.data?.message || "Failed to create service provider profile."
+        error.response?.data?.message ||
+          "Failed to create service provider profile."
       );
     }
   };
@@ -95,34 +102,16 @@ const Profile = () => {
     }
   };
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    setLoading(true); // Set loading to true when refreshing
-    const userData = await getUser();
-    setUser(userData);
-    setRefreshing(false);
-    setLoading(false); // Set loading to false when refreshing is complete
-  };
-
   return (
-    <>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <Header />
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={["#ff9900"]}
-            tintColor="#ff9900"
-          />
-        }
-      >
+      <View style={styles.container}>
         <View style={styles.profileBox}>
-          {loading ? (
-            <ActivityIndicator size="large" color="#ff9900" /> // Show loading spinner if loading is true
-          ) : user ? (
+          {user ? (
             <>
               <Image
                 source={require("../pictures/user.png")}
@@ -133,7 +122,9 @@ const Profile = () => {
               <Text style={styles.username}>{user.username}</Text>
               <Text style={styles.phone}>{user.phone_number}</Text>
               <Text style={styles.username}>
-                {activeProfile && activeProfile === 2 ? "Customer" : "Service Provider"}
+                {activeProfile && activeProfile === 2
+                  ? "Customer"
+                  : "Service Provider"}
               </Text>
               <TouchableOpacity
                 style={styles.editButton}
@@ -144,7 +135,7 @@ const Profile = () => {
               </TouchableOpacity>
             </>
           ) : (
-            <Text>No User Data</Text>
+            <Text>Loading...</Text>
           )}
         </View>
 
@@ -158,7 +149,9 @@ const Profile = () => {
               onPress={() => handleSwitchProfile(profile)}
             >
               <View style={styles.row}>
-                <Text style={styles.profileName}>{profile.service_provider_name}</Text>
+                <Text style={styles.profileName}>
+                  {profile.service_provider_name}
+                </Text>
                 <View
                   style={[
                     styles.circle,
@@ -177,7 +170,7 @@ const Profile = () => {
             <Text style={styles.addProfileText}>Create New Profile</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
 
       {/* Modal for Creating New Profile */}
       <Modal
@@ -213,17 +206,15 @@ const Profile = () => {
           </View>
         </View>
       </Modal>
-    </>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: "center",
     padding: 10,
-  },
-  contentContainer: {
-    alignItems: "center", // This style applies to the content inside the ScrollView
   },
   profileBox: {
     borderColor: "#C2B067",
@@ -350,7 +341,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent:"center"
+    justifyContent: "center",
   },
   addProfileText: {
     color: "#fff",
@@ -385,7 +376,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4, // Shadow blur
     elevation: 5, // Shadow for Android
     backgroundColor: "#fff", // Required to make shadow visible
-    marginVertical:90,
+    marginVertical: 90,
   },
   row: {
     flexDirection: "row",
@@ -403,8 +394,6 @@ const styles = StyleSheet.create({
   filledCircle: {
     backgroundColor: "#eeba2b", // Fill color when selected
   },
-  
-  
 });
 
 export default Profile;

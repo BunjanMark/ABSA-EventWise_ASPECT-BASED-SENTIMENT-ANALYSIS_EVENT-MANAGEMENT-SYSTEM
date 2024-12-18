@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Calendar } from "react-native-calendars";
-import styles from "../../styles/styles";
-import { useEventStore } from "../../../../stateManagement/admin/useEventStore";
-import { fetchEvents } from "../../../../services/organizer/adminEventServices";
+import styles from "../../adminMain/styles/styles";
+import { useEventStoreServiceProvider } from "../../../stateManagement/serviceProvider/useEventStoreServiceProvider";
+import { fetchEvents } from "../../../services/organizer/adminEventServices";
 import { ScrollView } from "react-native-gesture-handler";
-
+import { getEventsWithMyServices } from "../../../services/serviceProvider/serviceProviderServices";
 const ScheduleScreen = ({ refreshing, onRefresh }) => {
   const [selectedDate, setSelectedDate] = useState("");
   const [markedDates, setMarkedDates] = useState({});
-  const { currentEvents, setCurrentEvents } = useEventStore();
+  const { currentEvents, setCurrentEvents } = useEventStoreServiceProvider();
 
   // Fetch events and store them in Zustand state
   const getEvents = async () => {
     try {
-      const events = await fetchEvents();
+      const events = await getEventsWithMyServices();
       setCurrentEvents(events); // Update Zustand state
     } catch (error) {
       console.error("Error fetching events:", error);
@@ -29,22 +29,21 @@ const ScheduleScreen = ({ refreshing, onRefresh }) => {
   useEffect(() => {
     const newMarkedDates = {};
     currentEvents
-      .filter((event) => event.status !== "declined") 
+      .filter((event) => event.status !== "declined")
       .forEach((event) => {
         const eventDate = event.date;
-  
+
         if (!newMarkedDates[eventDate]) {
           newMarkedDates[eventDate] = { dots: [] };
         }
-  
+
         newMarkedDates[eventDate].dots.push({
           color: "#eeba2b",
         });
       });
-  
+
     setMarkedDates(newMarkedDates);
   }, [currentEvents]);
-  
 
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
@@ -53,7 +52,6 @@ const ScheduleScreen = ({ refreshing, onRefresh }) => {
   const eventsForSelectedDate = currentEvents.filter(
     (event) => event.date === selectedDate && event.status !== "declined"
   );
-  
 
   return (
     <View style={styles.container}>
