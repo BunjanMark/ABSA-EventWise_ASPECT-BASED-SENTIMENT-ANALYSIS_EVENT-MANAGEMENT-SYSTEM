@@ -25,17 +25,29 @@ const EventsSP = ({ navigation }) => {
   const [overlayVisible, setOverlayVisible] = useState({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const coverPhotos = [event1, event2, event3];
-  console.log("My evnets".events);
+  console.log("My evnets" + events);
   // Fetch events on component mount
   useEffect(() => {
     const fetchAllEvents = async () => {
       try {
         const data = await getEventsWithMyServices();
+
+        // Remove duplicate events based on event.id
+        const uniqueEvents = data.reduce((acc, current) => {
+          // Check if the event id already exists in the accumulator
+          if (!acc.some((event) => event.id === current.id)) {
+            acc.push(current); // Add the event if it's not a duplicate
+          }
+          return acc;
+        }, []);
+
         // Assign cover photos in a circular fashion
-        const eventsWithImages = data.map((event, index) => ({
+        const eventsWithImages = uniqueEvents.map((event, index) => ({
           ...event,
           image: coverPhotos[index % coverPhotos.length],
         }));
+
+        // Set the state with the unique events and their cover photos
         setEvents(eventsWithImages);
         setFilteredEvents(eventsWithImages); // Initialize filtered events
       } catch (error) {
@@ -45,6 +57,7 @@ const EventsSP = ({ navigation }) => {
 
     fetchAllEvents();
   }, []);
+
   const refreshEvents = async () => {
     setIsRefreshing(true);
     try {
@@ -156,7 +169,8 @@ const EventsSP = ({ navigation }) => {
           <TouchableOpacity
             style={styles.overlayItem}
             onPress={() => {
-              navigation.navigate("FeedbackSP");
+              // Pass the event_id as a parameter when navigating to "FeedbackSP"
+              navigation.navigate("FeedbackSP", { event_id: item.id });
               toggleOverlay(item.id);
             }}
           >
@@ -197,7 +211,7 @@ const EventsSP = ({ navigation }) => {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search Eventss"
+          placeholder="Search Events"
           value={searchQuery}
           onChangeText={setSearchQuery} // Directly update searchQuery
         />

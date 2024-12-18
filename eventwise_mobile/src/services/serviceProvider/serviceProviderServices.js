@@ -4,7 +4,7 @@ import axios from "axios";
 import API_URL from "../../constants/constant";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { uploadImageToSupabase } from "../organizer/uploadSupabaseService";
-
+import API_URL_FLASK from "../../constants/constantFlask";
 // Create an Axios instance
 const api = axios.create({
   baseURL: `${API_URL}/api`,
@@ -15,6 +15,26 @@ const api = axios.create({
 
 // Axios interceptor to attach auth token
 api.interceptors.request.use(
+  async (config) => {
+    const token = await AsyncStorage.getItem("authToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+const apiFlask = axios.create({
+  baseURL: `${API_URL_FLASK}`,
+  headers: {
+    Accept: "application/json",
+  },
+});
+
+// Axios interceptor to attach auth token
+apiFlask.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem("authToken");
     if (token) {
@@ -59,7 +79,7 @@ const fetchEventsByService = async () => {
 const getEventsWithMyServices = async () => {
   try {
     // Send GET request to fetch the events with services associated
-    const response = await api.get("/events/my-services");
+    const response = await api.get("/events/my-services/unique");
 
     // Check if response contains events data
     if (response.data && response.data.events) {
@@ -158,6 +178,16 @@ const fetchMyServices = async () => {
   }
 };
 
+const getFeedbackByEvent = async (event_id) => {
+  try {
+    const response = await apiFlask.get(`/count_feedback?event_id=${event_id}`);
+    console.log("Feedback results: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching count feedback by event:", error);
+    throw error;
+  }
+};
 export {
   fetchMyServices,
   createService,
@@ -167,4 +197,5 @@ export {
   fetchEventsByService,
   fetchMyEquipments,
   getEventsWithMyServices,
+  getFeedbackByEvent,
 };
