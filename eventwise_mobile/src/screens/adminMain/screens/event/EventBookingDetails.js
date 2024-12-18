@@ -99,7 +99,7 @@ const EventBookingDetails = ({ route, navigation }) => {
           Booked by: {userBookingDetails?.service_provider_name}
         </Text>
         <Text style={styles.eventType}>Event Type: {eventData?.type}</Text>
-        <Text style={styles.totalPrice}>Total Price: N/a</Text>
+        {/* <Text style={styles.totalPrice}>Total Price: N/a</Text> */}
 
         <Text style={styles.sectionTitle}>Event Details</Text>
         <View style={styles.eventDetailsContainer}>

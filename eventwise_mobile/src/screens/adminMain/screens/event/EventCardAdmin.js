@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { fetchUserBookingEvents } from "../../../../services/organizer/adminEventServices";
 
-const EventCardHome = ({
+const EventCardAdmin = ({
   currentEvents,
   likedEvents,
   toggleLike,
@@ -253,4 +253,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventCardHome;
+export default EventCardAdmin;

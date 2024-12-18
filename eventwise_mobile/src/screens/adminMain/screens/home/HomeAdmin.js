@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import EventPackages from "../component/EventPackages";
+import EventComplete from "../event/EventComplete";
 import EventCalendar from "../component/EventCalendar";
 import EventFeedbackSentimentHome from "../feedback/EventFeedbackSentimentHome";
 import EventCardBookings from "../EventCardBookings";
@@ -176,7 +177,7 @@ const HomeAdmin = () => {
         <View style={[{ padding: 20 }]}>
           <FlatList
             data={currentEvents.filter(
-              (event) => event.status.toLowerCase() != "scheduled"
+              (event) => event.status.toLowerCase() === "tentative"
             )}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
@@ -203,6 +204,30 @@ const HomeAdmin = () => {
           sliceColor={sliceColor}
         /> */}
         <View style={{ height: 100 }} />
+
+        <EventComplete />
+        <View style={[{ padding: 20 }]}>
+          <FlatList
+            data={currentEvents.filter(
+              (event) => event.status.toLowerCase() === "complete"
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={true}
+            contentContainerStyle={{ gap: 1 }}
+            accessibilityViewIsModal={true}
+            accessibilityModalRoot={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <EventCardBookings
+                currentEvents={item}
+                handleDeleteEvent={handleDeleteEvent}
+                likedEvent={likedEvents}
+                toggleLike={toggleLikeEvent}
+                handleEditEvent={handleEditEvent}
+              />
+            )}
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

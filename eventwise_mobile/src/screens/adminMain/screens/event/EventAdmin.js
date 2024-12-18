@@ -18,6 +18,7 @@ import { deleteEvent } from "../../../../services/organizer/adminEventServices";
 import { useEffect } from "react";
 import PackageCardCustomer from "../package/PackageCardCustomer";
 import PackageManagerCustomer from "../package/PackageManagerCustomer";
+import EventCardAdmin from "./EventCardAdmin";
 const EventAdmin = () => {
   const { currentPackages, setCurrentPackages } = usePackageStore();
   const { currentEvents, setCurrentEvents } = useEventStore();
@@ -142,7 +143,7 @@ const EventAdmin = () => {
             accessibilityModalRoot={true}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
-              <EventCard
+              <EventCardAdmin
                 currentEvents={item}
                 handleDeleteEvent={handleDeleteEvent}
                 likedEvent={likedEvents}
