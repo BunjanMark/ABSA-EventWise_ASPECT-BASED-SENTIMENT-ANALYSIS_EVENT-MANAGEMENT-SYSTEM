@@ -86,23 +86,27 @@ const FeedbackDetail = ({ route }) => {
                 <View style={styles.rawFeedbackContainer}>
                   {rawFeedbackData[aspect].map((feedback, index) => (
                     <View key={index} style={styles.feedbackItem}>
-                      <Text>
-                        Name:{" "}
+                      <View style={styles.nameContainer}>
+                        <Text style={styles.labelText}>Name:</Text>
                         <Text style={styles.customerName}>
                           {feedback.customer_name}
                         </Text>
-                      </Text>
+                      </View>
 
-                      <Text style={styles.rawFeedbackText}>
-                        Raw feedback: {feedback.feedback_text}
-                      </Text>
+                      <View style={styles.feedbackContainer}>
+                        <Text style={styles.labelText}>Raw Feedback:</Text>
+                        <Text style={styles.rawFeedbackText}>
+                          {feedback.feedback_text}
+                        </Text>
+                      </View>
 
-                      {/* Display the sentiment label */}
-                      <Text style={styles.sentimentLabelText}>
-                        Sentiment:{" "}
-                        {sentimentFeedbackData[aspect][index]
-                          ?.sentiment_label || "Not available"}
-                      </Text>
+                      <View style={styles.sentimentContainer}>
+                        <Text style={styles.labelText}>Sentiment:</Text>
+                        <Text style={styles.sentimentLabel}>
+                          {sentimentFeedbackData[aspect][index]
+                            ?.sentiment_label || "Not available"}
+                        </Text>
+                      </View>
                     </View>
                   ))}
                 </View>
