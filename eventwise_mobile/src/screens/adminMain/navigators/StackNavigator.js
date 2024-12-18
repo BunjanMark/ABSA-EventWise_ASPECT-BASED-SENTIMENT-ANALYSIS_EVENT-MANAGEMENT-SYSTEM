@@ -36,6 +36,8 @@ import EventDetails from "../screens/event/EventDetails";
 import EventPackageDetails from "../screens/event/EventPackageDetails";
 import EquipmentPanelDetails from "../screens/inventory/EquipmentPanelDetails";
 import EventCardDetails from "../screens/event/EventCardDetails";
+import EventCompleteDetails from "../screens/event/EventCompleteDetails";
+import FeedbackAdminCard from "../screens/event/FeedbackAdminCard";
 const Stack = createStackNavigator();
 const screenOptionStyle = {
   headerStyle: {
@@ -55,6 +57,12 @@ const MainStackNavigator = () => {
         name="EventBookingDetails"
         component={EventBookingDetails}
       />
+      <Stack.Screen
+        name="EventCompleteDetails"
+        component={EventCompleteDetails}
+      />
+      <Stack.Screen name="FeedbackAdminCard" component={FeedbackAdminCard} />
+      <Stack.Screen name="EditEventScreen" component={EditEventScreen} />
     </Stack.Navigator>
   );
 };

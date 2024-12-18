@@ -17,7 +17,7 @@ import {
   fetchPackageServiceDetails,
 } from "../../../../services/organizer/adminEventServices";
 
-const EventBookingDetails = ({ route, navigation }) => {
+const EventCompleteDetails = ({ route, navigation }) => {
   const { eventData, userBookingDetails } = route.params;
   const [packageDetails, setPackageDetails] = useState([]); // Packages
   const [serviceDetails, setServiceDetails] = useState([]); // Services related to the package
@@ -150,51 +150,19 @@ const EventBookingDetails = ({ route, navigation }) => {
           <Text>No services available for this package.</Text>
         )}
 
-        <Text style={styles.sectionTitle}>Created At:</Text>
-        <Text style={styles.createdAt}>
-          {new Date(eventData?.created_at).toLocaleString()}
-        </Text>
-
-        <Text style={styles.sectionTitle}>Last Updated:</Text>
-        <Text style={styles.updatedAt}>
-          {new Date(eventData?.updated_at).toLocaleString()}
-        </Text>
-
+        <View>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("FeedbackAdminCard", {
+                event_id: eventData.id,
+              });
+              //   toggleOverlay(item.id);
+            }}
+          >
+            <Text style={styles.overlayText}>Feedback</Text>
+          </TouchableOpacity>
+        </View>
         {/* Edit Button */}
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={[styles.editButton, { backgroundColor: "green" }]}
-            onPress={() => handlingApproveButton(eventData.id)}
-          >
-            <Text style={styles.buttonText}>Approve Event</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={[styles.editButton, { backgroundColor: "red" }]}
-            onPress={() =>
-              Alert.alert(
-                "Decline Event",
-                "Are you sure you want to decline this event?",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  {
-                    text: "Decline",
-                    style: "destructive",
-                    onPress: () => {
-                      // Add logic for declining the event here
-                      console.log("Event Declined");
-                      navigation.goBack();
-                      Alert.alert("Declined", "The event has been declined.");
-                    },
-                  },
-                ]
-              )
-            }
-          >
-            <Text style={styles.buttonText}>Decline Event</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </ScrollView>
   );
@@ -321,4 +289,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventBookingDetails;
+export default EventCompleteDetails;

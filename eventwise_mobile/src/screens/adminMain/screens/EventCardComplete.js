@@ -2,15 +2,9 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { fetchUserBookingEvents } from "../../../../services/organizer/adminEventServices";
+import { fetchUserBookingEvents } from "../../../services/organizer/adminEventServices";
 
-const EventCardHome = ({
-  currentEvents,
-  likedEvents,
-  toggleLike,
-  handleDeleteEvent,
-  handleEditEvent,
-}) => {
+const EventCardComplete = ({ currentEvents, likedEvents, toggleLike }) => {
   const navigation = useNavigation();
   const [userBookingDetails, setUserBookingDetails] = useState([]);
 
@@ -31,6 +25,7 @@ const EventCardHome = ({
     fetchDetails();
   }, [currentEvents]);
 
+  // If the event's status is "declined", return null to avoid rendering it
   if (currentEvents?.status === "declined") {
     return null;
   }
@@ -39,7 +34,7 @@ const EventCardHome = ({
     <View style={styles.card}>
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate("EventCardDetails", {
+          navigation.navigate("EventCompleteDetails", {
             eventData: currentEvents,
             userBookingDetails: userBookingDetails,
           })
@@ -52,6 +47,7 @@ const EventCardHome = ({
             }}
             style={styles.image}
           />
+
           <TouchableOpacity
             style={styles.heartIcon}
             onPress={() => toggleLike(currentEvents?.id)}
@@ -90,9 +86,9 @@ const EventCardHome = ({
               size={16}
               color="#eeba2b"
             />
-            <Text style={styles.infoText}>{`Guests: ${
-              currentEvents?.pax || 0
-            }`}</Text>
+            <Text style={styles.infoText}>
+              {`Guests: ${currentEvents?.pax || 0}`}
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
@@ -106,61 +102,13 @@ const EventCardHome = ({
               currentEvents?.type || "N/A"
             }`}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons
-              name="list-status"
-              size={16}
-              color="#eeba2b"
-            />
-            <Text style={styles.infoText}>{`Payment Status: ${
-              currentEvents?.payment_status || "N/A"
-            }`}</Text>
-          </View>
         </View>
       </TouchableOpacity>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.updateButton}
-          onPress={() => {
-            navigation.navigate("EditEventScreen", {
-              eventData: currentEvents,
-            }); // Pass service data to the Edit screen
-            console.log("Edit button pressed", currentEvents);
-          }}
-        >
-          <Text style={styles.buttonText}>Edit</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => handleDeleteEvent(currentEvents?.id)} // Now using the prop
-        >
-          <Text style={styles.buttonText}>Disable</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: -10,
-    padding: 20,
-  },
-  updateButton: {
-    backgroundColor: "#eeba2b",
-    padding: 10,
-    borderRadius: 5,
-  },
-  deleteButton: {
-    backgroundColor: "red",
-    padding: 10,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 14,
-  },
   card: {
     backgroundColor: "#fff",
     borderRadius: 15,
@@ -195,7 +143,7 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#eeba2b",
     marginBottom: 10,
@@ -239,7 +187,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "white",
+    color: "#333",
   },
   footer: {
     padding: 10,
@@ -253,4 +201,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventCardHome;
+export default EventCardComplete;
