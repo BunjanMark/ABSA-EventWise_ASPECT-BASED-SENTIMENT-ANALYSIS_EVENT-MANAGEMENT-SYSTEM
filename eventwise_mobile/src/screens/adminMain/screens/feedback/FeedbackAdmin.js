@@ -37,7 +37,10 @@ const FeedbackAdmin = () => {
         }
       >
         <Text style={styles.eventName}>{event?.name}</Text>
-        <Text style={styles.eventId}>Event ID: {item.event_id}</Text>
+        <Text style={styles.eventId}>Event Type: {event?.type}</Text>
+        {/* <Text style={styles.eventId}>
+          Event ID: {JSON.stringify(event, null, 2)}
+        </Text> */}
         <Text style={styles.feedbackSummary}>
           Positive: {item.positive}, Neutral: {item.neutral}, Negative:{" "}
           {item.negative}

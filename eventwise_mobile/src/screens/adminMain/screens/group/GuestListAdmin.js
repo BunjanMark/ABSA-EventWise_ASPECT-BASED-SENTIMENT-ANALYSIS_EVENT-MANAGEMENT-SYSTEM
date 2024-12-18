@@ -6,21 +6,18 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
-  FlatList
+  FlatList,
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import axios from 'axios';
-import API_URL from '../../../../constants/constant';
+import axios from "axios";
+import API_URL from "../../../../constants/constant";
 import { useGuestStore } from "../../../../stateManagement/admin/useGuestStore";
 import { fetchGuestEventDetails } from "../../../../services/organizer/adminGuestServices";
 import { sendEventNoticeToAllGuests } from "../../../../services/organizer/adminEventServices";
-import { TextInput, Button, Menu, Divider } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // For the 3-dot icon
-import Modal from 'react-native-modal'; // For showing modal
+import { TextInput, Button, Menu, Divider } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialIcons"; // For the 3-dot icon
+import Modal from "react-native-modal"; // For showing modal
 import Ionicons from "react-native-vector-icons/Ionicons";
-
-
-
 
 const GuestListAdmin = () => {
   const route = useRoute();
@@ -32,20 +29,23 @@ const GuestListAdmin = () => {
   const [visible, setVisible] = useState(false); // For dropdown visibility
   const [guestForDropdown, setGuestForDropdown] = useState(null); // Track selected guest for the dropdown
   const [selectedGuest, setSelectedGuest] = useState(null);
-  const [updatedGuestName, setUpdatedGuestName] = useState('');
+  const [updatedGuestName, setUpdatedGuestName] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [updatedEmail, setUpdatedEmail] = useState('');
-  const [updatedPhone, setUpdatedPhone] = useState('');
-  const [updatedRole, setUpdatedRole] = useState('');
+  const [updatedEmail, setUpdatedEmail] = useState("");
+  const [updatedPhone, setUpdatedPhone] = useState("");
+  const [updatedRole, setUpdatedRole] = useState("");
   const [deleteModalVisible, setDeleteModalVisible] = useState(false); // For deletion confirmation modal
   const [newGuestFields, setNewGuestFields] = useState([]);
   const [fieldsPerPage] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [numberOfFields, setNumberOfFields] = useState("");
-  const [guestsData, setGuestsData] = useState([]);  // Array to hold guest data
+  const [guestsData, setGuestsData] = useState([]); // Array to hold guest data
   const totalPages = Math.ceil(newGuestFields.length / fieldsPerPage);
   const startIndex = (currentPage - 1) * fieldsPerPage;
-  const currentFields = newGuestFields.slice(startIndex, startIndex + fieldsPerPage);
+  const currentFields = newGuestFields.slice(
+    startIndex,
+    startIndex + fieldsPerPage
+  );
   const [addGuestModalVisible, setAddGuestModalVisible] = useState(false); // Modal for adding a guest
 
   const refreshGuests = useCallback(async () => {
@@ -69,7 +69,7 @@ const GuestListAdmin = () => {
   const handleSendNotifications = async () => {
     try {
       await sendEventNoticeToAllGuests(eventId);
-      console.log("Notifications sent.");
+      console.log("Notifications sents.");
     } catch (error) {
       console.error("Error sending notifications:", error);
     }
@@ -78,69 +78,68 @@ const GuestListAdmin = () => {
   const handleAddGuest = async () => {
     // Validate guest data
     const invalidGuest = guestsData.some(
-      (guest) =>
-        !guest.GuestName || !guest.email || !guest.phone || !guest.role
+      (guest) => !guest.GuestName || !guest.email || !guest.phone || !guest.role
     );
-  
+
     if (invalidGuest) {
-      alert('Please fill out all fields for all guests.');
+      alert("Please fill out all fields for all guests.");
       return;
     }
-  
+
     // Debug the guestsData
     console.log("Guests Data to send:", guestsData);
-  
+
     try {
       const response = await axios.post(`${API_URL}/api/guest`, {
         guest: guestsData,
         eventId: eventId,
       });
-  
+
       if (response.status === 201) {
         setGuests((prevGuests) => [...prevGuests, ...response.data]);
         setAddGuestModalVisible(false); // Close modal
         setGuestsData([]); // Clear guest data
-        setNumberOfFields(''); // Reset field count
+        setNumberOfFields(""); // Reset field count
       }
-      console.log('Payload:', {
+      console.log("Payload:", {
         guest: guestsData,
         eventId: eventId,
       });
     } catch (error) {
       if (error.response) {
-        console.error('Backend error response:', error.response.data);
+        console.error("Backend error response:", error.response.data);
       } else {
-        console.error('Error adding guests:', error);
+        console.error("Error adding guests:", error);
       }
     }
   };
 
   const handleAddFields = () => {
     const numFields = parseInt(numberOfFields, 10);
-    console.log("Number of fields:", numFields);  // Debugging line
-  
+    console.log("Number of fields:", numFields); // Debugging line
+
     if (isNaN(numFields) || numFields <= 0) {
       alert("Please enter a valid number greater than 0.");
       return;
     }
-  
+
     const newFields = Array(numFields).fill({
-      GuestName: '',
-      email: '',
-      phone: '',
-      role: '',
+      GuestName: "",
+      email: "",
+      phone: "",
+      role: "",
     });
-  
+
     setNewGuestFields((prevFields) => {
       const updatedFields = [...prevFields, ...newFields];
-      setGuestsData(updatedFields);  // Update guestsData as well
+      setGuestsData(updatedFields); // Update guestsData as well
       return updatedFields;
     });
   };
 
   const handleInputChange = (index, field, value) => {
     const globalIndex = startIndex + index;
-  
+
     // Update the specific field in the correct guest object
     setNewGuestFields((prevFields) => {
       const updatedFields = [...prevFields];
@@ -148,10 +147,10 @@ const GuestListAdmin = () => {
         ...updatedFields[globalIndex],
         [field]: value,
       };
-      
+
       // Synchronize newGuestFields with guestsData
       setGuestsData(updatedFields); // This line updates guestsData with the latest values
-      
+
       return updatedFields;
     });
   };
@@ -181,14 +180,20 @@ const GuestListAdmin = () => {
         setGuests((prevGuests) =>
           prevGuests.map((guest) =>
             guest.id === selectedGuest.id
-              ? { ...guest, GuestName: updatedGuestName, email: updatedEmail, phone: updatedPhone, role: updatedRole }
+              ? {
+                  ...guest,
+                  GuestName: updatedGuestName,
+                  email: updatedEmail,
+                  phone: updatedPhone,
+                  role: updatedRole,
+                }
               : guest
           )
         );
         setModalVisible(false);
       }
     } catch (error) {
-      console.error('Error updating guest:', error);
+      console.error("Error updating guest:", error);
     }
   };
 
@@ -201,11 +206,11 @@ const GuestListAdmin = () => {
     if (selectedGuest && selectedGuest.id) {
       try {
         await axios.delete(`${API_URL}/api/guest/${selectedGuest.id}`);
-        setGuests(guests.filter(guest => guest.id !== selectedGuest.id));
+        setGuests(guests.filter((guest) => guest.id !== selectedGuest.id));
         setDeleteModalVisible(false);
-        window.alert('Guest deleted successfully!');
+        window.alert("Guest deleted successfully!");
       } catch (error) {
-        console.error('Error deleting guest:', error);
+        console.error("Error deleting guest:", error);
       }
     }
   };
@@ -218,15 +223,15 @@ const GuestListAdmin = () => {
     }
   };
   const filteredGuests = Array.isArray(guests)
-  ? guests.filter(
-      (guest) =>
-        guest.GuestName &&
-        guest.email &&
-        guest.phone &&
-        guest.role &&
-        guest.role.toLowerCase() !== 'service provider'
-    )
-  : [];
+    ? guests.filter(
+        (guest) =>
+          guest.GuestName &&
+          guest.email &&
+          guest.phone &&
+          guest.role &&
+          guest.role.toLowerCase() !== "service provider"
+      )
+    : [];
 
   return (
     <ScrollView
@@ -234,65 +239,71 @@ const GuestListAdmin = () => {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={refreshGuests} />
       }
-    ><TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10}/>
-            </TouchableOpacity>
-    <Modal
-  isVisible={modalVisible}
-  onBackdropPress={() => setModalVisible(false)}
-  animationIn="fadeIn" // Fade-in animation when opening
-  animationOut="fadeOut" // Fade-out animation when closing
-  backdropOpacity={0.5} // Adjust opacity to make it semi-transparent
-  backdropColor="rgba(0, 0, 0, 0.5)" // Semi-transparent black background
->
-  <View style={styles.modalContent}>
-  <TouchableOpacity
-      onPress={() => setModalVisible(false)}
-      style={styles.closeButton}
     >
-      <Icon name="close" size={30} color="red" />
-    </TouchableOpacity>
-    <Text style={styles.modalTitle}>Edit Guest Details</Text>
-    <TextInput
-      label="Guest Name"
-      value={updatedGuestName}
-      onChangeText={setUpdatedGuestName}
-      style={styles.input}
-    />
-    <TextInput
-      label="Email"
-      value={updatedEmail}
-      onChangeText={setUpdatedEmail}
-      style={styles.input}
-    />
-    <TextInput
-      label="Phone"
-      value={updatedPhone}
-      onChangeText={setUpdatedPhone}
-      style={styles.input}
-    />
-    <TextInput
-      label="Role"
-      value={updatedRole}
-      onChangeText={setUpdatedRole}
-      style={styles.input}
-    />
-    <Button
-      mode="contained"
-      style={styles.updateButton}
-      onPress={handleUpdateGuest}
-    >
-      Update Guest Details
-    </Button>
-  </View>
-</Modal>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color="#FFCE00"
+          marginBottom={10}
+        />
+      </TouchableOpacity>
+      <Modal
+        isVisible={modalVisible}
+        onBackdropPress={() => setModalVisible(false)}
+        animationIn="fadeIn" // Fade-in animation when opening
+        animationOut="fadeOut" // Fade-out animation when closing
+        backdropOpacity={0.5} // Adjust opacity to make it semi-transparent
+        backdropColor="rgba(0, 0, 0, 0.5)" // Semi-transparent black background
+      >
+        <View style={styles.modalContent}>
+          <TouchableOpacity
+            onPress={() => setModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={30} color="red" />
+          </TouchableOpacity>
+          <Text style={styles.modalTitle}>Edit Guest Details</Text>
+          <TextInput
+            label="Guest Name"
+            value={updatedGuestName}
+            onChangeText={setUpdatedGuestName}
+            style={styles.input}
+          />
+          <TextInput
+            label="Email"
+            value={updatedEmail}
+            onChangeText={setUpdatedEmail}
+            style={styles.input}
+          />
+          <TextInput
+            label="Phone"
+            value={updatedPhone}
+            onChangeText={setUpdatedPhone}
+            style={styles.input}
+          />
+          <TextInput
+            label="Role"
+            value={updatedRole}
+            onChangeText={setUpdatedRole}
+            style={styles.input}
+          />
+          <Button
+            mode="contained"
+            style={styles.updateButton}
+            onPress={handleUpdateGuest}
+          >
+            Update Guest Details
+          </Button>
+        </View>
+      </Modal>
 
-<Modal
+      <Modal
         isVisible={deleteModalVisible}
         onBackdropPress={() => setDeleteModalVisible(false)}
-        animationIn="fadeIn"   // Fade-in animation when opening
+        animationIn="fadeIn" // Fade-in animation when opening
         animationOut="fadeOut" // Fade-out animation when closing
-        backdropOpacity={0.7}  // Make the background slightly opaque
+        backdropOpacity={0.7} // Make the background slightly opaque
       >
         <View style={styles.deleteModalContent}>
           <Text style={styles.modalTitle}>
@@ -317,171 +328,187 @@ const GuestListAdmin = () => {
           >
             Yes, Remove
           </Button>
-          
         </View>
       </Modal>
 
       {/* MODAL FOR ADDING GUEST  */}
       <Modal
-          isVisible={addGuestModalVisible}
-          onBackdropPress={() => setAddGuestModalVisible(false)}
-          animationIn="fadeIn"
-          animationOut="fadeOut"
-          backdropOpacity={0.7}
-        >
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add New Guest</Text>
+        isVisible={addGuestModalVisible}
+        onBackdropPress={() => setAddGuestModalVisible(false)}
+        animationIn="fadeIn"
+        animationOut="fadeOut"
+        backdropOpacity={0.7}
+      >
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Add New Guest</Text>
+          <TouchableOpacity
+            onPress={() => setAddGuestModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={24} color="#333" />
+          </TouchableOpacity>
+
+          <View style={styles.addFieldsContainer}>
+            <TextInput
+              placeholder="Number of Guests"
+              value={numberOfFields}
+              onChangeText={setNumberOfFields}
+              style={styles.numberInput}
+              keyboardType="numeric"
+            />
             <TouchableOpacity
-              onPress={() => setAddGuestModalVisible(false)}
-              style={styles.closeButton}
+              onPress={handleAddFields}
+              style={styles.addButton}
             >
-              <Icon name="close" size={24} color="#333" />
+              <Text style={styles.addButtonText}>Add</Text>
             </TouchableOpacity>
-
-            <View style={styles.addFieldsContainer}>
-              <TextInput
-                placeholder="Number of Guests"
-                value={numberOfFields}
-                onChangeText={setNumberOfFields}
-                style={styles.numberInput}
-                keyboardType="numeric"
-              />
-              <TouchableOpacity onPress={handleAddFields} style={styles.addButton}>
-                <Text style={styles.addButtonText}>Add</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Display current page fields */}
-            {currentFields.map((field, index) => (
-          <View key={startIndex + index} style={styles.fieldContainer}>
-            {/* Guest Name */}
-            <TextInput
-              placeholder="Guest Name"
-              value={field.GuestName || ''}
-              onChangeText={(value) => handleInputChange(index, 'GuestName', value)}
-              style={styles.input}
-            />
-
-            {/* Email */}
-            <TextInput
-              placeholder="Email"
-              value={field.email || ''}
-              onChangeText={(value) => handleInputChange(index, 'email', value)}
-              style={styles.input}
-              keyboardType="email-address"
-            />
-
-            {/* Phone */}
-            <TextInput
-              placeholder="Phone"
-              value={field.phone || ''}
-              onChangeText={(value) => handleInputChange(index, 'phone', value)}
-              style={styles.input}
-              keyboardType="phone-pad"
-            />
-
-            {/* Role */}
-            <TextInput
-              placeholder="Role"
-              value={field.role || ''}
-              onChangeText={(value) => handleInputChange(index, 'role', value)}
-              style={styles.input}
-            />
           </View>
-        ))}
 
+          {/* Display current page fields */}
+          {currentFields.map((field, index) => (
+            <View key={startIndex + index} style={styles.fieldContainer}>
+              {/* Guest Name */}
+              <TextInput
+                placeholder="Guest Name"
+                value={field.GuestName || ""}
+                onChangeText={(value) =>
+                  handleInputChange(index, "GuestName", value)
+                }
+                style={styles.input}
+              />
 
-            {/* Pagination controls */}
-            <View style={styles.pagination}>
-          {/* Previous Button */}
-          <Button
-            disabled={currentPage === 1}
-            onPress={() => setCurrentPage(currentPage - 1)}
-            style={styles.pageButton}
-          >
-            &lt; {/* This is the '<' symbol */}
-          </Button>
+              {/* Email */}
+              <TextInput
+                placeholder="Email"
+                value={field.email || ""}
+                onChangeText={(value) =>
+                  handleInputChange(index, "email", value)
+                }
+                style={styles.input}
+                keyboardType="email-address"
+              />
 
-          {/* Page Number */}
-          <Text style={styles.pageText}>
-            {currentPage} of {totalPages}
-          </Text>
+              {/* Phone */}
+              <TextInput
+                placeholder="Phone"
+                value={field.phone || ""}
+                onChangeText={(value) =>
+                  handleInputChange(index, "phone", value)
+                }
+                style={styles.input}
+                keyboardType="phone-pad"
+              />
 
-          {/* Next Button */}
-          <Button
-            disabled={currentPage === totalPages}
-            onPress={() => setCurrentPage(currentPage + 1)}
-            style={styles.pageButton}
-          >
-            &gt; {/* This is the '>' symbol */}
-          </Button>
-        </View>
+              {/* Role */}
+              <TextInput
+                placeholder="Role"
+                value={field.role || ""}
+                onChangeText={(value) =>
+                  handleInputChange(index, "role", value)
+                }
+                style={styles.input}
+              />
+            </View>
+          ))}
 
-
+          {/* Pagination controls */}
+          <View style={styles.pagination}>
+            {/* Previous Button */}
             <Button
-              mode="contained"
-              style={styles.updateButton}
-              onPress={handleAddGuest}
+              disabled={currentPage === 1}
+              onPress={() => setCurrentPage(currentPage - 1)}
+              style={styles.pageButton}
             >
-              Submit
+              &lt; {/* This is the '<' symbol */}
+            </Button>
+
+            {/* Page Number */}
+            <Text style={styles.pageText}>
+              {currentPage} of {totalPages}
+            </Text>
+
+            {/* Next Button */}
+            <Button
+              disabled={currentPage === totalPages}
+              onPress={() => setCurrentPage(currentPage + 1)}
+              style={styles.pageButton}
+            >
+              &gt; {/* This is the '>' symbol */}
             </Button>
           </View>
-        </Modal>
 
-        <View style={styles.header}>
-  <Text style={styles.title}>
-    Guest List for Event <Text style={styles.eventName}>{name}</Text>
-  </Text>
-</View>
-
-<View style={styles.subTitleContainer}>
-  <Text style={styles.subTitle}>
-    Total Guests listed: {filteredGuests.length} / {pax}
-  </Text>
-  <TouchableOpacity style={styles.sendButton} onPress={handleSendNotifications}>
-    <Text style={styles.sendButtonText}>Send Notif.</Text>
-  </TouchableOpacity>
-</View>
-{error && <Text style={styles.errorText}>{error}</Text>}
-
-{Array.isArray(filteredGuests) && filteredGuests.length > 0 ? (
-  <FlatList
-    data={filteredGuests}
-    keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
-    renderItem={({ item }) => (
-      <View style={styles.listItem}>
-        <Menu
-          visible={visible && guestForDropdown?.id === item.id}
-          onDismiss={() => setVisible(false)}
-          anchor={
-            <TouchableOpacity
-              onPress={() => toggleDropdown(item)}
-              style={styles.dotsContainer}
-            >
-              <Icon name="more-vert" size={24} color="#333" />
-            </TouchableOpacity>
-          }
-        >
-          <View style={styles.menu}>
-            <Menu.Item onPress={() => handleEdit(item)} title="Edit" />
-            <Divider />
-            <Menu.Item onPress={() => handleDelete(item)} title="Delete" />
-          </View>
-        </Menu>
-
-        <View style={styles.guestContainer}>
-          <Text style={styles.guestName}>{item.GuestName}</Text>
-          <Text style={styles.guestInfo}>Email: {item.email}</Text>
-          <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
-          <Text style={styles.guestInfo}>Role: {item.role}</Text>
+          <Button
+            mode="contained"
+            style={styles.updateButton}
+            onPress={handleAddGuest}
+          >
+            Submit
+          </Button>
         </View>
+      </Modal>
+
+      <View style={styles.header}>
+        <Text style={styles.title}>
+          Guest List for Event <Text style={styles.eventName}>{name}</Text>
+        </Text>
       </View>
-    )}
-  />
-) : (
-  <Text style={styles.noGuests}>No guests found for this event.</Text>
-)}
-        <Button
+
+      <View style={styles.subTitleContainer}>
+        <Text style={styles.subTitle}>
+          Total Guests listed: {filteredGuests.length} / {pax}
+        </Text>
+        <TouchableOpacity
+          style={styles.sendButton}
+          onPress={handleSendNotifications}
+        >
+          <Text style={styles.sendButtonText}>Send Notif.</Text>
+        </TouchableOpacity>
+      </View>
+      {error && <Text style={styles.errorText}>{error}</Text>}
+
+      {Array.isArray(filteredGuests) && filteredGuests.length > 0 ? (
+        <FlatList
+          data={filteredGuests}
+          keyExtractor={(item) =>
+            item?.id?.toString() || Math.random().toString()
+          }
+          renderItem={({ item }) => (
+            <View style={styles.listItem}>
+              <Menu
+                visible={visible && guestForDropdown?.id === item.id}
+                onDismiss={() => setVisible(false)}
+                anchor={
+                  <TouchableOpacity
+                    onPress={() => toggleDropdown(item)}
+                    style={styles.dotsContainer}
+                  >
+                    <Icon name="more-vert" size={24} color="#333" />
+                  </TouchableOpacity>
+                }
+              >
+                <View style={styles.menu}>
+                  <Menu.Item onPress={() => handleEdit(item)} title="Edit" />
+                  <Divider />
+                  <Menu.Item
+                    onPress={() => handleDelete(item)}
+                    title="Delete"
+                  />
+                </View>
+              </Menu>
+
+              <View style={styles.guestContainer}>
+                <Text style={styles.guestName}>{item.GuestName}</Text>
+                <Text style={styles.guestInfo}>Email: {item.email}</Text>
+                <Text style={styles.guestInfo}>Phone: {item.phone}</Text>
+                <Text style={styles.guestInfo}>Role: {item.role}</Text>
+              </View>
+            </View>
+          )}
+        />
+      ) : (
+        <Text style={styles.noGuests}>No guests found for this event.</Text>
+      )}
+      <Button
         mode="contained"
         style={styles.addGuestButton}
         onPress={() => setAddGuestModalVisible(true)}
@@ -489,7 +516,6 @@ const GuestListAdmin = () => {
         Add Guest
       </Button>
     </ScrollView>
-    
   );
 };
 
@@ -565,33 +591,32 @@ const styles = StyleSheet.create({
     color: "#495057",
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
   },
   deleteModalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 15,
     marginBottom: 15,
-    textAlign: 'center',
-    color: '#333',
+    textAlign: "center",
+    color: "#333",
   },
   updateButton: {
     marginTop: 20,
-    width: '100%',
-    backgroundColor: '#eeba2b',
+    width: "100%",
+    backgroundColor: "#eeba2b",
   },
   dotsContainer: {
     padding: 10,
     justifyContent: "flex-end", // Ensures it's aligned to the right
-
   },
   moreText: {
     fontSize: 14,
@@ -616,63 +641,63 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 10,
     right: 10,
     zIndex: 10,
   },
   input: {
     marginBottom: 15,
-    backgroundColor:"white",
+    backgroundColor: "white",
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
-    shadowColor: '#000',      // Shadow color
+    shadowColor: "#000", // Shadow color
     shadowOffset: { width: 0, height: 2 }, // Shadow offset
-    shadowOpacity: 0.1,       // Shadow opacity
-    shadowRadius: 4,          // Shadow blur radius
+    shadowOpacity: 0.1, // Shadow opacity
+    shadowRadius: 4, // Shadow blur radius
     elevation: 2,
   },
   deleteButton: {
     marginTop: 10,
-    backgroundColor: 'red',
-    width: '100%',
+    backgroundColor: "red",
+    width: "100%",
   },
   addFieldsContainer: {
-    flexDirection: 'row', // Align text input and button horizontally
-    alignItems: 'center',
+    flexDirection: "row", // Align text input and button horizontally
+    alignItems: "center",
     marginBottom: 20,
   },
   addButton: {
-    backgroundColor: '#eeba2b',
+    backgroundColor: "#eeba2b",
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 5,
   },
   addButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   numberInput: {
     flex: 1, // Take up available space
     height: 50,
     borderColor: "#ccc",
-    backgroundColor:"white",
+    backgroundColor: "white",
     borderWidth: 1,
     borderRadius: 5,
-    shadowColor: '#000',      // Shadow color
+    shadowColor: "#000", // Shadow color
     shadowOffset: { width: 0, height: 2 }, // Shadow offset
-    shadowOpacity: 0.1,       // Shadow opacity
-    shadowRadius: 4,          // Shadow blur radius
+    shadowOpacity: 0.1, // Shadow opacity
+    shadowRadius: 4, // Shadow blur radius
     elevation: 2,
     paddingHorizontal: 10,
     marginRight: 10,
   },
   pagination: {
     marginTop: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   pageButton: {
     paddingHorizontal: 15,
@@ -682,12 +707,12 @@ const styles = StyleSheet.create({
   },
   pageText: {
     fontSize: 14,
-    color: '#ccc',
+    color: "#ccc",
     marginHorizontal: 10,
   },
   addGuestButton: {
     margin: 20,
-    backgroundColor: '#eeba2b',
+    backgroundColor: "#eeba2b",
   },
 });
 

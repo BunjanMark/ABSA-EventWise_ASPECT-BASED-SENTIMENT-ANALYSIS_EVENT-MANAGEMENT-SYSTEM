@@ -149,7 +149,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('auth:api')->post('/equipment', [EquipmentController::class, 'store']);
 
     // geteventswithmyservices
-    Route::get('/events/my-services', [EventController::class, 'getEventsWithMyServices']);
+    Route::get('/events/my-services', [EventController::class, 'getEventsWithMyServicesForFeedback']);
+    Route::get('/events/my-services/unique', [EventController::class, 'getEventsWithMyServicesUnique']);
 
 
 
