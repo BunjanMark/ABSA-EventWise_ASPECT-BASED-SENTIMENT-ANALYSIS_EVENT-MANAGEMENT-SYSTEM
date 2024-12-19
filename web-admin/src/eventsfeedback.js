@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Pie } from 'react-chartjs-2'; 
+import { Pie } from 'react-chartjs-2';
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faMapMarker, faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -13,23 +12,33 @@ ChartJS.register(ArcElement, CategoryScale, Tooltip, Legend);
 
 function EventsFeedback() {
   const [search, setSearch] = useState('');
-  const [events, setEvents] = useState([]); 
-  const [feedbacks, setFeedbacks] = useState([]); 
-  const [filteredEvents, setFilteredEvents] = useState([]); 
-  const [loading, setLoading] = useState(true); 
-  const [showModal, setShowModal] = useState(false); 
-  const [selectedEventFeedback, setSelectedEventFeedback] = useState(null); 
-  const navigate = useNavigate();
+  const [events, setEvents] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [sentimentData, setSentimentData] = useState([]);  // Added state for sentiment counts
+  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedEventFeedback, setSelectedEventFeedback] = useState(null);
+  const [detailsVisibility, setDetailsVisibility] = useState({}); // Track details visibility for each service
+
+  const toggleDetails = (serviceName) => {
+    setDetailsVisibility(prevState => ({
+      ...prevState,
+      [serviceName]: !prevState[serviceName],
+    }));
+  };
 
   useEffect(() => {
     const fetchEventsAndFeedbacks = async () => {
       try {
         const eventResponse = await axios.get(`${API_URL}/api/events`);
         const feedbackResponse = await axios.get('https://eventwise-eventmanagementsystem.onrender.com/get_feedback');
+        const sentimentResponse = await axios.get('https://eventwise-eventmanagementsystem.onrender.com/get_events_with_sentiment_counts');  // Fetch sentiment counts
         
         setEvents(eventResponse.data);
         setFeedbacks(feedbackResponse.data);
-        setFilteredEvents(eventResponse.data);  
+        setSentimentData(sentimentResponse.data.events);  // Store sentiment data
+        setFilteredEvents(eventResponse.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -38,7 +47,7 @@ function EventsFeedback() {
     };
 
     fetchEventsAndFeedbacks();
-  }, []); 
+  }, []);
 
   const handleSearch = (text) => {
     setSearch(text);
@@ -50,48 +59,47 @@ function EventsFeedback() {
       });
       setFilteredEvents(newData);
     } else {
-      setFilteredEvents(events);  
+      setFilteredEvents(events);
     }
   };
 
-  const handleDelete = (eventId) => {
-    const newData = filteredEvents.filter((item) => item.id !== eventId);
-    setFilteredEvents(newData);
-  };
-
   const handleOpenModal = (eventId) => {
-    const feedbackForEvent = feedbacks.find(feedback => feedback.event_id === eventId);
-    setSelectedEventFeedback(feedbackForEvent);
-    setShowModal(true); 
+    const feedbackForEvent = feedbacks.filter(feedback => feedback.event_id === eventId);
+    if (feedbackForEvent.length > 0) {
+      setSelectedEventFeedback(feedbackForEvent);
+      setShowModal(true);
+    } else {
+      console.log("No feedback found for event with ID:", eventId);
+    }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setSelectedEventFeedback(null); 
+    setSelectedEventFeedback(null);
   };
 
   const renderEventItem = (item) => {
-    const feedback = feedbacks.find(f => f.event_id === item.id);
-  
-    const sentimentCounts = { positive: 0, negative: 0, neutral: 0 };
-  
-    if (feedback && feedback.overall_sentiment) {
-      sentimentCounts[feedback.overall_sentiment] = 1; 
+    // Get sentiment data for the event
+    const sentimentForEvent = sentimentData.find(sentiment => sentiment.event_id === item.id) || { positive: 0, negative: 0, neutral: 0 };
+
+    // Check if there's any sentiment data
+    if (sentimentForEvent.positive === 0 && sentimentForEvent.negative === 0 && sentimentForEvent.neutral === 0) {
+      return null;
     }
-  
+
     return (
       <div key={item.id} className="item-container-eventfeedback">
         <div className="pie-chart-container-eventfeedback">
-          {feedback ? (
+          {sentimentForEvent ? (
             <Pie
               data={{
                 labels: ['Positive', 'Negative', 'Neutral'],
                 datasets: [
                   {
                     data: [
-                      sentimentCounts.positive,
-                      sentimentCounts.negative,
-                      sentimentCounts.neutral,
+                      sentimentForEvent.positive,
+                      sentimentForEvent.negative,
+                      sentimentForEvent.neutral,
                     ],
                     backgroundColor: ['green', 'red', 'yellow'],
                     hoverBackgroundColor: ['green', 'red', 'yellow'],
@@ -122,7 +130,7 @@ function EventsFeedback() {
         <div className="buttons-container-eventfeedback">
           <button
             className="button-eventfeedback"
-            onClick={() => handleOpenModal(item.id)} 
+            onClick={() => handleOpenModal(item.id)}
           >
             Feedback
           </button>
@@ -153,43 +161,77 @@ function EventsFeedback() {
         </div>
       </div>
 
-      {/* Modal Overlay for Feedback */}
       {showModal && selectedEventFeedback && (
   <div className="overlay-feedback">
     <div className="modal-feedback">
       <button className="close-button-feedback" onClick={handleCloseModal}>X</button>
       <div className="feedback-content">
-        {/* Find the event by event_id */}
         {events && events.length > 0 &&
           events.map(event => {
-            if (event.id === selectedEventFeedback.event_id) {
+            if (event.id === selectedEventFeedback[0]?.event_id) {
               return (
                 <div key={event.id}>
                   <h3>Feedback for Event: {event.name}</h3>
-                  
-                  {/* Dynamically Render All Service Providers and Their Sentiments */}
-                  {Object.entries(selectedEventFeedback).map(([key, value]) => {
-                    if (key.includes('sentiment') && value?.label) {
-                      const serviceName = key.replace('_sentiment', '').replace(/([A-Z])/g, ' $1'); // Make it more readable
-                      const formattedServiceName = serviceName.charAt(0).toUpperCase() + serviceName.slice(1); // Capitalize first letter of serviceName
+                  {Object.entries(selectedEventFeedback[0]).map(([key, value]) => {
+                    // Filter out services with zero sentiments (where compound, pos, neu, neg are 0.0)
+                    if (key.includes('sentiment') && value?.compound !== undefined) {
+                      const serviceName = key.replace('_sentiment', '').replace(/([A-Z])/g, ' $1');
+                      const formattedServiceName = serviceName.charAt(0).toUpperCase() + serviceName.slice(1);
+                      
+                      // Check if the sentiment is real (not zero values)
+                      const sentiment = value;
+                      if (sentiment.compound !== 0.0 || sentiment.pos !== 0.0 || sentiment.neu !== 0.0 || sentiment.neg !== 0.0) {
+                        // Count sentiments for the specific service
+                        let positiveCount = 0;
+                        let neutralCount = 0;
+                        let negativeCount = 0;
+                        let customerNames = [];
 
-                      let sentimentColor;
-                      if (value.label === 'positive') sentimentColor = 'green';
-                      else if (value.label === 'negative') sentimentColor = 'red';
-                      else if (value.label === 'neutral') sentimentColor = '#e9d700';
+                        selectedEventFeedback.forEach(feedback => {
+                          if (feedback[`${serviceName.toLowerCase()}_sentiment`]?.label === 'positive') {
+                            positiveCount++;
+                          }
+                          if (feedback[`${serviceName.toLowerCase()}_sentiment`]?.label === 'neutral') {
+                            neutralCount++;
+                          }
+                          if (feedback[`${serviceName.toLowerCase()}_sentiment`]?.label === 'negative') {
+                            negativeCount++;
+                          }
 
-                      const formattedLabel = value.label.charAt(0).toUpperCase() + value.label.slice(1); // Capitalize first letter of label
+                          // Collect customer names for feedback
+                          if (feedback[`${serviceName.toLowerCase()}_feedback`]) {
+                            customerNames.push(feedback.customer_name || 'Unknown');
+                          }
+                        });
 
-                      return (
-                        <div key={key}>
-                          <h4>
-                            {`${formattedServiceName} Sentiment: `}
-                            <span style={{ color: sentimentColor }}>
-                              {formattedLabel || "N/A"}
-                            </span>
-                          </h4>
-                        </div>
-                      );
+                        return (
+                          (positiveCount || neutralCount || negativeCount) > 0 && (
+                            <div key={key}>
+                              <h4
+                                style={{
+                                  cursor: 'pointer',
+                                  color: 'green', // You can customize based on the sentiment label
+                                }}
+                                onClick={() => toggleDetails(formattedServiceName)}
+                              >
+                                {formattedServiceName} Sentiment:
+                                Positive: {positiveCount} Neutral: {neutralCount} Negative: {negativeCount}
+                              </h4>
+
+                              {detailsVisibility[formattedServiceName] && (
+                                <div style={{ marginLeft: '20px', color: '#555' }}>
+                                  <p><strong>Customer Names:</strong> {customerNames.join(', ')}</p>
+                                  {customerNames.map((name, index) => (
+                                    <div key={index}>
+                                      <p><strong>{name} Feedback:</strong> {selectedEventFeedback[index][`${serviceName.toLowerCase()}_feedback`] || 'No feedback provided'}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        );
+                      }
                     }
                     return null;
                   })}
@@ -203,10 +245,6 @@ function EventsFeedback() {
     </div>
   </div>
 )}
-
-
-
-
     </div>
   );
 }
