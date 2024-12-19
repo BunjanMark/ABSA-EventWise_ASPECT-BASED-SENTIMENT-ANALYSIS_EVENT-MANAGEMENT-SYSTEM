@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, Image, Alert, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -57,60 +64,78 @@ const EventCardDetails = ({ route, navigation }) => {
   };
   return (
     <ScrollView style={styles.container}>
-    {/* Back Navigation */}
-    <TouchableOpacity onPress={() => navigation.goBack()}>
-      <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={10} />
-    </TouchableOpacity>
+      {/* Back Navigation */}
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color="#FFCE00"
+          marginBottom={10}
+        />
+      </TouchableOpacity>
 
-    {/* Event Details */}
-    <View style={styles.card}>
-      <Image source={{ uri: eventData?.coverPhoto }} style={styles.coverPhoto} />
-      <Text style={styles.title}>{eventData?.name}</Text>
-      <Text style={styles.subtitle}>Booked by: {userBookingDetails?.service_provider_name}</Text>
-      <Text style={styles.eventType}>Event Type: {eventData?.type}</Text>
-      <Text style={styles.totalPrice}>Total Price: N/a</Text>
+      {/* Event Details */}
+      <View style={styles.card}>
+        <Image
+          source={{ uri: eventData?.coverPhoto }}
+          style={styles.coverPhoto}
+        />
+        <Text style={styles.title}>{eventData?.name}</Text>
+        <Text style={styles.subtitle}>
+          Booked by: {userBookingDetails?.service_provider_name}
+        </Text>
+        <Text style={styles.eventType}>Event Type: {eventData?.type}</Text>
 
-      <Text style={styles.sectionTitle}>Event Details</Text>
-      <View style={styles.eventDetailsContainer}>
-        <Text style={styles.eventDetail}>Date: {new Date(eventData?.date).toLocaleString()}</Text>
-        <Text style={styles.eventDetail}>Time: {eventData?.time}</Text>
-        <Text style={styles.eventDetail}>Location: {eventData?.location}</Text>
-        <Text style={styles.eventDetail}>Description: {eventData?.description}</Text>
-      </View>
+        <Text style={styles.sectionTitle}>Event Details</Text>
+        <View style={styles.eventDetailsContainer}>
+          <Text style={styles.eventDetail}>
+            Date: {new Date(eventData?.date).toLocaleString()}
+          </Text>
+          <Text style={styles.eventDetail}>Time: {eventData?.time}</Text>
+          <Text style={styles.eventDetail}>
+            Location: {eventData?.location}
+          </Text>
+          <Text style={styles.eventDetail}>
+            Description: {eventData?.description}
+          </Text>
+        </View>
 
-      {/* Package Section */}
-      <Text style={styles.sectionTitle}>Package</Text>
-      {packageDetails.length > 0 ? (
-        packageDetails.map((pkg, index) => (
-          <View key={index} style={styles.packageContainer}>
-            <Text style={styles.packageName}>{pkg.packageName}</Text>
-            <Text>Category: {pkg.eventType}</Text>
-            <Text>Price: ₱{pkg.totalPrice}</Text>
-            <Text>Pax:{pkg.pax}</Text>
-          </View>
-        ))
-      ) : (
-        <Text>No package details available.</Text>
-      )}
+        {/* Package Section */}
+        <Text style={styles.sectionTitle}>Package</Text>
+        {packageDetails.length > 0 ? (
+          packageDetails.map((pkg, index) => (
+            <View key={index} style={styles.packageContainer}>
+              <Text style={styles.packageName}>{pkg.packageName}</Text>
+              <Text>Category: {pkg.eventType}</Text>
+              <Text>Price: ₱{pkg.totalPrice}</Text>
+              <Text>Pax:{pkg.pax}</Text>
+            </View>
+          ))
+        ) : (
+          <Text>No package details available.</Text>
+        )}
 
-      {/* Service Details */}
-      <Text style={styles.sectionTitle}>Services</Text>
-      {serviceDetails.length > 0 ? (
-        serviceDetails.map((service, index) => (
-          <View key={index} style={styles.serviceContainer}>
-            <Image source={{ uri: service?.servicePhotoURL }} style={styles.serviceImage} />
-            <Text style={styles.serviceName}>{service.serviceName}</Text>
-            <Text>Category: {service.serviceCategory}</Text>
-            <Text>Price: ₱{service.basePrice}</Text>
-            <Text>Location: {service.location}</Text>
-            <Text>Pax: {service.pax}</Text>
-            <Text>Requirements: {service.requirements}</Text>
-            <Text>Features: {service.serviceFeatures?.join(", ")}</Text>
-          </View>
-        ))
-      ) : (
-        <Text>No services available for this package.</Text>
-      )}
+        {/* Service Details */}
+        <Text style={styles.sectionTitle}>Services</Text>
+        {serviceDetails.length > 0 ? (
+          serviceDetails.map((service, index) => (
+            <View key={index} style={styles.serviceContainer}>
+              <Image
+                source={{ uri: service?.servicePhotoURL }}
+                style={styles.serviceImage}
+              />
+              <Text style={styles.serviceName}>{service.serviceName}</Text>
+              <Text>Category: {service.serviceCategory}</Text>
+              <Text>Price: ₱{service.basePrice}</Text>
+              <Text>Location: {service.location}</Text>
+              <Text>Pax: {service.pax}</Text>
+              <Text>Requirements: {service.requirements}</Text>
+              <Text>Features: {service.serviceFeatures?.join(", ")}</Text>
+            </View>
+          ))
+        ) : (
+          <Text>No services available for this package.</Text>
+        )}
 
         <Text style={styles.sectionTitle}>Created At:</Text>
         <Text style={styles.createdAt}>

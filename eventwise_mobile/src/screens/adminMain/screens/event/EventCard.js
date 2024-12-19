@@ -28,9 +28,12 @@ const EventCardHome = ({
     fetchDetails();
   }, [currentEvents]);
 
-    if (currentEvents?.status === "Tentative" || currentEvents?.status === "declined") {
-      return null;
-    }
+  if (
+    currentEvents?.status === "Tentative" ||
+    currentEvents?.status === "declined"
+  ) {
+    return null;
+  }
 
   return (
     <View style={styles.card}>
@@ -53,7 +56,9 @@ const EventCardHome = ({
             onPress={() => toggleLike(currentEvents?.id)}
           >
             <MaterialCommunityIcons
-              name={likedEvents?.[currentEvents?.id] ? "heart" : "heart-outline"}
+              name={
+                likedEvents?.[currentEvents?.id] ? "heart" : "heart-outline"
+              }
               color={likedEvents?.[currentEvents?.id] ? "#FFD700" : "#fff"}
               size={25}
             />
@@ -84,19 +89,31 @@ const EventCardHome = ({
               size={16}
               color="#eeba2b"
             />
-            <Text style={styles.infoText}>{`Guests: ${currentEvents?.pax || 0}`}</Text>
+            <Text style={styles.infoText}>{`Guests: ${
+              currentEvents?.pax || 0
+            }`}</Text>
           </View>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
-            <Text style={styles.infoText}>{`Time: ${currentEvents?.time || "N/A"}`}</Text>
+            <Text style={styles.infoText}>{`Time: ${
+              currentEvents?.time || "N/A"
+            }`}</Text>
           </View>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="tag" size={16} color="#eeba2b" />
-            <Text style={styles.infoText}>{`Type: ${currentEvents?.type || "N/A"}`}</Text>
+            <Text style={styles.infoText}>{`Type: ${
+              currentEvents?.type || "N/A"
+            }`}</Text>
           </View>
           <View style={styles.infoRow}>
-            <MaterialCommunityIcons name="list-status" size={16} color="#eeba2b" />
-            <Text style={styles.infoText}>{`Payment Status: ${currentEvents?.payment_status || "N/A"}`}</Text>
+            <MaterialCommunityIcons
+              name="list-status"
+              size={16}
+              color="#eeba2b"
+            />
+            <Text style={styles.infoText}>{`Payment Status: ${
+              currentEvents?.payment_status || "N/A"
+            }`}</Text>
           </View>
         </View>
       </TouchableOpacity>

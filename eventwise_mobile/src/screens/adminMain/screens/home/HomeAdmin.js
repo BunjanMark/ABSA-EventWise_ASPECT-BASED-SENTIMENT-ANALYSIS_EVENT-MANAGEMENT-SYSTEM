@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import EventPackages from "../component/EventPackages";
+import EventComplete from "../event/EventComplete";
 import EventCalendar from "../component/EventCalendar";
 import EventFeedbackSentimentHome from "../feedback/EventFeedbackSentimentHome";
 import EventCardBookings from "../EventCardBookings";
@@ -31,6 +32,8 @@ import {
 } from "../../../../services/feedbackServices";
 import { useFeedbackStore } from "../../../../stateManagement/admin/useFeedbackStore";
 import HomeTotalFeedback from "../component/HomeTotalFeedback";
+import { deleteEvent } from "../../../../services/organizer/adminEventServices";
+import EventCardComplete from "../EventCardComplete";
 const HomeAdmin = () => {
   const { eventData, sliceColor } = useStore(); // Using your state store
   const [refreshing, setRefreshing] = useState(false); // State for refresh control
@@ -106,7 +109,7 @@ const HomeAdmin = () => {
   const handleDeleteEvent = async (id) => {
     try {
       await deleteEvent(id);
-      refreshPackages();
+      refreshEvents();
     } catch (error) {
       console.error("Failed to delete event", error);
     }
@@ -176,7 +179,7 @@ const HomeAdmin = () => {
         <View style={[{ padding: 20 }]}>
           <FlatList
             data={currentEvents.filter(
-              (event) => event.status.toLowerCase() != "scheduled"
+              (event) => event.status.toLowerCase() === "tentative"
             )}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
@@ -203,6 +206,30 @@ const HomeAdmin = () => {
           sliceColor={sliceColor}
         /> */}
         <View style={{ height: 100 }} />
+
+        <EventComplete />
+        <View style={[{ padding: 20 }]}>
+          <FlatList
+            data={currentEvents.filter(
+              (event) => event.status.toLowerCase() === "complete"
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal={true}
+            contentContainerStyle={{ gap: 1 }}
+            accessibilityViewIsModal={true}
+            accessibilityModalRoot={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <EventCardComplete
+                currentEvents={item}
+                handleDeleteEvent={handleDeleteEvent}
+                likedEvent={likedEvents}
+                toggleLike={toggleLikeEvent}
+                handleEditEvent={handleEditEvent}
+              />
+            )}
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

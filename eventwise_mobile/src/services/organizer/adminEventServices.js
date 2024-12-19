@@ -231,7 +231,7 @@ const updateService = async (id, updatedService) => {
 //  *!------
 const deleteEvent = async (id) => {
   try {
-    const response = await api.delete(`/admin/events/${id}`);
+    const response = await api.put(`/admin/events/bookings/disable/${id}`);
     console.log("deleted event in eventservice: ", response);
     console.log(response);
   } catch (error) {
@@ -364,7 +364,6 @@ const declineBookingEvent = async (eventid) => {
     throw error;
   }
 };
-
 
 const sendEventNoticeToAllGuests = async (eventId) => {
   try {

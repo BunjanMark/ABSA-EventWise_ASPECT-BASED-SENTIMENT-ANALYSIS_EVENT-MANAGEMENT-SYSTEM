@@ -634,7 +634,27 @@ public function getServiceProviederName($eventId, $userId)
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }   
-
+    public function updateEventStatusDisabled(Request $request, $eventId)
+    {
+        try {
+            // Find the event by ID
+            $event = Event::find($eventId);
+    
+            if (!$event) {
+                // Return an error response if the event is not found
+                return response()->json(['error' => 'Event not found'], 404);
+            }
+    
+            // Update the event status to 'disabled'
+            $event->update(['status' => 'disabled']);
+    
+            return response()->json(['message' => 'Event status updated to disabled'], 200);
+        } catch (\Exception $e) {
+            // Return an error response if something goes wrong
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    
     public function updateEventStatusComplete(Request $request, $eventId)
     {
         try {
@@ -737,7 +757,7 @@ public function updatePaymentStatus(Request $request, $id)
     ], 200);
 }
 
-public function getEventsWithMyServices()
+public function getEventsWithMyServicesForFeedback()
 {
     try {
         // Ensure user is authenticated
@@ -746,10 +766,11 @@ public function getEventsWithMyServices()
             return response()->json(['message' => 'Unauthorized. Please log in.'], 401);
         }
 
-        // Check if the user is a service provider
-        if ($user->role_id !== 3) { // Assuming role_id 3 corresponds to service providers
-            return response()->json(['message' => 'Access restricted to service providers only.'], 403);
+        // Check if the user is either a service provider or has role_id 1
+        if (!in_array($user->role_id, [1, 3])) { // Allow roles 1 and 3
+            return response()->json(['message' => 'Access restricted to authorized roles only.'], 403);
         }
+
 
         // Retrieve events where the user's services are included
         $events = DB::table('event_services_providers')
@@ -765,6 +786,46 @@ public function getEventsWithMyServices()
         ->get();
     
 
+        // Return the result
+        return response()->json(['events' => $events], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function getEventsWithMyServicesUnique()
+{
+    try {
+        // Ensure user is authenticated
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized. Please log in.'], 401);
+        }
+
+        // Check if the user is either a service provider or has role_id 1
+        if (!in_array($user->role_id, [1, 3])) { // Allow roles 1 and 3
+            return response()->json(['message' => 'Access restricted to authorized roles only.'], 403);
+        }
+
+        // Retrieve events where the user's services are included and ensure no duplicate event ids
+        $events = DB::table('event_services_providers')
+            ->join('events', 'event_services_providers.event_id', '=', 'events.id')
+            ->join('services', 'event_services_providers.service_id', '=', 'services.id')
+            ->where('event_services_providers.user_id', $user->id)
+            ->select(
+                'events.id', // Select only event ID to ensure distinct
+                'events.*', // Select all columns from the events table
+                'services.id as service_id',
+                'services.serviceName as service_name',
+                'event_services_providers.package_id as package_id'
+            )
+            ->distinct() // Ensure no duplicate event IDs
+            ->get();
+    
         // Return the result
         return response()->json(['events' => $events], 200);
 

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { useRoute } from "@react-navigation/native"; // Import useRoute
-import { getFeedbackByEvent } from "../../../services/serviceProvider/serviceProviderServices"; // Import the service
-
-const FeedbackPage = () => {
+import { getFeedbackByEvent } from "../../../../services/serviceProvider/serviceProviderServices";
+const FeedbackAdminCard = () => {
   const route = useRoute(); // Access the route prop
   const { event_id } = route.params; // Destructure the event_id passed from the parent component
 
@@ -100,4 +99,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FeedbackPage;
+export default FeedbackAdminCard;

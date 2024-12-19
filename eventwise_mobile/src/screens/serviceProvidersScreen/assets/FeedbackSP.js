@@ -78,7 +78,7 @@ const FeedbackSP = () => {
 
         <TextInput
           style={styles.inputStyle}
-          placeholder="Type your feedback here"
+          placeholder="ss"
           placeholderTextColor="#888"
           multiline
           numberOfLines={4}

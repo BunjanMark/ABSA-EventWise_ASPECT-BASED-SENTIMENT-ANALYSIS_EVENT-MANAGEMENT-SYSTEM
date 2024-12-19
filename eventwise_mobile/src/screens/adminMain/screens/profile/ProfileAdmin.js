@@ -10,6 +10,7 @@ import useStore from "../../../../stateManagement/useStore";
 import ProfileMyPackages from "./ProfileMyPackages";
 import MyProfileAdmin from "./MyProfileAdmin";
 import ProfileSwitcherAdmin from "./ProfileSwitcherAdmin";
+import DisabledEvents from "./DisabledEvents";
 const ProfileAdmin = () => (
   <SafeAreaView
     style={[
@@ -50,6 +51,7 @@ const ProfileAdmin = () => (
       <ProfileSwitcherAdmin />
       <ProfileMyEvents />
       <ProfileMyPackages />
+      <DisabledEvents />
     </ScrollView>
   </SafeAreaView>
 );

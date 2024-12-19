@@ -15,6 +15,7 @@ const FeedbackDetail = ({ route }) => {
   const { event } = route.params;
   const [sentimentData, setSentimentData] = useState(null); // State to store sentiment data
   const [rawFeedbackData, setRawFeedbackData] = useState(null); // State to store raw feedback
+  const [sentimentFeedbackData, setSentimentFeedbackData] = useState(null); // State to store raw feedback
   const [loading, setLoading] = useState(true); // State to manage loading status
   const [error, setError] = useState(null); // State to handle errors
   const [expandedAspect, setExpandedAspect] = useState(null); // State to track which aspect is expanded
@@ -26,6 +27,9 @@ const FeedbackDetail = ({ route }) => {
         const response = await getAspectsWithSentimentEvent(event.id);
         setSentimentData(response.aspects_sentiment_count); // Store sentiment count data
         setRawFeedbackData(response.aspects_raw_feedback); // Store raw feedback data
+        setSentimentFeedbackData(response.aspects_sentiment_data); // Store raw feedback data
+        console.log("test ", JSON.stringify(sentimentFeedbackData, null, 2));
+        //  LOG  test  {"food_catering": [{"compound": 0.3182, "negative_score": 0.246, "neutral_score": 0.308, "positive_score": 0.446, "sentiment_label": "positive"}, {"compound": -0.5423, "negative_score": 1, "neutral_score": 0, "positive_score": 0, "sentiment_label": "negative"}]}
       } catch (err) {
         setError("Failed to fetch sentiment data"); // Set error state in case of failure
       } finally {
@@ -67,9 +71,16 @@ const FeedbackDetail = ({ route }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={24} color="#FFCE00" marginBottom={20} />
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color="#FFCE00"
+          marginBottom={20}
+        />
       </TouchableOpacity>
       <Text style={styles.title}>{event.name}</Text>
+      <Text style={styles.eventId}>Event Type: {event?.type}</Text>
+
       <ScrollView style={styles.sentimentDetails}>
         {sentimentData ? (
           Object.keys(sentimentData).map((aspect) => (
@@ -78,7 +89,9 @@ const FeedbackDetail = ({ route }) => {
                 onPress={() => toggleAspect(aspect)} // Toggle the clicked aspect
                 style={styles.aspectHeader}
               >
-                <Text style={styles.aspectTitle}>{capitalizeWords(aspect)}</Text>
+                <Text style={styles.aspectTitle}>
+                  {capitalizeWords(aspect)}
+                </Text>
                 <View style={styles.sentimentSummaryContainer}>
                   <Text style={[styles.sentimentText, styles.positive]}>
                     Positive: {sentimentData[aspect].positive}
@@ -97,12 +110,32 @@ const FeedbackDetail = ({ route }) => {
                 <View style={styles.rawFeedbackContainer}>
                   {rawFeedbackData[aspect].map((feedback, index) => (
                     <View key={index} style={styles.feedbackItem}>
-                      <Text style={styles.customerName}>
-                        {feedback.customer_name}:
-                      </Text>
-                      <Text style={styles.rawFeedbackText}>
-                        - {feedback.feedback_text}
-                      </Text>
+                      <View style={styles.nameContainer}>
+                        <Text style={styles.labelText}>Name:</Text>
+                        <Text style={styles.customerName}>
+                          {feedback.customer_name}
+                        </Text>
+                      </View>
+
+                      <View style={styles.feedbackContainer}>
+                        <Text style={styles.labelText}>Raw Feedback:</Text>
+                        <Text style={styles.rawFeedbackText}>
+                          {feedback.feedback_text}
+                        </Text>
+                      </View>
+
+                      <View style={styles.sentimentContainer}>
+                        <Text style={styles.labelText}>Sentiment:</Text>
+                        <Text
+                          style={[
+                            styles.sentimentLabel,
+                            { fontWeight: "bold" },
+                          ]}
+                        >
+                          {sentimentFeedbackData[aspect]?.[index]
+                            ?.sentiment_label ?? "Not available"}
+                        </Text>
+                      </View>
                     </View>
                   ))}
                 </View>

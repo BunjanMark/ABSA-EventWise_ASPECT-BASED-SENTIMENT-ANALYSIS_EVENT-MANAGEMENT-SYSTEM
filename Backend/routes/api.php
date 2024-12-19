@@ -106,6 +106,7 @@ Route::get('/admin/events/{id}/user', [EventController::class, 'getUserBookingEv
 Route::put('/admin/events/bookings/{eventId}', [EventController::class, 'updateEventStatus']);
 Route::put('/admin/events/bookings/decline/{eventId}', [EventController::class, 'declineEventStatus']);
 Route::put('/admin/events/bookings/complete/{eventId}', [EventController::class, 'updateEventStatusComplete']); //to complete
+Route::put('/admin/events/bookings/disable/{eventId}', [EventController::class, 'updateEventStatusDisabled']); //to complete
 Route::get('/events/month/{month}', [EventController::class, 'eventsByMonth']); 
 Route::put('/admin/events/{id}/payment-status', [EventController::class, 'updatePaymentStatus']);
 Route::get('/events/{eventId}/services', [EventController::class, 'getEventServices']);
@@ -149,7 +150,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('auth:api')->post('/equipment', [EquipmentController::class, 'store']);
 
     // geteventswithmyservices
-    Route::get('/events/my-services', [EventController::class, 'getEventsWithMyServices']);
+    Route::get('/events/my-services', [EventController::class, 'getEventsWithMyServicesForFeedback']);
+    Route::get('/events/my-services/unique', [EventController::class, 'getEventsWithMyServicesUnique']);
 
 
 
