@@ -16,7 +16,7 @@ import package2Image from './images/package2.png';
 import package3Image from './images/package3.png';
 import package4Image from './images/package4.png';
 import API_URL from './apiconfig';
-
+import api from './axiosconfig';
 
 
 
@@ -87,7 +87,7 @@ const CreateEvent = () => {
           time: eventTime, // Include time in event data
           pax: parseInt(pax, 10),
           location: location,
-          coverPhoto: coverPhoto // Ensure this is in the right format (e.g., URL or File)
+          // coverPhoto: coverPhoto // Ensure this is in the right format (e.g., URL or File)
       };
       localStorage.setItem('eventData', JSON.stringify(eventData));
       navigate('/choose-package', { state: { eventData } });
@@ -148,12 +148,13 @@ const CreateEvent = () => {
 
 
 
-    const handleCoverPhotoChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setCoverPhoto(URL.createObjectURL(file)); // Create a URL for the selected photo
-        }
-    };
+  const handleCoverPhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCoverPhoto(file); // Store the file object
+    }
+  };
+
 
     const isFormValid = () => {
         return (
@@ -171,29 +172,22 @@ const CreateEvent = () => {
                 <div className="content-createevent">
                     <h1 className="header-text-createevent">Create Event</h1>
                     <div className="line-createevent"></div>
-                    {/* Cover Photo Section */}
                     <div className="cover-photo-container-createevent">
-                            <input 
-                                type="file" 
-                                accept="image/*" 
-                                onChange={handleCoverPhotoChange} 
-                                className="upload-button-createevent" 
-                                id="file-input" // Add an ID to the file input
-                                style={{ display: 'none' }} // Keep it hidden
-                            />
-                            <div className={`cover-photo-box-createevent ${coverPhoto ? 'has-cover' : ''}`}>
-                                {coverPhoto ? (
-                                    <img src={coverPhoto} alt="Event Cover" className="cover-photo-image-createevent" />
-                                ) : (
-                                    <span>No cover photo selected</span>
-                                )}
-                            </div>
-                            <button 
-                                className="add-event-cover-button-createevent" 
-                                onClick={() => document.getElementById('file-input').click()} // Programmatically click the input
-                            >
-                                {coverPhoto ? "Re-pick Cover Photo" : "Add Event Cover"}
-                            </button>
+                    <input 
+    type="file" 
+    accept="image/*" 
+    onChange={handleCoverPhotoChange} 
+    className="upload-button-createevent" 
+    id="file-input" // Add an ID to the file input
+    style={{ display: 'none' }} // Keep it hidden
+/>
+<button 
+    className="add-event-cover-button-createevent" 
+    onClick={() => document.getElementById('file-input').click()} // Programmatically click the input
+>
+    {coverPhoto ? "Re-pick Cover Photo" : "Add Event Cover"}
+</button>
+
                         </div>
                     <h2 className="event-types-text-createevent">Choose Event Type</h2>
                     <div className="dropdown-container-createevent">
@@ -737,19 +731,13 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
     } else {
       combinedServices = [...addedEvents];
     }  
-    // Calculate the total price of the package based on the selected package's price
     let updatedTotalPrice = selectedPackage ? parseFloat(selectedPackage.totalPrice) : 0;
-  
-    // Sum the base prices of the added services (additional events)
     let addedServicesTotalPrice = addedEvents.reduce((total, service) => total + parseFloat(service.basePrice), 0);
-  
-    // Final total price = existing package total price + price of added services
     updatedTotalPrice += addedServicesTotalPrice;
-  
-  
+
     console.log('Combined Services:', combinedServices);
     console.log('Updated Total Price:', updatedTotalPrice);
-  
+
     if (!selectedPackage || !selectedPackage.id) {
       console.error('Selected package is missing or has no valid ID.');
       return;
@@ -764,25 +752,12 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
     formData.append('location', eventData.location);
     formData.append('type', eventData.type);
 
+    // if (coverPhoto) {
+    //   formData.append('coverPhoto', coverPhoto || null); // Append the file if it's present
+    // }
+    
 
-    formData.append('packageType', 'Custom');
-    // Add package details (make sure they exist in selectedPackage)
-    if (selectedPackage) {
-      formData.append('packageName', selectedPackage.packageName);  // Package name
-      formData.append('eventType', selectedPackage.eventType);        // Event type
-      formData.append('totalPrice', updatedTotalPrice);               // Updated total price (original package + added services)
-    }
-  
-    // Handle cover photo for the event (if exists)
-    if (eventData.coverPhoto) {
-      try {
-        const response = await fetch(eventData.coverPhoto);
-        const blob = await response.blob();
-        formData.append('cover_photo', blob, 'cover_photo.jpg');
-      } catch (fetchError) {
-        console.error('Error fetching the cover photo:', fetchError);
-      }
-    }
+
   
     guests.forEach((guest, index) => {
       formData.append(`guests[${index}][name]`, guest.name);
@@ -790,30 +765,31 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
       if (guest.phone) formData.append(`guests[${index}][phone]`, guest.phone);
       if (guest.role) formData.append(`guests[${index}][role]`, guest.role);
     });
-  
-    // Add combined services to FormData
+
+
+    const packageData = new FormData();
+    packageData.append('packageName', `${selectedPackage.packageName}_${eventData.eventName}`);
+    packageData.append('eventType', selectedPackage.eventType);
+    packageData.append('totalPrice', updatedTotalPrice);
+    packageData.append('pax', selectedPackage.pax);
+    packageData.append('packageType', 0);
+
     combinedServices.forEach((service, index) => {
-      formData.append(`services[${index}][id]`, service.id);
-      formData.append(`services[${index}][serviceName]`, service.serviceName);
-      formData.append(`services[${index}][serviceCategory]`, service.serviceCategory);
-      formData.append(`services[${index}][basePrice]`, service.basePrice);
+        if (service && service.id) {
+            packageData.append(`services[${index}]`, service.id);
+        } else {
+            console.error(`Invalid service at index ${index}:`, service);
+        }
     });
   
     try {
-      // Send package data to the backend
       if (selectedPackage) {
-        const packageResponse = await axios.post(`${API_URL}/api/admin/packages`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-  
+        const packageResponse = await api
+        .post(`${API_URL}/api/admin/packages`, packageData)
         if (packageResponse.status === 201) {
           const newPackage = packageResponse.data;
           console.log('New package created:', newPackage);
   
-          // Update selectedPackage with new package data
           selectedPackage = newPackage;
           localStorage.setItem('selectedPackage', JSON.stringify(newPackage));
   
@@ -824,10 +800,8 @@ const ReviewOverlay = ({ isOpen, onClose, packagesData, allEventsData, guests })
         }
       }
   
-      // Add the new package ID to the event data
       formData.append('package_id', selectedPackage.id);
   
-      // Send event data to the backend
       const eventResponse = await axios.post(`${API_URL}/api/events`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',

@@ -30,6 +30,21 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
     return null;
   }
 
+  const formatTime = (time) => {
+    const [hours, minutes] = time.split(":"); // Split the time string into hours and minutes
+    const date = new Date();
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+  
+    // Format the time as h:mm AM/PM
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    }).format(date);
+  };
+  
+
   return (
     <View style={styles.card}>
       <TouchableOpacity
@@ -92,9 +107,11 @@ const EventCardBookings = ({ currentEvents, likedEvents, toggleLike }) => {
           </View>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
-            <Text style={styles.infoText}>{`Time: ${
-              currentEvents?.time || "N/A"
-            }`}</Text>
+            <Text style={styles.infoText}>
+              {`Time: ${
+                currentEvents?.time ? formatTime(currentEvents.time) : "N/A"
+              }`}
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="tag" size={16} color="#eeba2b" />

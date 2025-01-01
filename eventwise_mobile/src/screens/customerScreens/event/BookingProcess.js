@@ -60,6 +60,10 @@ const BookingProcess = ({ navigation }) => {
   const [filteredPackages, setFilteredPackages] = useState([]); // For filtered packages
   const [selectedEventType, setSelectedEventType] = useState(null); // For RNPickerSelect
   const [pax, setPax] = useState('');
+  const isGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
+  const [emailWarning, setEmailWarning] = useState("");
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  
 
 
   
@@ -1040,13 +1044,21 @@ const BookingProcess = ({ navigation }) => {
                                     )}
                                   />
                                   <TextInput
-                                    style={styles.input}
-                                    placeholder="Email"
-                                    value={guest.email}
-                                    onChangeText={handleChange(
-                                      `guests[${startIndex + index}].email`
-                                    )}
-                                  />
+  style={styles.input}
+  placeholder="Email"
+  value={guest.email}
+  onChangeText={(value) => {
+    handleChange(`guests[${startIndex + index}].email`)(value);
+    const valid = isGmail(value);
+    setIsValidEmail(valid); // Update email validity
+    setEmailWarning(valid ? "" : "Please enter a valid Gmail address."); // Show warning if invalid
+  }}
+/>
+
+{emailWarning !== "" && (
+  <Text style={{ color: "red", fontSize: 12 }}>{emailWarning}</Text>
+)}
+
                                   <TextInput
                                     style={styles.input}
                                     placeholder="Phone"
@@ -1136,15 +1148,22 @@ const BookingProcess = ({ navigation }) => {
 
                     {/* Submit and Back buttons */}
                     <View style={styles.buttonContainer}>
-                    
-                    <Button
-                      mode="contained"
-                      onPress={() => setCurrentScreen(5)}
-                      style={styles.addButton1}
-                    >
-                      Next
-                    </Button>
-                    </View>
+  <Button
+    mode="contained"
+    onPress={() => {
+      if (isValidEmail) {
+        setCurrentScreen(5); // Proceed to the next screen
+      } else {
+        alert("Please enter a valid Gmail address."); // Show alert if invalid
+      }
+    }}
+    style={styles.addButton1}
+    disabled={!isValidEmail} // Disable button if email is not valid
+  >
+    Next
+  </Button>
+</View>
+
                   </>
                 )}
 

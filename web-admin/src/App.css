@@ -4168,21 +4168,6 @@ textarea.text-input-addrole {
   .close-button-feedback:hover {
     background: transparent;
   }
-
-  .feedback-content h4 {
-    margin: 10px 0;
-    cursor: pointer;
-    transition: color 0.3s ease;
-  }
-  
-  .feedback-content h4:hover {
-    color: #0056b3;
-  }
-  
-  .feedback-content p {
-    margin: 5px 0;
-  }
-  
   
   
   

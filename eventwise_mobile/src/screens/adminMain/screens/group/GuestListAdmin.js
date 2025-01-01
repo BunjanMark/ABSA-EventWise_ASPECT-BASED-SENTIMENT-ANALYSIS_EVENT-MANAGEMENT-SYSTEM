@@ -75,36 +75,39 @@ const GuestListAdmin = () => {
     }
   };
 
-  const handleAddGuest = async () => {
-    // Validate guest data
-    const invalidGuest = guestsData.some(
-      (guest) => !guest.GuestName || !guest.email || !guest.phone || !guest.role
-    );
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
+    return emailRegex.test(email);
+  };
+  
 
+  const handleAddGuest = async () => {
+    const invalidGuest = guestsData.some(
+      (guest) =>
+        !guest.GuestName ||
+        !guest.email ||
+        !guest.phone ||
+        !guest.role ||
+        guest.isEmailValid === false
+    );
+  
     if (invalidGuest) {
-      alert("Please fill out all fields for all guests.");
+      alert("Please ensure all fields are filled correctly, and email is Gmail.");
       return;
     }
-
-    // Debug the guestsData
-    console.log("Guests Data to send:", guestsData);
-
+  
     try {
       const response = await axios.post(`${API_URL}/api/guest`, {
         guest: guestsData,
         eventId: eventId,
       });
-
+  
       if (response.status === 201) {
         setGuests((prevGuests) => [...prevGuests, ...response.data]);
-        setAddGuestModalVisible(false); // Close modal
-        setGuestsData([]); // Clear guest data
-        setNumberOfFields(""); // Reset field count
+        setAddGuestModalVisible(false);
+        setGuestsData([]);
+        setNumberOfFields("");
       }
-      console.log("Payload:", {
-        guest: guestsData,
-        eventId: eventId,
-      });
     } catch (error) {
       if (error.response) {
         console.error("Backend error response:", error.response.data);
@@ -113,6 +116,7 @@ const GuestListAdmin = () => {
       }
     }
   };
+  
 
   const handleAddFields = () => {
     const numFields = parseInt(numberOfFields, 10);
@@ -139,21 +143,23 @@ const GuestListAdmin = () => {
 
   const handleInputChange = (index, field, value) => {
     const globalIndex = startIndex + index;
-
-    // Update the specific field in the correct guest object
+  
     setNewGuestFields((prevFields) => {
       const updatedFields = [...prevFields];
       updatedFields[globalIndex] = {
         ...updatedFields[globalIndex],
         [field]: value,
       };
-
-      // Synchronize newGuestFields with guestsData
-      setGuestsData(updatedFields); // This line updates guestsData with the latest values
-
+  
+      if (field === "email") {
+        updatedFields[globalIndex].isEmailValid = validateEmail(value);
+      }
+  
+      setGuestsData(updatedFields);
       return updatedFields;
     });
   };
+  
 
   const handleEdit = (guest) => {
     setSelectedGuest(guest);
@@ -276,6 +282,7 @@ const GuestListAdmin = () => {
             onChangeText={setUpdatedEmail}
             style={styles.input}
           />
+          
           <TextInput
             label="Phone"
             value={updatedPhone}
@@ -381,12 +388,19 @@ const GuestListAdmin = () => {
               <TextInput
                 placeholder="Email"
                 value={field.email || ""}
-                onChangeText={(value) =>
-                  handleInputChange(index, "email", value)
-                }
-                style={styles.input}
+                onChangeText={(value) => handleInputChange(index, "email", value)}
+                style={[
+                  styles.input,
+                  field.isEmailValid === false ? styles.invalidInput : null,
+                ]}
                 keyboardType="email-address"
               />
+              {field.isEmailValid === false && (
+                <Text style={styles.errorText}>
+                  Please enter a valid email address.
+                </Text>
+              )}
+
 
               {/* Phone */}
               <TextInput
@@ -713,6 +727,14 @@ const styles = StyleSheet.create({
   addGuestButton: {
     margin: 20,
     backgroundColor: "#eeba2b",
+  },
+  invalidInput: {
+    borderColor: "red",
+    borderWidth: 1,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
   },
 });
 
