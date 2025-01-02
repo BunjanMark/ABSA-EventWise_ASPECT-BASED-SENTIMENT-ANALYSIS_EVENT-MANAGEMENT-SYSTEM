@@ -63,6 +63,7 @@ public function store(Request $request)
             'description' => 'required|string',
             'coverPhoto' => 'nullable|string', 
             'totalPrice' => 'nullable|numeric|min:1',
+            // 'package_id' => 'required|exists:packages,id',
             'packages' => 'nullable|array',
             'guest' => 'nullable|array',
             'guest.*.GuestName' => 'nullable|string|max:255',
@@ -91,6 +92,7 @@ public function store(Request $request)
             'location' => $validatedData['eventLocation'],
             'description' => $validatedData['description'],
             'coverPhoto' => $validatedData['coverPhoto'],
+            // 'package_id' => $validatedData['package_id'],
             'packages' => json_encode($validatedData['packages']), // Store packages as JSON
             'user_id' => $validatedData['user_id'], // Now user_id is explicitly set
         ]);
@@ -109,6 +111,49 @@ public function store(Request $request)
                 ]);
             }
         }
+        // Create equipment records for the event
+        // foreach ($validatedData['packages'] as $packageId) {
+        //     $package = Package::find($packageId);
+        //     $services = json_decode($package->services, true);
+        
+        //     foreach ($services as $serviceId) {
+        //         $service = Service::find($serviceId);
+        //         $equipment = Equipment::create([
+        //             'event_id' => $event->id,
+        //             'service_id' => $serviceId,
+        //             'user_id' => $service->user_id,
+        //         ]);
+        
+        //         // Fetch the AccountRole and User data
+        //         $AccountRoledata = AccountRole::where('user_id', $service->user_id)
+        //                                       ->where('role_id', 3) // Ensure the role_id is 3
+        //                                       ->first();
+                
+        //         if ($AccountRoledata) {
+        //             $equipment->account_role_id = $AccountRoledata->id;
+        //         }
+        
+        //         $equipment->save();
+        //     }
+        // }
+        // foreach ($validatedData['packages'] as $packageId) {
+        //     $package = Package::find($packageId);
+        //     $services = json_decode($package->services, true);
+        
+        //     foreach ($services as $serviceId) {
+        //         $service = Service::find($serviceId);
+        //         $AccountRoledata = AccountRole::where('user_id', $service->user_id)->first();
+        
+        //         $equipment = Equipment::create([
+        //             'event_id' => $event->id,
+        //             'service_id' => $serviceId,
+        //             'user_id' => $service->user_id,
+        //             'account_role_id' => $AccountRoledata ? $AccountRoledata->id : null,
+        //         ]);
+        //     }
+        // }
+
+       // Add guest to the event
        $guests = [];
        foreach ($validatedData['guest'] as $guestData) {
            $guest = Guest::create([
@@ -132,6 +177,15 @@ public function store(Request $request)
                 $serviceProviderData = Service::find($service);
                 $serviceProviders[] = [
                     'user_id' => $serviceProviderData->user_id,
+                    // 'id' => $serviceProviderData->id,
+                    // 'serviceName' => $serviceProviderData->serviceName,
+                    // 'serviceFeatures' => $serviceProviderData->serviceFeatures,
+                    // 'verified' => $serviceProviderData->verified,
+                    // 'basePrice' => $serviceProviderData->basePrice,
+                    // 'pax' => $serviceProviderData->pax,
+                    // 'servicePhotoURL' => $serviceProviderData->servicePhotoURL,
+                    // 'serviceCategory' => $serviceProviderData->serviceCategory,
+                    // 'availability_status' => $serviceProviderData->availability_status,
                 ];
                
             }
