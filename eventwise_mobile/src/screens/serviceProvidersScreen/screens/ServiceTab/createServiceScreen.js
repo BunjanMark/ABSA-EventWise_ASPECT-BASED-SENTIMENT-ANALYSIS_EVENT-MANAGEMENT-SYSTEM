@@ -286,16 +286,39 @@ const CreateServiceScreen = ({ navigation }) => {
               {errors.pax && touched.pax && (
                 <Text style={styles.errorText}>{errors.pax}</Text>
               )}
-              <TextInput
-                style={styles.input}
-                placeholder="Requirements"
-                value={values.requirements}
-                onChangeText={handleChange("requirements")}
-                onBlur={handleBlur("requirements")}
-              />
-              {errors.requirements && touched.requirements && (
-                <Text style={styles.errorText}>{errors.requirements}</Text>
-              )}
+              <View style={[styles.pickerContainer, { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, width: "100%", marginBottom: 10, height: 50 }]}>
+  <RNPickerSelect
+    onValueChange={(value) => setFieldValue("requirements", value)}
+    items={[
+      { label: "Indoor", value: "Indoor" },
+      { label: "Outdoor", value: "Outdoor" },
+    ]}
+    placeholder={{ label: "Requirements", value: null }}
+    style={{
+      inputIOS: {
+        fontSize: 16,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        color: "#000",
+      },
+      inputAndroid: {
+        fontSize: 16,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        color: "#000",
+      },
+      placeholder: {
+        color: "#999",
+      },
+    }}
+  />
+</View>
+{errors.requirements && touched.requirements && (
+  <Text style={styles.errorText}>{errors.requirements}</Text>
+)}
+
+
+
               <View style={[styles.createButtonContainer]}>
                 <Button
                   mode="contained"

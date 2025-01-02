@@ -515,28 +515,42 @@ const BookingProcess = ({ navigation }) => {
                       <Text style={styles.errorText}>{errors.eventTime}</Text>
                     )}
 
-                    <TextInput
-                      style={[
-                        styles.input,
-                        focusedInput === "eventLocation" && {
-                          borderColor: "#EEBA2B",
-                          borderWidth: 2,
-                        }, // Highlight border on focus
-                      ]}
-                      placeholder="Event Location"
-                      onChangeText={handleChange("eventLocation")}
-                      onBlur={() => {
-                        handleBlur("eventLocation");
-                        setFocusedInput(null);
-                      }}
-                      onFocus={() => setFocusedInput("eventLocation")}
-                      value={values.eventLocation}
-                    />
-                    {touched.eventLocation && errors.eventLocation && (
-                      <Text style={styles.errorText}>
-                        {errors.eventLocation}
-                      </Text>
-                    )}
+                    <View
+                  style={[
+                    { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, height: 50, marginBottom: 10 },
+                    focusedInput === "eventLocation" && { borderColor: "#EEBA2B", borderWidth: 2 },
+                  ]}
+                >
+                  <RNPickerSelect
+                    onValueChange={(value) => setFieldValue("eventLocation", value)}
+                    items={[
+                      { label: "Elarvee", value: "Elarvee" },
+                      { label: "4 Kings Uptown", value: "4 Kings Uptown" },
+                      { label: "Casa de Canitoan", value: "Casa de Canitoan" },
+                      { label: "Cove Garden", value: "Cove Garden" },
+                      { label: "Station 5 Event Center", value: "Station 5 Event Center" },
+                    ]}
+                    placeholder={{ label: "Select Event Location", value: null }}
+                    style={{
+                      inputIOS: {
+                        padding: 10,
+                        fontSize: 16,
+                      },
+                      inputAndroid: {
+                        padding: 10,
+                        fontSize: 16,
+                      },
+                      placeholder: {
+                        color: "#999",
+                      },
+                    }}
+                    onFocus={() => setFocusedInput("eventLocation")}
+                    onBlur={() => setFocusedInput(null)}
+                  />
+                </View>
+                {touched.eventLocation && errors.eventLocation && (
+                  <Text style={styles.errorText}>{errors.eventLocation}</Text>
+                )}
 
                     <TextInput
                       style={[
