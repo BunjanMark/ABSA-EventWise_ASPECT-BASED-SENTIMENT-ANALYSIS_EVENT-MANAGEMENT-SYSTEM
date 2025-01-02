@@ -5,13 +5,20 @@ import './App.css';
 import { IoLocationSharp, IoTime } from "react-icons/io5";
 import { FaCalendar } from "react-icons/fa";
 import API_URL from './apiconfig';
-import defaultImage from './images/default.png';
+import Swal from 'sweetalert2';
+import defaultImage from './images/default.png'; // Import the default image
 
-// Packages data
+
 const packageImages = [
   require('./images/event1.png'),
   require('./images/event2.png'),
   require('./images/event3.png')
+];
+const Images = [
+  require('./images/pic1.jpg'),
+  require('./images/pic2.jpg'),
+  require('./images/pic3.jpg'),
+  require('./images/pic4.png')
 ];
 
 const packageDescriptions = [
@@ -34,6 +41,11 @@ function Dashboard() {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [packageToDelete, setPackageToDelete] = useState(null); // Track the selected package to delete
   const navigate = useNavigate();
+
+  const getRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * Images.length);
+    return Images[randomIndex];
+  };
 
   function formatTime(timeString) {
     if (!timeString) return ''; // Handle undefined or empty input early
@@ -142,30 +154,68 @@ function Dashboard() {
   };
   const handleConfirmDelete = async (packageToDelete) => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/packages/${packageToDelete.id}`, {
-        method: 'DELETE',
-      });
-  
-      const result = await response.json();
-  
-      if (response.ok) {
-        console.log("Package deleted successfully:", result);
-        // Optionally, refresh the package list after deletion
-        setPackages((prevPackages) =>
-          prevPackages.filter((pkg) => pkg.id !== packageToDelete.id)
-        );
-      } else {
-        console.error("Failed to delete package:", result.message);
-        alert(`Error: ${result.message}`);
-      }
+        const response = await fetch(`${API_URL}/api/admin/packages/${packageToDelete.id}`, {
+            method: 'DELETE',
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            console.log("Package deleted successfully:", result);
+
+            // SweetAlert2 success alert
+            Swal.fire({
+                title: 'Deleted!',
+                text: 'Package deleted successfully!',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'custom-ok-button',
+              },
+              buttonsStyling: false,
+            });
+
+            // Optionally, refresh the package list after deletion
+            setShowDetailsOverlay(false)
+            setPackages((prevPackages) =>
+                prevPackages.filter((pkg) => pkg.id !== packageToDelete.id)
+            );
+
+        } else {
+            console.error("Failed to delete package:", result.message);
+
+            // SweetAlert2 error alert
+            Swal.fire({
+                title: 'Error!',
+                text: `Failed to delete package: ${result.message}`,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'custom-ok-button',
+              },
+              buttonsStyling: false,
+            });
+        }
     } catch (error) {
-      console.error("Error deleting package:", error);
-      alert("An error occurred while deleting the package.");
+        console.error("Error deleting package:", error);
+
+        // SweetAlert2 error alert
+        Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while deleting the package.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            customClass: {
+              confirmButton: 'custom-ok-button',
+          },
+          buttonsStyling: false,
+        });
     } finally {
-      setShowDeleteConfirmation(false); // Close the confirmation overlay
-      setPackageToDelete(null); // Reset the state
+        setShowDeleteConfirmation(false); // Close the confirmation overlay
+        setPackageToDelete(null); // Reset the state
     }
-  };
+};
+
   
   
   
@@ -198,12 +248,8 @@ function Dashboard() {
       <h3 className="event-list-title">Event List for {`${currentMonth}`}</h3>
       <div className="events-list-container-dashboard-left">
         {selectedDayEvents.map((event, index) => (
-          <div className="event-card-dashboard" key={index}>
-          <img
-  src={event.coverPhoto}
-  alt="Event Cover"
-  className="event-cover-dashboard"
-/>
+          <div className="event-card-dashboard" key={index} onClick={() => navigate('/events')}>
+            <img src={getRandomImage()} alt="Event Cover" className="event-cover-dashboard" />
             <div className="event-info-dashboard">
               <p className="event-name-dashboard">{event.name.charAt(0).toUpperCase() + event.name.slice(1)}</p>
               <div className="event-detail-dashboard">
@@ -334,7 +380,7 @@ function Dashboard() {
             setPackageToDelete(selectedPackage); // Set the selected package for deletion
           }}
         >
-          Delete
+          Disable
         </button>
       </div>
       {showDeleteConfirmation && (
@@ -347,7 +393,7 @@ function Dashboard() {
           className="confirm-delete-button"
           onClick={() => handleConfirmDelete(packageToDelete)}
         >
-          Yes, Delete
+          Yes, Disable
         </button>
         <button
           className="cancel-delete-button"

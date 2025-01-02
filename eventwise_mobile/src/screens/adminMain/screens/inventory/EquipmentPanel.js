@@ -96,6 +96,20 @@ const EquipmentPanel = () => {
 
   const displayedEvents = sortEvents(sortOption);
 
+  const formatTime = (time) => {
+    const [hours, minutes] = time.split(":"); // Split the time string into hours and minutes
+    const date = new Date();
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+  
+    // Format the time as h:mm AM/PM
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    }).format(date);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Events Equipment</Text>
@@ -152,9 +166,11 @@ const EquipmentPanel = () => {
                   <Text style={styles.eventDetails}>{item.location}</Text>
                 </View>
                 <View style={styles.iconRow}>
-                  <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
-                  <Text style={styles.eventDetails}>{item.time}</Text>
-                </View>
+  <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
+  <Text style={styles.eventDetails}>
+    {item.time ? formatTime(item.time) : "N/A"}
+  </Text>
+</View>
               </TouchableOpacity>
             </View>
           )}

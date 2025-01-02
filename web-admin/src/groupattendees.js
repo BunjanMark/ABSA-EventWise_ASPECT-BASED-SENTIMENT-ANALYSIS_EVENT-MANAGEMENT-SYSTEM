@@ -5,6 +5,7 @@ import axios from 'axios';
 import API_URL from './apiconfig';
 import { FaTrash } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
+import Swal from 'sweetalert2';
 
 const GroupAttendees = () => {
   const location = useLocation();
@@ -63,44 +64,113 @@ const GroupAttendees = () => {
   };
 
   const handleSaveEdit = async () => {
-    let successMessage = 'Guest details updated successfully!';  
+    let successMessage = 'Guest details updated successfully!';
     if (selectedGuest && selectedGuest.id) {
-      try {
-        const response = await axios.put(`${API_URL}/api/guest/${selectedGuest.id}`, {
-          GuestName: selectedGuest.GuestName,
-          role: selectedGuest.role,
-          phone: selectedGuest.phone,
-          email: selectedGuest.email
+        try {
+            const response = await axios.put(`${API_URL}/api/guest/${selectedGuest.id}`, {
+                GuestName: selectedGuest.GuestName,
+                role: selectedGuest.role,
+                phone: selectedGuest.phone,
+                email: selectedGuest.email
+            });
+
+            const updatedGuest = response.data.guest;
+            setGuests(guests.map(guest => guest.id === updatedGuest.id ? updatedGuest : guest));
+            setEditGuestModalVisible(false);
+
+            // SweetAlert2 success alert
+            Swal.fire({
+                title: 'Success!',
+                text: successMessage,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'custom-ok-button',
+              },
+              buttonsStyling: false,
+                
+            });
+        } catch {
+            // SweetAlert2 success alert
+            Swal.fire({
+                title: 'Success!',
+                text: successMessage,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'custom-ok-button',
+              },
+              buttonsStyling: false,
+            });
+        }
+    } else {
+        console.error('No guest selected or invalid guest data');
+        successMessage = 'Invalid guest data.'; // Change message for invalid data
+
+        // SweetAlert2 warning alert
+        Swal.fire({
+            title: 'Invalid Data',
+            text: successMessage,
+            icon: 'warning',
+            confirmButtonText: 'OK',
+            customClass: {
+              confirmButton: 'custom-ok-button',
+          },
+          buttonsStyling: false,
         });
-
-        const updatedGuest = response.data.guest;
-        setGuests(guests.map(guest => guest.id === updatedGuest.id ? updatedGuest : guest));
-        setEditGuestModalVisible(false);
-      } catch {
-        window.alert(successMessage);
-      }
-    } else {
-      console.error('No guest selected or invalid guest data');
-      successMessage = 'Invalid guest data.'; // Change message for invalid data
     }
-  };
+};
 
-  const handleConfirmDelete = async () => {
-    if (selectedGuest && selectedGuest.id) {
+
+const handleConfirmDelete = async () => {
+  if (selectedGuest && selectedGuest.id) {
       try {
-        await axios.delete(`${API_URL}/api/guest/${selectedGuest.id}`);
-        setGuests(guests.filter(guest => guest.id !== selectedGuest.id));
-        setDeleteModalVisible(false);
+          await axios.delete(`${API_URL}/api/guest/${selectedGuest.id}`);
+          setGuests(guests.filter(guest => guest.id !== selectedGuest.id));
+          setDeleteModalVisible(false);
 
-        // Show success alert
-        window.alert('Guest deleted successfully!');
+          // SweetAlert2 success alert
+          Swal.fire({
+              title: 'Deleted!',
+              text: 'Guest deleted successfully!',
+              icon: 'success',
+              confirmButtonText: 'OK',
+              customClass: {
+                confirmButton: 'custom-ok-button',
+            },
+            buttonsStyling: false,
+          });
       } catch (error) {
-        console.error('Error deleting guest:', error);
+          console.error('Error deleting guest:', error);
+
+          // SweetAlert2 error alert
+          Swal.fire({
+              title: 'Error!',
+              text: 'Failed to delete guest. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK',
+              customClass: {
+                confirmButton: 'custom-ok-button',
+            },
+            buttonsStyling: false,
+          });
       }
-    } else {
+  } else {
       console.error('Selected guest is not valid for deletion.');
-    }
-  };
+
+      // SweetAlert2 warning alert
+      Swal.fire({
+          title: 'Invalid Selection',
+          text: 'Selected guest is not valid for deletion.',
+          icon: 'warning',
+          confirmButtonText: 'OK',
+          customClass: {
+            confirmButton: 'custom-ok-button',
+        },
+        buttonsStyling: false,
+      });
+  }
+};
 
   const renderItem = (item, index) => {
     const displayNumber = (currentPage - 1) * guestsPerPage + index + 1;

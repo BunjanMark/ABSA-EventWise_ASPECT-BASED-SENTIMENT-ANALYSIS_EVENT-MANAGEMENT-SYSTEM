@@ -60,6 +60,10 @@ const BookingProcess = ({ navigation }) => {
   const [filteredPackages, setFilteredPackages] = useState([]); // For filtered packages
   const [selectedEventType, setSelectedEventType] = useState(null); // For RNPickerSelect
   const [pax, setPax] = useState('');
+  const isGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
+  const [emailWarning, setEmailWarning] = useState("");
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  
 
 
   
@@ -511,28 +515,42 @@ const BookingProcess = ({ navigation }) => {
                       <Text style={styles.errorText}>{errors.eventTime}</Text>
                     )}
 
-                    <TextInput
-                      style={[
-                        styles.input,
-                        focusedInput === "eventLocation" && {
-                          borderColor: "#EEBA2B",
-                          borderWidth: 2,
-                        }, // Highlight border on focus
-                      ]}
-                      placeholder="Event Location"
-                      onChangeText={handleChange("eventLocation")}
-                      onBlur={() => {
-                        handleBlur("eventLocation");
-                        setFocusedInput(null);
-                      }}
-                      onFocus={() => setFocusedInput("eventLocation")}
-                      value={values.eventLocation}
-                    />
-                    {touched.eventLocation && errors.eventLocation && (
-                      <Text style={styles.errorText}>
-                        {errors.eventLocation}
-                      </Text>
-                    )}
+                    <View
+                  style={[
+                    { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, height: 50, marginBottom: 10 },
+                    focusedInput === "eventLocation" && { borderColor: "#EEBA2B", borderWidth: 2 },
+                  ]}
+                >
+                  <RNPickerSelect
+                    onValueChange={(value) => setFieldValue("eventLocation", value)}
+                    items={[
+                      { label: "Elarvee", value: "Elarvee" },
+                      { label: "4 Kings Uptown", value: "4 Kings Uptown" },
+                      { label: "Casa de Canitoan", value: "Casa de Canitoan" },
+                      { label: "Cove Garden", value: "Cove Garden" },
+                      { label: "Station 5 Event Center", value: "Station 5 Event Center" },
+                    ]}
+                    placeholder={{ label: "Select Event Location", value: null }}
+                    style={{
+                      inputIOS: {
+                        padding: 10,
+                        fontSize: 16,
+                      },
+                      inputAndroid: {
+                        padding: 10,
+                        fontSize: 16,
+                      },
+                      placeholder: {
+                        color: "#999",
+                      },
+                    }}
+                    onFocus={() => setFocusedInput("eventLocation")}
+                    onBlur={() => setFocusedInput(null)}
+                  />
+                </View>
+                {touched.eventLocation && errors.eventLocation && (
+                  <Text style={styles.errorText}>{errors.eventLocation}</Text>
+                )}
 
                     <TextInput
                       style={[
@@ -1040,13 +1058,21 @@ const BookingProcess = ({ navigation }) => {
                                     )}
                                   />
                                   <TextInput
-                                    style={styles.input}
-                                    placeholder="Email"
-                                    value={guest.email}
-                                    onChangeText={handleChange(
-                                      `guests[${startIndex + index}].email`
-                                    )}
-                                  />
+  style={styles.input}
+  placeholder="Email"
+  value={guest.email}
+  onChangeText={(value) => {
+    handleChange(`guests[${startIndex + index}].email`)(value);
+    const valid = isGmail(value);
+    setIsValidEmail(valid); // Update email validity
+    setEmailWarning(valid ? "" : "Please enter a valid Gmail address."); // Show warning if invalid
+  }}
+/>
+
+{emailWarning !== "" && (
+  <Text style={{ color: "red", fontSize: 12 }}>{emailWarning}</Text>
+)}
+
                                   <TextInput
                                     style={styles.input}
                                     placeholder="Phone"
@@ -1136,15 +1162,22 @@ const BookingProcess = ({ navigation }) => {
 
                     {/* Submit and Back buttons */}
                     <View style={styles.buttonContainer}>
-                    
-                    <Button
-                      mode="contained"
-                      onPress={() => setCurrentScreen(5)}
-                      style={styles.addButton1}
-                    >
-                      Next
-                    </Button>
-                    </View>
+  <Button
+    mode="contained"
+    onPress={() => {
+      if (isValidEmail) {
+        setCurrentScreen(5); // Proceed to the next screen
+      } else {
+        alert("Please enter a valid Gmail address."); // Show alert if invalid
+      }
+    }}
+    style={styles.addButton1}
+    disabled={!isValidEmail} // Disable button if email is not valid
+  >
+    Next
+  </Button>
+</View>
+
                   </>
                 )}
 

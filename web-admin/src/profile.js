@@ -5,9 +5,18 @@ import { useNavigate } from 'react-router-dom';
 import profilePic from './images/pro_pic.png';
 import axios from 'axios';
 import API_URL from './apiconfig';
+import defaultImage from './images/default.png'; // Import the default image
+
 
 const months = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+];
+
+const Images = [
+  require('./images/pic1.jpg'),
+  require('./images/pic2.jpg'),
+  require('./images/pic3.jpg'),
+  require('./images/pic4.png')
 ];
 
 const Profile = () => {
@@ -27,6 +36,11 @@ const Profile = () => {
     { id: '8', packagename: 'Package H', image: require('./images/event2.png'), price: '100,000', pax: '200 pax' },
     { id: '9', packagename: 'Package I', image: require('./images/event2.png'), price: '100,000', pax: '500 pax' },
   ];
+
+  const getRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * Images.length);
+    return Images[randomIndex];
+  };
 
   // Use default month (e.g., current month) if no month is selected
   const currentMonth = new Date().getMonth() + 1; // Month is 0-based, so add 1
@@ -71,7 +85,7 @@ const Profile = () => {
 
   const renderEventItem = (item) => (
     <div className="event-item-profile" key={item.id}>
-      <img src={item.coverPhoto} alt={item.title} className="image-profile" />
+      <img src={getRandomImage()  } alt={item.title} className="image-profile" />
       <h3 className="title-profile">{item.name}</h3>
       <div className="detail-container-profile">
         <div className="detail-row-profile">

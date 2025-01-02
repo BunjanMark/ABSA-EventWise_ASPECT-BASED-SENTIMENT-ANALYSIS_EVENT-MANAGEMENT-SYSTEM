@@ -38,6 +38,21 @@ const AttendeeList = ({ event, navigation }) => {
     }
   };
 
+  const formatTime = (time) => {
+    const [hours, minutes] = time.split(":"); // Split the time string into hours and minutes
+    const date = new Date();
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+  
+    // Format the time as h:mm AM/PM
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    }).format(date);
+  };
+  
+
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.cardHeader}>
@@ -55,9 +70,12 @@ const AttendeeList = ({ event, navigation }) => {
         <Text style={styles.eventDetails}>{event.date}</Text>
       </View>
       <View style={styles.eventDetailsRow}>
-        <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
-        <Text style={styles.eventDetails}>{event.time}</Text>
-      </View>
+  <MaterialCommunityIcons name="clock" size={16} color="#eeba2b" />
+  <Text style={styles.eventDetails}>
+    {event.time ? formatTime(event.time) : "N/A"}
+  </Text>
+</View>
+
       <Text style={styles.eventDescription} numberOfLines={2}>
         {event.description}
       </Text>

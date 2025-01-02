@@ -2,11 +2,20 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faMapMarker, faHeart, faSearch, faChevronDown, faEllipsisV, faUser, faBox, faCommentDots, faUserFriends } from '@fortawesome/free-solid-svg-icons';
+import {faHeart, faSearch, faChevronDown, faEllipsisV, faUser, faBox, faUserFriends } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { IoTime, IoLocationSharp } from "react-icons/io5";
 import { FaCalendar } from "react-icons/fa";
+import Swal from 'sweetalert2';
+import defaultImage from './images/default.png'; // Import the default image
 import API_URL from './apiconfig';
+
+const packageImages = [
+  require('./images/pic1.jpg'),
+  require('./images/pic2.jpg'),
+  require('./images/pic3.jpg'),
+  require('./images/pic4.png')
+];
 
 function Events() {
   const [search, setSearch] = useState('');
@@ -22,23 +31,47 @@ function Events() {
   const [showPaymentStatusDropdown, setShowPaymentStatusDropdown] = useState(false);
   const navigate = useNavigate();
 
-
-  const handlePaymentStatusChange = (e) => {
-    setPaymentStatus(e.target.value);
+  const getRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * packageImages.length);
+    return packageImages[randomIndex];
   };
+
 
   const handleSaveChanges = async () => {
     try {
       const response = await axios.put(`${API_URL}/api/admin/events/${eventId}/payment-status`, {
-          payment_status: paymentStatus, 
+        payment_status: paymentStatus,
       });
-
-      // Handle success
+  
+      // Success popup
+      Swal.fire({
+        title: 'Success!',
+        text: 'Payment status has been updated successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        customClass: {
+          confirmButton: 'custom-ok-button',
+      },
+      buttonsStyling: false,
+      });
+  
       console.log('Payment status updated', response.data);
       closeOverlay();
-  } catch (error) {
+    } catch (error) {
       console.error('Error updating payment status:', error);
-  }
+  
+      // Error popup
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to update payment status. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        customClass: {
+          confirmButton: 'custom-ok-button',
+      },
+      buttonsStyling: false,
+      });
+    }
   };
 
   function formatTime(timeString) {
@@ -135,10 +168,6 @@ function Events() {
       return isMatchingSearch; // No date filtering for 'All'
     });
   }, [events, search, sortOption]);
-
-  const handleEquipmentClick = (eventId) => {
-    navigate('/equipment', { state: { eventId } });
-  };
   
   const handleInventoryClick = (eventId) => {
     navigate('/inventory', { state: { eventId } });
@@ -172,7 +201,7 @@ const handleAttendeeClick = (eventId) => {
 
     return (
       <div key={item.id} className="item-container-events">
-      <img src={coverPhotoUrl} alt={item.name} className="image-events" />
+      <img src={getRandomImage()} alt={item.name} className="image-events" />
       <h3 className="title-events">{item.name}</h3>
       <div className="detail-container-events">
         <div className="event-detail-dashboard">
@@ -222,12 +251,6 @@ const handleAttendeeClick = (eventId) => {
           </div>
           <div className="menu-item-events" onClick={() => handleInventoryClick(item.id)}>
             <FontAwesomeIcon icon={faBox} /> Inventory
-          </div>
-          <div className="menu-item-events" onClick={() => handleEquipmentClick(item.id)}>
-            <FontAwesomeIcon icon={faBox} /> Equipment
-          </div>
-          <div className="menu-item-events" onClick={() => navigate('/feedback/feedback-events')}>
-            <FontAwesomeIcon icon={faCommentDots} /> Feedback
           </div>
           <div className="menu-item-events" onClick={() => handleGuestClick(item.id)}>
             <FontAwesomeIcon icon={faUserFriends} /> Guest
@@ -280,8 +303,7 @@ const handleAttendeeClick = (eventId) => {
               <div className="header-events">
                 <h2>Event Details</h2>
               </div>
-              {/* Payment Status */}
-<div className="detail-group-events">
+              <div className="detail-group-events">
   <label htmlFor="paymentStatus">Payment Status: </label>
   <div className="custom-dropdown-events">
     <button
@@ -303,7 +325,6 @@ const handleAttendeeClick = (eventId) => {
     )}
   </div>
 </div>
-
 
         
 
