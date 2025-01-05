@@ -16,9 +16,14 @@ const ServiceCardDetails = ({ route, navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-     <TouchableOpacity onPress={() => navigation.goBack()}>
-      <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
-    </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color="#eeba2b"
+          style={{ marginBottom: 10 }}
+        />
+      </TouchableOpacity>
       <View style={styles.card}>
         {/* Displaying service photo */}
         <Image
@@ -36,6 +41,9 @@ const ServiceCardDetails = ({ route, navigation }) => {
         <Text style={styles.status}>
           Availability Status:{" "}
           {service.availability_status === 1 ? "Available" : "Unavailable"}
+        </Text>
+        <Text style={styles.status}>
+          Max Event per day: {service.events_per_day}
         </Text>
 
         <Text style={styles.sectionTitle}>Service Features:</Text>

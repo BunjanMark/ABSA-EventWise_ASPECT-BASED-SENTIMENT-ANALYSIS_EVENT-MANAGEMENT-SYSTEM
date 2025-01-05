@@ -1,5 +1,5 @@
 // src/screens/EditServiceScreen.js
-
+import RNPickerSelect from "react-native-picker-select";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -24,6 +24,7 @@ const EditServiceScreen = ({ route, navigation }) => {
   const [serviceFeatures, setServiceFeatures] = useState(
     service.serviceFeatures
   );
+  const [eventsPerDay, setEventsPerDay] = useState(service.events_per_day);
 
   // Handle the update logic
   const handleUpdateService = async () => {
@@ -34,6 +35,7 @@ const EditServiceScreen = ({ route, navigation }) => {
         serviceCategory,
         basePrice: parseFloat(basePrice), // Ensure price is a number
         serviceFeatures,
+        events_per_day: eventsPerDay,
       };
       await updateService(service.id, updatedData); // Update the service
       Alert.alert("Success", "Service updated successfully!");
@@ -46,9 +48,14 @@ const EditServiceScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-     <TouchableOpacity onPress={() => navigation.goBack()}>
-      <Ionicons name="arrow-back" size={24} color="#eeba2b" style={{ marginBottom: 10 }} />
-    </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color="#eeba2b"
+          style={{ marginBottom: 10 }}
+        />
+      </TouchableOpacity>
       <Text style={styles.header}>Edit Service</Text>
 
       <TextInput
@@ -77,6 +84,35 @@ const EditServiceScreen = ({ route, navigation }) => {
         placeholder="Features"
         multiline
       />
+      <View style={[styles.input, styles.pickerContainer]}>
+        <RNPickerSelect
+          onValueChange={(value) => setEventsPerDay(value)}
+          value={eventsPerDay}
+          items={[
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+            { label: "3", value: "3" },
+          ]}
+          placeholder={{
+            label: "Maximum events per day",
+            value: null,
+          }}
+          style={{
+            inputIOS: {
+              fontSize: 16,
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              color: "#000",
+            },
+            inputAndroid: {
+              fontSize: 16,
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              color: "#000",
+            },
+          }}
+        />
+      </View>
 
       <TouchableOpacity
         style={styles.updateButton}

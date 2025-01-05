@@ -16,7 +16,7 @@ import { testUploadImageToSupabase } from "../../../../services/organizer/testUp
 import { createService } from "../../../../services/serviceProvider/serviceProviderServices";
 import { Alert } from "react-native";
 import { TouchableOpacity } from "react-native";
-import {Ionicons} from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 const CreateServiceScreen = ({ navigation }) => {
   const [serviceCategoryOther, setServiceCategoryOther] = useState("");
   const [serviceCategory, setServiceCategory] = useState("");
@@ -31,6 +31,7 @@ const CreateServiceScreen = ({ navigation }) => {
     basePrice: Yup.number().required("Base price is required"),
     pax: Yup.number().required("Pax is required"),
     requirements: Yup.string().required("Requirements are required"),
+    events_per_day: Yup.number().required("Maximum events per day is required"),
   });
 
   const handleCreateService = async (values, resetForm) => {
@@ -63,6 +64,7 @@ const CreateServiceScreen = ({ navigation }) => {
         requirements: values.requirements,
         servicePhotoURL: servicePhotoURL || null,
         serviceCreatedDate: new Date().toISOString().split("T")[0],
+        events_per_day: values.events_per_day,
       };
 
       // console.log("New service in ServiceManager:", newService);
@@ -130,212 +132,277 @@ const CreateServiceScreen = ({ navigation }) => {
   };
   return (
     <ScrollView style={{ paddingBottom: 100, marginBottom: 20 }}>
-    <View style={styles.container}>
-      <ScrollView style={[{ width: "100%" }]}>
-        <Formik
-          initialValues={{
-            serviceName: "",
-            serviceCategory: "",
-            serviceFeatures: "",
-            basePrice: "",
-            location: "",
-            servicePhoto: null,
-            pax: "",
-            requirements: "",
-          }}
-          validationSchema={validationSchema}
-          onSubmit={(values, { resetForm }) => {
-            handleCreateService(values, resetForm);
-          }}
-        >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            setFieldValue,
-            errors,
-            touched,
-          }) => (
-            <View style={styles.form}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 20, top: 20 }}>
-                <Ionicons name="arrow-back" size={25} color="#eeba2b" />
-              </TouchableOpacity>
-              <Text style={styles.title}>Create Service</Text>
-              <View style={styles.servicePhotoContainer}>
+      <View style={styles.container}>
+        <ScrollView style={[{ width: "100%" }]}>
+          <Formik
+            initialValues={{
+              serviceName: "",
+              serviceCategory: "",
+              serviceFeatures: "",
+              basePrice: "",
+              location: "",
+              servicePhoto: null,
+              pax: "",
+              requirements: "",
+              events_per_day: "",
+            }}
+            validationSchema={validationSchema}
+            onSubmit={(values, { resetForm }) => {
+              handleCreateService(values, resetForm);
+            }}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              setFieldValue,
+              errors,
+              touched,
+            }) => (
+              <View style={styles.form}>
                 <TouchableOpacity
-                  onPress={() => {
-                    try {
-                      handleImagePicker(setFieldValue);
-                      console.log("Image URI:", imageUri);
-                    } catch (error) {}
-                  }}
+                  onPress={() => navigation.goBack()}
+                  style={{ position: "absolute", left: 20, top: 20 }}
                 >
-                  <Image
-                    source={
-                      values.servicePhoto
-                        ? { uri: values.servicePhoto }
-                        : selectimage
-                    }
-                    style={styles.servicePhoto}
-                  />
+                  <Ionicons name="arrow-back" size={25} color="#eeba2b" />
                 </TouchableOpacity>
-                {touched.servicePhoto && errors.servicePhoto && (
-                  <Text style={styles.errorText}>{errors.servicePhoto}</Text>
-                )}
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Service Name"
-                value={values.serviceName}
-                onChangeText={handleChange("serviceName")}
-                onBlur={handleBlur("serviceName")}
-              />
-              {errors.serviceName && touched.serviceName && (
-                <Text style={styles.errorText}>{errors.serviceName}</Text>
-              )}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Service Category</Text>
-                <RNPickerSelect
-                  onValueChange={(value) =>
-                    setFieldValue("serviceCategory", value)
-                  }
-                  items={[
-                    {
-                      label: "Food Catering",
-                      value: "Food Catering",
-                    },
-                    { label: "Accommodation", value: "Accommodation" },
-                    { label: "Transportation", value: "Transportation" },
-                    { label: "Photography", value: "Photography" },
-                    { label: "Videography", value: "Videography" },
-                    { label: "Host", value: "Host" },
-                    { label: "Videography", value: "Videography" },
-                    { label: "Decoration", value: "Decoration" },
-                    { label: "Entertainment", value: "Entertainment" },
-                    { label: "Sound", value: "Sound" },
-                    { label: "Lighting", value: "Lighting" },
-                    { label: "Decoration", value: "Decoration" },
-                    { label: "Catering", value: "Catering" },
-                    {
-                      label: "Venue Management",
-                      value: "Venue Management",
-                    },
-                    { label: "Marketing", value: "Marketing" },
-
-                    { label: "Other", value: "Other" },
-                  ]}
-                  placeholder={{ label: "Select a category", value: null }}
+                <Text style={styles.title}>Create Service</Text>
+                <View style={styles.servicePhotoContainer}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      try {
+                        handleImagePicker(setFieldValue);
+                        console.log("Image URI:", imageUri);
+                      } catch (error) {}
+                    }}
+                  >
+                    <Image
+                      source={
+                        values.servicePhoto
+                          ? { uri: values.servicePhoto }
+                          : selectimage
+                      }
+                      style={styles.servicePhoto}
+                    />
+                  </TouchableOpacity>
+                  {touched.servicePhoto && errors.servicePhoto && (
+                    <Text style={styles.errorText}>{errors.servicePhoto}</Text>
+                  )}
+                </View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Service Name"
+                  value={values.serviceName}
+                  onChangeText={handleChange("serviceName")}
+                  onBlur={handleBlur("serviceName")}
                 />
-                {errors.serviceCategory && touched.serviceCategory && (
-                  <Text style={styles.errorText}>{errors.serviceCategory}</Text>
+                {errors.serviceName && touched.serviceName && (
+                  <Text style={styles.errorText}>{errors.serviceName}</Text>
                 )}
-                {values.serviceCategory === "Other" && (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Specify other category"
-                    value={serviceCategoryOther}
-                    onChangeText={(text) => setServiceCategoryOther(text)}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Service Category</Text>
+                  <RNPickerSelect
+                    onValueChange={(value) =>
+                      setFieldValue("serviceCategory", value)
+                    }
+                    items={[
+                      {
+                        label: "Food Catering",
+                        value: "Food Catering",
+                      },
+                      { label: "Accommodation", value: "Accommodation" },
+                      { label: "Transportation", value: "Transportation" },
+                      { label: "Photography", value: "Photography" },
+                      { label: "Videography", value: "Videography" },
+                      { label: "Host", value: "Host" },
+                      { label: "Videography", value: "Videography" },
+                      { label: "Decoration", value: "Decoration" },
+                      { label: "Entertainment", value: "Entertainment" },
+                      { label: "Sound", value: "Sound" },
+                      { label: "Lighting", value: "Lighting" },
+                      { label: "Decoration", value: "Decoration" },
+                      { label: "Catering", value: "Catering" },
+                      {
+                        label: "Venue Management",
+                        value: "Venue Management",
+                      },
+                      { label: "Marketing", value: "Marketing" },
+
+                      { label: "Other", value: "Other" },
+                    ]}
+                    placeholder={{ label: "Select a category", value: null }}
                   />
-                )}
-                {values.serviceCategory === "Venue" ||
-                  (values.serviceCategory === "Venue Management" && (
+                  {errors.serviceCategory && touched.serviceCategory && (
+                    <Text style={styles.errorText}>
+                      {errors.serviceCategory}
+                    </Text>
+                  )}
+                  {values.serviceCategory === "Other" && (
                     <TextInput
                       style={styles.input}
-                      placeholder="Location"
-                      value={values.location}
-                      onChangeText={handleChange("location")}
-                      onBlur={handleBlur("location")}
+                      placeholder="Specify other category"
+                      value={serviceCategoryOther}
+                      onChangeText={(text) => setServiceCategoryOther(text)}
                     />
-                  ))}
-                {errors.location && touched.location && (
-                  <Text style={styles.errorText}>{errors.location}</Text>
+                  )}
+                  {values.serviceCategory === "Venue" ||
+                    (values.serviceCategory === "Venue Management" && (
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Location"
+                        value={values.location}
+                        onChangeText={handleChange("location")}
+                        onBlur={handleBlur("location")}
+                      />
+                    ))}
+                  {errors.location && touched.location && (
+                    <Text style={styles.errorText}>{errors.location}</Text>
+                  )}
+                </View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Service Features"
+                  value={values.serviceFeatures}
+                  onChangeText={handleChange("serviceFeatures")}
+                  onBlur={handleBlur("serviceFeatures")}
+                  multiline
+                  numberOfLines={4}
+                />
+                {errors.serviceFeatures && touched.serviceFeatures && (
+                  <Text style={styles.errorText}>{errors.serviceFeatures}</Text>
                 )}
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Service Features"
-                value={values.serviceFeatures}
-                onChangeText={handleChange("serviceFeatures")}
-                onBlur={handleBlur("serviceFeatures")}
-                multiline
-                numberOfLines={4}
-              />
-              {errors.serviceFeatures && touched.serviceFeatures && (
-                <Text style={styles.errorText}>{errors.serviceFeatures}</Text>
-              )}
-              <TextInput
-                style={styles.input}
-                placeholder="Base Price"
-                value={values.basePrice}
-                onChangeText={handleChange("basePrice")}
-                onBlur={handleBlur("basePrice")}
-                keyboardType="numeric"
-              />
-              {errors.basePrice && touched.basePrice && (
-                <Text style={styles.errorText}>{errors.basePrice}</Text>
-              )}
-              <TextInput
-                style={styles.input}
-                placeholder="Pax"
-                value={values.pax}
-                onChangeText={handleChange("pax")}
-                onBlur={handleBlur("pax")}
-                keyboardType="numeric"
-              />
-              {errors.pax && touched.pax && (
-                <Text style={styles.errorText}>{errors.pax}</Text>
-              )}
-              <View style={[styles.pickerContainer, { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, width: "100%", marginBottom: 10, height: 50 }]}>
-  <RNPickerSelect
-    onValueChange={(value) => setFieldValue("requirements", value)}
-    items={[
-      { label: "Indoor", value: "Indoor" },
-      { label: "Outdoor", value: "Outdoor" },
-    ]}
-    placeholder={{ label: "Requirements", value: null }}
-    style={{
-      inputIOS: {
-        fontSize: 16,
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        color: "#000",
-      },
-      inputAndroid: {
-        fontSize: 16,
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        color: "#000",
-      },
-      placeholder: {
-        color: "#999",
-      },
-    }}
-  />
-</View>
-{errors.requirements && touched.requirements && (
-  <Text style={styles.errorText}>{errors.requirements}</Text>
-)}
-
-
-
-              <View style={[styles.createButtonContainer]}>
-                <Button
-                  mode="contained"
-                  onPress={handleSubmit} // Call handleSubmit without passing parameters
-                  loading={isLoading}
-                  disabled={isLoading}
-                  style={styles.createButton}
+                <TextInput
+                  style={styles.input}
+                  placeholder="Base Price"
+                  value={values.basePrice}
+                  onChangeText={handleChange("basePrice")}
+                  onBlur={handleBlur("basePrice")}
+                  keyboardType="numeric"
+                />
+                {errors.basePrice && touched.basePrice && (
+                  <Text style={styles.errorText}>{errors.basePrice}</Text>
+                )}
+                <TextInput
+                  style={styles.input}
+                  placeholder="Pax"
+                  value={values.pax}
+                  onChangeText={handleChange("pax")}
+                  onBlur={handleBlur("pax")}
+                  keyboardType="numeric"
+                />
+                {errors.pax && touched.pax && (
+                  <Text style={styles.errorText}>{errors.pax}</Text>
+                )}
+                <View
+                  style={[
+                    styles.pickerContainer,
+                    {
+                      borderWidth: 1,
+                      borderColor: "#ccc",
+                      borderRadius: 5,
+                      width: "100%",
+                      marginBottom: 10,
+                      height: 50,
+                    },
+                  ]}
                 >
-                  <FontAwesome6 name="plus" size={16} color="#fff" />
-                  <Text style={styles.createButtonText}>Create Service</Text>
-                </Button>
+                  <RNPickerSelect
+                    onValueChange={(value) =>
+                      setFieldValue("requirements", value)
+                    }
+                    items={[
+                      { label: "Indoor", value: "Indoor" },
+                      { label: "Outdoor", value: "Outdoor" },
+                    ]}
+                    placeholder={{ label: "Requirements", value: null }}
+                    style={{
+                      inputIOS: {
+                        fontSize: 16,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        color: "#000",
+                      },
+                      inputAndroid: {
+                        fontSize: 16,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        color: "#000",
+                      },
+                      placeholder: {
+                        color: "#999",
+                      },
+                    }}
+                  />
+                </View>
+                {errors.requirements && touched.requirements && (
+                  <Text style={styles.errorText}>{errors.requirements}</Text>
+                )}
+                <View
+                  style={[
+                    styles.pickerContainer,
+                    {
+                      borderWidth: 1,
+                      borderColor: "#ccc",
+                      borderRadius: 5,
+                      width: "100%",
+                      marginBottom: 10,
+                      height: 50,
+                    },
+                  ]}
+                >
+                  <RNPickerSelect
+                    onValueChange={(value) =>
+                      setFieldValue("events_per_day", value)
+                    }
+                    items={[
+                      { label: "1", value: 1 },
+                      { label: "2", value: 2 },
+                      { label: "3", value: 3 },
+                    ]}
+                    placeholder={{
+                      label: "Maximum events per day",
+                      value: null,
+                    }}
+                    style={{
+                      inputIOS: {
+                        fontSize: 16,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        color: "#000",
+                      },
+                      inputAndroid: {
+                        fontSize: 16,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        color: "#000",
+                      },
+                      placeholder: {
+                        color: "#999",
+                      },
+                    }}
+                  />
+                </View>
+                {errors.events_per_day && touched.events_per_day && (
+                  <Text style={styles.errorText}>{errors.events_per_day}</Text>
+                )}
+                <View style={[styles.createButtonContainer]}>
+                  <Button
+                    mode="contained"
+                    onPress={handleSubmit} // Call handleSubmit without passing parameters
+                    loading={isLoading}
+                    disabled={isLoading}
+                    style={styles.createButton}
+                  >
+                    <FontAwesome6 name="plus" size={16} color="#fff" />
+                    <Text style={styles.createButtonText}>Create Service</Text>
+                  </Button>
+                </View>
               </View>
-            </View>
-          )}
-        </Formik>
-      </ScrollView>
-    </View>
+            )}
+          </Formik>
+        </ScrollView>
+      </View>
     </ScrollView>
   );
 };
@@ -398,8 +465,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: 200,
   },
-
-  
 });
 
 export default CreateServiceScreen;

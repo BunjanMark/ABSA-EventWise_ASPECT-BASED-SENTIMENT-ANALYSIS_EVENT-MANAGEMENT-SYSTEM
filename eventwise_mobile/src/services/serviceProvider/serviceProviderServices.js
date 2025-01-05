@@ -118,8 +118,9 @@ const createService = async (serviceData) => {
       requirements: serviceData.requirements,
       servicePhotoURL,
       serviceCreatedDate: new Date().toISOString().split("T")[0],
+      events_per_day: serviceData.events_per_day,
     };
-    console.info("serviceData: ", addServiceData);
+    console.info("serviceData serv: ", addServiceData);
     const response = await api.post("/services", addServiceData, {
       headers: {
         "Content-Type": "application/json",
