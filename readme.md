@@ -9,8 +9,6 @@
   
   3. Frontend Setup (React Native) - Clone Repository - Install Dependencies - Environment Configuration - Run the App with specific channel
 
-  ##
-
   ## Prerequisites Ensure you have the following installed on your computer:
 
   - **Node.js** (v14.x or higher)
@@ -22,47 +20,9 @@
   - **React Native Expo**
   - **Android Studio**
   - **expo** client version 2.31.2 (supported SDKs: 51)
-  ##
 
-  ## Backend Setup
-  ## ⚠️**Outdated Backend** 
-The backend repository inside this monorepo is no longer maintained. Please use the updated repository instead:
-
-🔗 Updated Repository:
-👉 GitHub - [CAPSTONE_EMS_LARAVEL_BACKEND ](https://github.com/BunjanMark/CAPSTONE_EMS_LARAVEL_BACKEND.git)(Updated)
-
-  
-### 1.  Clone Repository
--  `git clone https://github.com/BunjanMark/CAPSTONE_EMS_LARAVEL_BACKEND.git`
-
-### 2.  Install Dependencies
-- run command `composer install`
-
-### 3.  Environment Configuration
--  `cp .env.example .env` then configure the .env and run `php artisan key:generate`
-
-### 4.  Start Laravel Server with specific channel
- -  `php artisan app:serve-project <IPv4> <port>`
-
-### 5.  Start XAMPP application
- - start/run **Apache** and **MySQL** modules
-
-### 6.  Update `.env` 
- - uncomment lines these inside `.env` file line 22-27 and put value in `DB_DATABASE` variable
-
-        DB_CONNECTION=mysql
-        DB_HOST=127.0.0.1
-        DB_PORT=3306
-        DB_DATABASE= <db_name>
-        DB_USERNAME=root
-        DB_PASSWORD=`
-			
-### 7.  Run migration
- -  execute command `php artisan migrate`
-### 8.  Seed the database
- - execude command `php artisan db:refresh-seed`
-
-  ## Fontend Setup (React Native)
+#
+  ## Fontend Setup (React Native) Mobile
 
 ### 1.  Clone repository
  - `git clone https://github.com/BunjanMark/CAPSTONE_EMS.git` then `cd eventwise_main`
@@ -77,3 +37,16 @@ The backend repository inside this monorepo is no longer maintained. Please use 
         EXPO_SUPABASE_KEY=<your_key>
 
 ### 4.  Run the app `npm start`
+
+#
+
+  ## Backend Setup
+  ## ⚠️**Outdated Backend and Web admin** 
+🚨 Notice: The backend and web admin inside this monorepo are no longer maintained. Please use the updated repository instead:
+
+🔗 Updated Repository Backend:
+👉 GitHub Backend- [CAPSTONE_EMS_LARAVEL_BACKEND ](https://github.com/BunjanMark/CAPSTONE_EMS_LARAVEL_BACKEND.git)(Updated) 
+
+
+🔗 Updated Repository Web application (Reactjs):
+👉 GitHub Web Application- [CAPSTONE_EMS_REACTJS_WEB ](https://github.com/symondlibago/EventWise-Web.git)(Updated) 
