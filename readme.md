@@ -1,11 +1,12 @@
-- # _A Mobile and Web based Event Management System with Aspect-based Sentiment Analysis_
+# A Mobile and Web based Event Management System with Aspect-based Sentiment Analysis_
 
   **Description:** Lorem Ipsum solom not bor ode
 
   ## Table of Contents
 
   1. Prerequisites
-  2. Backend Setup (Laravel) - Clone Repository - Install Dependencies - Environment Configuration - Database Setup - Run Migrations - Start Laravel Server with specific channel
+  2. Backend Setup (Laravel) - Clone Repository - Install Dependencies - Environment Configuration - Database Setup - Run Migrations - Start Laravel Server with specific channel 
+  
   3. Frontend Setup (React Native) - Clone Repository - Install Dependencies - Environment Configuration - Run the App with specific channel
 
   ##
@@ -20,46 +21,59 @@
   - **MySQL**
   - **React Native Expo**
   - **Android Studio**
-
+  - **expo** client version 2.31.2 (supported SDKs: 51)
   ##
 
   ## Backend Setup
+  ## ⚠️**Outdated Backend** 
+The backend repository inside this monorepo is no longer maintained. Please use the updated repository instead:
 
-  1.  Clone Repository
+🔗 Updated Repository:
+👉 GitHub - [CAPSTONE_EMS_LARAVEL_BACKEND ](https://github.com/BunjanMark/CAPSTONE_EMS_LARAVEL_BACKEND.git)(Updated)
 
-  - `git clone https://github.com/BunjanMark/CAPSTONE_EMS.git` then `cd Backend`
+  
+### 1.  Clone Repository
+-  `git clone https://github.com/BunjanMark/CAPSTONE_EMS_LARAVEL_BACKEND.git`
 
-  2.  Install Dependencies
+### 2.  Install Dependencies
+- run command `composer install`
 
-      - `composer install`
+### 3.  Environment Configuration
+-  `cp .env.example .env` then configure the .env and run `php artisan key:generate`
 
-  3.  Environment Configuration
-      - `cp .env.example .env` then configure the .env with your db `php artisan key:generate`
-  4.  Database Setup
+### 4.  Start Laravel Server with specific channel
+ -  `php artisan app:serve-project <IPv4> <port>`
 
-      - run migrations `php artisan migrate` then run seeders if there's
-        any
+### 5.  Start XAMPP application
+ - start/run **Apache** and **MySQL** modules
 
-  5.  Start Laravel Server with specific channel
-      - s`php artisan serve --host=**{yourIPADRESSHERE}** --port=**port here**`
+### 6.  Update `.env` 
+ - uncomment lines these inside `.env` file line 22-27 and put value in `DB_DATABASE` variable
 
-  ## Fontend Setup (React Native
+        DB_CONNECTION=mysql
+        DB_HOST=127.0.0.1
+        DB_PORT=3306
+        DB_DATABASE= <db_name>
+        DB_USERNAME=root
+        DB_PASSWORD=`
+			
+### 7.  Run migration
+ -  execute command `php artisan migrate`
+### 8.  Seed the database
+ - execude command `php artisan db:refresh-seed`
 
-  1.  Clone repository
-      - `git clone https://github.com/BunjanMark/CAPSTONE_EMS.git` then `cd eventwise_main`
-  2.  Install Dependencies
-      - `npm install`
-  3.  Environment Configuration
-      - Navigate to src/constants/constant.js then change `const API_URL ="your IP and port here";`
-  4.  Run the app with specific channel
+  ## Fontend Setup (React Native)
 
-## Before you do code or push, make sure to git pull first from master branch
+### 1.  Clone repository
+ - `git clone https://github.com/BunjanMark/CAPSTONE_EMS.git` then `cd eventwise_main`
+### 2.  Install Dependencies
+ - `npm install`
+### 3.  Environment Configuration
+ - Navigate to src/constants/constant.js then change `const API_URL ="your IP and port here";`
+ - create `.env` file and configure the following
 
-`git pull`
-Look for changes in dependencies and install them accordingly.
-for example `composer install` and `npm install` in their respective directory
 
-## Push only to master branch
+        EXPO_SUPABASE_URL=https://<your_url>.supabase.co
+        EXPO_SUPABASE_KEY=<your_key>
 
-`git branch -M master`
-`git push origin HEAD`
+### 4.  Run the app `npm start`
