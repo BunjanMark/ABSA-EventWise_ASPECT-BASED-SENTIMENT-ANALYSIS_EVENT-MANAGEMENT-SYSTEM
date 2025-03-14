@@ -1,4 +1,4 @@
-# A Mobile and Web based Event Management System with Aspect-based Sentiment Analysis (Mobile repository)
+# A Mobile and Web based Event Management System with Aspect-based Sentiment Analysis (Mobile application repository)
 
   **Description:** The system aims to help event organizer manage event that consolidates users registration, venue coordination, scheduling, booking events with  integrated SMS notification along with aspect-based sentiment analysis, ensuring efficient planning and execution of successful events.
 
