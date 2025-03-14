@@ -1,6 +1,6 @@
 # A Mobile and Web based Event Management System with Aspect-based Sentiment Analysis_MOBILEAPPLICATION
 
-  **Description:** The system aims to help event organizer manage event that consolidates users registration, venue coordination, scheduling, booking events with  integrated SMS notification along with aspect-based sentiment analysis, ensuring efficient planning and execution of successful events.
+  **Description:** The system aims to help event organizer manage event that consolidates users registration, venue coordination, scheduling, booking events with  integrated SMS notification along with aspect-based sentiment analysis, ensuring efficient planning and execution of successful events. 
 
   ## Table of Contents
 
@@ -38,6 +38,14 @@
 
 ### 4.  Run the app `npm start`
 
+###  5.  Default Login Credentials
+	For initial access, you can use the following accounts:
+| Role | Email  | Password |
+|--|--|--|
+| Admin  | admin@gmail.com  | pass@admin |
+| Customer   | customer@gmail.com  | pass@customer|
+| Service Provider| diwta@gmail.com  | pass@diwata |
+
 #
 
   ## Backend Setup
@@ -50,3 +58,4 @@
 
 🔗 Updated Repository Web application (Reactjs):
 👉 GitHub Web Application- [CAPSTONE_EMS_REACTJS_WEB ](https://github.com/symondlibago/EventWise-Web.git)(Updated) 
+
