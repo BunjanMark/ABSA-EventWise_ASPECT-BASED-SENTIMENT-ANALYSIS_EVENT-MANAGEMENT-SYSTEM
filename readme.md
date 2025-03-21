@@ -59,3 +59,5 @@
 🔗 Updated Repository Web application (Reactjs):
 👉 GitHub Web Application- [CAPSTONE_EMS_REACTJS_WEB ](https://github.com/symondlibago/EventWise-Web.git)(Updated) 
 
+🔗 Updated Repository Backend FLASK-ABSA application (Flask):
+👉 GitHub Flask Application- [CAPSTONE_EMS_FLASK_BACKEND_ABSA](https://github.com/BunjanMark/CAPSTONE_EMS_FLASK_BACKEND_ABSA.git)(Updated) 
